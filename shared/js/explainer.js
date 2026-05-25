@@ -306,6 +306,12 @@ function mountChrome() {
   // also homepage-only.
   mountCursor();
 
+  // Rotate-for-landscape hint on portrait phones. The canvas + in-canvas
+  // text were designed for desktop; a brief tap-dismissable pill invites
+  // the user to flip the device. Self-suppresses on rotation, on tap, or
+  // after 8 seconds.
+  mountRotateHint();
+
   // The Layout System v2 template provides its own .playground-back.
   // Only inject the legacy .pg-back on pre-v2 pages; otherwise wire
   // the leave transition + audio resurface onto the v2 button so it
@@ -385,6 +391,60 @@ function mountChrome() {
     if (tmpl) tmpl.replaceWith(sec);
     else document.body.appendChild(sec);
   }).catch(() => {});
+}
+
+// Rotate-for-landscape hint. Mounts a small bouncy pill at the bottom-
+// right of phones in portrait mode, prompting the visitor to rotate.
+// Dismisses on rotation, on tap, or after 8 seconds. Honours the
+// session storage so a dismissed hint stays dismissed for the session.
+function mountRotateHint() {
+  if (typeof window === 'undefined') return;
+  if (window.innerWidth >= 769) return;                                // not a phone-sized viewport
+  const portrait = window.matchMedia && window.matchMedia('(orientation: portrait)');
+  if (portrait && !portrait.matches) return;                           // already landscape
+  if (sessionStorage && sessionStorage.getItem('rotate-hint-dismissed') === '1') return;
+  if (document.querySelector('.rotate-hint')) return;
+
+  const el = document.createElement('div');
+  el.className = 'rotate-hint';
+  el.setAttribute('role', 'note');
+  el.setAttribute('aria-label', 'Rotate device for the best view');
+  el.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    + '<rect x="5" y="2" width="14" height="20" rx="2.2"/>'
+    + '<line x1="11" y1="19" x2="13" y2="19"/>'
+    + '<path d="M16 6.5 a5 5 0 0 1 4.5 4.5"/>'
+    + '<polyline points="14 4.5 16 6.5 18 4.5"/>'
+    + '</svg>'
+    + '<span class="rotate-hint-text">Rotate for the best view</span>'
+    + '<button type="button" class="rotate-hint-close" aria-label="Dismiss">&times;</button>';
+  document.body.appendChild(el);
+
+  // Track the orientation listener so we can detach it on dismiss to
+  // avoid a leaked closure on each playground load.
+  let onOrientation = null;
+  const dismiss = () => {
+    if (el.classList.contains('rotate-hint-hidden')) return;
+    el.classList.add('rotate-hint-hidden');
+    try { sessionStorage.setItem('rotate-hint-dismissed', '1'); } catch { /* private mode */ }
+    if (portrait && onOrientation) {
+      if (typeof portrait.removeEventListener === 'function') portrait.removeEventListener('change', onOrientation);
+      else if (typeof portrait.removeListener === 'function') portrait.removeListener(onOrientation);
+      onOrientation = null;
+    }
+    setTimeout(() => el.remove(), 360);
+  };
+  el.querySelector('.rotate-hint-close').addEventListener('click', (e) => { e.stopPropagation(); dismiss(); });
+  el.addEventListener('click', dismiss);
+
+  if (portrait) {
+    onOrientation = () => { if (!portrait.matches) dismiss(); };
+    // Support both modern and legacy listener APIs.
+    if (typeof portrait.addEventListener === 'function') portrait.addEventListener('change', onOrientation);
+    else if (typeof portrait.addListener === 'function') portrait.addListener(onOrientation);
+  }
+  // Auto-dismiss after 8 seconds.
+  setTimeout(dismiss, 8000);
 }
 
 function boot() { build(); mountChrome(); }
