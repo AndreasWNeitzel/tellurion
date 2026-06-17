@@ -344,8 +344,8 @@ function drawClickedLocation() {
   ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('observer view', insetX + 8, insetY + 14);
-  const sx = insetX + insetW / 2, sy = insetY + insetH / 2 + 6;
-  const Rsun = 38;
+  const sx = insetX + insetW / 2, sy = insetY + 54;
+  const Rsun = 32;
   const Rmoon = Rsun * RmoonRel;
   const sunGrad = ctx.createRadialGradient(sx, sy, 0, sx, sy, Rsun);
   sunGrad.addColorStop(0, 'rgba(255, 245, 200, 1)');
@@ -373,14 +373,18 @@ function drawClickedLocation() {
     ctx.strokeStyle = 'rgba(180, 200, 255, 0.40)';
     ctx.beginPath(); ctx.arc(moonX, moonY, Rmoon, 0, Math.PI * 2); ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.95)';
+  // Two stacked, left-aligned footer lines. They previously shared one
+  // baseline, and at the caption size the magnitude readout overran the
+  // eclipse-type label, so the two strings overlapped.
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`mag = ${magObs.toFixed(3)}`, insetX + 8, insetY + insetH - 10);
+  ctx.textAlign = 'left';
   ctx.fillStyle = vis.totality ? '#ff8080' : vis.visible ? '#ffd166' : '#9aa0a6';
   ctx.fillText(
     vis.totality ? (ecl.type === 'annular' ? 'annular' : 'total') : vis.visible ? 'partial' : 'none',
-    insetX + insetW - 60, insetY + insetH - 10,
+    insetX + 8, insetY + insetH - 25,
   );
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.95)';
+  ctx.fillText(`mag = ${magObs.toFixed(3)}`, insetX + 8, insetY + insetH - 9);
 
   // Update the local-circ readout under the canvas.
   if (vis.totality) {
