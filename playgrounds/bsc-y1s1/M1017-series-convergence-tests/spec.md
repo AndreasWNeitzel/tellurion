@@ -61,7 +61,7 @@ illustrate a standard test:
 - Harmonic $\sum 1/n$ is the $p=1$ borderline: it diverges, $s_N\sim
   \ln N$, the canonical proof that $a_n\to 0$ does not imply
   convergence.
-- Alternating Leibniz $\sum(-1)^{n+1}/(2n+1)\to\pi/4$ (alternating-
+- Alternating Leibniz $\sum(-1)^{n+1}/n\to\ln 2$ (alternating-
   series test): the partial sums oscillate around the limit with the
   error bounded by the first omitted term. This converges
   conditionally; its absolute version (the harmonic-like

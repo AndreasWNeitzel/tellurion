@@ -32,6 +32,7 @@ const bR = document.getElementById('btn-reset');
 
 const N = 128;
 const st = { object: 'grating', filter: 'low', rc: 10 };
+let diagThru = 0;   // latest power throughput (image/object), updated each render
 
 // The filter radius does nothing with no mask (none = the identity
 // 4f system), so the control is hidden there rather than left inert.
@@ -98,7 +99,8 @@ function render() {
   for (let i = 0; i < N * N; i += 1) { so += obj[i] * obj[i]; si += image[i]; sd += (image[i] - obj[i] * obj[i]) ** 2; }
   rFilter.textContent = st.filter;
   rRc.textContent = st.filter === 'none' ? 'n/a' : String(st.rc);
-  rThru.textContent = (si / (so || 1)).toFixed(3);
+  diagThru = si / (so || 1);
+  rThru.textContent = diagThru.toFixed(3);
   rRms.textContent = Math.sqrt(sd / (N * N)).toExponential(1);
 }
 
@@ -136,8 +138,17 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return { fields: [{ key: "param-1", label: "Parameter 1", value: 1.0, format: "float" }] };
+  return { fields: [
+    { key: 'object', label: 'object', value: st.object },
+    { key: 'filter', label: 'spatial filter', value: st.filter },
+    { key: 'cutoff', label: 'cutoff radius (px)', value: st.filter === 'none' ? 'n/a' : st.rc },
+    { key: 'throughput', label: 'power throughput', value: diagThru.toFixed(3), format: 'float' },
+  ] };
 };
 window.playground.getInvariants = function () {
-  return [{ key: "check-1", label: "System check", value: "ok", status: "pass" }];
+  // Power is non-negative and a spatial filter can only remove it, so the
+  // throughput stays a finite fraction; the identity 4f (no filter) passes
+  // essentially all of it.
+  const ok = Number.isFinite(diagThru) && diagThru >= 0;
+  return [{ key: 'throughput-finite', label: 'power throughput finite and non-negative', value: diagThru.toFixed(3), status: ok ? 'pass' : 'drift' }];
 };
