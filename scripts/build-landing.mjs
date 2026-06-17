@@ -24,6 +24,17 @@ function parseFM(text) {
   return out;
 }
 
+// Strip the outer YAML quotes from a scalar and unescape the doubled
+// single-quote that single-quoted YAML uses for a literal apostrophe
+// (Earth''s -> Earth's). Without this the apostrophes leak into the
+// rendered card descriptions.
+function unquote(v) {
+  v = v || '';
+  if (v.startsWith("'") && v.endsWith("'")) return v.slice(1, -1).replace(/''/g, "'");
+  if (v.startsWith('"') && v.endsWith('"')) return v.slice(1, -1);
+  return v;
+}
+
 function curOf(cy) {
   const s = (cy || '').toLowerCase();
   let m = s.match(/^bsc-y(\d)s(\d)/);
@@ -51,6 +62,10 @@ const LINKEDIN_URL = 'https://www.linkedin.com/in/andreaswneitzel/';
 const CONTACT_EMAIL = 'andreaswneitzel@gmail.com';
 const BETA_TESTERS = [
   // { name: "...", institution: "..." }
+  { name: 'Maru Zemek' },
+  { name: 'Ali Jifi-Bahlool' },
+  { name: 'Fabian G.' },
+  { name: 'Blake' },
 ];
 let PKG_VERSION = '0.1.0';
 try { PKG_VERSION = JSON.parse(readFileSync('package.json', 'utf8')).version || PKG_VERSION; } catch { /* keep default */ }
@@ -73,8 +88,8 @@ for (const path of walk('playgrounds')) {
     tags, level: cur.level, badge: cur.badge, order: cur.order, group: cur.group,
     hero_candidate: fm.hero_candidate === 'true',
     tier: fm.tier || '',
-    hook: (fm.hook || '').replace(/^['"]|['"]$/g, ''),
-    one_paragraph: (fm.one_paragraph || '').replace(/^['"]|['"]$/g, ''),
+    hook: unquote(fm.hook),
+    one_paragraph: unquote(fm.one_paragraph),
   });
 }
 cards.sort((a, b) => a.title.localeCompare(b.title));
@@ -220,6 +235,49 @@ const featured4 = rotated.slice(1, 5);
 const spotlightHTML = spotlight
   ? `${spotlightCardHTML(spotlight)}<div class="featured-row">${featured4.map(c => cardHTML(c)).join('')}</div>`
   : '<p class="t-small" style="color:var(--text-dimmed)">Featured coming soon.</p>';
+
+// Client-side daily rotation. The server render above is the no-JS and
+// SEO fallback, but on a static site a build-date hash freezes the pick
+// until the next deploy. So the hero pool is also emitted as data and a
+// small inline script re-orders it by the browser's local date and
+// rewrites the spotlight slot, so it rotates every day without a deploy.
+const heroPoolData = heroPool.map((c) => ({
+  p: c.path, s: c.slug, t: c.title, u: c.primary_uc || '',
+  d: (c.one_paragraph || c.hook || '').slice(0, 240),
+  g: c.tags.slice(0, 4), th: c.thumb || '', tc: c.tagcolor, b: shortBadge(c.badge),
+}));
+const heroPoolJSON = JSON.stringify(heroPoolData).replace(/</g, '\\u003c');
+const ROTATE_FEATURED_JS = `(function(){
+  var pool=window.__heroPool,slot=document.getElementById('featured-slot');
+  if(!pool||!pool.length||!slot)return;
+  function fnv1a(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+  var d=new Date(),key=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+  var r=pool.map(function(c){return{c:c,k:fnv1a(key+'|'+c.s)};}).sort(function(a,b){return a.k-b.k;}).map(function(o){return o.c;});
+  var spot=r[0],feat=r.slice(1,5);
+  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function tags(g){return g.slice(0,4).map(function(t){return '<span class="ctag">'+esc(t)+'</span>';}).join('');}
+  function spotHTML(c){
+    var th=c.th?'assets/thumbs/'+c.th:'';
+    var bg=th?"background-image:linear-gradient(135deg,rgba(7,9,15,0) 0%,rgba(7,9,15,0) 60%,rgba(7,9,15,0.4) 100%),url('"+th+"')":'';
+    return '<article class="spotlight-card" style="--tagc:'+c.tc+'">'+
+      '<a class="spotlight-link" href="'+c.p+'/index.html" data-title="'+esc(c.t.toLowerCase())+'" data-uc="'+esc((c.u||'').toLowerCase())+'" data-tags="'+esc(c.g.join(' '))+'">'+
+      '<div class="spotlight-image" style="'+bg+'"><span class="star-marker">&#9733;</span></div>'+
+      '<div class="spotlight-body">'+
+      '<h3 class="spotlight-title t-title">'+esc(c.t)+'</h3>'+
+      '<p class="spotlight-uc t-mono">'+esc(c.u||'')+'</p>'+
+      '<p class="spotlight-desc t-body">'+esc(c.d)+'</p>'+
+      '<div class="spotlight-tags">'+tags(c.g)+'</div>'+
+      '</div></a></article>';
+  }
+  function cardHTML(c){
+    var th=c.th?'assets/thumbs/'+c.th:'';
+    return '<a class="card" data-title="'+esc(c.t.toLowerCase())+'" data-uc="'+esc((c.u||'').toLowerCase())+'" data-tags="'+esc(c.g.join(' '))+'" style="--tagc:'+c.tc+'" href="'+c.p+'/index.html">'+
+      '<div class="cimg"'+(th?' data-thumb="'+th+'"':'')+'><div class="cph"></div><span class="cstar" aria-label="featured">&#9733;</span><span class="lvl">'+esc(c.b)+'</span></div>'+
+      '<div class="cbody"><h3 class="ctitle">'+esc(c.t)+'</h3><span class="cuc">'+esc(c.u||'')+'</span>'+
+      '<div class="ctags">'+tags(c.g)+'</div></div></a>';
+  }
+  slot.innerHTML=spotHTML(spot)+'<div class="featured-row">'+feat.map(cardHTML).join('')+'</div>';
+})();`;
 
 // Hero stats line. Each number is computed from the catalogue; a stat
 // that cannot be computed (count 0) is dropped together with its
@@ -653,8 +711,10 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     <h2 class="sec">Featured today</h2>
     <span class="t-small featured-meta">Rotates daily &middot; ${heroPool.length} featured playgrounds in the catalog</span>
   </header>
-  ${spotlightHTML}
+  <div id="featured-slot">${spotlightHTML}</div>
 </section>
+<script>window.__heroPool=${heroPoolJSON};</script>
+<script>${ROTATE_FEATURED_JS}</script>
 
 <section id="browse" class="landing-catalog">
   <div class="catalog-stats">${heroStatsHTML}</div>
@@ -926,6 +986,17 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
         requestAnimationFrame(function(){ requestAnimationFrame(function(){ pgprog.style.width='100%'; }); }); }
       setTimeout(function(){ location.href=href; },650);   // min 600ms progress
     });
+  });
+  // bfcache restore: a browser back/forward can reinstate this page as a
+  // live snapshot without re-running any script, so the overlay left
+  // visible by the outgoing navigation would stay opaque and hide the
+  // page. pageshow with persisted=true is the bfcache signal; clear the
+  // transition state there.
+  window.addEventListener('pageshow',function(ev){
+    if(!ev.persisted)return;
+    if(ptrans)ptrans.classList.remove('show');
+    if(pgprog){ pgprog.classList.remove('run'); pgprog.style.width='0'; }
+    cards.forEach(function(c){ c.classList.remove('sel'); });
   });
   render();
 
