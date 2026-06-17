@@ -164,7 +164,9 @@ if (document.readyState === 'loading') {
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const vc = vCirc(st.sigma);
-  const M_r = massEnclosed(st.sigma, RMAX);
+  // massEnclosed takes (r in metres, sigma in m/s) and returns kg; convert
+  // RMAX (kpc) and sigma (km/s) to SI, then the result to solar masses.
+  const M_r = massEnclosed(RMAX * 3.086e19, st.sigma * 1000) / 1.989e30;
   return {
     fields: [
       { key: 'velocity-dispersion', label: 'Velocity dispersion $\\sigma$', value: st.sigma.toFixed(0), format: 'float' },
@@ -181,7 +183,7 @@ window.playground.getInvariants = function () {
       key: 'velocity-relation',
       label: 'Flat rotation curve: $v_c = \\sqrt{2} \\sigma$',
       value: vc.toFixed(0),
-      status: Math.abs(vc - Math.sqrt(2) * st.sigma / 200) < 0.01 ? 'pass' : 'drift',
+      status: Math.abs(vc - Math.sqrt(2) * st.sigma) < 0.01 ? 'pass' : 'drift',
     },
   ];
 };
