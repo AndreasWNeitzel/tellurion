@@ -89,8 +89,10 @@ function render() {
   blit(image, X2, 'gray'); label(X2, 'filtered image');
 
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('lens 1: FFT', X0 + PANE + GAP / 2, TOP + PANE / 2);
-  ctx.fillText('lens 2: FFT^-1', X1 + PANE + GAP / 2, TOP + PANE / 2);
+  // Below the panel row, not centred over it: at mid-height these labels
+  // sat on the adjacent panel images (the gap is only 16 px wide).
+  ctx.fillText('lens 1: FFT', X0 + PANE + GAP / 2, TOP + PANE + 18);
+  ctx.fillText('lens 2: FFT^-1', X1 + PANE + GAP / 2, TOP + PANE + 18);
 
   let so = 0, si = 0, sd = 0;
   for (let i = 0; i < N * N; i += 1) { so += obj[i] * obj[i]; si += image[i]; sd += (image[i] - obj[i] * obj[i]) ** 2; }

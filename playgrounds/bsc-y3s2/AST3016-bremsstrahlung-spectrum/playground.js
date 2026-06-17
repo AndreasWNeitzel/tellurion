@@ -282,7 +282,14 @@ function drawSpectrum() {
   ctx.beginPath(); ctx.moveTo(xc, pad.t); ctx.lineTo(xc, pad.t + ah); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = '#5bc0eb';
-  ctx.fillText(`hν = kT  @  log10 ν = ${Math.log10(nu_c).toFixed(2)}`, xc + 4, pad.t + 14);
+  // Flip the label to the left of the cutoff line when it sits in the
+  // right part of the plot, otherwise it runs off the canvas at high T.
+  const cutLbl = `hν = kT  @  log10 ν = ${Math.log10(nu_c).toFixed(2)}`;
+  if (xc > pad.l + aw * 0.62) {
+    ctx.textAlign = 'right'; ctx.fillText(cutLbl, xc - 4, pad.t + 14); ctx.textAlign = 'left';
+  } else {
+    ctx.fillText(cutLbl, xc + 4, pad.t + 14);
+  }
 
   // x-axis ticks.
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
