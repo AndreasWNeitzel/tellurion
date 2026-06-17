@@ -7,7 +7,7 @@ created: 2026-05-13
 primary_uc: MAA-SA
 supporting_ucs: []
 curriculum_year: msc-y1
-primary_citation: hansen-kawaler
+primary_citation: chandrasekhar1939
 primary_chapter: 7
 hook: 'The Lane-Emden solution is a star: see the density-shaded sphere restructure as the polytropic index changes.'
 one_paragraph: 'The Lane-Emden polytrope shown as the star it describes. The dimensionless solution theta(xi) is mapped to a density-shaded sphere with rho/rho_c = theta(xi)^n: a bright dense core fading to a faint envelope, a cutaway wedge exposing the interior density run, and isodensity contour rings. Selecting the polytropic index n restructures the star: n = 0 is a compact uniform sphere, n = 1.5 (degenerate non-relativistic) and n = 3 (Chandrasekhar-limit white dwarf) are progressively more centrally concentrated, and n = 5 is a huge, formally infinite, diffuse envelope. A linked theta(xi) strip with the xi_1 marker and an animated radial probe ties the 1D solution to the 2D structure; xi_1 and the mass proxy are read out live. Reference: Chandrasekhar, An Introduction to the Study of Stellar Structure, Chapter 4; Kippenhahn and Weigert, Stellar Structure and Evolution.'

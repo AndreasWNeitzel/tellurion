@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: AST3017
-primary_citation: kippenhahn-weigert
+primary_citation: hartle-gravity
 supporting_ucs: []
 curriculum_year: bsc-y3s2
 hook: 'Climbing out of a gravity well costs a photon energy; light leaving near a black hole arrives redder, and at the horizon it never arrives at all.'

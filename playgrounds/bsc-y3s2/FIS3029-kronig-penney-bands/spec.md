@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS3029
-primary_citation: chen1984
+primary_citation: kittel-cm
 supporting_ucs: [FIS3020]
 curriculum_year: bsc-y3s2
 hook: 'Line up identical potential spikes in a row and the electron''s allowed energies split into bands separated by forbidden gaps: where insulators, metals, and semiconductors come from.'

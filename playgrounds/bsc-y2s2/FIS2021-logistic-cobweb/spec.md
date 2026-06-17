@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
-primary_citation: griffithsqm2018
+primary_citation: strogatz2015
 supporting_ucs: [FIS2018]
 curriculum_year: bsc-y2s2
 hook: 'Iterate x -> r x (1 - x) and a single knob takes you from a steady value, through period-doubling, into full chaos with windows of order inside it.'

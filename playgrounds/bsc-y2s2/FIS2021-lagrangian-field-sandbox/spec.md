@@ -14,7 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 7
 curriculum_year: 'L:F-2Y-2S'
 primary_uc: FIS2021
-primary_citation: griffithsqm2018
+primary_citation: goldstein-mech
 share_state_keys: []
 invariants:
   - key: runs

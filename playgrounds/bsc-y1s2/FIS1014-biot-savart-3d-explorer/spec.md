@@ -14,7 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 4
 curriculum_year: 'L:F-1Y-2S'
 primary_uc: FIS1004
-primary_citation: marion-thornton
+primary_citation: griffithsem2017
 share_state_keys: []
 invariants:
   - key: runs

@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
-primary_citation: griffithsqm2018
+primary_citation: benettin1980
 supporting_ucs: []
 curriculum_year: bsc-y2s2
 hook: 'Track how a tiny error grows along a strange attractor and you measure chaos as a number; the two exponents must sum to ln|b| exactly, which proves the method.'

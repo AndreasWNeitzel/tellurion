@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
-primary_citation: griffithsqm2018
+primary_citation: strogatz2015
 supporting_ucs: [FIS1013]
 curriculum_year: bsc-y2s2
 hook: 'Drive a particle in a double well harder and harder and its steady rhythm splits, splits again, then shatters into chaos, all from one knob.'

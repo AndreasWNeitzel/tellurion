@@ -14,7 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 7
 curriculum_year: 'L:F-3Y-1S'
 primary_uc: FIS3008
-primary_citation: carroll-spacetime
+primary_citation: onsager1944
 share_state_keys: []
 invariants:
   - key: runs

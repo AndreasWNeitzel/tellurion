@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
-primary_citation: griffithsqm2018
+primary_citation: fitzhugh-nagumo1961
 supporting_ucs: []
 curriculum_year: bsc-y2s2
 hook: 'Poke a resting neuron model gently and nothing happens; poke it past a threshold and it fires a full spike, every time the same size.'

@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2018
-primary_citation: hecht-optics
+primary_citation: press2007
 supporting_ucs: [M3012, MAA-NM]
 curriculum_year: bsc-y2s2
 hook: 'The trapezoid rule needs hundreds of points where Gauss-Legendre nails a smooth integral with a handful, just by choosing where to sample.'

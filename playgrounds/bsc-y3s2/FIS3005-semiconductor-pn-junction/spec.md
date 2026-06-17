@@ -14,7 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 6
 curriculum_year: 'L:F-3Y-2S'
 primary_uc: FIS3005
-primary_citation: krane-nuclear
+primary_citation: sze-devices
 share_state_keys: []
 invariants:
   - key: runs

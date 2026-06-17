@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
-primary_citation: griffithsqm2018
+primary_citation: lemos-mech
 supporting_ucs: []
 curriculum_year: bsc-y2s2
 hook: 'Drop a blob of tracers into the pendulum''s phase space: it stretches and filaments wildly, yet its area never changes.'

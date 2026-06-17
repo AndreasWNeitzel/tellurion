@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2021
-primary_citation: griffithsqm2018
+primary_citation: strogatz2015
 supporting_ucs: [FIS1013]
 curriculum_year: bsc-y2s2
 hook: 'Add damping that is negative for small swings and positive for large ones and any start spirals onto the same loop; crank it up and the loop becomes a jerky relaxation tick.'

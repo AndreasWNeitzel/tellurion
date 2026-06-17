@@ -14,7 +14,7 @@ renderer: canvas2d
 estimated_engagement_minutes: 5
 curriculum_year: 'L:F-3Y-1S'
 primary_uc: FIS3019
-primary_citation: newman2013
+primary_citation: hecht2017
 share_state_keys: []
 invariants:
   - key: runs

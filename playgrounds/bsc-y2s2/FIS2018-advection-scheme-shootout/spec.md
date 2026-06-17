@@ -5,7 +5,7 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS2018
-primary_citation: hecht-optics
+primary_citation: leveque2002
 supporting_ucs: [MAA-NM]
 curriculum_year: bsc-y2s2
 hook: 'Translate a square pulse with four numerical schemes and watch them fail differently: one smears it, one wiggles, one blows up past a Courant limit.'
