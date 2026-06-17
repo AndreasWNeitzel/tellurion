@@ -61,11 +61,21 @@ function curOf(cy) {
 const LINKEDIN_URL = 'https://www.linkedin.com/in/andreaswneitzel/';
 const CONTACT_EMAIL = 'andreaswneitzel@gmail.com';
 const BETA_TESTERS = [
-  // { name: "...", institution: "..." }
-  { name: 'Maru Zemek' },
-  { name: 'Ali Jifi-Bahlool' },
-  { name: 'Fabian G.' },
-  { name: 'Blake' },
+  // { name: "...", contribution: "what they helped with" }
+  { name: 'Maru Zemek', contribution: 'mobile control-panel legibility' },
+  { name: 'Ali Jifi-Bahlool', contribution: 'wormhole diagnostics panel, eclipse observer view' },
+  { name: 'Fabian G.', contribution: 'back/forward navigation' },
+  { name: 'Blake', contribution: 'early feedback' },
+];
+// Substantive corrections to the physics, equations, or sources, newest
+// first. Cosmetic and layout fixes are maintenance, not corrections, and
+// do not belong here; this keeps the list short and meaningful. Only the
+// most recent are shown; the full history lives in version control.
+const CORRECTIONS = [
+  { date: '2026-06-17', what: 'Corrected the isothermal Bondi accretion-rate coefficient.', who: 'internal review' },
+  { date: '2026-06-17', what: 'Recalibrated the alpha-decay (Geiger-Nuttall) half-life coefficients.', who: 'internal review' },
+  { date: '2026-06-17', what: 'Fixed the enclosed-mass units in the Jeans isothermal-sphere readout.', who: 'internal review' },
+  { date: '2026-06-17', what: 'Aligned the primary reference on about fifty playgrounds with the source material.', who: 'internal review' },
 ];
 let PKG_VERSION = '0.1.0';
 try { PKG_VERSION = JSON.parse(readFileSync('package.json', 'utf8')).version || PKG_VERSION; } catch { /* keep default */ }
@@ -790,7 +800,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <li>citations that do not match the playground, or chapter and section references that are off</li>
       <li>anything else that looks wrong</li>
     </ul>
-    <p>Reports are credited on the <a href="#corrections">corrections page</a>.</p>
+    <p>Everyone who reports an issue is credited under Special Thanks below; substantive corrections to the physics, equations, or sources are logged on the <a href="#corrections">corrections page</a>.</p>
   </div>
 </section>
 
@@ -819,16 +829,18 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     </div>
     <div class="credits-col">
       <h3>Special Thanks</h3>
-      <p class="sub">Beta testers who helped refine these simulations</p>
+      <p class="sub">Readers who reported issues during the public beta</p>
       ${BETA_TESTERS.length
-        ? BETA_TESTERS.map((t) => `<div class="crow"><div class="cv">${t.name}${t.institution ? ` &middot; <span style="color:var(--text-dimmed)">${t.institution}</span>` : ''}</div></div>`).join('')
+        ? BETA_TESTERS.map((t) => `<div class="crow"><div class="ck">${t.name}</div><div class="cv">${t.contribution || 'testing'}</div></div>`).join('')
         : '<p class="credits-empty">Beta testers will be listed here.</p>'}
     </div>
   </div>
   <div class="corrections" id="corrections">
     <h3>Corrections</h3>
-    <p class="corrections-body">This page lists corrections made to the site, with credit to those who reported them. Reports can be sent to <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
-    <p class="corrections-empty">No corrections yet. Be the first.</p>
+    <p class="corrections-body">Substantive corrections to the physics, equations, or sources are recorded here, newest first, with credit to whoever reported them. Cosmetic and layout fixes are routine maintenance and are not listed. Reports: <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+    ${CORRECTIONS.length
+      ? `<div class="corrections-list">${CORRECTIONS.slice(0, 15).map((c) => `<div class="crow"><div class="ck">${c.date}</div><div class="cv">${c.what} <span style="color:var(--text-dimmed)">(${c.who})</span></div></div>`).join('')}</div>`
+      : '<p class="corrections-empty">No corrections recorded yet.</p>'}
   </div>
   <div class="credits-ver">v${PKG_VERSION} &middot; Built ${BUILD_DATE} &middot; ${cards.length} simulations</div>
 </section>
