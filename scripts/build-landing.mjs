@@ -67,14 +67,23 @@ const BETA_TESTERS = [
   { name: 'Fabian G.', contribution: 'back/forward navigation' },
   { name: 'Blake', contribution: 'early feedback' },
 ];
-// Substantive corrections to the physics, equations, or sources, grouped
-// by area, not a per-item dated changelog. A new correction folds into its
-// area's summary, so the list stays bounded by the handful of areas rather
-// than growing one line per fix. Cosmetic and layout fixes are maintenance,
-// not corrections, and do not belong here.
-const CORRECTIONS = [
-  { area: 'Physics and equations', summary: 'the isothermal Bondi accretion-rate coefficient, the alpha-decay (Geiger-Nuttall) half-life law, and the enclosed-mass units in the Jeans isothermal-sphere readout' },
-  { area: 'Sources and references', summary: 'the primary reference on about fifty playgrounds, aligned with the source material' },
+// Release changelog, newest first. One section per version (semver + date),
+// each grouping that release's changes, so the list grows by release rather
+// than by individual fix.
+const CHANGELOG = [
+  {
+    version: '0.1.1', date: '2026-06-17',
+    changes: [
+      'Corrected the isothermal Bondi accretion coefficient, the alpha-decay (Geiger-Nuttall) half-life law, the Jeans enclosed-mass units, and the primary reference on about fifty playgrounds.',
+      'Fixed back/forward navigation showing a blank page, the wormhole and eclipse diagnostics, and mobile control-panel legibility.',
+      'Repaired several rail readouts that were disconnected from their simulations and removed duplicate readout markup across the catalogue.',
+      'The featured spotlight now rotates daily.',
+    ],
+  },
+  {
+    version: '0.1.0', date: '2026-05-24',
+    changes: ['Public beta: 332 interactive physics simulations across the curriculum.'],
+  },
 ];
 let PKG_VERSION = '0.1.0';
 try { PKG_VERSION = JSON.parse(readFileSync('package.json', 'utf8')).version || PKG_VERSION; } catch { /* keep default */ }
@@ -627,12 +636,15 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 .contributing-body li{margin:4px 0}
 .contributing-body a,.upcoming-body a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-dim)}
 .contributing-body a:hover,.upcoming-body a:hover{border-bottom-color:var(--accent)}
-/* Credits: corrections section under Special Thanks. */
-.corrections{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-dim)}
-.corrections h3{font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 14px;letter-spacing:0.02em;text-transform:uppercase}
-.corrections-body{color:var(--text-secondary);font-size:0.9375rem;line-height:1.7;max-width:680px;margin:0}
-.corrections-body a{color:var(--text-primary);border-bottom:1px solid var(--accent-dim);text-decoration:none}
-.corrections-empty{margin-top:14px;color:var(--text-dimmed);font-family:var(--f-mono);font-size:0.8125rem}
+/* Credits: changelog section under Special Thanks. */
+.changelog{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-dim)}
+.changelog h3{font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 18px;letter-spacing:0.02em;text-transform:uppercase}
+.changelog-entry{margin-bottom:20px}
+.changelog-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.changelog-ver{font-family:var(--f-mono);font-size:0.875rem;color:var(--accent);font-weight:500}
+.changelog-date{font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-dimmed)}
+.changelog-list{margin:0;padding-left:18px;color:var(--text-secondary);font-size:0.9375rem;line-height:1.7}
+.changelog-list li{margin-bottom:4px}
 /* Featured-card star indicator is already in place via .cstar (top-left,
    var(--accent-gold)); no additional rule needed here. */
 /* Footer: two informational rows plus the existing copyright line, on a
@@ -760,7 +772,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     <h2>About Tellurion</h2>
     <p>Tellurion is a laboratory of ${cards.length} interactive physics simulations spanning mechanics, electromagnetism, optics, quantum, relativity, statistical mechanics, fluid dynamics, condensed matter, and astrophysics. Each one is built to be operated, not just observed: drag the camera, adjust the parameters, see what happens.</p>
     <p>The name refers to the <a href="https://en.wikipedia.org/wiki/Tellurion" target="_blank" rel="noopener">tellurion</a>, an 18th-century mechanical apparatus for teaching how the Earth, Moon, and Sun move together: a hand-built physics instrument designed for demonstration through direct manipulation. This site extends the idea to the rest of physics.</p>
-    <p>Currently in beta. Reports of errors are credited on the <a href="#corrections">corrections page</a>.</p>
+    <p>Currently in beta. Reports of errors are credited under <a href="#credits">Special Thanks</a>.</p>
   </div>
   <div class="lab">About the author</div>
   <div class="about-grid">
@@ -799,7 +811,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <li>citations that do not match the playground, or chapter and section references that are off</li>
       <li>anything else that looks wrong</li>
     </ul>
-    <p>Everyone who reports an issue is credited under Special Thanks below; substantive corrections to the physics, equations, or sources are logged on the <a href="#corrections">corrections page</a>.</p>
+    <p>Everyone who reports an issue is credited under Special Thanks below; what changes in each release is listed in the <a href="#changelog">changelog</a>.</p>
   </div>
 </section>
 
@@ -834,12 +846,9 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
         : '<p class="credits-empty">Beta testers will be listed here.</p>'}
     </div>
   </div>
-  <div class="corrections" id="corrections">
-    <h3>Corrections</h3>
-    <p class="corrections-body">Substantive corrections to the physics, equations, or sources, grouped by area. Cosmetic and layout fixes are routine maintenance and are not listed. Reports: <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
-    ${CORRECTIONS.length
-      ? `<div class="corrections-list">${CORRECTIONS.map((c) => `<div class="crow"><div class="ck">${c.area}</div><div class="cv">Corrected ${c.summary}.</div></div>`).join('')}</div><p class="corrections-empty">Corrected during internal review; reader-reported corrections are credited inline.</p>`
-      : '<p class="corrections-empty">No corrections recorded yet.</p>'}
+  <div class="changelog" id="changelog">
+    <h3>Changelog</h3>
+    ${CHANGELOG.map((v) => `<div class="changelog-entry"><div class="changelog-head"><span class="changelog-ver">v${v.version}</span><span class="changelog-date">${v.date}</span></div><ul class="changelog-list">${v.changes.map((c) => `<li>${c}</li>`).join('')}</ul></div>`).join('')}
   </div>
   <div class="credits-ver">v${PKG_VERSION} &middot; Built ${BUILD_DATE} &middot; ${cards.length} simulations</div>
 </section>
@@ -847,7 +856,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
 <footer class="sitefoot">
   <div class="sitefoot-line"><span>Tellurion</span><span class="sitefoot-sep">&middot;</span><span>v${PKG_VERSION} (public beta)</span><span class="sitefoot-sep">&middot;</span><span>Built ${BUILD_DATE}</span><span class="sitefoot-sep">&middot;</span><span>${cards.length} simulations</span></div>
-  <div class="sitefoot-line"><a href="#about">About</a><a href="#contributing">Contribute</a><a href="#upcoming">Upcoming</a><a href="#credits">Credits</a><a href="#corrections">Corrections</a><span class="sitefoot-sep">&middot;</span><a href="mailto:${CONTACT_EMAIL}">Public beta. Found an issue? Report it.</a></div>
+  <div class="sitefoot-line"><a href="#about">About</a><a href="#contributing">Contribute</a><a href="#upcoming">Upcoming</a><a href="#credits">Credits</a><a href="#changelog">Changelog</a><span class="sitefoot-sep">&middot;</span><a href="mailto:${CONTACT_EMAIL}">Public beta. Found an issue? Report it.</a></div>
   <div class="sitefoot-line"><span>&copy; ${BUILD_YEAR} Andreas W. Neitzel</span></div>
 </footer>
 

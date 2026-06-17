@@ -512,12 +512,15 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 .contributing-body li{margin:4px 0}
 .contributing-body a,.upcoming-body a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-dim)}
 .contributing-body a:hover,.upcoming-body a:hover{border-bottom-color:var(--accent)}
-/* Credits: corrections section under Special Thanks. */
-.corrections{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-dim)}
-.corrections h3{font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 14px;letter-spacing:0.02em;text-transform:uppercase}
-.corrections-body{color:var(--text-secondary);font-size:0.9375rem;line-height:1.7;max-width:680px;margin:0}
-.corrections-body a{color:var(--text-primary);border-bottom:1px solid var(--accent-dim);text-decoration:none}
-.corrections-empty{margin-top:14px;color:var(--text-dimmed);font-family:var(--f-mono);font-size:0.8125rem}
+/* Credits: changelog section under Special Thanks. */
+.changelog{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-dim)}
+.changelog h3{font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 18px;letter-spacing:0.02em;text-transform:uppercase}
+.changelog-entry{margin-bottom:20px}
+.changelog-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.changelog-ver{font-family:var(--f-mono);font-size:0.875rem;color:var(--accent);font-weight:500}
+.changelog-date{font-family:var(--f-mono);font-size:0.8125rem;color:var(--text-dimmed)}
+.changelog-list{margin:0;padding-left:18px;color:var(--text-secondary);font-size:0.9375rem;line-height:1.7}
+.changelog-list li{margin-bottom:4px}
 /* Featured-card star indicator is already in place via .cstar (top-left,
    var(--accent-gold)); no additional rule needed here. */
 /* Footer: two informational rows plus the existing copyright line, on a
@@ -594,7 +597,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 <section class="landing-hero">
   <h1 class="t-display wordmark"><img class="wordmark-icon" src="assets/favicon/android-chrome-192x192.png" alt="" aria-hidden="true">Tellurion</h1>
   <p class="masthead-tagline t-body">A laboratory of interactive physics simulations.</p>
-  <div class="masthead-status t-small">v0.1.0 &middot; in beta</div>
+  <div class="masthead-status t-small">v0.1.1 &middot; in beta</div>
   <div class="landing-framing">
     <p>Currently in beta. If something looks off, <a href="#contributing">let me know</a>.</p>
   </div>
@@ -3375,7 +3378,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
     <h2>About Tellurion</h2>
     <p>Tellurion is a laboratory of 332 interactive physics simulations spanning mechanics, electromagnetism, optics, quantum, relativity, statistical mechanics, fluid dynamics, condensed matter, and astrophysics. Each one is built to be operated, not just observed: drag the camera, adjust the parameters, see what happens.</p>
     <p>The name refers to the <a href="https://en.wikipedia.org/wiki/Tellurion" target="_blank" rel="noopener">tellurion</a>, an 18th-century mechanical apparatus for teaching how the Earth, Moon, and Sun move together: a hand-built physics instrument designed for demonstration through direct manipulation. This site extends the idea to the rest of physics.</p>
-    <p>Currently in beta. Reports of errors are credited on the <a href="#corrections">corrections page</a>.</p>
+    <p>Currently in beta. Reports of errors are credited under <a href="#credits">Special Thanks</a>.</p>
   </div>
   <div class="lab">About the author</div>
   <div class="about-grid">
@@ -3411,7 +3414,7 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <li>citations that do not match the playground, or chapter and section references that are off</li>
       <li>anything else that looks wrong</li>
     </ul>
-    <p>Everyone who reports an issue is credited under Special Thanks below; substantive corrections to the physics, equations, or sources are logged on the <a href="#corrections">corrections page</a>.</p>
+    <p>Everyone who reports an issue is credited under Special Thanks below; what changes in each release is listed in the <a href="#changelog">changelog</a>.</p>
   </div>
 </section>
 
@@ -3436,12 +3439,12 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
       <div class="crow"><div class="ck">Maru Zemek</div><div class="cv">mobile control-panel legibility</div></div><div class="crow"><div class="ck">Ali Jifi-Bahlool</div><div class="cv">wormhole diagnostics panel, eclipse observer view</div></div><div class="crow"><div class="ck">Fabian G.</div><div class="cv">back/forward navigation</div></div><div class="crow"><div class="ck">Blake</div><div class="cv">early feedback</div></div>
     </div>
   </div>
-  <div class="corrections" id="corrections">
-    <h3>Corrections</h3>
-    <p class="corrections-body">Substantive corrections to the physics, equations, or sources, grouped by area. Cosmetic and layout fixes are routine maintenance and are not listed. Reports: <a href="mailto:andreaswneitzel@gmail.com">andreaswneitzel@gmail.com</a>.</p>
-    <div class="corrections-list"><div class="crow"><div class="ck">Physics and equations</div><div class="cv">Corrected the isothermal Bondi accretion-rate coefficient, the alpha-decay (Geiger-Nuttall) half-life law, and the enclosed-mass units in the Jeans isothermal-sphere readout.</div></div><div class="crow"><div class="ck">Sources and references</div><div class="cv">Corrected the primary reference on about fifty playgrounds, aligned with the source material.</div></div></div><p class="corrections-empty">Corrected during internal review; reader-reported corrections are credited inline.</p>
+  <div class="changelog" id="changelog">
+    <h3>Changelog</h3>
+    <div class="changelog-entry"><div class="changelog-head"><span class="changelog-ver">v0.1.1</span><span class="changelog-date">2026-06-17</span></div><ul class="changelog-list"><li>Corrected the isothermal Bondi accretion coefficient, the alpha-decay (Geiger-Nuttall) half-life law, the Jeans enclosed-mass units, and the primary reference on about fifty playgrounds.</li><li>Fixed back/forward navigation showing a blank page, the wormhole and eclipse diagnostics, and mobile control-panel legibility.</li><li>Repaired several rail readouts that were disconnected from their simulations and removed duplicate readout markup across the catalogue.</li><li>The featured spotlight now rotates daily.</li></ul></div>
+    <div class="changelog-entry"><div class="changelog-head"><span class="changelog-ver">v0.1.0</span><span class="changelog-date">2026-05-24</span></div><ul class="changelog-list"><li>Public beta: 332 interactive physics simulations across the curriculum.</li></ul></div>
   </div>
-  <div class="credits-ver">v0.1.0 &middot; Built 2026-05-24 &middot; 332 simulations</div>
+  <div class="credits-ver">v0.1.1 &middot; Built 2026-06-17 &middot; 332 simulations</div>
 </section>
 
 <button class="scroll-top" id="scroll-top" type="button" aria-label="Back to top" hidden>
@@ -3451,8 +3454,8 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
 </button>
 <button class="ambtoggle" id="ambtoggle" type="button" aria-label="Toggle ambient sound">&#9834;<span class="dot"></span></button>
 <footer class="sitefoot">
-  <div class="sitefoot-line"><span>Tellurion</span><span class="sitefoot-sep">&middot;</span><span>v0.1.0 (public beta)</span><span class="sitefoot-sep">&middot;</span><span>Built 2026-05-24</span><span class="sitefoot-sep">&middot;</span><span>332 simulations</span></div>
-  <div class="sitefoot-line"><a href="#about">About</a><a href="#contributing">Contribute</a><a href="#upcoming">Upcoming</a><a href="#credits">Credits</a><a href="#corrections">Corrections</a><span class="sitefoot-sep">&middot;</span><a href="mailto:andreaswneitzel@gmail.com">Public beta. Found an issue? Report it.</a></div>
+  <div class="sitefoot-line"><span>Tellurion</span><span class="sitefoot-sep">&middot;</span><span>v0.1.1 (public beta)</span><span class="sitefoot-sep">&middot;</span><span>Built 2026-06-17</span><span class="sitefoot-sep">&middot;</span><span>332 simulations</span></div>
+  <div class="sitefoot-line"><a href="#about">About</a><a href="#contributing">Contribute</a><a href="#upcoming">Upcoming</a><a href="#credits">Credits</a><a href="#changelog">Changelog</a><span class="sitefoot-sep">&middot;</span><a href="mailto:andreaswneitzel@gmail.com">Public beta. Found an issue? Report it.</a></div>
   <div class="sitefoot-line"><span>&copy; 2026 Andreas W. Neitzel</span></div>
 </footer>
 
