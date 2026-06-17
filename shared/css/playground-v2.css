@@ -416,9 +416,10 @@ body:has(.playground-layout) {
 .controls-hud-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(4, 6, 12, 0.42);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  /* Kept light and unblurred so the live scene stays visible and sharp
+     while a control is being dragged (reported by a beta tester: the
+     panel hid the simulation it was meant to drive). */
+  background: rgba(4, 6, 12, 0.14);
   opacity: 0;
   transition: opacity 220ms ease;
 }
@@ -430,9 +431,12 @@ body:has(.playground-layout) {
   display: flex;
   flex-direction: column;
   padding: 0 12px max(env(safe-area-inset-bottom, 0), 12px);
-  background: rgba(12, 14, 22, 0.78);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  /* Lower opacity and a lighter blur than before so the simulation reads
+     through the panel while a slider is being dragged. The blur is kept
+     small for label legibility against a busy scene, not for hiding it. */
+  background: rgba(12, 14, 22, 0.5);
+  backdrop-filter: blur(7px) saturate(130%);
+  -webkit-backdrop-filter: blur(7px) saturate(130%);
   border-top: 1px solid var(--border-subtle);
   border-radius: 18px 18px 0 0;
   box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.38);
@@ -632,6 +636,10 @@ body:has(.playground-layout) {
   top: var(--rail-sticky-top);
   max-height: calc(100vh - var(--rail-sticky-top) - 24px);
   overflow-y: auto;
+  /* Explicit so the rail never grows a horizontal scrollbar. With only
+     overflow-y set, the spec makes overflow-x compute from visible to
+     auto, which produced a flickering scrollbar on live readouts. */
+  overflow-x: hidden;
   align-self: start;
   border-left: 1px solid var(--border-dim);
   padding-left: 24px;
@@ -715,16 +723,24 @@ body:has(.playground-layout) {
   font-size: 0.8125rem;
 }
 
-.rail-state-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+/* table-layout: fixed freezes the column widths so a live value whose
+   character count changes (an exponential that gains or loses a digit)
+   cannot resize the table frame by frame. Without it the auto layout
+   re-measured every frame and, because overflow-y on the rail forces
+   overflow-x to compute to auto, a horizontal scrollbar flickered in
+   and out. The value cell clips with an ellipsis rather than overflow. */
+.rail-state-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .rail-state-table tr { border-bottom: 1px solid var(--border-dim); }
 .state-label {
   font-family: var(--font-mono); font-size: var(--fs-mono); line-height: 1.5;
   color: var(--text-secondary); padding: 6px 0;
+  width: 58%; overflow-wrap: anywhere;
 }
 .state-value {
   font-family: var(--font-mono); font-size: var(--fs-mono); line-height: 1.5;
   color: var(--text-primary); text-align: right;
   font-variant-numeric: tabular-nums; padding: 6px 0;
+  width: 42%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 .rail-invariants-list { list-style: none; padding: 0; margin: 0; }
