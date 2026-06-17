@@ -410,7 +410,7 @@ if (document.readyState === 'loading') {
 // (1/2 v^2 - GM/r) and its specific angular momentum (x vy - y vx),
 // so the swarm totals must not drift.
 window.playground = window.playground || {};
-let __E0 = null, __L0 = null, __swarmRef = null;
+let __E0 = null, __L0 = null, __Ax0 = null, __Ay0 = null, __swarmRef = null;
 window.playground.getState = function () {
   return {
     fields: [
@@ -424,16 +424,23 @@ window.playground.getInvariants = function () {
   const sw = state.swarm;
   if (!sw || !sw.inst) return [];
   const q = sw.inst.q, p = sw.inst.qdot, N = sw.N;
-  let E = 0, L = 0;
+  let E = 0, L = 0, Ax = 0, Ay = 0;
   for (let i = 0; i < N; i += 1) {
     const x = q[2 * i], y = q[2 * i + 1], vx = p[2 * i], vy = p[2 * i + 1];
     const r = Math.hypot(x, y);
     E += 0.5 * (vx * vx + vy * vy) - 1 / Math.max(1e-12, r);
-    L += x * vy - y * vx;
+    const Li = x * vy - y * vx;
+    L += Li;
+    // Specific Laplace-Runge-Lenz vector A = v x L - r-hat (GM = 1). Each
+    // body's A is fixed in time (points at perihelion, never rotates), so
+    // the swarm sum is conserved too.
+    Ax += vy * Li - x / Math.max(1e-12, r);
+    Ay += -vx * Li - y / Math.max(1e-12, r);
   }
-  if (sw !== __swarmRef) { __swarmRef = sw; __E0 = E; __L0 = L; }   // re-baseline on swarm rebuild
+  if (sw !== __swarmRef) { __swarmRef = sw; __E0 = E; __L0 = L; __Ax0 = Ax; __Ay0 = Ay; }   // re-baseline on swarm rebuild
   const eDrift = Math.abs(E - __E0) / Math.max(1e-9, Math.abs(__E0));
   const lDrift = Math.abs(L - __L0) / Math.max(1e-9, Math.abs(__L0));
+  const aDrift = Math.hypot(Ax - __Ax0, Ay - __Ay0) / Math.max(1e-9, Math.hypot(__Ax0, __Ay0));
   return [
     {
       key: 'energy',
@@ -446,6 +453,12 @@ window.playground.getInvariants = function () {
       label: 'angular momentum conserved',
       value: lDrift.toExponential(2),
       status: lDrift < 5e-3 ? 'pass' : (lDrift < 5e-2 ? 'pending' : 'drift'),
+    },
+    {
+      key: 'lrl-vector',
+      label: 'Laplace-Runge-Lenz vector fixed',
+      value: aDrift.toExponential(2),
+      status: aDrift < 5e-3 ? 'pass' : (aDrift < 5e-2 ? 'pending' : 'drift'),
     },
   ];
 };
