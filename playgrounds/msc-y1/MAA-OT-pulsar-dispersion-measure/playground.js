@@ -234,9 +234,10 @@ window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'dm', label: 'dispersion measure (pc/cm3)', value: (st?.dm || 100).toFixed(1), format: 'float' },
-      { key: 'freq-low', label: 'freq low (MHz)', value: (st?.f_lo || 400).toFixed(0), format: 'float' },
-      { key: 'freq-high', label: 'freq high (MHz)', value: (st?.f_hi || 1500).toFixed(0), format: 'float' },
+      { key: 'dm-trial', label: 'trial DM (pc/cm3)', value: st.guessDM.toFixed(1), format: 'float' },
+      { key: 'dm-true', label: 'true DM (pc/cm3)', value: st.trueDM.toFixed(1), format: 'float' },
+      { key: 'freq-low', label: 'freq low (MHz)', value: F_LO.toFixed(0), format: 'float' },
+      { key: 'freq-high', label: 'freq high (MHz)', value: F_HI.toFixed(0), format: 'float' },
     ],
   };
 };

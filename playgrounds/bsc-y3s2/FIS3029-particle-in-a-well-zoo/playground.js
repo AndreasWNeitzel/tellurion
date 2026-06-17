@@ -277,7 +277,7 @@ if (document.readyState === 'loading') {
 window.playground = window.playground || {};
 window.playground.getState = function () {
   return { fields: [
-    { key: 'well-type', label: 'potential type', value: state.wellType, format: 'string' },
+    { key: 'well-type', label: 'potential type', value: state.well, format: 'string' },
     { key: 'quantum-number', label: 'quantum level n', value: state.n, format: 'float' },
   ] };
 };

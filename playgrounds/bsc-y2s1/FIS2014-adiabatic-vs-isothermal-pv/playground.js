@@ -318,7 +318,7 @@ function drawPVPanel() {
   ctx.fillStyle = '#5bc0eb';
   if (showIso) ctx.fillText(`W_iso = ${W_iso.toFixed(0)} J/mol`, PV.x + 50, PV.y + 24);
   ctx.fillStyle = '#ffd166';
-  if (showAdi) ctx.fillText(`W_adi = ${W_adi.toFixed(2)}`, PV.x + 50, PV.y + 40);
+  if (showAdi) ctx.fillText(`W_adi = ${W_adi.toFixed(0)} J/mol`, PV.x + 50, PV.y + 40);
 
   // T(V) inset (upper-right corner of the PV panel).
   const ix = PV.x + PV.w - 130, iy = PV.y + 18, iw = 110, ih = 72;
