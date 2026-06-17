@@ -67,15 +67,14 @@ const BETA_TESTERS = [
   { name: 'Fabian G.', contribution: 'back/forward navigation' },
   { name: 'Blake', contribution: 'early feedback' },
 ];
-// Substantive corrections to the physics, equations, or sources, newest
-// first. Cosmetic and layout fixes are maintenance, not corrections, and
-// do not belong here; this keeps the list short and meaningful. Only the
-// most recent are shown; the full history lives in version control.
+// Substantive corrections to the physics, equations, or sources, grouped
+// by area, not a per-item dated changelog. A new correction folds into its
+// area's summary, so the list stays bounded by the handful of areas rather
+// than growing one line per fix. Cosmetic and layout fixes are maintenance,
+// not corrections, and do not belong here.
 const CORRECTIONS = [
-  { date: '2026-06-17', what: 'Corrected the isothermal Bondi accretion-rate coefficient.', who: 'internal review' },
-  { date: '2026-06-17', what: 'Recalibrated the alpha-decay (Geiger-Nuttall) half-life coefficients.', who: 'internal review' },
-  { date: '2026-06-17', what: 'Fixed the enclosed-mass units in the Jeans isothermal-sphere readout.', who: 'internal review' },
-  { date: '2026-06-17', what: 'Aligned the primary reference on about fifty playgrounds with the source material.', who: 'internal review' },
+  { area: 'Physics and equations', summary: 'the isothermal Bondi accretion-rate coefficient, the alpha-decay (Geiger-Nuttall) half-life law, and the enclosed-mass units in the Jeans isothermal-sphere readout' },
+  { area: 'Sources and references', summary: 'the primary reference on about fifty playgrounds, aligned with the source material' },
 ];
 let PKG_VERSION = '0.1.0';
 try { PKG_VERSION = JSON.parse(readFileSync('package.json', 'utf8')).version || PKG_VERSION; } catch { /* keep default */ }
@@ -837,9 +836,9 @@ section,.card-grid,.about-grid,.credits-grid{background:transparent}
   </div>
   <div class="corrections" id="corrections">
     <h3>Corrections</h3>
-    <p class="corrections-body">Substantive corrections to the physics, equations, or sources are recorded here, newest first, with credit to whoever reported them. Cosmetic and layout fixes are routine maintenance and are not listed. Reports: <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+    <p class="corrections-body">Substantive corrections to the physics, equations, or sources, grouped by area. Cosmetic and layout fixes are routine maintenance and are not listed. Reports: <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
     ${CORRECTIONS.length
-      ? `<div class="corrections-list">${CORRECTIONS.slice(0, 15).map((c) => `<div class="crow"><div class="ck">${c.date}</div><div class="cv">${c.what} <span style="color:var(--text-dimmed)">(${c.who})</span></div></div>`).join('')}</div>`
+      ? `<div class="corrections-list">${CORRECTIONS.map((c) => `<div class="crow"><div class="ck">${c.area}</div><div class="cv">Corrected ${c.summary}.</div></div>`).join('')}</div><p class="corrections-empty">Corrected during internal review; reader-reported corrections are credited inline.</p>`
       : '<p class="corrections-empty">No corrections recorded yet.</p>'}
   </div>
   <div class="credits-ver">v${PKG_VERSION} &middot; Built ${BUILD_DATE} &middot; ${cards.length} simulations</div>
