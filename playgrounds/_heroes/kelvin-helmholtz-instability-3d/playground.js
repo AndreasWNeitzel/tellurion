@@ -239,6 +239,7 @@ window.playground.getState = function () {
   return {
     fields: [
       { key: 'stuart-a', label: 'Stuart amplitude A', value: st.A, format: 'float' },
+      { key: 'vorticity-core', label: 'Peak vorticity $\\omega$ (core)', value: vorticity(Math.PI, 0, st.A), format: 'float' },
       { key: 'tracers', label: 'tracer particles', value: Math.floor(st.N) },
       { key: 'sim-time', label: 'time', value: st.t.toFixed(2), format: 'float' },
     ],
