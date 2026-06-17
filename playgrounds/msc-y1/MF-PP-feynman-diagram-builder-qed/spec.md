@@ -136,6 +136,7 @@ No time integration and no random numbers: every quantity is a closed-form evalu
 - `e`: centre-of-mass energy sqrt s, 0.22 to 20 GeV (slider value is sqrt s x 100). Moves the operating point along the cross-section curve and rescales the Mandelstam invariants and the angular anisotropy.
 - `th`: scattering angle theta, 5 to 175 degrees. Moves the marker on dsigma/dOmega and sets the t / u split (t = u at 90 degrees).
 - `order`: tree (2 vertices, alpha^2) or one-loop (4 vertices, alpha^4). Switches the diagram topology and the alpha-power readout.
+- `channel`: s-channel only, t-channel (Bhabha), or both s and t with the interference term.
 - Reset, Pause/Play. Pause freezes the travelling-charge animation; the physics is static.
 
 ## Expected qualitative features
@@ -180,7 +181,6 @@ Static log-log cross-section curve plus the labelled diagram and the Mandelstam 
 
 ## Stretch goals
 
-- Add the t-channel for Bhabha-like processes and the interference term.
 - Overlay the Z resonance (electroweak) to show the photon-Z interference dip.
 
 ## Risk register

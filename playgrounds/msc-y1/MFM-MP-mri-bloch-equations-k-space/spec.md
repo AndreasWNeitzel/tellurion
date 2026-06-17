@@ -121,6 +121,7 @@ The Bloch solution and the signal equations are evaluated analytically. The FID 
 
 - `w`: weighting preset, T2 (long TR, long TE) / T1 (short TR, short TE) / proton density (long TR, short TE).
 - `seq`: pulse sequence, spin echo or gradient echo (Ernst-angle flip).
+- `phantom`: anatomical phantom, brain / abdomen / knee / Shepp-Logan.
 - `kf`: percentage of k-space acquired, 6 to 100. Below 100 the image blurs (low-pass).
 - Reset, Pause/Play. Pause freezes the Bloch precession and FID sweep; the image is static.
 
