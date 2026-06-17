@@ -68,7 +68,7 @@ parent and product rest energies) is positive.
 The alpha half-life is set by quantum tunnelling through the Coulomb
 barrier, the Geiger-Nuttall law,
 
-$$\log_{10} t_{1/2} \approx \frac{1.61\,Z_d}{\sqrt{Q}} - 28.9,$$
+$$\log_{10} t_{1/2} \approx \frac{1.72\,Z_d}{\sqrt{Q}} - 53.6,$$
 
 so a small change in $Q$ swings the half-life over many orders of
 magnitude.
@@ -103,7 +103,7 @@ with `aV=15.75, aS=17.8, aC=0.711, aA=23.7`, pairing `aP=11.18`. Decay
 shifts: alpha `(-2,-2)` plus He-4, beta-minus `(+1,-1)` plus
 `e- nu`. Q values from the binding energies (and the neutron-hydrogen
 mass difference for beta). Alpha half-life from Geiger-Nuttall
-`log10(t_1/2) = 1.61 Z_d / sqrt(Q) - 28.9`.
+`log10(t_1/2) = 1.72 Z_d / sqrt(Q) - 53.6`.
 
 ## Numerical method
 

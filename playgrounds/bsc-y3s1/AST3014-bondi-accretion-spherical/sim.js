@@ -1,8 +1,9 @@
 // Bondi spherical accretion onto a point mass M with isothermal sound speed c_s.
 // Bondi radius r_B = GM / c_s^2 (transonic crossing point at r = r_B / 2 (isothermal),
 // or at r = (5 - 3 gamma)/4 r_B for adiabatic).
-// Accretion rate Mdot_B = pi G^2 M^2 rho_inf / c_s^3 * lambda_c,
-//   where lambda_c ~ 0.25 for isothermal.
+// Accretion rate (isothermal): Mdot_B = pi e^{3/2} G^2 M^2 rho_inf / c_s^3.
+//   This is 4 pi lambda_s with lambda_s = e^{3/2}/4 ~ 1.12, and follows
+//   from rho_s/rho_inf = e^{3/2} at the sonic point r_s = r_B/2.
 // Reference: Frank-King-Raine Accretion Power Ch. 2 (`frank-king-raine`); Shu Vol II
 // Ch. 7 (`shu-vol2`).
 export const G = 6.674e-11, M_SUN = 1.989e30, AU = 1.496e11;
@@ -36,5 +37,5 @@ export function bondiVelocityIsothermal(r, M, cs) {
 export function bondiDensity(r, u, Mdot) { return Math.abs(Mdot / (4 * Math.PI * r * r * u)); }
 // Bondi accretion rate, isothermal.
 export function MdotBondi(M, cs, rho_inf) {
-  return Math.PI * Math.E * Math.E * G * G * M * M * rho_inf / (cs * cs * cs);
+  return Math.PI * Math.pow(Math.E, 1.5) * G * G * M * M * rho_inf / (cs * cs * cs);
 }
