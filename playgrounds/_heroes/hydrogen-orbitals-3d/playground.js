@@ -123,8 +123,15 @@ function drawRadialDiagnostic() {
   if (!hdctx) return;
   // Pin to the bottom-right of the STAGE canvas, not the figure (whose
   // caption sits below the canvas and would bleed through the overlay).
-  hDiagCanvas.style.left = `${canvas.offsetLeft + canvas.offsetWidth - hDiagCanvas.width - 10}px`;
-  hDiagCanvas.style.top = `${canvas.offsetTop + canvas.offsetHeight - hDiagCanvas.height - 10}px`;
+  // Scale the displayed overlay to the canvas width (full 250px on desktop,
+  // smaller on a phone where a fixed 250px box would cover the scene). The
+  // 250x140 internal resolution is unchanged, so the key stays crisp.
+  const dispW = Math.min(250, Math.round(canvas.offsetWidth * 0.42));
+  const dispH = Math.round(dispW * hDiagCanvas.height / hDiagCanvas.width);
+  hDiagCanvas.style.width = `${dispW}px`;
+  hDiagCanvas.style.height = `${dispH}px`;
+  hDiagCanvas.style.left = `${canvas.offsetLeft + canvas.offsetWidth - dispW - 10}px`;
+  hDiagCanvas.style.top = `${canvas.offsetTop + canvas.offsetHeight - dispH - 10}px`;
   hDiagCanvas.style.right = 'auto'; hDiagCanvas.style.bottom = 'auto';
   const key = `${st.n}|${st.l}|${st.m}`;
   if (key === hDiagKey) return;            // only recompute on (n,l,m) change
