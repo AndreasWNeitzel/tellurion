@@ -77,6 +77,11 @@ bench/[0-9]*.json
 # Stray log files
 *.log
 
+# Maintainer working notes: feedback log, lessons, version tracking,
+# user profile, and a logs archive. Local-only organizational space,
+# never deployed and never part of the public repo.
+agent-logs/
+
 # AI tooling configuration (kept local; not for a public repo).
 # .claude/ holds agents, commands, hooks, settings, logs, worktrees;
 # CLAUDE.md is the project's local Claude-Code directives file.
