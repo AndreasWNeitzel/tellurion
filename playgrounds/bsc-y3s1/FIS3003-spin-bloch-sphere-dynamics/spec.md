@@ -30,7 +30,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Griffiths, Introduction to Elementary Particles, Second (revised) ed."
+  - "Sakurai and Napolitano, Modern Quantum Mechanics."
+
 ---
 
 # Spin on the Bloch Sphere

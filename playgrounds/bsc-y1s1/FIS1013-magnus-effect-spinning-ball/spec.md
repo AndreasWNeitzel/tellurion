@@ -31,7 +31,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Taylor, Classical Mechanics."
+  - "Adair, The Physics of Baseball."
+
 ---
 
 # Magnus effect on a spinning ball

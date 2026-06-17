@@ -32,7 +32,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Hansen, Kawaler, Trimble, Stellar Interiors: Physical Principles, Structure, and Evolution, Second ed., Ch. 7."
+  - "Chandrasekhar, An Introduction to the Study of Stellar Structure."
+
 ---
 
 # Lane-Emden polytrope

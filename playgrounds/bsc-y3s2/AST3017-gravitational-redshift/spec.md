@@ -31,7 +31,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Second ed."
+  - "Hartle, Gravity."
+
 ---
 
 # Gravitational redshift in Schwarzschild spacetime

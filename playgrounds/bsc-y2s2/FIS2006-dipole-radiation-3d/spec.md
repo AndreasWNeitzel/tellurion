@@ -30,7 +30,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
+  - "Griffiths, Introduction to Electrodynamics."
+
 ---
 
 # Dipole Radiation in 3D

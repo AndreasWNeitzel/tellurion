@@ -30,7 +30,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Callen, Thermodynamics and an Introduction to Thermostatistics, Second ed."
+  - "Eisberg and Resnick, Quantum Physics of Atoms, Molecules, Solids, Nuclei, and Particles."
+
 ---
 
 # The Photoelectric Effect

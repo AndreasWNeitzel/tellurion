@@ -32,7 +32,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Hansen, Kawaler, Trimble, Stellar Interiors: Physical Principles, Structure, and Evolution, Second ed., Ch. 6."
+  - "Hansen et al., Stellar Interiors."
+
 ---
 # Nuclear burning rates
 pp $\propto T^4$, CNO $\propto T^{18}$, 3-α $\propto T^{40}$. Source: Hansen-Kawaler Ch. 6.

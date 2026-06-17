@@ -30,7 +30,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Carroll, Spacetime and Geometry: An Introduction to General Relativity."
+  - "Onsager, Crystal Statistics. I. A Two-Dimensional Model with an Order-Disorder Transition."
+
 ---
 
 # The 2D Ising Phase Transition

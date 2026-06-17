@@ -31,7 +31,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Griffiths, Introduction to Quantum Mechanics, Third ed."
+  - "Benettin et al., Lyapunov Characteristic Exponents for Smooth Dynamical Systems and for Hamiltonian Systems; A Method for Computing All of Them. Part 1."
+
 ---
 
 # Lyapunov Spectrum of the Henon Map

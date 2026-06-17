@@ -32,7 +32,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Hansen, Kawaler, Trimble, Stellar Interiors: Physical Principles, Structure, and Evolution, Second ed., Ch. 5."
+  - "Hansen et al., Stellar Interiors."
+
 ---
 # Mixing-length convection
 Schwarzschild criterion + MLT parameter $\alpha = l_m / H_P$. Source: Hansen-Kawaler Ch. 5.

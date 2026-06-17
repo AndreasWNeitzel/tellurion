@@ -30,7 +30,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Marion, Thornton, Classical Dynamics of Particles and Systems, Fifth ed."
+  - "Griffiths, Introduction to Electrodynamics."
+
 ---
 
 # Poynting Vector: a Plane EM Wave in 3D

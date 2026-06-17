@@ -32,7 +32,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Born, Wolf, Principles of Optics, Seventh (expanded) ed., Ch. 10."
+  - "Born and Wolf, Principles of Optics."
+
 ---
 # Atmospheric speckle statistics
 $N \sim (D/r_0)^2$ speckles per realization. Source: Roddier; Goodman.

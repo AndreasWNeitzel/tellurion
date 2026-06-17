@@ -32,7 +32,8 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed., Ch. 7."
+  - "Carroll and Ostlie, An Introduction to Modern Astrophysics."
+
 ---
 # Main-sequence M-L relation
 Piecewise power laws spanning M-dwarfs to O-stars. Source: Carroll-Ostlie Ch. 7.
