@@ -165,7 +165,11 @@ function drawFractions(x, y, w, h) {
   // energy balance line
   const e = cache.R.energy;
   ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`deposited ${(100 * e.deposited / e.input).toFixed(0)}%  transmitted ${(100 * e.transmitted / e.input).toFixed(0)}%  back ${(100 * e.backscattered / e.input).toFixed(0)}%`, px, y + h - 8);
+  // Two lines so all four channels fit and the balance closes (the side
+  // leak was previously omitted, so the percentages did not sum to 100).
+  const pct = (v) => (100 * v / e.input).toFixed(0);
+  ctx.fillText(`deposited ${pct(e.deposited)}%  transmitted ${pct(e.transmitted)}%`, px, y + h - 22);
+  ctx.fillText(`back ${pct(e.backscattered)}%  side ${pct(e.sideLeak)}%`, px, y + h - 8);
 }
 
 function draw() {
