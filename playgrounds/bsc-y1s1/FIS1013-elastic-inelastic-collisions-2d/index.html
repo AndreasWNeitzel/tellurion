@@ -43,7 +43,9 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950"
+              data-plot-role="diagnostic"
+              aria-label="Two disks colliding in 2D with velocity and momentum vectors, and a kinetic-energy and momentum time series."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Two-disk 2D oblique collision with adjustable restitution and impact parameter; componentwise momentum conserved, kinetic energy lost for e &lt; 1.</figcaption>
@@ -54,7 +56,7 @@
 <div class="row"><span class="label">m2</span><input aria-label="m2" type="range" id="slider-m2" min="0.2" max="5" step="0.1" value="2"><span class="value" id="value-m2">2.0</span></div>
 <div class="row"><span class="label">speed v1</span><input aria-label="incoming speed of ball 1" type="range" id="slider-u1" min="0.5" max="6" step="0.1" value="3"><span class="value" id="value-u1">3.0</span></div>
 <div class="row"><span class="label">impact b</span><input aria-label="impact parameter (angle of attack)" type="range" id="slider-u2" min="-1.5" max="1.5" step="0.05" value="0.4"><span class="value" id="value-u2">0.40</span></div>
-<div class="row"><span class="label">e (restitution)</span><input aria-label="e (restitution)" type="range" id="slider-e" min="0" max="1" step="0.01" value="0.9"><span class="value" id="value-e">0.90</span></div>
+<div class="row"><span class="label">e (restitution)</span><input aria-label="e (restitution)" type="range" id="slider-e" min="0" max="1" step="0.01" value="0.6"><span class="value" id="value-e">0.60</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">v1, v2 post:</span><span class="value" id="readout-v">0, 0</span><span class="label">KE loss:</span><span class="value" id="readout-ke">0%</span></div></div>
@@ -63,8 +65,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Set $e = 1$ for a perfect bounce: the kinetic-energy line stays flat. Lower $e$ and watch energy drop at the moment of impact while momentum does not.</li>
+        <li class="t-body">Slide the impact parameter $b$ from a head-on hit to a glancing graze and watch the scatter angle open up.</li>
+        <li class="t-body">Change the masses: the total-momentum arrow in the corner never changes length, however the two disks share it out.</li>
       </ul>
     </section>
 
