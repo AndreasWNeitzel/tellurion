@@ -48,17 +48,17 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">An Atwood machine focused on the gravity-versus-tension balance. With an ideal (massless) pulley the rope tension is equal on both sides and a = (m1-m2)g/(m1+m2): each block carries a weight arrow m g down and a tension arrow T up, and the net (m1-m2)g is what accelerates the pair. A block stops when it reaches the pulley or the floor (no teleport reset), and you can grab and tug either block with the mouse. A toggle switches to the double (compound) machine, where a movable pulley carrying m2 and m3 hangs opposite m1 and the rope tensions satisfy T = 2 T2. An optional pulley-mass slider is the advanced case where the moment of inertia splits the tensions, T1 = m1(g-a), T2 = m2(g+a).</p>
+      <p class="t-body">Two weights on a rope over a pulley: a classic system for seeing how one constraint couples two motions. The same gravity pulls on both masses, yet it is the rope tension that keeps the lighter one from falling freely. Vary the mass ratio and the acceleration runs from zero (balanced masses) toward g (one mass dominating). Because the pulley here has real mass, spinning it up takes a net torque, so the two rope tensions are not equal: T₁ on the heavy side exceeds T₂ on the light side by exactly I a / R². The panel beside the rig plugs the live numbers into a = (m₁ − m₂) g / (m₁ + m₂ + I/R²), and the diagnostic below tracks the acceleration and both tensions against the mass ratio.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="820" height="540"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Constrained Atwood machine; force arrows on each body and the live v(t), a(t) traces.</figcaption>
+    <figcaption class="t-small playground-caption">Figure 1. Atwood machine. Top: the two masses, their weight and tension force vectors, live acceleration and tension. Bottom: how acceleration and tension vary with the mass ratio m₁/m₂, with a cursor at the current system state.</figcaption>
 
 
     <section class="playground-controls">
@@ -69,8 +69,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Set m₁ = m₂: the system freezes at zero acceleration, and the two tensions stay equal even with a heavy pulley (no spin-up means no net torque).</li>
+        <li class="t-body">Raise m₁ with m₂ fixed: the acceleration climbs toward g, and on the diagnostic both tension curves rise while T₁ pulls ahead of T₂.</li>
+        <li class="t-body">Slide the pulley mass M down to 0 to recover the ideal massless pulley, where T₁ = T₂; raise it and the system grows sluggish while the tension gap T₁ − T₂ widens.</li>
+        <li class="t-body">Read the equation panel beside the rig: it plugs the current masses into a, and shows the pulley's I/R² adding to the effective mass.</li>
       </ul>
     </section>
 
