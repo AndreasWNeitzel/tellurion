@@ -1,37 +1,23 @@
 // Map Projection Explorer. Canvas2D. Drapes the Blue Marble Earth
 // texture, the graticule, and Tissot indicatrices over a chosen map
-// projection; the globe is recentred by dragging the canvas. Portrait
-// canvas at 760x950 (4:5), responsive to viewport. The diagnostic
-// distortion metrics (area scale, angular distortion vs latitude) are reported
-// in the rail live readouts. The projection mathematics, the spherical rotation,
-// and the Tissot construction all live in sim.js; this file is rendering and
+// projection; the globe is recentred by dragging the canvas. The
+// projection mathematics, the spherical rotation, and the Tissot
+// construction all live in sim.js; this file is rendering and
 // interaction only.
 
 import {
   PROJECTIONS, PROJECTION_KEYS, rotate, unrotate, tissot,
 } from './sim.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
-import { stack } from '../../../shared/js/render/vertical-layout.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
 const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
-const DETERMINISTIC = params.get('deterministic') === '1';
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-let W = canvas.width, H = canvas.height;
+const W = canvas.width, H = canvas.height;
 const controlsEl = document.getElementById('controls');
-const controlsDrawerEl = document.getElementById('controls-drawer-content');
-const controlsToggleEl = document.getElementById('controls-toggle');
-const controlsDrawer = document.getElementById('controls-drawer');
-
-let REG = null;  // layout regions from stack()
-function layout() {
-  REG = stack(canvas, [
-    { name: 'scene', weight: 1 }
-  ]);
-}
 
 const DEG = Math.PI / 180;
 const R0 = 0.07;                       // sphere radius of a Tissot test circle
@@ -43,29 +29,6 @@ const st = {
   showEarth: true,
   showTissot: true,
 };
-
-// URL state restoration
-function parseUrlState() {
-  const p = new URLSearchParams(location.search);
-  if (p.has('projection')) st.projection = p.get('projection');
-  if (p.has('lon0')) st.lon0 = parseFloat(p.get('lon0'));
-  if (p.has('lat0')) st.lat0 = parseFloat(p.get('lat0'));
-  if (p.has('graticule')) st.showGraticule = p.get('graticule') !== '0';
-  if (p.has('earth')) st.showEarth = p.get('earth') !== '0';
-  if (p.has('tissot')) st.showTissot = p.get('tissot') !== '0';
-}
-
-function updateUrl() {
-  const u = new URLSearchParams({
-    projection: st.projection,
-    lon0: st.lon0.toFixed(4),
-    lat0: st.lat0.toFixed(4),
-    graticule: st.showGraticule ? '1' : '0',
-    earth: st.showEarth ? '1' : '0',
-    tissot: st.showTissot ? '1' : '0',
-  });
-  history.replaceState(null, '', `?${u.toString()}`);
-}
 
 // ---- Earth texture ------------------------------------------------------
 // The Blue Marble equirectangular image is sampled to colour each cell
@@ -98,9 +61,8 @@ function projectGeo(lonDeg, latDeg) {
 // the whole sphere does not change as the globe is dragged; the fit is
 // therefore computed once per projection and cached.
 const fitCache = {};
-function computeFit(key, sceneReg) {
-  const cacheKey = key;
-  if (fitCache[cacheKey]) return fitCache[cacheKey];
+function computeFit(key) {
+  if (fitCache[key]) return fitCache[key];
   const fn = PROJECTIONS[key].fn;
   let minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
   for (let lo = -180; lo <= 180; lo += 5) {
@@ -113,15 +75,15 @@ function computeFit(key, sceneReg) {
       if (r.y > maxy) maxy = r.y;
     }
   }
-  const s = Math.min(sceneReg.w / (maxx - minx), sceneReg.h / (maxy - miny)) * 0.86;
+  const s = Math.min(W / (maxx - minx), H / (maxy - miny)) * 0.86;
   const fit = { s, cx: (minx + maxx) / 2, cy: (miny + maxy) / 2 };
-  fitCache[cacheKey] = fit;
+  fitCache[key] = fit;
   return fit;
 }
-function toScreen(proj, fit, sceneReg) {
+function toScreen(proj, fit) {
   return {
-    x: sceneReg.x + sceneReg.w / 2 + (proj.x - fit.cx) * fit.s,
-    y: sceneReg.y + sceneReg.h / 2 - (proj.y - fit.cy) * fit.s,
+    x: W / 2 + (proj.x - fit.cx) * fit.s,
+    y: H / 2 - (proj.y - fit.cy) * fit.s,
   };
 }
 
@@ -147,15 +109,15 @@ const GRATICULE = graticule();
 
 // Draw a geographic polyline, lifting the pen where the projection is
 // undefined and where the path jumps the antimeridian seam.
-function strokeGeo(pts, fit, sceneReg) {
+function strokeGeo(pts, fit) {
   ctx.beginPath();
   let pen = false, prev = null;
   for (const [lo, la] of pts) {
     const pr = projectGeo(lo, la);
     if (!pr) { pen = false; prev = null; continue; }
-    const sc = toScreen(pr, fit, sceneReg);
+    const sc = toScreen(pr, fit);
     if (!pen) { ctx.moveTo(sc.x, sc.y); pen = true; }
-    else if (prev && Math.abs(sc.x - prev.x) > sceneReg.w * 0.5) { ctx.moveTo(sc.x, sc.y); }
+    else if (prev && Math.abs(sc.x - prev.x) > W * 0.5) { ctx.moveTo(sc.x, sc.y); }
     else { ctx.lineTo(sc.x, sc.y); }
     prev = sc;
   }
@@ -165,40 +127,27 @@ function strokeGeo(pts, fit, sceneReg) {
 // ---- render -------------------------------------------------------------
 
 function render() {
-  W = canvas.width;
-  H = canvas.height;
-  layout();
-  const sceneReg = REG.scene;
-
+  const fit = computeFit(st.projection);
   ctx.fillStyle = '#0a0c12';
   ctx.fillRect(0, 0, W, H);
 
-  // Draw scene in the full scene region
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(sceneReg.x, sceneReg.y, sceneReg.w, sceneReg.h);
-  ctx.clip();
-
-  const fit = computeFit(st.projection, sceneReg);
-
   if (st.showEarth) {
-    renderEarth(fit, dragging, sceneReg);
-    if (earthKey) ctx.drawImage(earthCanvas, sceneReg.x, sceneReg.y, sceneReg.w, sceneReg.h);
+    renderEarth(fit, dragging);
+    if (earthKey) ctx.drawImage(earthCanvas, 0, 0, W, H);
   }
 
   if (st.showGraticule) {
     for (const { pts, edge } of GRATICULE) {
       ctx.strokeStyle = edge ? 'rgba(225,235,255,0.7)' : 'rgba(210,225,255,0.32)';
-      ctx.lineWidth = edge ? Math.max(1.2, 1.4 * fit.s / 80) : Math.max(1.0, 1 * fit.s / 80);
-      strokeGeo(pts, fit, sceneReg);
+      ctx.lineWidth = edge ? 1.4 : 1;
+      strokeGeo(pts, fit);
     }
   }
 
-  if (st.showTissot) drawTissot(fit, sceneReg);
+  if (st.showTissot) drawTissot(fit);
 
-  drawCaption(sceneReg);
-  ctx.restore();
-
+  drawDistortionDiagnostic();
+  drawCaption();
   refreshRail();
 }
 
@@ -213,7 +162,7 @@ let earthKey = '';
 // buffer is built at half resolution and scaled up; a settled view is
 // rendered at full resolution for a crisp map. Pixels that inverse-
 // project outside the map are left transparent.
-function renderEarth(fit, lowRes, sceneReg) {
+function renderEarth(fit, lowRes) {
   const inv = PROJECTIONS[st.projection].inv;
   if (!texData || !inv) { earthKey = ''; return; }
   // Aitoff and Winkel tripel have no closed-form inverse, so their
@@ -222,7 +171,7 @@ function renderEarth(fit, lowRes, sceneReg) {
   // turns smoothly. The settled view is always full resolution.
   const slow = st.projection === 'aitoff' || st.projection === 'winkelTripel';
   const scale = lowRes ? (slow ? 3 : 2) : 1;
-  const ew = Math.ceil(sceneReg.w / scale), eh = Math.ceil(sceneReg.h / scale);
+  const ew = Math.ceil(W / scale), eh = Math.ceil(H / scale);
   const key = `${st.projection}|${st.lon0.toFixed(4)}|${st.lat0.toFixed(4)}|${scale}`;
   if (key === earthKey && earthCanvas.width === ew) return;
   earthKey = key;
@@ -231,9 +180,9 @@ function renderEarth(fit, lowRes, sceneReg) {
   const img = earthCtx.createImageData(ew, eh);
   const d = img.data;
   for (let j = 0; j < eh; j += 1) {
-    const Y = -((j * scale) - sceneReg.h / 2) / fit.s + fit.cy;
+    const Y = -((j * scale) - H / 2) / fit.s + fit.cy;
     for (let i = 0; i < ew; i += 1) {
-      const X = ((i * scale) - sceneReg.w / 2) / fit.s + fit.cx;
+      const X = ((i * scale) - W / 2) / fit.s + fit.cx;
       const ll = inv(X, Y);
       const o = (j * ew + i) * 4;
       if (!ll) { d[o + 3] = 0; continue; }
@@ -255,7 +204,7 @@ function renderEarth(fit, lowRes, sceneReg) {
 // of a small circle of sphere-radius R0; an equal-area projection
 // keeps every ellipse the same area, a conformal one keeps every
 // ellipse a circle.
-function drawTissot(fit, sceneReg) {
+function drawTissot(fit) {
   const fn = PROJECTIONS[st.projection].fn;
   for (let loD = -150; loD <= 180; loD += 30) {
     for (let laD = -60; laD <= 60; laD += 30) {
@@ -264,31 +213,94 @@ function drawTissot(fit, sceneReg) {
       if (!pr) continue;
       const t = tissot(fn, l, p);
       if (!t) continue;
-      const sc = toScreen(pr, fit, sceneReg);
+      const sc = toScreen(pr, fit);
       const rx = Math.min(60, t.a * fit.s * R0);
       const ry = Math.min(60, t.b * fit.s * R0);
       ctx.beginPath();
       ctx.ellipse(sc.x, sc.y, rx, ry, -t.angle, 0, 2 * Math.PI);
       ctx.fillStyle = 'rgba(233,170,90,0.28)';
       ctx.strokeStyle = 'rgba(233,170,90,0.85)';
-      ctx.lineWidth = Math.max(1.0, fit.s / 80);
+      ctx.lineWidth = 1;
       ctx.fill();
       ctx.stroke();
     }
   }
 }
 
-function drawCaption(sceneReg) {
+// Rule-13 diagnostic: area scale and angular distortion along the
+// central meridian vs latitude. The area curve is flat for an
+// equal-area projection; the angular curve is flat at zero for a
+// conformal one; Mercator shows the runaway polar area inflation.
+function drawDistortionDiagnostic() {
+  const fn = PROJECTIONS[st.projection].fn;
+  const pw = 232, ph = 150, px = W - pw - 14, py = 14;
+  ctx.fillStyle = 'rgba(8,12,22,0.9)';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220,230,255,0.3)';
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220,230,255,0.92)';
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
+  ctx.textAlign = 'left';
+  ctx.fillText('distortion vs latitude', px + 8, py + 15);
+
+  const ax = px + 30, ay = py + 24, aw = pw - 42, ah = ph - 46;
+  const eqT = tissot(fn, 0, 0);
+  const eqArea = eqT ? eqT.area : 1;
+  const samples = [];
+  let areaMax = 1;
+  for (let i = 0; i <= 60; i += 1) {
+    const lat = (-85 + 170 * i / 60) * DEG;
+    const t = tissot(fn, 0, lat);
+    if (!t) { samples.push(null); continue; }
+    const aRel = t.area / eqArea;
+    if (aRel > areaMax) areaMax = aRel;
+    samples.push({ lat, aRel, ang: t.angular });
+  }
+  areaMax = Math.min(areaMax, 12);
+  const xOf = (lat) => ax + (lat / (Math.PI / 2) / 2 + 0.5) * aw;
+  // Area scale (clamped, green) and angular distortion (0-60 deg, pink).
+  ctx.strokeStyle = '#5fe39b'; ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  let pen = false;
+  for (const s of samples) {
+    if (!s) { pen = false; continue; }
+    const x = xOf(s.lat);
+    const y = ay + ah - (Math.min(s.aRel, areaMax) / areaMax) * ah;
+    if (!pen) { ctx.moveTo(x, y); pen = true; } else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#ef6f9f'; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  pen = false;
+  for (const s of samples) {
+    if (!s) { pen = false; continue; }
+    const x = xOf(s.lat);
+    const y = ay + ah - (Math.min(s.ang, 60) / 60) * ah;
+    if (!pen) { ctx.moveTo(x, y); pen = true; } else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,240,0.7)';
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillText('area x' + areaMax.toFixed(0), px + 8, ay + 9);
+  ctx.fillStyle = '#5fe39b';
+  ctx.fillText('area', ax + 4, ay + ah - 4);
+  ctx.fillStyle = '#ef6f9f';
+  ctx.fillText('angle', ax + 40, ay + ah - 4);
+  ctx.fillStyle = 'rgba(200,210,240,0.7)';
+  ctx.fillText('S', ax, ay + ah + 11);
+  ctx.fillText('eq', ax + aw / 2 - 6, ay + ah + 11);
+  ctx.fillText('N', ax + aw - 8, ay + ah + 11);
+}
+
+function drawCaption() {
   const meta = PROJECTIONS[st.projection];
   ctx.fillStyle = 'rgba(210,220,245,0.9)';
-  const captionFont = fontString(canvas, 'caption', 'sans');
-  ctx.font = captionFont.replace(/(\d+)px/, (m, p) => `${Math.max(12, parseInt(p))}px`);
+  ctx.font = fontString(canvas, 'caption', 'sans');
   ctx.textAlign = 'left';
-  ctx.fillText(`${meta.name}  (${meta.family}, ${meta.property})`, sceneReg.x + 8, sceneReg.y + 18);
+  ctx.fillText(`${meta.name}  (${meta.family}, ${meta.property})`, 14, 22);
   ctx.fillStyle = 'rgba(170,185,215,0.7)';
-  const tickFont = fontString(canvas, 'tick', 'mono');
-  ctx.font = tickFont.replace(/(\d+)px/, (m, p) => `${Math.max(12, parseInt(p))}px`);
-  ctx.fillText('drag to recentre the globe', sceneReg.x + 8, sceneReg.y + sceneReg.h - 8);
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillText('drag to recentre the globe', 14, H - 14);
 }
 
 // ---- diagnostics interface (v2 rail) ------------------------------------
@@ -307,20 +319,12 @@ function refreshRail() {
   window.playground.getState = function getState() {
     const meta = PROJECTIONS[st.projection];
     const d = currentDistortion();
-    const fn = PROJECTIONS[st.projection].fn;
-    // Sample a few latitudes for area scale diagnostics
-    const eq = tissot(fn, 0, 0);
-    const at30 = tissot(fn, 0, 30 * DEG);
-    const at60 = tissot(fn, 0, 60 * DEG);
-    const eqArea = eq ? eq.area : 1;
     return {
       fields: [
         { key: 'projection', label: 'projection', value: meta.name },
         { key: 'property', label: 'property', value: meta.property },
         { key: 'centre-lon', label: 'centre lon', value: (st.lon0 / DEG), format: 'float' },
         { key: 'centre-lat', label: 'centre lat', value: (st.lat0 / DEG), format: 'float' },
-        { key: 'area-eq', label: 'area scale at eq', value: eq ? (eq.area / eqArea).toFixed(3) : 'N/A', format: 'string' },
-        { key: 'area-30', label: 'area scale 30deg', value: at30 ? (at30.area / eqArea).toFixed(3) : 'N/A', format: 'string' },
         { key: 'area-60', label: 'area scale 60deg', value: d.areaRel, format: 'float' },
         { key: 'angle-60', label: 'ang. dist. 60deg', value: d.angAt60, format: 'float' },
       ],
@@ -353,57 +357,52 @@ function refreshRail() {
 // ---- controls -----------------------------------------------------------
 
 function buildControls() {
-  function buildControlSet(parentEl) {
-    parentEl.innerHTML = '';
-    const selRow = document.createElement('div');
-    selRow.className = 'row';
-    const selLabel = document.createElement('span');
-    selLabel.textContent = 'projection';
-    const sel = document.createElement('select');
-    sel.id = 'select-projection';
-    sel.setAttribute('aria-label', 'projection');
-    for (const key of PROJECTION_KEYS) {
-      const opt = document.createElement('option');
-      opt.value = key;
-      opt.textContent = PROJECTIONS[key].name;
-      if (key === st.projection) opt.selected = true;
-      sel.appendChild(opt);
-    }
-    sel.addEventListener('change', () => { st.projection = sel.value; updateUrl(); render(); });
-    selRow.append(selLabel, sel, document.createElement('span'));
-    parentEl.appendChild(selRow);
-
-    function toggle(id, label, key, parent) {
-      const row = document.createElement('div');
-      row.className = 'row';
-      const lab = document.createElement('span');
-      lab.textContent = label;
-      const inp = document.createElement('input');
-      inp.type = 'checkbox';
-      inp.id = id;
-      inp.checked = st[key];
-      inp.setAttribute('aria-label', label);
-      inp.addEventListener('change', () => { st[key] = inp.checked; updateUrl(); render(); });
-      row.append(lab, inp, document.createElement('span'));
-      parent.appendChild(row);
-    }
-    toggle('toggle-earth', 'Earth texture', 'showEarth', parentEl);
-    toggle('toggle-graticule', 'graticule', 'showGraticule', parentEl);
-    toggle('toggle-tissot', 'Tissot indicatrices', 'showTissot', parentEl);
-
-    const btnRow = document.createElement('div');
-    btnRow.className = 'row buttons';
-    const reset = document.createElement('button');
-    reset.id = 'btn-reset';
-    reset.type = 'button';
-    reset.textContent = 'Recentre';
-    reset.addEventListener('click', () => { st.lon0 = 0; st.lat0 = 0; updateUrl(); render(); });
-    btnRow.appendChild(reset);
-    parentEl.appendChild(btnRow);
+  controlsEl.innerHTML = '';
+  const selRow = document.createElement('div');
+  selRow.className = 'row';
+  const selLabel = document.createElement('span');
+  selLabel.textContent = 'projection';
+  const sel = document.createElement('select');
+  sel.id = 'select-projection';
+  sel.setAttribute('aria-label', 'projection');
+  for (const key of PROJECTION_KEYS) {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = PROJECTIONS[key].name;
+    if (key === st.projection) opt.selected = true;
+    sel.appendChild(opt);
   }
+  sel.addEventListener('change', () => { st.projection = sel.value; render(); });
+  selRow.append(selLabel, sel, document.createElement('span'));
+  controlsEl.appendChild(selRow);
 
-  buildControlSet(controlsEl);
-  buildControlSet(controlsDrawerEl);
+  function toggle(id, label, key) {
+    const row = document.createElement('div');
+    row.className = 'row';
+    const lab = document.createElement('span');
+    lab.textContent = label;
+    const inp = document.createElement('input');
+    inp.type = 'checkbox';
+    inp.id = id;
+    inp.checked = st[key];
+    inp.setAttribute('aria-label', label);
+    inp.addEventListener('change', () => { st[key] = inp.checked; render(); });
+    row.append(lab, inp, document.createElement('span'));
+    controlsEl.appendChild(row);
+  }
+  toggle('toggle-earth', 'Earth texture', 'showEarth');
+  toggle('toggle-graticule', 'graticule', 'showGraticule');
+  toggle('toggle-tissot', 'Tissot indicatrices', 'showTissot');
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'row buttons';
+  const reset = document.createElement('button');
+  reset.id = 'btn-reset';
+  reset.type = 'button';
+  reset.textContent = 'Recentre';
+  reset.addEventListener('click', () => { st.lon0 = 0; st.lat0 = 0; render(); });
+  btnRow.appendChild(reset);
+  controlsEl.appendChild(btnRow);
 }
 
 // ---- interaction: drag to recentre --------------------------------------
@@ -414,7 +413,7 @@ canvas.addEventListener('pointerdown', (e) => {
   canvas.setPointerCapture?.(e.pointerId);
 });
 window.addEventListener('pointerup', () => {
-  if (dragging) { dragging = false; updateUrl(); render(); }   // settled: full-res pass
+  if (dragging) { dragging = false; render(); }   // settled: full-res pass
 });
 window.addEventListener('pointermove', (e) => {
   if (!dragging) return;
@@ -429,19 +428,6 @@ window.addEventListener('pointermove', (e) => {
   render();
 });
 
-// ---- mobile controls drawer ------------------------------------------------
-
-controlsToggleEl.addEventListener('click', () => {
-  controlsDrawer.classList.toggle('open');
-});
-
-// ---- render loop --------------------------------------------------------
-
-function loop() {
-  render();
-  requestAnimationFrame(loop);
-}
-
 // ---- boot ---------------------------------------------------------------
 
 function finishBoot() {
@@ -451,13 +437,10 @@ function finishBoot() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
     }));
-  } else {
-    requestAnimationFrame(loop);
   }
 }
 
 function boot() {
-  parseUrlState();
   buildControls();
   if (CAPTURE_NAME) {
     // Deterministic capture: a fixed projection sequence and centre.

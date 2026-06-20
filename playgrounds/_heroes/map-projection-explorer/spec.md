@@ -18,7 +18,7 @@ tags: [numerics, relativity, interactive, three-d, live-readout]
 difficulty: 3
 renderer: canvas2d
 estimated_engagement_minutes: 6
-share_state_keys: [projection, lon0, lat0, graticule, earth, tissot]
+share_state_keys: []
 invariants:
   - key: rotation-isometry
     label: recentring the globe adds no distortion

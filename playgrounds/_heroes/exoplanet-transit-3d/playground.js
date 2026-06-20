@@ -9,7 +9,6 @@ import { setupTransitGL } from '../../../shared/js/engine-gl/transit-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
-import { stack } from '../../../shared/js/render/vertical-layout.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -17,20 +16,10 @@ const CAPTURE_NAME = params.get('capture');
 const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
-const diagCanvas = document.getElementById('diag');
-const dctx = diagCanvas.getContext('2d');
-// Layout: the 3D scene (WebGL, 760x580) sits atop, and below it the
-// diagnostic canvas (760x370) contains the light curve and transmission
-// spectrum split 50-50. Compute regions within the diagnostic canvas.
-let regions = {};
-function layoutRegions() {
-  regions = stack(diagCanvas, [
-    { name: 'plot', weight: 1 },
-    { name: 'spectrum', weight: 1 },
-  ]);
-}
-layoutRegions();
-
+const plot = document.getElementById('plot');
+const pctx = plot.getContext('2d');
+const tspec = document.getElementById('tspectrum');
+const tctx = tspec ? tspec.getContext('2d') : null;
 // Toy atmospheric model for transmission spectroscopy. The effective
 // transit radius depends on wavelength because Rayleigh scattering and
 // molecular lines (Na D 589 nm, K 770 nm, H2O bands around 950, 1380,
@@ -155,18 +144,11 @@ bPause.addEventListener('click', () => { ui.running = !ui.running; bPause.textCo
 bEdge.addEventListener('click', () => { camera.setAzimuthDeg(0); camera.setElevationDeg(0); });
 bReset.addEventListener('click', () => { sim.t = 0; });
 
-diagCanvas.addEventListener('pointermove', (e) => {
-  const r = diagCanvas.getBoundingClientRect();
-  const relY = e.clientY - r.top;
-  if (relY >= regions.plot.y && relY < regions.plot.y + regions.plot.h) {
-    const relX = e.clientX - r.left;
-    ui.hoverPhase = (relX - regions.plot.x) / regions.plot.w;
-    ui.hoverPhase = Math.max(0, Math.min(1, ui.hoverPhase));
-  } else {
-    ui.hoverPhase = -1;
-  }
+plot.addEventListener('pointermove', (e) => {
+  const r = plot.getBoundingClientRect();
+  ui.hoverPhase = (e.clientX - r.left) / r.width;
 });
-diagCanvas.addEventListener('pointerleave', () => { ui.hoverPhase = -1; });
+plot.addEventListener('pointerleave', () => { ui.hoverPhase = -1; });
 
 // Light curve over one full period, sampled and cached when params change.
 let curve = null;
@@ -176,70 +158,76 @@ function rebuildCurve() {
   for (let i = 0; i < N; i += 1) curve[i] = transitFlux(sim, (i / N) * sim.period);
 }
 
-function drawDiagnostics() {
+function drawPlot() {
   if (!curve) rebuildCurve();
-  const W = diagCanvas.width, H = diagCanvas.height;
-  dctx.fillStyle = '#060608'; dctx.fillRect(0, 0, W, H);
-
-  drawLightCurve();
-  drawTransmissionSpectrum();
-}
-
-function drawLightCurve() {
-  const p = regions.plot;
-  const x0 = p.x + 8, x1 = p.x + p.w - 8;
-  const y0 = p.y + 12, y1 = p.y + p.h - 16;
-
-  dctx.fillStyle = '#060608'; dctx.fillRect(p.x, p.y, p.w, p.h);
-
-  // Axes
-  dctx.strokeStyle = '#23252a'; dctx.lineWidth = 0.8;
-  dctx.beginPath(); dctx.moveTo(x0, y0); dctx.lineTo(x0, y1); dctx.lineTo(x1, y1); dctx.stroke();
-
+  const W = plot.width, H = plot.height;
+  pctx.fillStyle = '#07080b'; pctx.fillRect(0, 0, W, H);
+  const x0 = 56, x1 = W - 16, y0 = 18, y1 = H - 22;
+  // baseline
+  pctx.strokeStyle = '#23252a'; pctx.beginPath(); pctx.moveTo(x0, y0); pctx.lineTo(x0, y1); pctx.lineTo(x1, y1); pctx.stroke();
   let fmin = 1, fmax = 1;
   for (let i = 0; i < curve.length; i += 1) {
     if (curve[i] < fmin) fmin = curve[i];
     if (curve[i] > fmax) fmax = curve[i];
   }
-
+  // Frame the y-axis to the transit dip, however shallow (an Earth
+  // analogue is only ~80 ppm). fHi sits just above the baseline so
+  // the dip fills the panel; the faint reflected-light bump is shown
+  // separately in the zoomed inset. With no transit, a gentle flat
+  // band is used so the axis does not collapse.
   const depth = 1 - fmin;
   const real = depth > 1e-7;
   const fLo = real ? Math.max(0, 1 - 1.4 * depth) : 0.985;
   const fHi = real ? 1 + Math.max(0.12 * depth, 6e-5) : 1.003;
   const yOf = (f) => y0 + (1 - (f - fLo) / (fHi - fLo)) * (y1 - y0);
-
-  // Light curve line
-  dctx.strokeStyle = '#5fd0e0'; dctx.lineWidth = 1.6; dctx.beginPath();
-  for (let i = 0; i < curve.length; i += 1) {
-    const X = x0 + (i / curve.length) * (x1 - x0);
-    const Y = yOf(curve[i]);
-    if (i === 0) dctx.moveTo(X, Y); else dctx.lineTo(X, Y);
-  }
-  dctx.stroke();
-
-  // Current phase marker
+  pctx.strokeStyle = '#5fd0e0'; pctx.lineWidth = 1.8; pctx.beginPath();
+  for (let i = 0; i < curve.length; i += 1) { const X = x0 + (i / curve.length) * (x1 - x0); const Y = yOf(curve[i]); i ? pctx.lineTo(X, Y) : pctx.moveTo(X, Y); }
+  pctx.stroke();
+  // current phase marker (yellow)
   const phase = ((sim.t % sim.period) / sim.period + 1) % 1;
   const Xp = x0 + phase * (x1 - x0);
   const Yp = yOf(transitFlux(sim, phase * sim.period));
-  dctx.strokeStyle = '#ffd166'; dctx.lineWidth = 0.9;
-  dctx.beginPath(); dctx.moveTo(Xp, y0); dctx.lineTo(Xp, y1); dctx.stroke();
-  dctx.fillStyle = '#ffd166'; dctx.beginPath();
-  dctx.arc(Xp, Yp, 3.5, 0, 6.28); dctx.fill();
-
-  // Hover marker
+  pctx.strokeStyle = '#ffd166'; pctx.beginPath(); pctx.moveTo(Xp, y0); pctx.lineTo(Xp, y1); pctx.stroke();
+  pctx.fillStyle = '#ffd166'; pctx.beginPath(); pctx.arc(Xp, Yp, 4.5, 0, 6.28); pctx.fill();
+  // hover phase marker
   if (ui.hoverPhase >= 0 && ui.hoverPhase <= 1) {
     const ph = ui.hoverPhase, hF = transitFlux(sim, ph * sim.period);
     const Xh = x0 + ph * (x1 - x0);
-    dctx.strokeStyle = 'rgba(255,255,255,0.4)'; dctx.setLineDash([2, 2]);
-    dctx.beginPath(); dctx.moveTo(Xh, y0); dctx.lineTo(Xh, y1); dctx.stroke();
-    dctx.setLineDash([]);
+    pctx.strokeStyle = 'rgba(255,255,255,0.55)'; pctx.setLineDash([3, 3]); pctx.beginPath(); pctx.moveTo(Xh, y0); pctx.lineTo(Xh, y1); pctx.stroke(); pctx.setLineDash([]);
+    pctx.fillStyle = '#cdd1d6'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
+    pctx.fillText(`phase ${ph.toFixed(2)}  flux ${hF.toFixed(5)}`, Xh + 6, y0 + 12);
   }
+  pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
+  pctx.fillText('stellar flux vs orbital phase', 8, 12);
+  const axDp = depth < 1e-3 ? 6 : 4;                 // more decimals for a shallow transit
+  pctx.fillText(fHi.toFixed(axDp), 8, y0 + 4); pctx.fillText(fLo.toFixed(axDp), 8, y1);
 
-  // Labels
-  dctx.fillStyle = '#7a818c'; dctx.font = fontString(canvas, 'caption', 'mono');
-  dctx.textAlign = 'left'; dctx.fillText('flux vs phase', x0 + 2, p.y + 10);
-  dctx.textAlign = 'right'; dctx.fillText(fHi.toFixed(4), x0 - 4, y0 + 3);
-  dctx.fillText(fLo.toFixed(4), x0 - 4, y1 + 3);
+  // Zoomed inset: the reflected-light phase curve and the
+  // secondary-eclipse dip. That signal is ~1e-4 of the stellar flux,
+  // far too small to read on the primary-transit scale, so the inset
+  // magnifies the band just above flux = 1. (fmax is from above.)
+  if (fmax > 1 + 1e-7) {
+    const iw = 168, ih = 56, ix = x1 - iw - 6, iy = y0 + 16;
+    pctx.fillStyle = 'rgba(10,12,16,0.94)';
+    pctx.fillRect(ix, iy, iw, ih);
+    pctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    pctx.strokeRect(ix + 0.5, iy + 0.5, iw - 1, ih - 1);
+    const margin = (fmax - 1) * 0.18;
+    const top = fmax + margin, bot = 1 - margin;
+    const iyOf = (f) => iy + ih - 6 - ((f - bot) / (top - bot)) * (ih - 12);
+    pctx.strokeStyle = 'rgba(255,255,255,0.22)'; pctx.setLineDash([2, 3]);
+    pctx.beginPath(); pctx.moveTo(ix + 4, iyOf(1)); pctx.lineTo(ix + iw - 4, iyOf(1)); pctx.stroke();
+    pctx.setLineDash([]);
+    pctx.strokeStyle = '#ffd166'; pctx.lineWidth = 1.4; pctx.beginPath();
+    for (let i = 0; i < curve.length; i += 1) {
+      const X = ix + 4 + (i / curve.length) * (iw - 8);
+      const Y = iyOf(Math.max(bot, Math.min(top, curve[i])));
+      i ? pctx.lineTo(X, Y) : pctx.moveTo(X, Y);
+    }
+    pctx.stroke();
+    pctx.fillStyle = 'rgba(255,255,255,0.6)'; pctx.textAlign = 'left';
+    pctx.fillText('reflected light (zoom)', ix + 2, iy - 3);
+  }
 }
 
 function refreshReadout() {
@@ -258,11 +246,18 @@ function frame() {
   if (engine) {
     const phase = ((sim.t % sim.period) / sim.period + 1) % 1;
     const theta = 2 * Math.PI * phase;
+    // World units: star radius = 1; orbit radius = viewOrbitRadius(a/Rs);
+    // planet radius = Rp/Rs. Camera radius is now A * 1.20 so the
+    // star fills more of the panel.
     const A_view = viewOrbitRadius(ui.aOverRs);
+    // The engine draws the orbit at the true orbital inclination, so
+    // the planet's sky track matches the transitFlux light-curve
+    // model exactly (both use ui.inc in the same convention). The
+    // camera is an independent viewer of the 3D scene.
     engine.update(theta, A_view, ui.inc, ui.Rp, [1.0, 0.78, 0.50]);
     engine.render(camera.viewMatrix(), camera.projMatrix(canvas.width / canvas.height), ui.u1, ui.u2, camera.state.fovDeg);
   }
-  drawDiagnostics(); refreshReadout();
+  drawPlot(); refreshReadout();
 }
 
 let last = performance.now();
@@ -275,21 +270,25 @@ function tick(now) {
 }
 
 function drawTransmissionSpectrum() {
-  const s = regions.spectrum;
-  if (!s) return;
+  if (!tctx) return;
+  const W = tspec.width, H = tspec.height;
+  tctx.fillStyle = '#07080b';
+  tctx.fillRect(0, 0, W, H);
+  const pad = { l: 56, r: 16, t: 22, b: 30 };
+  const ax = pad.l, ay = pad.t;
+  const aw = W - pad.l - pad.r, ah = H - pad.t - pad.b;
+  tctx.strokeStyle = 'rgba(255,255,255,0.45)';
+  tctx.beginPath();
+  tctx.moveTo(ax, ay); tctx.lineTo(ax, ay + ah); tctx.lineTo(ax + aw, ay + ah);
+  tctx.stroke();
+  tctx.fillStyle = 'rgba(255,255,255,0.65)';
+  tctx.font = fontString(canvas, 'caption', 'mono');
+  tctx.textAlign = 'left';
+  tctx.fillText('transit depth (Rp_eff / Rs)^2', 8, ay - 4);
+  tctx.textAlign = 'center';
+  tctx.fillText('wavelength λ (nm)', ax + aw / 2, H - 8);
 
-  const ax = s.x + 8, ay = s.y + 10;
-  const aw = s.w - 16, ah = s.h - 20;
-
-  dctx.fillStyle = '#060608'; dctx.fillRect(s.x, s.y, s.w, s.h);
-
-  // Axes
-  dctx.strokeStyle = '#23252a'; dctx.lineWidth = 0.8;
-  dctx.beginPath();
-  dctx.moveTo(ax, ay); dctx.lineTo(ax, ay + ah); dctx.lineTo(ax + aw, ay + ah);
-  dctx.stroke();
-
-  // Sample spectrum
+  // Sample the transmission spectrum.
   const Rp = ui.Rp;
   const H_atm = ui.H_atm;
   let dMin = Infinity, dMax = -Infinity;
@@ -306,52 +305,60 @@ function drawTransmissionSpectrum() {
   const xToPx = (lam) => ax + (lam - ATMOSPHERE.lam0) / (ATMOSPHERE.lam1 - ATMOSPHERE.lam0) * aw;
   const yToPx = (d) => ay + (1 - (d - dMin) / (dMax - dMin)) * ah;
 
-  // Y-axis labels
-  dctx.fillStyle = '#7a818c'; dctx.font = fontString(canvas, 'caption', 'mono');
-  dctx.textAlign = 'right'; dctx.fillText(dMax.toExponential(1), ax - 4, ay + 3);
-  dctx.fillText(dMin.toExponential(1), ax - 4, ay + ah + 3);
-
-  // X-axis ticks at key wavelengths
-  dctx.textAlign = 'center'; dctx.fillStyle = '#7a818c';
-  for (const xv of [500, 700, 1100, 1500, 1900]) {
-    const px = xToPx(xv);
-    if (px >= ax && px <= ax + aw) {
-      dctx.fillText(String(xv), px, ay + ah + 12);
-    }
+  // Y-axis ticks.
+  tctx.fillStyle = 'rgba(255,255,255,0.55)';
+  tctx.textAlign = 'right';
+  for (let k = 0; k <= 3; k += 1) {
+    const d = dMin + (k / 3) * (dMax - dMin);
+    tctx.fillText(d.toExponential(2), ax - 4, yToPx(d) + 3);
+    tctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    tctx.beginPath(); tctx.moveTo(ax, yToPx(d)); tctx.lineTo(ax + aw, yToPx(d)); tctx.stroke();
   }
 
-  // Spectrum curve
-  dctx.strokeStyle = '#5bc0eb'; dctx.lineWidth = 1.4;
-  dctx.beginPath();
-  for (let i = 0; i <= ATMOSPHERE.nBins; i += 1) {
-    const px = xToPx(lams[i]), py = yToPx(depths[i]);
-    if (i === 0) dctx.moveTo(px, py); else dctx.lineTo(px, py);
+  // X-axis ticks at canonical wavelengths.
+  tctx.fillStyle = 'rgba(255,255,255,0.55)';
+  tctx.textAlign = 'center';
+  for (const xv of [500, 700, 900, 1100, 1300, 1500, 1700, 1900]) {
+    tctx.fillText(String(xv), xToPx(xv), ay + ah + 14);
   }
-  dctx.stroke();
 
-  // Feature markers
+  // Mark canonical features.
   for (const f of ATMOSPHERE.features) {
     const x = xToPx(f.c);
-    if (x >= ax && x <= ax + aw) {
-      dctx.strokeStyle = 'rgba(255,209,102,0.25)'; dctx.setLineDash([2, 2]);
-      dctx.beginPath(); dctx.moveTo(x, ay); dctx.lineTo(x, ay + ah); dctx.stroke();
-      dctx.setLineDash([]);
-    }
+    tctx.strokeStyle = 'rgba(255,209,102,0.30)';
+    tctx.setLineDash([3, 3]);
+    tctx.beginPath(); tctx.moveTo(x, ay); tctx.lineTo(x, ay + ah); tctx.stroke();
+    tctx.setLineDash([]);
+    const label = f.c < 700 ? 'Na' : (f.c < 850 ? 'K' : 'H₂O');
+    tctx.fillStyle = 'rgba(255,209,102,0.7)';
+    tctx.fillText(label, x, ay + 12);
   }
 
-  // Label
-  dctx.fillStyle = '#7a818c'; dctx.font = fontString(canvas, 'caption', 'mono');
-  dctx.textAlign = 'left';
-  dctx.fillText('transmission (λ)', s.x + 2, s.y + 10);
+  // Curve.
+  tctx.strokeStyle = '#5bc0eb';
+  tctx.lineWidth = 1.8;
+  tctx.beginPath();
+  for (let i = 0; i <= ATMOSPHERE.nBins; i += 1) {
+    const px = xToPx(lams[i]), py = yToPx(depths[i]);
+    if (i === 0) tctx.moveTo(px, py); else tctx.lineTo(px, py);
+  }
+  tctx.stroke();
+
+  // Annotation strip.
+  tctx.fillStyle = 'rgba(255,255,255,0.85)';
+  tctx.textAlign = 'left';
+  tctx.font = fontString(canvas, 'caption', 'mono');
+  tctx.fillText(`atmosphere scale: H_atm = ${(H_atm).toFixed(3)} Rs    bands: Na D 589, K 770, H₂O 950 / 1380 / 1900 nm`, ax, ay + ah + 28);
 }
 
 function bootSync() {
   if (CAPTURE_NAME) {
     sim.t = CAPTURE_FRAC * sim.period;
     camera.setAzimuthDeg(CAPTURE_FRAC * 18);
-    camera.setElevationDeg(18);
+    camera.setElevationDeg(18);   // capture frames keep the oblique reference angle
     rebuildCurve();
     frame();
+    drawTransmissionSpectrum();
     if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
@@ -360,6 +367,8 @@ function bootSync() {
   }
   rebuildCurve();
   frame();
+  drawTransmissionSpectrum();
+  setInterval(drawTransmissionSpectrum, 250);
 }
 
 window.__physicsCheck = async () => {
@@ -380,39 +389,24 @@ else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const phase = ((sim.t % sim.period) / sim.period + 1) % 1;
-  const f = transitFlux(sim, phase * sim.period);
-  const p = planetSkyPos(sim, phase * sim.period);
-  const inTransit = p.infront && (p.x * p.x + p.y * p.y) < (1 + sim.Rp) ** 2;
   return {
     fields: [
-      { key: 'planet-radius-ratio', label: 'Rp/Rs', value: ui.Rp, format: 'float' },
-      { key: 'transit-depth-percent', label: 'Transit depth', value: (ui.Rp * ui.Rp * 100).toFixed(2) + '%', format: 'string' },
-      { key: 'orbital-period', label: 'Period', value: ui.period, format: 'float' },
-      { key: 'inclination-deg', label: 'Inclination', value: (ui.inc * 57.296).toFixed(1), format: 'string' },
-      { key: 'current-flux', label: 'Current flux', value: f.toFixed(5), format: 'string' },
-      { key: 'in-transit', label: 'In transit', value: inTransit ? 'yes' : 'no', format: 'string' }
+      { key: 'planet-radius-rs', label: 'Planet radius Rp/Rs', value: ui.Rp, format: 'float' },
+      { key: 'orbital-period-days', label: 'Orbital period', value: ui.period, format: 'float' },
+      { key: 'orbital-inclination', label: 'Inclination', value: (ui.inc * 57.296), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
+  // Check transit depth = (R_p / R_s)^2 is physically reasonable (planet smaller than star).
   const depth = ui.Rp * ui.Rp;
-  const phase = ((sim.t % sim.period) / sim.period + 1) % 1;
-  const f = transitFlux(sim, phase * sim.period);
-  const outOfTransitFlux = (phase < 0.2 || phase > 0.8);
-  const fluxOkay = !outOfTransitFlux || Math.abs(f - 1.0) < 1e-5;
+  const status = (depth > 0 && depth < 0.3) ? 'pass' : 'drift';
   return [
     {
-      key: 'transit-depth-physical',
-      label: 'Depth $(R_p/R_s)^2$ within bounds',
+      key: 'transit-depth-limit',
+      label: 'Transit depth $(R_p/R_s)^2$',
       value: (depth * 100).toFixed(2) + '%',
-      status: (depth > 0 && depth < 0.3) ? 'pass' : 'warn'
-    },
-    {
-      key: 'out-of-transit-unity',
-      label: 'Out-of-transit flux = 1.0',
-      value: f.toFixed(6),
-      status: fluxOkay ? 'pass' : 'warn'
+      status: status
     }
   ];
 };

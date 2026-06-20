@@ -12,22 +12,12 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
 <style>
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+  .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
   .pg-controls input[type="range"], .pg-controls select { width: 100%; }
   .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
   .playground-canvas { cursor: grab; }
   .playground-canvas:active { cursor: grabbing; }
-  .pg-controls-drawer { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 1px solid var(--grid); padding: var(--space-3); max-height: 60vh; overflow-y: auto; z-index: 1000; }
-  .pg-controls-drawer.open { display: block; }
-  .pg-controls-drawer-toggle { position: fixed; bottom: 16px; right: 16px; z-index: 1001; padding: 8px 12px; background: var(--accent); border: none; border-radius: 4px; color: var(--bg); cursor: pointer; font-size: 12px; font-weight: 500; }
-  @media (max-width: 1023px) {
-    .playground-controls { display: none; }
-  }
-  @media (min-width: 1024px) {
-    .pg-controls-drawer { display: none !important; }
-    .pg-controls-drawer-toggle { display: none !important; }
-  }
 </style>
   <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -58,7 +48,11 @@
       </header>
 
       <section class="playground-intro">
-        <p class="t-body">Every flat map distorts the round Earth. Watch Tissot's circles become ellipses as you switch between conformal, equal-area, and compromise projections, and drag the globe to recentre.</p>
+        <p class="t-body">Every flat map of the round Earth has to distort something: area,
+        angle, distance, or shape. No projection preserves all of them. This explorer projects
+        the globe through twelve classic map projections and overlays Tissot's indicatrix, the
+        small ellipse that turns the invisible local distortion into something you can see.
+        Drag the canvas to recentre the globe and watch the distortion pattern move with it.</p>
       </section>
 
       <div class="playground-canvas-frame">
@@ -68,16 +62,16 @@
             <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path>
           </svg>
         </button>
-        <canvas class="playground-canvas" id="stage" width="760" height="950" aria-label="Map projection canvas"></canvas>
+        <canvas class="playground-canvas" id="stage" width="880" height="540" aria-label="Map projection canvas"></canvas>
       </div>
 
       <figcaption class="t-small playground-caption">
         <span class="figure-number">Figure 1.</span>
-        The graticule (gray lines), the Blue Marble Earth texture, and Tissot indicatrices of the selected projection.
-        A circular indicatrix marks a conformal (angle-preserving) point; an equal-area indicatrix marks an equal-area point.
-        The live readouts in the sidebar track distortion metrics along the central meridian.
+        The graticule, the Blue Marble Earth texture, and Tissot indicatrices of the selected projection.
+        A circular indicatrix marks a conformal point, an equal-area indicatrix marks an
+        equal-area point, and the diagnostic panel tracks both along the central meridian.
         <em>Method:</em> forward projection of geographic coordinates, with the indicatrix
-        derived from the numerical Jacobian of the projection function. </figcaption>
+        from the numerical Jacobian in an orthonormal sphere basis. </figcaption>
 
       <section class="playground-controls">
         <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
@@ -128,13 +122,6 @@
     </aside>
 
   </main>
-
-  <div class="pg-controls-drawer" id="controls-drawer">
-    <div class="controls pg-controls" id="controls-drawer-content" role="group" aria-label="Simulation controls">
-      <!-- Controls duplicated for mobile here by playground.js. -->
-    </div>
-  </div>
-  <button class="pg-controls-drawer-toggle" id="controls-toggle" aria-label="Toggle controls" type="button">Controls</button>
 
   <script type="module" src="../../../shared/js/rail.js"></script>
   <script type="module" src="../../../shared/js/focus.js"></script>

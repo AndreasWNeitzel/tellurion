@@ -1,7 +1,7 @@
 ---
 title: Exoplanet Transit
 description: A planet crosses its star edge-on, the light dips by (Rp/Rs)^2, the dip's U-shape comes from limb darkening, and tilting the orbit shrinks the transit to a graze, then vanishes. The light curve is the observable.
-caption: Figure 1. Exoplanet transit in 3D and diagnostics. The 3D scene shows a star with an orbiting planet at the true orbital inclination. The light curve (middle) plots stellar flux vs orbital phase; the dip depth equals (Rp/Rs)^2, and the U-shape arises from quadratic limb darkening. The transmission spectrum (bottom) shows how the effective transit radius varies with wavelength due to atmospheric absorption features and Rayleigh scattering. Source: Mandel and Agol, ApJ 580 (2002) L171.
+caption: Figure 1. Star + planet on a Keplerian orbit; light curve from intensity-weighted overlap of a quadratic limb-darkened disc and the planet's circular shadow. Source: Mandel and Agol, ApJ 580 (2002) L171.
 slug: exoplanet-transit-3d
 status: verified
 audience: portfolio
@@ -14,7 +14,7 @@ supporting_ucs: []
 curriculum_year: hero
 primary_citation: mandel-agol-2002
 primary_chapter: 1
-hook: 'A planet crosses its star; the light dips by the square of the radius ratio. That tiny dip, repeated, revealed thousands of worlds.'
+hook: 'The star dims by a fraction the size of the planet, on the dot.'
 one_paragraph: 'A planet on a real Keplerian orbit transits its star edge-on; the light curve is computed as the intensity-weighted geometric overlap of a quadratic limb-darkened stellar disc with the planet shadow. The depth is the square of the radius ratio, the timing pins down the period, the duration the orbit geometry, and the U-shape comes from limb darkening, exactly the four observables that make transits the discovery channel for thousands of planets. Tilt the orbital plane and the transit shrinks to a graze, then vanishes; pick a hot Jupiter for a deep, frequent dip or an Earth analogue for a tiny, slow one.'
 tags: [stellar, animation, live-readout, webgl2, hero]
 difficulty: 5
