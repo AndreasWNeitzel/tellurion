@@ -66,7 +66,9 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="600" tabindex="0" aria-label="Lissajous figure on a square frame with companion x(t) and y(t) traces."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="Lissajous figure driven by an x oscillation above and a y oscillation to its left, with a gallery of frequency ratios."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
@@ -97,8 +99,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the wave above and the wave on the left: their current values are the dot's x and y. The figure is just those two oscillations combined.</li>
+        <li class="t-body">Tap a ratio in the gallery, or set $a$ and $b$ by hand. Simple ratios like 1:2 and 2:3 give clean loops; 5:7 fills the box with a dense mesh.</li>
+        <li class="t-body">With $a = b$, slide the phase $\delta$ from 0 to $\pi/2$ and watch a diagonal line open into a circle.</li>
       </ul>
     </section>
 

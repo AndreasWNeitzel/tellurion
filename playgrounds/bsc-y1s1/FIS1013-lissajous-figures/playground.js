@@ -1,268 +1,327 @@
 // playground.js
-// Lissajous figure on a square, with x(t) and y(t) trace strips beneath.
+// Lissajous figures: x(t) = A sin(a t + delta), y(t) = B sin(b t).
+//
+// Vertical 4:5 composition:
+//   1. HERO: the square figure with its two drivers drawn on the margins, an
+//      x oscillation above and a y oscillation to the left. Dashed guides carry
+//      the current x and y onto the traced dot, so the figure reads as two
+//      perpendicular oscillations combined, not a magic curve.
+//   2. GALLERY: a grid of frequency ratios. Tap one to load it.
 
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { x as xFn, y as yFn, period, PRESETS } from './sim.js';
+import { x as xFn, y as yFn, period } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const urlParams = new URLSearchParams(location.search);
+const DETERMINISTIC = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME = urlParams.get('capture');
+const CAPTURE_FRAC = parseFloat(urlParams.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const sliderA      = document.getElementById('slider-a');
-const sliderB      = document.getElementById('slider-b');
-const sliderDelta  = document.getElementById('slider-delta');
-const sliderSpeed  = document.getElementById('slider-speed');
-const valueA       = document.getElementById('value-a');
-const valueB       = document.getElementById('value-b');
-const valueDelta   = document.getElementById('value-delta');
-const valueSpeed   = document.getElementById('value-speed');
-const btnReset     = document.getElementById('btn-reset');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+const sliderA = document.getElementById('slider-a');
+const sliderB = document.getElementById('slider-b');
+const sliderDelta = document.getElementById('slider-delta');
+const sliderSpeed = document.getElementById('slider-speed');
+const valueA = document.getElementById('value-a');
+const valueB = document.getElementById('value-b');
+const valueDelta = document.getElementById('value-delta');
+const valueSpeed = document.getElementById('value-speed');
+const btnReset = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
-const presetBtns   = document.querySelectorAll('[data-preset]');
+const presetBtns = document.querySelectorAll('[data-preset]');
 
-const W = canvas.width, H = canvas.height;
+const GALLERY = [
+  [1, 1], [1, 2], [1, 3], [2, 3], [3, 2], [3, 4],
+  [4, 3], [3, 5], [5, 4], [4, 5], [5, 6], [5, 7],
+];
 
 const state = {
-  a: 3,
-  b: 5,
-  delta: Math.PI / 2,
-  speed: 2,
-  tNow: 0,
+  a: 3, b: 5, delta: Math.PI / 2, speed: 2, tNow: 0,
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  accent:     cssVar('--accent',      '#1B6CA8'),
-  accentCool: cssVar('--accent-cool', '#7fb1d8'),
-  accentWarm: cssVar('--accent-warm', '#d68a69'),
-};
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+let galleryCells = [];
+
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'hero', weight: 3.0 },
+    { name: 'gallery', weight: 1.2 },
+  ]);
+}
+
+function rgba(c, a) { return `rgba(${c.r},${c.g},${c.b},${a})`; }
+function colors() {
+  const css = getComputedStyle(document.body);
+  const g = (k, d) => css.getPropertyValue(k).trim() || d;
+  return {
+    bg: g('--bg', '#07090f'),
+    panel: '#0a0c12',
+    fg: g('--fg', '#e8e8e8'),
+    muted: 'rgba(255,255,255,0.5)',
+    accent: g('--accent', '#ffd166'),
+    cool: '#7fb1d8',
+    warm: '#e0925f',
+    border: 'rgba(255,255,255,0.12)',
+  };
+}
+function panel(col, r) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+}
 
 function reset() { state.tNow = 0; }
-function setPreset(name) {
-  const p = PRESETS[name];
-  if (!p) return;
-  state.a = p.a; state.b = p.b; state.delta = p.delta;
-  sliderA.value = String(state.a); valueA.textContent = String(state.a);
-  sliderB.value = String(state.b); valueB.textContent = String(state.b);
-  sliderDelta.value = state.delta.toFixed(2); valueDelta.textContent = state.delta.toFixed(2);
-  reset();
-}
 
-// Gallery layout: an N×N grid of small Lissajous thumbnails on the
-// right showing the (a, b) ratio space. Clicking a thumbnail sets the
-// main parameters. Inspired by the user's lissajous_table.png.
-const GALLERY_N = 6;
-function getGalleryCell(idx) {
-  const a = (idx % GALLERY_N) + 1;
-  const b = Math.floor(idx / GALLERY_N) + 1;
-  return { a, b, delta: Math.PI / 2 };
-}
+function drawHero(col) {
+  const r = REG.hero;
+  panel(col, r);
+  const pad = 12;
+  const drvLeft = 60, drvTop = 56;
+  const topUI = 30;
+  const figSize = Math.min(r.w - drvLeft - pad - 6, r.h - drvTop - topUI - pad - 6);
+  const figX = r.x + drvLeft + 4;
+  const figY = r.y + topUI + drvTop;
+  const half = figSize / 2 - 8;
+  const cxF = figX + figSize / 2, cyF = figY + figSize / 2;
+  const ptX = (xx) => cxF + xx * half;
+  const ptY = (yy) => cyF - yy * half;
+  const T = period(state.a, state.b);
+  const tc = state.tNow % T;
 
-function drawAll() {
-  ctx.fillStyle = '#040206';
-  ctx.fillRect(0, 0, W, H);
-
-  const padX = 28;
-  // Layout: big square Lissajous on left, gallery on right.
-  const mainSize = Math.min(H - 100, 380);
-  const mainX = padX;
-  const mainY = 56;
-  const tracesX = mainX + mainSize + padX;
-  const tracesW = W - tracesX - padX;
-  const traceH = (mainSize - 16) / 2;
-  // Override: dedicate the right side to the gallery instead of the
-  // x(t)/y(t) trace strips.
-  const galX = tracesX, galY = mainY;
-  const galW = tracesW, galH = mainSize;
-  const cellW = galW / GALLERY_N, cellH = galH / GALLERY_N;
-
-  // Title bar
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`a = ${state.a}   b = ${state.b}   delta = ${state.delta.toFixed(2)}   ratio a:b = ${state.a}:${state.b}`, padX, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`period T = ${period(state.a, state.b).toFixed(3)} (in 2 pi units)   t = ${state.tNow.toFixed(2)}`, padX, 40);
-
-  // Main square
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(mainX, mainY, mainSize, mainSize);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(mainX + 0.5, mainY + 0.5, mainSize - 1, mainSize - 1);
-  // Cross-hairs through center
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+  // Figure frame + crosshairs.
+  ctx.fillStyle = '#07090f';
+  ctx.fillRect(figX, figY, figSize, figSize);
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(figX + 0.5, figY + 0.5, figSize - 1, figSize - 1);
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
   ctx.beginPath();
-  ctx.moveTo(mainX, mainY + mainSize / 2);
-  ctx.lineTo(mainX + mainSize, mainY + mainSize / 2);
-  ctx.moveTo(mainX + mainSize / 2, mainY);
-  ctx.lineTo(mainX + mainSize / 2, mainY + mainSize);
+  ctx.moveTo(figX, cyF); ctx.lineTo(figX + figSize, cyF);
+  ctx.moveTo(cxF, figY); ctx.lineTo(cxF, figY + figSize);
   ctx.stroke();
 
-  function ptX(xx) { return mainX + (mainSize / 2) + xx * (mainSize / 2 - 12); }
-  function ptY(yy) { return mainY + (mainSize / 2) - yy * (mainSize / 2 - 12); }
-
-  // Trace the parametric curve up to current t.
-  ctx.strokeStyle = 'rgba(127, 177, 216, 0.65)';
-  ctx.lineWidth = 1.4;
+  // Full figure (faint) so the shape is always visible.
+  ctx.strokeStyle = 'rgba(127,177,216,0.22)';
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
-  const T = period(state.a, state.b);
-  const tDrawn = Math.min(state.tNow, T);
-  const N = Math.max(200, Math.floor(tDrawn / T * 1500));
-  for (let i = 0; i <= N; i += 1) {
-    const t = tDrawn * i / Math.max(1, N);
-    const xi = xFn(t, state.a, state.delta);
-    const yi = yFn(t, state.b);
-    const px = ptX(xi); const py = ptY(yi);
+  const NF = 1400;
+  for (let i = 0; i <= NF; i += 1) {
+    const t = T * i / NF;
+    const px = ptX(xFn(t, state.a, state.delta)), py = ptY(yFn(t, state.b));
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
-  // Fluorescent tracer: a vivid moving dot with a long additive-blend
-  // trail whose colour shifts along its length. The shifting hue
-  // (cyan -> magenta -> green) produces a fluorescent neon look.
-  const tc = state.tNow % T;
-  const pxN = ptX(xFn(tc, state.a, state.delta));
-  const pyN = ptY(yFn(tc, state.b));
+
+  // Bright recent trail, coloured along its length with viridis.
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  const TR = 80;
+  const TR = 90;
   for (let s = TR; s >= 1; s -= 1) {
-    const tt = (((tc - s * 0.008 * T) % T) + T) % T;
-    const a = 1 - s / TR;     // 0..1 along the trail (1 = current)
-    const gx = ptX(xFn(tt, state.a, state.delta));
-    const gy = ptY(yFn(tt, state.b));
-    // Hue ramp along the trail.
-    const hue = (180 + 180 * a) % 360;
-    ctx.fillStyle = `hsla(${hue}, 95%, 60%, ${(0.06 + 0.50 * a).toFixed(3)})`;
-    ctx.beginPath(); ctx.arc(gx, gy, 1.2 + 3.5 * a, 0, Math.PI * 2); ctx.fill();
-  }
-  // Bright glowing tracer dot.
-  const glow = ctx.createRadialGradient(pxN, pyN, 0, pxN, pyN, 22);
-  glow.addColorStop(0, 'rgba(180, 255, 220, 1)');
-  glow.addColorStop(0.4, 'rgba(120, 220, 255, 0.7)');
-  glow.addColorStop(1, 'rgba(120, 220, 255, 0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath(); ctx.arc(pxN, pyN, 22, 0, Math.PI * 2); ctx.fill();
-  ctx.restore();
-  ctx.fillStyle = '#fff3c8';
-  ctx.beginPath(); ctx.arc(pxN, pyN, 4, 0, Math.PI * 2); ctx.fill();
-
-  // Gallery panel: GALLERY_N x GALLERY_N grid of small Lissajous
-  // thumbnails covering the (a, b) frequency-ratio space. The
-  // currently-selected (a, b) cell is highlighted.
-  ctx.fillStyle = '#080612';
-  ctx.fillRect(galX, galY, galW, galH);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.20)';
-  ctx.strokeRect(galX + 0.5, galY + 0.5, galW - 1, galH - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('gallery   (click a cell)', galX + 6, galY - 6);
-  for (let i = 0; i < GALLERY_N * GALLERY_N; i += 1) {
-    const cell = getGalleryCell(i);
-    const cx0 = galX + (i % GALLERY_N) * cellW;
-    const cy0 = galY + Math.floor(i / GALLERY_N) * cellH;
-    const cxm = cx0 + cellW / 2, cym = cy0 + cellH / 2;
-    const cr = Math.min(cellW, cellH) * 0.40;
-    // Highlight current selection.
-    const isCurr = cell.a === state.a && cell.b === state.b;
-    if (isCurr) {
-      ctx.fillStyle = 'rgba(120, 220, 255, 0.15)';
-      ctx.fillRect(cx0 + 1, cy0 + 1, cellW - 2, cellH - 2);
-      ctx.strokeStyle = 'rgba(120, 220, 255, 0.9)';
-      ctx.strokeRect(cx0 + 0.5, cy0 + 0.5, cellW - 1, cellH - 1);
-    } else {
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-      ctx.strokeRect(cx0 + 0.5, cy0 + 0.5, cellW - 1, cellH - 1);
-    }
-    // Each thumbnail uses a hue derived from (a, b).
-    const hue = ((cell.a * 30 + cell.b * 90) % 360);
-    ctx.strokeStyle = `hsla(${hue}, 90%, 65%, 0.95)`;
-    ctx.lineWidth = 1.3;
+    const u = 1 - s / TR;                 // 0 (old) .. 1 (now)
+    const tt = (((tc - s * 0.006 * T) % T) + T) % T;
+    const c = viridis(u);
+    ctx.fillStyle = rgba(c, (0.05 + 0.5 * u).toFixed(3));
     ctx.beginPath();
-    const TT = period(cell.a, cell.b);
-    const NN = 200;
+    ctx.arc(ptX(xFn(tt, state.a, state.delta)), ptY(yFn(tt, state.b)), 1 + 3.2 * u, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  const xc = xFn(tc, state.a, state.delta);
+  const yc = yFn(tc, state.b);
+  const dotX = ptX(xc), dotY = ptY(yc);
+
+  // x driver above the figure: x value on the horizontal (aligned with the
+  // figure), time increasing upward; head sits at the figure edge.
+  const xStripBot = figY - 6, xStripTop = r.y + topUI + 4;
+  const xWin = 1.6 * (2 * Math.PI / state.a);
+  const xTS = (xStripBot - xStripTop) / xWin;
+  ctx.strokeStyle = col.warm; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) {
+    const tau = tc - xWin * i / 120;
+    const py = xStripBot - (tc - tau) * xTS;
+    const px = ptX(xFn(tau, state.a, state.delta));
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  // y driver left of the figure: y value on the vertical, time increasing left.
+  const yStripRight = figX - 6, yStripLeft = r.x + 8;
+  const yWin = 1.6 * (2 * Math.PI / state.b);
+  const yTS = (yStripRight - yStripLeft) / yWin;
+  ctx.strokeStyle = col.cool; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) {
+    const tau = tc - yWin * i / 120;
+    const px = yStripRight - (tc - tau) * yTS;
+    const py = ptY(yFn(tau, state.b));
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Projection guides from each driver head to the dot.
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(dotX, xStripBot); ctx.lineTo(dotX, dotY);   // vertical from x driver
+  ctx.moveTo(yStripRight, dotY); ctx.lineTo(dotX, dotY); // horizontal from y driver
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Driver heads.
+  ctx.fillStyle = col.warm;
+  ctx.beginPath(); ctx.arc(dotX, xStripBot, 3.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = col.cool;
+  ctx.beginPath(); ctx.arc(yStripRight, dotY, 3.2, 0, Math.PI * 2); ctx.fill();
+
+  // The tracing dot.
+  const glow = ctx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 18);
+  glow.addColorStop(0, 'rgba(255,243,200,0.9)');
+  glow.addColorStop(1, 'rgba(255,243,200,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(dotX, dotY, 18, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff3c8';
+  ctx.beginPath(); ctx.arc(dotX, dotY, 4, 0, Math.PI * 2); ctx.fill();
+
+  // Driver labels + readout.
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.fillStyle = col.warm; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('x = sin(a t + δ)', figX + 2, r.y + topUI - 2);
+  ctx.save();
+  ctx.translate(r.x + 12, figY + figSize - 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = col.cool; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('y = sin(b t)', 0, 0);
+  ctx.restore();
+  ctx.font = fontString(canvas, 'mono', 'mono');
+  ctx.fillStyle = col.fg; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`a:b = ${state.a}:${state.b}   δ ${state.delta.toFixed(2)}`, r.x + 10, r.y + 8);
+}
+
+function drawGallery(col) {
+  const r = REG.gallery;
+  panel(col, r);
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('frequency ratios (tap one)', r.x + 8, r.y + 6);
+
+  const cols = 6, rows = 2;
+  const pad = 8, top = r.y + 24;
+  const cw = (r.w - pad * 2) / cols;
+  const ch = (r.y + r.h - top - pad) / rows;
+  galleryCells = [];
+  GALLERY.forEach(([a, b], idx) => {
+    const cxi = r.x + pad + (idx % cols) * cw;
+    const cyi = top + Math.floor(idx / cols) * ch;
+    galleryCells.push({ a, b, x: cxi, y: cyi, w: cw, h: ch });
+    const isCur = a === state.a && b === state.b;
+    if (isCur) {
+      ctx.fillStyle = 'rgba(255,209,102,0.12)';
+      ctx.fillRect(cxi + 1, cyi + 1, cw - 2, ch - 2);
+      ctx.strokeStyle = col.accent; ctx.lineWidth = 1.4;
+    } else {
+      ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1;
+    }
+    ctx.strokeRect(cxi + 0.5, cyi + 0.5, cw - 1, ch - 1);
+    // Thumbnail curve.
+    const mxi = cxi + cw / 2, myi = cyi + ch / 2 + 4;
+    const rr = Math.min(cw, ch) * 0.32;
+    ctx.strokeStyle = isCur ? col.accent : col.cool;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    const TT = period(a, b), NN = 240;
     for (let k = 0; k <= NN; k += 1) {
       const t = TT * k / NN;
-      const xi = xFn(t, cell.a, cell.delta);
-      const yi = yFn(t, cell.b);
-      const px = cxm + xi * cr;
-      const py = cym - yi * cr;
+      const px = mxi + xFn(t, a, Math.PI / 2) * rr;
+      const py = myi - yFn(t, b) * rr;
       if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.stroke();
-    // Ratio label.
-    ctx.fillStyle = isCurr ? 'rgba(255, 255, 255, 0.95)' : 'rgba(220, 230, 255, 0.55)';
-    ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`${cell.a}:${cell.b}`, cx0 + 4, cy0 + 11);
-  }
+    ctx.font = fontString(canvas, 'tick', 'mono');
+    ctx.fillStyle = isCur ? col.accent : col.muted;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(`${a}:${b}`, cxi + 4, cyi + 3);
+  });
 }
 
-// Cache for hit-testing gallery clicks.
-function galleryHit(cx, cy) {
-  // Recompute layout (matches drawAll).
-  const padX = 28;
-  const mainSize = Math.min(H - 100, 380);
-  const mainX = padX, mainY = 56;
-  const tracesX = mainX + mainSize + padX;
-  const tracesW = W - tracesX - padX;
-  const galX = tracesX, galY = mainY;
-  const galW = tracesW, galH = mainSize;
-  const cellW = galW / GALLERY_N, cellH = galH / GALLERY_N;
-  if (cx < galX || cx > galX + galW || cy < galY || cy > galY + galH) return null;
-  const col = Math.floor((cx - galX) / cellW);
-  const row = Math.floor((cy - galY) / cellH);
-  if (col < 0 || col >= GALLERY_N || row < 0 || row >= GALLERY_N) return null;
-  return { a: col + 1, b: row + 1 };
+function drawAll() {
+  if (!REG) relayout();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawHero(col);
+  drawGallery(col);
 }
-canvas.addEventListener('click', (e) => {
-  const r = canvas.getBoundingClientRect();
-  const cx = (e.clientX - r.left) * (W / r.width);
-  const cy = (e.clientY - r.top) * (H / r.height);
-  const hit = galleryHit(cx, cy);
-  if (hit) {
-    state.a = hit.a; state.b = hit.b;
-    sliderA.value = String(state.a); valueA.textContent = String(state.a);
-    sliderB.value = String(state.b); valueB.textContent = String(state.b);
-    reset(); drawAll();
-  }
-});
 
-// Slowed from 0.04 so the figure draws at a followable pace.
 function tickN(n) { for (let i = 0; i < n; i += 1) state.tNow += 0.012; }
 
-sliderA.addEventListener('input',     () => { state.a = parseInt(sliderA.value, 10); valueA.textContent = String(state.a); reset(); drawAll(); });
-sliderB.addEventListener('input',     () => { state.b = parseInt(sliderB.value, 10); valueB.textContent = String(state.b); reset(); drawAll(); });
+function applyAB(a, b) {
+  state.a = a; state.b = b;
+  sliderA.value = String(a); valueA.textContent = String(a);
+  sliderB.value = String(b); valueB.textContent = String(b);
+  reset();
+}
+
+sliderA.addEventListener('input', () => { state.a = parseInt(sliderA.value, 10); valueA.textContent = String(state.a); reset(); drawAll(); });
+sliderB.addEventListener('input', () => { state.b = parseInt(sliderB.value, 10); valueB.textContent = String(state.b); reset(); drawAll(); });
 sliderDelta.addEventListener('input', () => { state.delta = parseFloat(sliderDelta.value); valueDelta.textContent = state.delta.toFixed(2); reset(); drawAll(); });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click',    () => { reset(); drawAll(); });
+btnReset.addEventListener('click', () => { reset(); drawAll(); });
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
   btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
 });
-presetBtns.forEach(b => b.addEventListener('click', () => { setPreset(b.dataset.preset); drawAll(); }));
+presetBtns.forEach((b) => b.addEventListener('click', () => {
+  const [pa, pb] = b.dataset.preset.split(':').map(Number);
+  applyAB(pa, pb); state.delta = Math.PI / 2; sliderDelta.value = '1.57'; valueDelta.textContent = '1.57';
+  drawAll();
+}));
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const cx = (e.clientX - rect.left) * (view.w / rect.width);
+  const cy = (e.clientY - rect.top) * (view.h / rect.height);
+  for (const cell of galleryCells) {
+    if (cx >= cell.x && cx <= cell.x + cell.w && cy >= cell.y && cy <= cell.y + cell.h) {
+      applyAB(cell.a, cell.b); state.delta = Math.PI / 2; sliderDelta.value = '1.57'; valueDelta.textContent = '1.57';
+      drawAll();
+      return;
+    }
+  }
+});
+
+if (typeof ResizeObserver !== 'undefined') {
+  let raf = 0;
+  const ro = new ResizeObserver(() => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { relayout(); drawAll(); });
+  });
+  ro.observe(canvas);
+}
 
 function bootSync() {
-  reset();
+  relayout();
+  valueA.textContent = String(state.a);
+  valueB.textContent = String(state.b);
+  valueDelta.textContent = state.delta.toFixed(2);
+  valueSpeed.textContent = String(state.speed);
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const T = period(state.a, state.b);
-    state.tNow = frac * T * 1.05;     // slightly past close to show closure
+    state.tNow = frac * period(state.a, state.b) * 1.05;
     drawAll();
     if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
+        window.__simulationReady = true;
+        window.__simulationReadyDetail = { capture: CAPTURE_NAME };
+      }));
     }
     return;
   }
@@ -270,10 +329,7 @@ function bootSync() {
 }
 
 function tick() {
-  if (state.playing) {
-    tickN(state.speed);
-    drawAll();
-  }
+  if (state.playing) { tickN(state.speed); drawAll(); }
   requestAnimationFrame(tick);
 }
 
@@ -283,25 +339,23 @@ if (document.readyState === 'loading') {
   bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
 
-
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'freq-x', label: 'x frequency $a$', value: state.a, format: 'float' },
-      { key: 'freq-y', label: 'y frequency $b$', value: state.b, format: 'float' },
-      { key: 'phase', label: 'phase offset $\\delta$ (rad)', value: state.delta, format: 'float' },
+      { key: 'freq-x', label: 'x frequency a', value: state.a, format: 'float' },
+      { key: 'freq-y', label: 'y frequency b', value: state.b, format: 'float' },
+      { key: 'phase', label: 'phase offset delta (rad)', value: state.delta, format: 'float' },
+      { key: 'period', label: 'period T (2pi units)', value: period(state.a, state.b), format: 'float' },
     ],
   };
 };
 window.playground.getInvariants = function () {
-  // A Lissajous figure traces a closed curve exactly when the frequency
-  // ratio a/b is rational; with integer a and b it always closes.
   const rational = Number.isInteger(state.a) && Number.isInteger(state.b);
   return [{
     key: 'closed-curve',
-    label: 'closed curve when the ratio $a/b$ is rational',
+    label: 'closed curve when the ratio a/b is rational',
     value: rational ? 'a/b rational' : 'a/b irrational',
     status: rational ? 'pass' : 'pending',
   }];
