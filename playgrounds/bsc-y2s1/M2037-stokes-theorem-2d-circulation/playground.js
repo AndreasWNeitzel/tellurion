@@ -2,6 +2,7 @@ import { curlAtPoint, circulationRect } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { stack } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -39,6 +40,56 @@ function layout() {
 }
 const toX = (x) => SCX + x * SC;
 const toY = (y) => SCY - y * SC;
+
+// Flowing tracers advected by the field: this makes the scene alive and, more
+// to the point, draws the flow whose rotation around the loop IS the
+// circulation, so the animation is the pedagogy. Seeded so captures replay.
+let _seed = 0xC0FFEE >>> 0;
+function rnd() {
+  _seed = (_seed + 0x6D2B79F5) >>> 0;
+  let t = Math.imul(_seed ^ (_seed >>> 15), 1 | _seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+let tracers = [];
+let everDragged = false;
+const TRAIL = 10;
+function spawnTracer(fresh) {
+  const yhalf = REG ? (REG.scene.h / 2) / SC : 3;
+  const life = 1.4 + rnd() * 1.8;
+  const x = (rnd() * 2 - 1) * 3, y = (rnd() * 2 - 1) * yhalf;
+  return { x, y, age: fresh ? rnd() * life : 0, life, hist: [[x, y]] };
+}
+function stepTracers(dt) {
+  const yhalf = (REG.scene.h / 2) / SC + 0.3;
+  for (const t of tracers) {
+    const { u, v } = vec(field, t.x, t.y);
+    t.x += u * dt; t.y += v * dt; t.age += dt;
+    t.hist.push([t.x, t.y]); if (t.hist.length > TRAIL) t.hist.shift();
+    if (t.age > t.life || Math.abs(t.x) > 3.3 || Math.abs(t.y) > yhalf) Object.assign(t, spawnTracer(false));
+  }
+}
+function drawTracers() {
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (const t of tracers) {
+    const { u, v } = vec(field, t.x, t.y);
+    const col = viridis(Math.min(1, Math.hypot(u, v) / 2.6));
+    const rgb = `${Math.round(col[0])}, ${Math.round(col[1])}, ${Math.round(col[2])}`;
+    const fade = Math.sin(Math.min(1, t.age / t.life) * Math.PI);   // fade in then out over life
+    // Fading streamline trail: oldest segments faint, head bright.
+    for (let i = 1; i < t.hist.length; i += 1) {
+      const a = fade * (i / t.hist.length) * 0.8;
+      ctx.strokeStyle = `rgba(${rgb}, ${a.toFixed(3)})`;
+      ctx.lineWidth = 0.6 + 1.8 * (i / t.hist.length);
+      ctx.beginPath();
+      ctx.moveTo(toX(t.hist[i - 1][0]), toY(t.hist[i - 1][1]));
+      ctx.lineTo(toX(t.hist[i][0]), toY(t.hist[i][1]));
+      ctx.stroke();
+    }
+    ctx.fillStyle = `rgba(${rgb}, ${fade.toFixed(3)})`;
+    ctx.beginPath(); ctx.arc(toX(t.x), toY(t.y), 1.9, 0, 2 * Math.PI); ctx.fill();
+  }
+}
 
 // Rule-13 diagnostic: the loop circulation against the enclosed area.
 // Stokes (Green) in 2D makes this a straight line through the origin with
@@ -87,16 +138,21 @@ function render() {
   ctx.strokeStyle = c.muted; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(s.x, toY(0)); ctx.lineTo(s.x + s.w, toY(0)); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(toX(0), s.y); ctx.lineTo(toX(0), s.y + s.h); ctx.stroke();
-  // Field arrows over the visible domain (y-extent follows the scene height
-  // at the same isotropic scale, filling the portrait without stretching).
+  // Faint static arrows carry the field's structure; the flowing tracers
+  // carry the motion and the eye (and are the flow whose loop rotation is the
+  // circulation). y-extent follows the scene height at the same isotropic
+  // scale, filling the portrait without stretching.
   const yhalf = Math.ceil((s.h / 2) / SC);
   for (let ix = -3; ix <= 3; ix += 0.4) for (let iy = -yhalf; iy <= yhalf; iy += 0.4) {
     const { u, v } = vec(field, ix, iy);
     const mag = Math.hypot(u, v); if (mag < 1e-9) continue;
     const len = Math.min(0.35, 0.08 + 0.05 * mag);
     const dx = len * u / mag, dy = len * v / mag;
-    arrow(c.muted, toX(ix), toY(iy), toX(ix + dx), toY(iy + dy));
+    arrow('rgba(150, 160, 180, 0.28)', toX(ix), toY(iy), toX(ix + dx), toY(iy + dy));
   }
+  if (!tracers.length) tracers = Array.from({ length: 240 }, () => spawnTracer(true));
+  stepTracers(0.016);
+  drawTracers();
   // Rectangle at (cx0, cy0).
   const rx = toX(cx0), ry = toY(cy0);
   ctx.fillStyle = 'rgba(255, 209, 102, 0.15)';
@@ -112,6 +168,14 @@ function render() {
   ctx.lineTo(rx - SC * w / 2, ry + SC * h / 2);
   ctx.closePath();
   ctx.stroke();
+  // Drag affordance, until the user first grabs the loop.
+  if (!everDragged) {
+    ctx.fillStyle = 'rgba(255, 209, 102, 0.85)';
+    ctx.font = fontString(canvas, 'caption', 'mono');
+    ctx.textAlign = 'center';
+    ctx.fillText('drag to move the loop', rx, ry + SC * h / 2 + 18);
+    ctx.textAlign = 'left';
+  }
   // In-canvas readout overlay (top-left of the scene).
   ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`field: ${field}`, s.x + 6, s.y + 16);
@@ -131,6 +195,7 @@ canvas.addEventListener('pointerdown', e => {
   dragStartCx0 = cx0;
   dragStartCy0 = cy0;
   isDragging = true;
+  everDragged = true;
 });
 canvas.addEventListener('pointermove', e => {
   if (!isDragging) return;
