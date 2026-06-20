@@ -1,4 +1,5 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
 // playground.js
 // Brachistochrone race: cycloid vs straight line vs a concave
 // reference curve vs a USER-DRAWN curve. The user drags two control
@@ -28,7 +29,15 @@ const valueSpeed   = document.getElementById('value-speed');
 const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
-const W = canvas.width, H = canvas.height;
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'race', weight: 2.4 },
+    { name: 'bars', weight: 1.6 },
+  ]);
+}
 
 const T_CONCAVE = descentTime(concaveCurve(160)).time;
 
@@ -90,23 +99,24 @@ function tMax() {
   return Math.max(T_CYCLOID, T_LINE, T_CONCAVE, userTable ? userTable.T : 0) * 1.05;
 }
 
-// ---- coordinate transform -----------------------------------------------
-const PAD = { l: 50, r: 30, t: 56, b: 150 };
+// ---- coordinate transform (isotropic, into the race region) -------------
+function raceMap() {
+  const r = REG.race;
+  const wx = X_B + 0.6, wy = Y_B + 0.8;
+  const padX = 34, padTop = 52, padBot = 24;
+  const aw = r.w - 2 * padX, ah = r.h - padTop - padBot;
+  const scale = Math.min(aw / wx, ah / wy);
+  const ox = r.x + padX + (aw - wx * scale) / 2 + 0.3 * scale;
+  const oy = r.y + padTop;
+  return { ox, oy, scale };
+}
 function worldToPx(x, y) {
-  const wx = X_B + 0.5;
-  const wy = Y_B + 1.0;
-  const drawW = W - PAD.l - PAD.r;
-  const drawH = H - PAD.t - PAD.b;
-  const scale = Math.min(drawW / wx, drawH / wy);
-  return { px: PAD.l + (x / wx) * (wx * scale), py: PAD.t + ((-y) / wy) * (wy * scale) };
+  const m = raceMap();
+  return { px: m.ox + x * m.scale, py: m.oy + (-y) * m.scale };
 }
 function pxToWorld(px, py) {
-  const wx = X_B + 0.5;
-  const wy = Y_B + 1.0;
-  const drawW = W - PAD.l - PAD.r;
-  const drawH = H - PAD.t - PAD.b;
-  const scale = Math.min(drawW / wx, drawH / wy);
-  return [(px - PAD.l) / scale, -(py - PAD.t) / scale];
+  const m = raceMap();
+  return [(px - m.ox) / m.scale, -((py - m.oy) / m.scale)];
 }
 
 function drawCurve(pts, color, lw = 2.0, dash = null) {
@@ -123,16 +133,24 @@ function drawCurve(pts, color, lw = 2.0, dash = null) {
 }
 
 function drawAll() {
+  if (!REG) relayout();
   if (!userTable) rebuildUserTable();
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#07090f';
+  ctx.fillRect(0, 0, view.w, view.h);
 
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`t = ${state.tNow.toFixed(3)} s`, 30, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText('drag the two white handles to shape your own path; race it against the cycloid', 30, 40);
+  const RS = REG.race;
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(RS.x, RS.y, RS.w, RS.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
+  ctx.strokeRect(RS.x + 0.5, RS.y + 0.5, RS.w - 1, RS.h - 1);
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('race to B', RS.x + 8, RS.y + 7);
+  ctx.font = fontString(canvas, 'caption', 'sans');
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillText('drag the handles to shape your own ramp', RS.x + 70, RS.y + 7);
+  ctx.font = fontString(canvas, 'mono', 'mono'); ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillText(`t = ${state.tNow.toFixed(2)} s`, RS.x + RS.w - 8, RS.y + 7);
 
   const A = worldToPx(0, 0);
   const B = worldToPx(X_B, -Y_B);
@@ -183,36 +201,40 @@ function drawAll() {
   drawBead(positionOnUser(t), '#9be8b0', 'yours');
 
   // ---- diagnostic: descent-time bars --------------------------------------
+  const BR = REG.bars;
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(BR.x, BR.y, BR.w, BR.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
+  ctx.strokeRect(BR.x + 0.5, BR.y + 0.5, BR.w - 1, BR.h - 1);
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('descent time (shorter is faster)', BR.x + 8, BR.y + 7);
   const tm = tMax();
-  const barX = 50, barW = W - 100, barH = 15;
-  let barY = H - 122;
+  const barX = BR.x + 14, barW = BR.w - 28, barH = 15;
+  const rowH = (BR.h - 36) / 4;
+  let barY = BR.y + 36 + (rowH - barH) / 2 + 4;
   function drawTimeBar(tStop, color, label, isUser) {
-    ctx.fillStyle = '#0a0a0e';
+    ctx.fillStyle = '#07090f';
     ctx.fillRect(barX, barY, barW, barH);
     ctx.strokeStyle = 'rgba(255,255,255,0.15)';
     ctx.strokeRect(barX + 0.5, barY + 0.5, barW - 1, barH - 1);
-    // T_stop dashed marker.
     const px = barX + barW * (tStop / tm);
     ctx.strokeStyle = 'rgba(255,255,255,0.3)';
     ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(px, barY); ctx.lineTo(px, barY + barH); ctx.stroke();
     ctx.setLineDash([]);
-    // Fill to current time.
     const tFill = Math.min(state.tNow, tStop);
     ctx.fillStyle = color;
-    ctx.fillRect(barX + 1, barY + 2, barW * (tFill / tm) - 1, barH - 4);
-    ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.textAlign = 'left';
-    ctx.fillText(label, barX, barY - 3);
+    ctx.fillRect(barX + 1, barY + 2, Math.max(0, barW * (tFill / tm) - 1), barH - 4);
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillText(label, barX, barY - 2);
     ctx.textAlign = 'right';
-    // Show how much SLOWER than the cycloid (the optimum).
     const delta = tStop - T_CYCLOID;
-    const deltaStr = delta <= 1e-4 ? ' (optimal)' : ` (+${delta.toFixed(3)} s)`;
-    ctx.fillStyle = isUser
-      ? (delta <= 1e-4 ? '#9be8b0' : '#ffd166')
-      : 'rgba(255,255,255,0.7)';
-    ctx.fillText(`T = ${tStop.toFixed(3)} s${deltaStr}`, barX + barW, barY - 3);
-    barY += 30;
+    const deltaStr = delta <= 1e-4 ? ' (optimal)' : ` (+${delta.toFixed(2)} s)`;
+    ctx.fillStyle = isUser ? (delta <= 1e-4 ? '#9be8b0' : '#ffd166') : 'rgba(255,255,255,0.7)';
+    ctx.font = fontString(canvas, 'mono', 'mono');
+    ctx.fillText(`${tStop.toFixed(2)} s${deltaStr}`, barX + barW, barY - 2);
+    barY += rowH;
   }
   drawTimeBar(T_CYCLOID, tok.accentCool, 'cycloid (brachistochrone)', false);
   drawTimeBar(userTable.T, '#9be8b0', 'your curve', true);
@@ -232,15 +254,15 @@ function handleAt(px, py) {
 }
 canvas.addEventListener('pointerdown', (e) => {
   const r = canvas.getBoundingClientRect();
-  const px = (e.clientX - r.left) * (W / r.width);
-  const py = (e.clientY - r.top) * (H / r.height);
+  const px = (e.clientX - r.left) * (view.w / r.width);
+  const py = (e.clientY - r.top) * (view.h / r.height);
   state.dragIdx = handleAt(px, py);
 });
 canvas.addEventListener('pointermove', (e) => {
   if (state.dragIdx < 0) return;
   const r = canvas.getBoundingClientRect();
-  const px = (e.clientX - r.left) * (W / r.width);
-  const py = (e.clientY - r.top) * (H / r.height);
+  const px = (e.clientX - r.left) * (view.w / r.width);
+  const py = (e.clientY - r.top) * (view.h / r.height);
   let [wx, wy] = pxToWorld(px, py);
   // Constrain inside the box and keep x strictly between A and B.
   wx = Math.max(0.15, Math.min(X_B - 0.15, wx));
@@ -264,7 +286,17 @@ btnPlayPause.addEventListener('click', () => {
   btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
 });
 
+if (typeof ResizeObserver !== 'undefined') {
+  let raf = 0;
+  const ro = new ResizeObserver(() => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { relayout(); drawAll(); });
+  });
+  ro.observe(canvas);
+}
+
 function bootSync() {
+  relayout();
   rebuildUserTable();
   reset();
   if (CAPTURE_NAME) {

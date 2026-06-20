@@ -45,12 +45,13 @@
 
     <section class="playground-intro">
       <p class="t-body">
-    <strong>What you are seeing:</strong> three frictionless beads released
+    <strong>What you are seeing:</strong> frictionless beads released
     simultaneously from <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mo stretchy="false">(</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">A = (0, 0)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord">0</span><span class="mclose">)</span></span></span></span></span> all slide down to <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mo stretchy="false">(</mo><mn>4</mn><mo separator="true">,</mo><mo>−</mo><mn>2</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">B = (4, -2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.0502em;">B</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord">4</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord">−</span><span class="mord">2</span><span class="mclose">)</span></span></span></span></span> under
     uniform gravity. The cyan bead follows the cycloid (Bernoulli's
-    brachistochrone solution); the orange bead follows the straight line;
-    the yellow bead follows a circular arc tangent to the horizontal at <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi></mrow><annotation encoding="application/x-tex">A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal">A</span></span></span></span></span>.
-    The cycloid arrives first; the line, despite being shortest, is slowest.
+    brachistochrone solution); the orange bead follows the straight line; the
+    green bead follows your own curve, which you shape by dragging the two
+    handles. The cycloid arrives first; the straight line, despite being the
+    shortest path, is the slowest. Try to beat the cycloid: you cannot.
   </p>
       <p class="t-body">
     The cycloid is parametrized by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo><mo>=</mo><mi>R</mi><mo stretchy="false">(</mo><mi>θ</mi><mo>−</mo><mi>sin</mi><mo>⁡</mo><mi>θ</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">x(\theta) = R (\theta - \sin\theta)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">x</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0077em;">R</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="mclose">)</span></span></span></span></span>,
@@ -66,7 +67,9 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="520" tabindex="0" aria-label="Three beads racing down cycloid, line, and arc paths under gravity."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="Beads racing down a cycloid, a straight line, and a user-drawn curve, with descent-time bars below."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
@@ -87,8 +90,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the race: the straight line is the shortest path but finishes last, because it builds speed too slowly at the start.</li>
+        <li class="t-body">Drag the two handles to shape your own ramp and try to beat the cycloid. The descent-time bars show how far behind you land.</li>
+        <li class="t-body">Make your curve dive steeply at first, like the cycloid: that early speed is what wins, even though the path is longer.</li>
       </ul>
     </section>
 
