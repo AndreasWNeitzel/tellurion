@@ -13,8 +13,6 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 760px; }
-    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
     .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
@@ -44,48 +42,32 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-    <strong>What you are seeing:</strong> a block of mass <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> on a slope
-    of angle <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi></mrow><annotation encoding="application/x-tex">\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span></span></span></span></span>, with static friction <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>s</mi></msub></mrow><annotation encoding="application/x-tex">\mu_s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span> and kinetic friction
-    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">\mu_k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0315em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>. The block sits still until <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>tan</mi><mo>⁡</mo><mi>θ</mi></mrow><annotation encoding="application/x-tex">\tan\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mop">tan</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span></span></span></span></span> exceeds <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>s</mi></msub></mrow><annotation encoding="application/x-tex">\mu_s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>, then
-    breaks free and accelerates at constant
-    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>g</mi><mo stretchy="false">(</mo><mi>sin</mi><mo>⁡</mo><mi>θ</mi><mo>−</mo><msub><mi>μ</mi><mi>k</mi></msub><mi>cos</mi><mo>⁡</mo><mi>θ</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">a = g(\sin\theta - \mu_k \cos\theta)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mopen">(</span><span class="mop">sin</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.0315em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">cos</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="mclose">)</span></span></span></span></span>. Below threshold the slider just
-    confirms equilibrium: static friction silently rises to match the
-    component of gravity along the slope.
-  </p>
-      <p class="t-body">
-    Two diagnostic curves on the right track the block's velocity in time
-    and the analytic prediction <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>a</mi> <mi>t</mi></mrow><annotation encoding="application/x-tex">v(t) = a\,t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">v</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6151em;"></span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">t</span></span></span></span></span>. Once the block moves, the
-    numerical trajectory tracks the analytic curve to machine precision
-    (velocity-Verlet is exact for constant acceleration).
-  </p>
+      <p class="t-body">A block on a ramp, held by friction until the slope gets too steep. Gravity splits into a part pressing the block into the surface and a part pulling it down the slope. Friction can match that down-slope pull only up to a ceiling, $\mu_s m g \cos\theta$. Once the slope passes the critical angle $\theta_c = \arctan\mu_s$, the ceiling is exceeded, the block breaks free, and friction drops to its lower kinetic value, so the block accelerates at $a = g(\sin\theta - \mu_k\cos\theta)$. The scene shows the force vectors on the block; the diagnostic below plots the down-slope pull against the friction limit, so the crossover at $\theta_c$ and the static-to-kinetic drop are both visible.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500" tabindex="0" aria-label="Block on an inclined plane: ramp on the left half of the canvas, velocity vs time plot on the right."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="Block on an inclined plane: force vectors on the block above, and the down-slope pull versus the friction limit as a function of slope angle below."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Block on an inclined plane with Coulomb friction. Method:
-      velocity-Verlet on constant acceleration.</figcaption>
+      Block on an inclined plane with Coulomb friction. Top: the free-body diagram (weight, normal, friction) on the block as it sits or slides. Bottom: the down-slope pull and the friction limit versus slope angle, crossing at the critical angle. Method: velocity-Verlet on constant acceleration.</figcaption>
 
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Inclined plane controls">
-    <div class="row"><span class="label">theta (deg)</span><input aria-label="theta (deg)" type="range" id="slider-theta" min="0" max="60" step="0.5" value="25"><span class="value" id="value-theta">25</span></div>
-    <div class="row"><span class="label">mu_s</span><input aria-label="mu_s" type="range" id="slider-mus" min="0" max="1" step="0.01" value="0.40"><span class="value" id="value-mus">0.40</span></div>
+    <div class="row"><span class="label">theta (deg)</span><input aria-label="theta (deg)" type="range" id="slider-theta" min="0" max="60" step="0.5" value="30"><span class="value" id="value-theta">30</span></div>
+    <div class="row"><span class="label">mu_s</span><input aria-label="mu_s" type="range" id="slider-mus" min="0.05" max="1" step="0.01" value="0.40"><span class="value" id="value-mus">0.40</span></div>
     <div class="row"><span class="label">mu_k</span><input aria-label="mu_k" type="range" id="slider-muk" min="0" max="1" step="0.01" value="0.30"><span class="value" id="value-muk">0.30</span></div>
-    <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
     <div class="row buttons">
-      <button id="btn-reset" type="button">Reset block</button>
+      <button id="btn-reset" type="button">Reset</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>
   </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">|v - v_analytic|/v_analytic:</span><span class="value" id="readout-invariant">0</span>
+      <span class="label">energy drift:</span><span class="value" id="readout-invariant">0</span>
       <span class="label">theta_c (rad):</span><span class="value" id="readout-tc">0</span>
     </div></div>
     </section>
@@ -93,8 +75,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Lower the slope below the critical angle (the dashed line on the diagnostic): the block freezes, and friction quietly grows to match the pull, no more.</li>
+        <li class="t-body">Raise theta just past the critical angle: the block barely breaks free, and the diagnostic shows the friction line drop from its static ceiling down to the kinetic level.</li>
+        <li class="t-body">Push mu_s up and the block holds on steeper slopes; the critical angle is exactly arctan(mu_s), independent of mass.</li>
+        <li class="t-body">Set mu_k close to mu_s and the slide is sluggish; open the gap and the shaded net force, equal to m a, grows and the block races down.</li>
       </ul>
     </section>
 

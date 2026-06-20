@@ -10,7 +10,7 @@ curriculum_year: bsc-y1s1
 primary_citation: marion-thornton
 primary_chapter: 2
 hook: "Tilt a ramp under a block. Nothing happens, nothing happens, then at one critical angle it suddenly slides and keeps speeding up. Friction is a threshold, not a brake: it holds completely until it lets go completely."
-one_paragraph: "A block sits on a ramp of adjustable angle with Coulomb friction (static coefficient mu_s, kinetic mu_k). While the slope angle theta stays below the critical angle (tan theta_c = mu_s) static friction exactly cancels the downslope pull and the block does not move at all. Past theta_c it breaks free and slides with constant acceleration a = g (sin theta - mu_k cos theta), so the speed grows linearly. The block changes colour and label at the static-to-sliding transition; the side panel plots the numerical v(t) on top of the analytic prediction so you can see they coincide (a check on the integrator), and the readout gives the critical angle and the relative error. The lesson is that friction is a threshold law: it adjusts itself up to a maximum and only then gives way, which is why you can park on a steep hill but not on ice."
+one_paragraph: "A block sits on a ramp of adjustable angle with Coulomb friction (static coefficient mu_s, kinetic mu_k). While the slope angle theta stays below the critical angle (tan theta_c = mu_s) static friction exactly cancels the downslope pull and the block does not move at all. Past theta_c it breaks free and slides with constant acceleration a = g (sin theta - mu_k cos theta), so the speed grows linearly. The scene draws the free-body diagram (weight, normal, friction, and gravity resolved along and into the slope) and the block changes colour and label at the static-to-sliding transition. The diagnostic plots the down-slope pull against the friction limit versus angle: they cross at theta_c, and past it the friction drops to its kinetic value, the shaded gap being the net force that drives the slide. The lesson is that friction is a threshold law: it adjusts itself up to a maximum and only then gives way, which is why you can park on a steep hill but not on ice."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -116,14 +116,13 @@ Closed-form integration from rest: $v(t) = a t$, $x(t) = \tfrac{1}{2} a t^2$.
 
 ## Numerical method
 
-Time integration is velocity-Verlet at $\Delta t = 1/480$ s. For constant acceleration velocity-Verlet is exact (no truncation error), so the numerical trajectory and the analytic prediction coincide to machine precision. The render loop uses a fixed-step accumulator pattern at 240 Hz physics; the rAF loop runs the renderer at the display rate.
+Time integration is velocity-Verlet at $\Delta t = 1/240$ s. For constant acceleration velocity-Verlet is exact (no truncation error), so the numerical trajectory matches the analytic prediction to machine precision. The render loop uses a fixed-step accumulator pattern; the rAF loop runs the renderer at the display rate. When the block reaches the bottom of the slope it is held briefly and released again from the top, so a slide loops cleanly.
 
 ## Controls
 
 - Slope angle $\theta$ in degrees (0 to 60).
-- Static friction $\mu_s$ (0 to 1).
+- Static friction $\mu_s$ (0.05 to 1).
 - Kinetic friction $\mu_k$ (0 to 1).
-- Playback speed multiplier (1 to 6 physics ticks per displayed frame).
 - Reset button restarts from rest with current parameter values.
 - Play / Pause button toggles the simulation.
 
@@ -131,7 +130,7 @@ Time integration is velocity-Verlet at $\Delta t = 1/480$ s. For constant accele
 
 1. Below the threshold $\tan\theta \le \mu_s$ the block does not move. The readout shows $\theta_c$ and labels the regime as "static" in blue.
 2. Above threshold the block accelerates uniformly. The label switches to "sliding" in accent color.
-3. The right-half $v(t)$ plot shows the numerical curve overlaying the analytic line to within $10^{-12}$ relative.
+3. The diagnostic plots the down-slope pull $\sin\theta$ against the friction limit $\mu_s\cos\theta$ (per unit weight). They cross at $\theta_c$; past it the actual friction drops to the kinetic level $\mu_k\cos\theta$, and the shaded gap up to the pull equals $a/g$, the net force per unit weight.
 4. Tightening $\mu_k$ toward $\tan\theta$ flattens the kinetic acceleration toward zero. The block creeps but doesn't accelerate.
 
 ## Invariants and acceptance thresholds
@@ -154,7 +153,7 @@ All confirmed in `invariants.test.mjs` (6 tests passing).
 
 ## Visual fallback
 
-If KaTeX or Canvas2D is unavailable, the figure caption still reads as a paper sentence and the controls remain operable as plain HTML sliders. The block animation and $v(t)$ plot degrade gracefully.
+If KaTeX or Canvas2D is unavailable, the figure caption still reads as a paper sentence and the controls remain operable as plain HTML sliders. The block animation and the force-vs-angle diagnostic degrade gracefully.
 
 ## Citations
 
@@ -168,5 +167,5 @@ If KaTeX or Canvas2D is unavailable, the figure caption still reads as a paper s
 
 ## Risk register
 
-- Speed slider at high multipliers can blow past the slope length within one rAF frame; mitigated by clamping `s.x` to `s.slopeLength` and auto-restarting at `t >= TOTAL_T`.
-- Slider extremes ($\mu_s = 0$) leave $\theta_c = 0$, which is a degenerate edge: the block always slides; visual still correct.
+- A large frame gap could over-integrate the slide; mitigated by the fixed-step accumulator and clamping `s.x` to `s.slopeLength`, after which the block is held and re-released from the top.
+- Very small $\mu_s$ pushes $\theta_c$ toward 0 (the block slides at almost any tilt); the static-friction slider therefore starts at 0.05 to keep the critical angle meaningful.
