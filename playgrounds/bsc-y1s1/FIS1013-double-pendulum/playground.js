@@ -6,6 +6,8 @@ import { fontString } from '../../../shared/js/canvas-type.js';
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
 import {
   create as engineCreate,
   step as engineStep,
@@ -54,22 +56,33 @@ const sliderValues = {
 const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
-// Layout: pendulum lives on the left half, phase trajectory on the right.
-// Canvas is 880x500. Pendulum at SUPPORT_X = 220 leaves x in [40, 400] for
-// the bob extent; phase panel sits at x in [470, 850].
-const W = canvas.width, H = canvas.height;
-const SUPPORT_X = 220;
-const SUPPORT_Y = 90;
-const PPM       = 90;
-
-// Phase trajectory panel: theta1 on x in [-pi, pi], omega1 on y in [-8, 8].
-const PHASE = { x: 470, y: 60, w: 380, h: 380,
-                tMin: -Math.PI, tMax: Math.PI,
-                wMin: -8,       wMax: 8 };
-const PHASE_TRAIL_MAX = 4000;     // last 4 s of (theta1, omega1) samples
+// Portrait layout: the pendulum (with its chaos ensemble) fills the top, the
+// divergence-vs-time plot sits below. Support/scale derive from the scene
+// region and the arm lengths (fitScene), recomputed on resize and on length
+// changes.
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+let SUPPORT_X = 380, SUPPORT_Y = 200, PPM = 90;
+function fitScene() {
+  const s = REG.scene;
+  SUPPORT_X = s.x + s.w / 2;
+  SUPPORT_Y = s.y + s.h * 0.46;
+  PPM = Math.min(s.w * 0.46, s.h * 0.46) / (state.l1 + state.l2 + 0.1);
+}
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 2.6 },
+    { name: 'diag', weight: 1.4 },
+  ]);
+  fitScene();
+  state.trail.length = 0;
+}
 
 const TRAIL_MAX = 2400;    // number of (x2, y2) samples to keep (~2.4 s of motion at PHYSICS_DT=1ms)
 const TRAIL_DECAY = 0.55;  // peak alpha at the head of the trail; linear decay toward the tail
+const DIV_MAX = 12000;     // divergence samples (~12 s at 1 ms)
+const LOOP_T = 12.0;       // re-converge the ensemble after this many seconds
 
 // Default IC (rad) and parameters (kg, m), per spec.
 // Chaotic regime by default: both arms well raised so the motion is
@@ -77,8 +90,8 @@ const TRAIL_DECAY = 0.55;  // peak alpha at the head of the trail; linear decay 
 // whole point of the demo). Low-amplitude ICs are quasi-periodic and
 // never diverge.
 const DEFAULT_IC = {
-  theta1: 2.2,
-  theta2: 2.4,
+  theta1: 2.9,
+  theta2: 2.9,
   omega1: 0,
   omega2: 0,
 };
@@ -92,7 +105,8 @@ const state = {
   inst: null,
   poincare: new PoincareCounter(),
   trail: [],            // ring buffer of {x, y} for bob 2 (physical-space trail)
-  phaseTrail: [],       // ring buffer of {t1, w1} for the phase panel
+  divergence: [],       // {t, spread} ensemble spread over time (chaos signature)
+  simT: 0,              // accumulated sim time for the divergence plot
   playing: !(DETERMINISTIC || prefersReducedMotion()),
   dragging: null,       // 'bob1' | 'bob2' | null
   dragVelocityReset: false,
@@ -123,7 +137,10 @@ const tokens = {
 // They track the primary at first, then diverge exponentially (the
 // signature of deterministic chaos / sensitive dependence).
 const ENSEMBLE_N = 10;
-const ENSEMBLE_DTHETA = 1e-6;
+// An imperceptible 1e-4 rad (~0.006 degrees) seed: small enough to look like a
+// single pendulum at first, large enough to fan apart on screen within a few
+// seconds given the modest Lyapunov rate at this energy.
+const ENSEMBLE_DTHETA = 1e-4;
 // Kept as a module-scope array (not on `state`) so the existing drag and
 // phase-panel logic, which only reads state.inst, is untouched.
 let ensemble = [];
@@ -145,14 +162,16 @@ function rebuildEngine(ic) {
   state.inst = makeInst(ic.theta1, ic.theta2, ic.omega1, ic.omega2);
   ensemble = [];
   for (let k = 1; k <= ENSEMBLE_N; k += 1) {
+    const c = viridis(0.12 + 0.8 * (k - 1) / (ENSEMBLE_N - 1));
     ensemble.push({
       inst: makeInst(ic.theta1 + k * ENSEMBLE_DTHETA, ic.theta2, ic.omega1, ic.omega2),
-      color: `hsl(${(k * 360 / ENSEMBLE_N) | 0} 85% 62%)`,
+      color: `rgb(${c.r},${c.g},${c.b})`,
     });
   }
   state.poincare.reset();
   state.trail.length      = 0;
-  state.phaseTrail.length = 0;
+  state.divergence.length = 0;
+  state.simT = 0;
 }
 
 function clampToEnvelope(theta1, theta2) {
@@ -249,101 +268,55 @@ function drawTrail() {
   ctx.globalAlpha = 1;
 }
 
-function phaseToPx(t1, w1) {
-  return {
-    px: PHASE.x + (t1 - PHASE.tMin) / (PHASE.tMax - PHASE.tMin) * PHASE.w,
-    py: PHASE.y + (1 - (w1 - PHASE.wMin) / (PHASE.wMax - PHASE.wMin)) * PHASE.h,
-  };
-}
+function drawDivergence() {
+  const r = REG.diag;
+  ctx.fillStyle = tokens.surface; ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = tokens.fgFaint; ctx.lineWidth = 0.6; ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  ctx.fillStyle = tokens.fgMuted; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('how fast near-identical starts diverge', r.x + 8, r.y + 6);
 
-function drawPhasePanel() {
-  // panel background
-  ctx.fillStyle = tokens.surface;
-  ctx.fillRect(PHASE.x, PHASE.y, PHASE.w, PHASE.h);
-  ctx.strokeStyle = tokens.fgFaint;
-  ctx.lineWidth = 0.6;
-  ctx.strokeRect(PHASE.x + 0.5, PHASE.y + 0.5, PHASE.w - 1, PHASE.h - 1);
+  const padL = 46, padR = 14, padT = 26, padB = 26;
+  const x0 = r.x + padL, x1 = r.x + r.w - padR, pw = x1 - x0;
+  const y0 = r.y + padT, y1 = r.y + r.h - padB, ph = y1 - y0;
+  const tMax = Math.max(8, state.simT);
+  const yLo = -6, yHi = 0.6;                 // log10 of separation: 1e-6 .. ~pi
+  const fx = (t) => x0 + (t / tMax) * pw;
+  const fy = (l) => y1 - (l - yLo) / (yHi - yLo) * ph;
 
-  // axes through (0, 0)
-  ctx.strokeStyle = tokens.fgFaint;
-  ctx.lineWidth = 0.5;
-  const o = phaseToPx(0, 0);
-  ctx.beginPath();
-  ctx.moveTo(PHASE.x, o.py); ctx.lineTo(PHASE.x + PHASE.w, o.py);
-  ctx.moveTo(o.px, PHASE.y); ctx.lineTo(o.px, PHASE.y + PHASE.h);
-  ctx.stroke();
-
-  // tick labels
-  ctx.fillStyle = tokens.fgFaint;
-  ctx.font = fontString(canvas, 'tick');
-  ctx.textAlign = 'center';
-  for (const [t, lbl] of [[-Math.PI, '-pi'], [0, '0'], [Math.PI, 'pi']]) {
-    const { px: x } = phaseToPx(t, 0);
-    ctx.fillText(lbl, x, PHASE.y + PHASE.h + 13);
+  // Decade gridlines.
+  ctx.font = fontString(canvas, 'tick'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const l of [-6, -4, -2, 0]) {
+    const py = fy(l);
+    ctx.strokeStyle = tokens.grid; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(x0, py); ctx.lineTo(x1, py); ctx.stroke();
+    ctx.fillStyle = tokens.fgFaint; ctx.fillText(`1e${l}`, x0 - 4, py);
   }
-  ctx.textAlign = 'right';
-  for (const w of [-6, -3, 0, 3, 6]) {
-    const { py } = phaseToPx(0, w);
-    ctx.fillText(String(w), PHASE.x - 4, py + 3);
-  }
-
-  // trajectory
-  const N = state.phaseTrail.length;
-  if (N >= 2) {
-    ctx.lineWidth = 1.0;
-    ctx.strokeStyle = tokens.accent;
-    ctx.lineCap = 'round';
-    // Draw segments only when consecutive samples are within the panel
-    // (skip the wrap discontinuity at +/- pi).
-    ctx.beginPath();
-    let drawing = false;
-    for (let i = 1; i < N; i += 1) {
-      const a = state.phaseTrail[i - 1];
-      const b = state.phaseTrail[i];
-      if (Math.abs(a.t1 - b.t1) > Math.PI * 0.5) {
-        drawing = false;
-        continue;
-      }
-      const pa = phaseToPx(a.t1, a.w1);
-      const pb = phaseToPx(b.t1, b.w1);
-      if (!drawing) { ctx.moveTo(pa.px, pa.py); drawing = true; }
-      ctx.lineTo(pb.px, pb.py);
+  // Separation curve (log scale): straight rise = exponential growth = chaos.
+  if (state.divergence.length >= 2) {
+    ctx.strokeStyle = tokens.accentWarm; ctx.lineWidth = 1.8; ctx.beginPath();
+    let first = true;
+    for (const d of state.divergence) {
+      const px = fx(d.t), py = fy(Math.log10(d.s));
+      if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
     }
     ctx.stroke();
   }
-
-  // current point
-  if (N >= 1) {
-    const last = state.phaseTrail[N - 1];
-    const { px, py } = phaseToPx(last.t1, last.w1);
-    ctx.fillStyle = tokens.accentWarm;
-    ctx.beginPath();
-    ctx.arc(px, py, 4, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.strokeStyle = tokens.fg;
-    ctx.lineWidth = 0.8;
-    ctx.stroke();
-  }
-
-  // labels
-  ctx.fillStyle = tokens.fgMuted;
-  ctx.font = fontString(canvas, 'caption');
-  ctx.textAlign = 'left';
-  ctx.fillText('Phase trajectory (theta1 mod 2pi, omega1)', PHASE.x, PHASE.y - 8);
-  ctx.font = fontString(canvas, 'tick');
-  ctx.fillStyle = tokens.fgFaint;
-  ctx.textAlign = 'center';
-  ctx.fillText('theta1 (rad)', PHASE.x + PHASE.w / 2, PHASE.y + PHASE.h + 26);
-  ctx.save();
-  ctx.translate(PHASE.x - 32, PHASE.y + PHASE.h / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('omega1 (rad/s)', 0, 0);
-  ctx.restore();
+  // Axis.
+  ctx.fillStyle = tokens.fgFaint; ctx.font = fontString(canvas, 'tick'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const dt = Math.max(2, Math.round(tMax / 4));
+  for (let s = 0; s <= tMax + 1e-9; s += dt) ctx.fillText(`${s}s`, fx(s), y1 + 4);
+  ctx.fillStyle = tokens.fgMuted; ctx.textBaseline = 'bottom';
+  ctx.fillText('a straight rise on this log axis is exponential blow-up', (x0 + x1) / 2, r.y + r.h - 3);
 }
 
 function drawAll() {
+  if (!REG) relayout();
   ctx.fillStyle = tokens.bg;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, view.w, view.h);
+  if (!state.inst) return;
+  // Scene panel.
+  const s = REG.scene;
+  ctx.fillStyle = tokens.surface; ctx.fillRect(s.x, s.y, s.w, s.h);
+  ctx.strokeStyle = tokens.fgFaint; ctx.lineWidth = 0.6; ctx.strokeRect(s.x + 0.5, s.y + 0.5, s.w - 1, s.h - 1);
   drawSupport();
   drawTrail();
   // Chaos ensemble underneath the primary: thin colored arms + bob2,
@@ -365,7 +338,10 @@ function drawAll() {
   ctx.globalAlpha = 1;
   const t1 = state.inst.q[0], t2 = state.inst.q[1];
   drawPendulum(t1, t2);
-  drawPhasePanel();
+  // Title + chaos caption on the scene.
+  ctx.fillStyle = tokens.fgMuted; ctx.font = fontString(canvas, 'caption', 'sans'); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`${ENSEMBLE_N} pendulums, started a fraction of a degree apart`, s.x + 8, s.y + 7);
+  drawDivergence();
 }
 
 //
@@ -382,12 +358,23 @@ function stepOnce() {
   const { p2 } = thetaToBobPx(state.inst.q[0], state.inst.q[1]);
   state.trail.push(p2);
   if (state.trail.length > TRAIL_MAX) state.trail.shift();
-  // append phase-space sample (theta1 mod 2pi, omega1)
-  let theta1 = t1;
-  while (theta1 >   Math.PI) theta1 -= 2 * Math.PI;
-  while (theta1 <= -Math.PI) theta1 += 2 * Math.PI;
-  state.phaseTrail.push({ t1: theta1, w1 });
-  if (state.phaseTrail.length > PHASE_TRAIL_MAX) state.phaseTrail.shift();
+  // Track the ensemble's spread from the primary: the configuration-space
+  // distance of the farthest member. This grows exponentially (sensitive
+  // dependence) then saturates, the quantitative signature of chaos.
+  state.simT += PHYSICS_DT;
+  let spread = 0;
+  for (const e of ensemble) {
+    const d = Math.hypot(angDiff(e.inst.q[0], t1), angDiff(e.inst.q[1], state.inst.q[1]));
+    if (d > spread) spread = d;
+  }
+  state.divergence.push({ t: state.simT, s: Math.max(spread, 1e-9) });
+  if (state.divergence.length > DIV_MAX) state.divergence.shift();
+}
+function angDiff(a, b) {
+  let d = a - b;
+  while (d > Math.PI) d -= 2 * Math.PI;
+  while (d <= -Math.PI) d += 2 * Math.PI;
+  return d;
 }
 
 //
@@ -421,8 +408,8 @@ const HIT_RADIUS_PX = 22;
 function canvasPos(evt) {
   const rect = canvas.getBoundingClientRect();
   const ev   = evt.touches ? evt.touches[0] : evt;
-  const sx   = canvas.width  / rect.width;
-  const sy   = canvas.height / rect.height;
+  const sx   = view.w / rect.width;
+  const sy   = view.h / rect.height;
   return { x: (ev.clientX - rect.left) * sx, y: (ev.clientY - rect.top) * sy };
 }
 
@@ -513,6 +500,7 @@ function bindSlider(key, unit, decimals) {
       omega2: state.inst.qdot[1],
     };
     rebuildEngine(ic);
+    fitScene();
     drawAll();
     updateReadouts(true);
   });
@@ -538,9 +526,19 @@ btnPlayPause.addEventListener('click', () => {
 // give t = 0, 1.5, 3, 4.5, 6 s; enough to show coupled-pendulum motion in the
 // default quasi-periodic IC.
 //
-const CAPTURE_TOTAL_T = 6.0;
+const CAPTURE_TOTAL_T = 11.0;
+
+if (typeof ResizeObserver !== 'undefined') {
+  let raf = 0;
+  const ro = new ResizeObserver(() => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { relayout(); drawAll(); });
+  });
+  ro.observe(canvas);
+}
 
 function bootSync() {
+  relayout();
   reset();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
@@ -590,6 +588,9 @@ function tick(now) {
     accumulator -= PHYSICS_DT;
     safety += 1;
   }
+  // Loop: once the ensemble has fully diverged, re-converge it and replay
+  // the start-together-then-fan-apart story.
+  if (state.simT > LOOP_T) { rebuildEngine(DEFAULT_IC); }
   drawAll();
   updateReadouts(false);
   requestAnimationFrame(tick);

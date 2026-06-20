@@ -88,7 +88,9 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="500" tabindex="0" aria-label="Double pendulum with a side-by-side phase-space trajectory in (theta_1, omega_1) accumulating points over time."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="An ensemble of near-identical double pendulums fanning apart, with a plot of how fast they separate over time."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
@@ -135,8 +137,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the coloured arms: they start as one (a fraction of a degree apart) and within seconds fan out completely. That is chaos, sensitive dependence on the start.</li>
+        <li class="t-body">The lower plot is the separation between them on a log axis. The straight rise is exponential blow-up; it flattens once they are as different as they can be.</li>
+        <li class="t-body">Drag a bob to set a gentle, low starting angle: the motion turns regular and the curves no longer fly apart. Chaos only sets in once you raise the arms.</li>
       </ul>
     </section>
 
