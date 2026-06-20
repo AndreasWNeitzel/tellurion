@@ -14,12 +14,9 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
   body { padding: var(--space-4); }
-  .pg-figure { max-width: 860px; position: relative; }
+  .pg-figure { max-width: 760px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #02030a; cursor: grab; display: block; border-radius: 4px; }
-  canvas#plot { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; cursor: crosshair; }
-  canvas#tspectrum { width: 100%; height: auto; display: block; margin-top: 6px; background: #07080b; border-radius: 4px; }
-  .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(2,3,9,0.62); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 15ch 13ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+  .playground-extra-canvases { display: none; }
   figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
   .pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
@@ -51,21 +48,20 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A planet on a real Keplerian orbit transits its star edge-on; the light curve is computed as the intensity-weighted geometric overlap of a quadratic limb-darkened stellar disc with the planet shadow. The depth is the square of the radius ratio, the timing pins down the period, the duration the orbit geometry, and the U-shape comes from limb darkening, exactly the four observables that make transits the discovery channel for thousands of planets. Tilt the orbital plane and the transit shrinks to a graze, then vanishes; pick a hot Jupiter for a deep, frequent dip or an Earth analogue for a tiny, slow one.</p>
+      <p class="t-body">When a planet crosses its star edge-on, the star dims by the square of the planet-to-star radius ratio: $(R_p/R_s)^2$. This tiny dip, periodic and repeated, is how Kepler discovered thousands of exoplanets. The light curve's U-shape arises from limb darkening (the star's limb is dimmer than its centre), and tilting the orbital plane makes the dip shallower or vanishes it entirely. Drag to rotate the 3D view; vary the controls to see how radius, orbit, period, and inclination reshape the observable signal.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="500" tabindex="0"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Star + planet on a Keplerian orbit; light curve from intensity-weighted overlap of a quadratic limb-darkened disc and the planet's circular shadow.</figcaption>
+    <figcaption class="t-small playground-caption">Figure 1. Exoplanet transit in 3D and diagnostics. The 3D scene shows a star with an orbiting planet at the true orbital inclination. The light curve (middle) plots stellar flux vs orbital phase; the dip depth equals $(R_p/R_s)^2$, and the U-shape arises from quadratic limb darkening. The transmission spectrum (bottom) shows how the effective transit radius varies with wavelength due to atmospheric absorption features and Rayleigh scattering. Source: Mandel and Agol, ApJ 580 (2002) L171.</figcaption>
 
     <div class="playground-extra-canvases">
-      <canvas id="plot" width="900" height="220" aria-label="Light curve: stellar flux versus orbital phase."></canvas>
-      <canvas id="tspectrum" width="900" height="200" aria-label="Transmission spectrum: transit depth versus wavelength."></canvas>
+      <canvas id="diag" width="760" height="950" aria-label="Diagnostic plots: light curve and transmission spectrum."></canvas>
     </div>
 
     <section class="playground-controls">

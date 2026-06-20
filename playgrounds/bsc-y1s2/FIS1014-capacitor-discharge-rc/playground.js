@@ -1,32 +1,28 @@
-// RC discharge playground. Left half: simple circuit diagram. Right half:
-// V(t) and I(t) curves with the current-time dashed marker.
-
 import { vC, iR } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { stack, fit } from '../../../shared/js/render/vertical-layout.js';
 
-const params         = new URLSearchParams(location.search);
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas      = document.getElementById('stage');
-const ctx         = canvas.getContext('2d', { alpha: false });
-const readoutV    = document.getElementById('readout-v');
-const readoutI    = document.getElementById('readout-i');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
 const sliderV0 = document.getElementById('slider-v0');
-const sliderR  = document.getElementById('slider-R');
-const sliderC  = document.getElementById('slider-C');
-const valueV0  = document.getElementById('value-v0');
-const valueR   = document.getElementById('value-R');
-const valueC   = document.getElementById('value-C');
+const sliderR = document.getElementById('slider-R');
+const sliderC = document.getElementById('slider-C');
+const valueV0 = document.getElementById('value-v0');
+const valueR = document.getElementById('value-R');
+const valueC = document.getElementById('value-C');
 const btnReset = document.getElementById('btn-reset');
-const btnPlay  = document.getElementById('btn-playpause');
+const btnPlay = document.getElementById('btn-playpause');
 
 let V0 = parseFloat(sliderV0.value);
-let R  = parseFloat(sliderR.value) * 1e3;  // kOhm -> Ohm
-let C  = parseFloat(sliderC.value) * 1e-6; // uF -> F
+let R = parseFloat(sliderR.value) * 1e3;  // kOhm -> Ohm
+let C = parseFloat(sliderC.value) * 1e-6; // uF -> F
 
 let t = 0;
 let running = !prefersReducedMotion();
@@ -55,12 +51,18 @@ function colors() {
   };
 }
 
-function drawCircuit(c, x0, y_off, w, h) {
+function drawCircuit(c, reg) {
+  const s = reg;
   ctx.fillStyle = c.bg;
-  ctx.fillRect(x0, y_off, w, h);
+  ctx.fillRect(s.x, s.y, s.w, s.h);
 
-  const cx = x0 + w * 0.5, cy = y_off + h * 0.5;
-  const size = Math.min(w, h) * 0.35;
+  const cx = s.x + s.w * 0.5;
+  const cy = s.y + s.h * 0.5;
+  const size = Math.min(s.w, s.h) * 0.3;
+
+  const tau = R * C;
+  const V = vC(t, V0, tau);
+  const frac = V0 > 0 ? V / V0 : 0;
 
   // Wire loop (rectangle).
   ctx.strokeStyle = c.fg;
@@ -70,9 +72,6 @@ function drawCircuit(c, x0, y_off, w, h) {
   ctx.stroke();
 
   // Capacitor plates (left edge).
-  const tau = R * C;
-  const V = vC(t, V0, tau);
-  const frac = V0 > 0 ? V / V0 : 0;
   ctx.strokeStyle = c.orange;
   ctx.lineWidth = 4;
   ctx.beginPath();
@@ -85,7 +84,7 @@ function drawCircuit(c, x0, y_off, w, h) {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('C', cx - size - 22, cy + 4);
 
-  // Charge cloud (size scales with V).
+  // Charge cloud: size scales with V.
   ctx.fillStyle = c.orange;
   ctx.globalAlpha = 0.4 + 0.6 * frac;
   ctx.beginPath();
@@ -111,42 +110,42 @@ function drawCircuit(c, x0, y_off, w, h) {
   // Labels.
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`V_0 = ${V0.toFixed(1)} V`, x0 + 14, y_off + 20);
-  ctx.fillText(`R   = ${(R / 1e3).toFixed(1)} kOhm`, x0 + 14, y_off + 38);
-  ctx.fillText(`C   = ${(C / 1e-6).toFixed(1)} uF`, x0 + 14, y_off + 56);
-  ctx.fillText(`tau = ${(tau).toFixed(3)} s`, x0 + 14, y_off + 74);
+  ctx.fillText(`V_0 = ${V0.toFixed(1)} V`, s.x + 14, s.y + 20);
+  ctx.fillText(`R   = ${(R / 1e3).toFixed(1)} kOhm`, s.x + 14, s.y + 38);
+  ctx.fillText(`C   = ${(C / 1e-6).toFixed(1)} uF`, s.x + 14, s.y + 56);
+  ctx.fillText(`tau = ${tau.toFixed(3)} s`, s.x + 14, s.y + 74);
   ctx.fillStyle = c.orange;
-  ctx.fillText(`V = ${V.toFixed(3)} V`, x0 + 14, y_off + h - 14);
+  ctx.fillText(`V = ${V.toFixed(3)} V`, s.x + 14, s.y + s.h - 14);
 }
 
-function drawPlot(c, x0, y_off, w, h) {
+function drawPlot(c, reg) {
+  const p = reg;
   ctx.fillStyle = c.bg;
-  ctx.fillRect(x0, y_off, w, h);
+  ctx.fillRect(p.x, p.y, p.w, p.h);
 
-  const padL = 56, padR = 12, padT = 28, padB = 40;
-  const plotW = w - padL - padR;
-  const plotH = h - padT - padB;
+  const padL = 60, padR = 12, padT = 28, padB = 40;
+  const plotW = p.w - padL - padR;
+  const plotH = p.h - padT - padB;
 
   const tau = R * C;
   const tMax = 6 * tau;
-  function xFor(tt) { return x0 + padL + plotW * (tt / tMax); }
-  function yFor(v) { return y_off + padT + plotH * (1 - v / V0); }
+  function xFor(tt) { return p.x + padL + plotW * (tt / tMax); }
+  function yFor(v) { return p.y + padT + plotH * (1 - v / V0); }
+  function yForI(v) { return p.y + padT + plotH * (1 - v / (V0 / R)); }
 
   // Grid.
   ctx.strokeStyle = c.grid;
   ctx.lineWidth = 1;
   for (let i = 0; i <= 6; i += 1) {
-    const x = x0 + padL + plotW * i / 6;
-    ctx.beginPath(); ctx.moveTo(x, y_off + padT); ctx.lineTo(x, y_off + padT + plotH); ctx.stroke();
+    const x = p.x + padL + plotW * i / 6;
+    ctx.beginPath(); ctx.moveTo(x, p.y + padT); ctx.lineTo(x, p.y + padT + plotH); ctx.stroke();
     ctx.fillStyle = c.muted;
     ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`${i}tau`, x - 8, y_off + padT + plotH + 14);
+    ctx.fillText(`${i}tau`, x - 8, p.y + padT + plotH + 14);
   }
   for (let i = 0; i <= 4; i += 1) {
-    const y = y_off + padT + plotH * i / 4;
-    ctx.beginPath(); ctx.moveTo(x0 + padL, y); ctx.lineTo(x0 + padL + plotW, y); ctx.stroke();
-    ctx.fillStyle = c.muted;
-    ctx.fillText(`${(V0 * (1 - i / 4)).toFixed(1)}`, x0 + padL - 32, y + 3);
+    const y = p.y + padT + plotH * i / 4;
+    ctx.beginPath(); ctx.moveTo(p.x + padL, y); ctx.lineTo(p.x + padL + plotW, y); ctx.stroke();
   }
 
   // V(t) curve.
@@ -160,57 +159,89 @@ function drawPlot(c, x0, y_off, w, h) {
   }
   ctx.stroke();
 
+  // I(t) curve.
+  ctx.strokeStyle = c.blue;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i += 1) {
+    const tt = tMax * i / 200;
+    const yy = yForI(iR(tt, V0, R, tau));
+    if (i === 0) ctx.moveTo(xFor(tt), yy); else ctx.lineTo(xFor(tt), yy);
+  }
+  ctx.stroke();
+
   // Mark t = tau line.
   ctx.strokeStyle = c.muted;
   ctx.setLineDash([3, 3]);
   ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(xFor(tau), y_off + padT); ctx.lineTo(xFor(tau), y_off + padT + plotH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(xFor(tau), p.y + padT); ctx.lineTo(xFor(tau), p.y + padT + plotH); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('τ', xFor(tau) + 4, y_off + padT + 12);
-  ctx.fillText('V0/e', xFor(tau) - 30, yFor(V0 / Math.E) + 3);
+  ctx.fillText('tau', xFor(tau) + 4, p.y + padT + 12);
 
-  // Current-time marker.
+  // Current-time markers.
   if (t <= tMax) {
     const xNow = xFor(t);
     const yNow = yFor(vC(t, V0, tau));
+    const yNowI = yForI(iR(t, V0, R, tau));
+
     ctx.strokeStyle = c.accent;
     ctx.setLineDash([5, 4]);
     ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(xNow, y_off + padT); ctx.lineTo(xNow, y_off + padT + plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xNow, p.y + padT); ctx.lineTo(xNow, p.y + padT + plotH); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = c.accent;
-    ctx.beginPath(); ctx.arc(xNow, yNow, 6, 0, 2 * Math.PI); ctx.fill();
+
+    // Voltage marker.
+    ctx.fillStyle = c.orange;
+    ctx.beginPath(); ctx.arc(xNow, yNow, 5, 0, 2 * Math.PI); ctx.fill();
+
+    // Current marker.
+    ctx.fillStyle = c.blue;
+    ctx.beginPath(); ctx.arc(xNow, yNowI, 5, 0, 2 * Math.PI); ctx.fill();
   }
 
+  // Axes labels.
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('t', x0 + padL + plotW - 12, y_off + padT + plotH + 28);
-  ctx.save(); ctx.translate(x0 + 16, y_off + padT + plotH / 2 + 20); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('V (volts)', 0, 0); ctx.restore();
+  ctx.fillText('t', p.x + padL + plotW - 12, p.y + padT + plotH + 28);
+
+  ctx.save();
+  ctx.translate(p.x + 18, p.y + padT + plotH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('V(t), I(t)', 0, 0);
+  ctx.restore();
+
+  // Legend.
   ctx.fillStyle = c.orange;
-  ctx.fillText('V(t) = V_0 exp(-t/τ)', x0 + padL + 12, y_off + 18);
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillText('V(t)', p.x + padL + 12, p.y + 16);
+
+  ctx.fillStyle = c.blue;
+  ctx.fillText('I(t)', p.x + padL + 12 + 50, p.y + 16);
+}
+
+let REG = null;
+
+function layout() {
+  REG = stack(canvas, [
+    { name: 'circuit', weight: 3 },
+    { name: 'plot', weight: 4 }
+  ]);
 }
 
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const W = canvas.width, H = canvas.height;
-  drawCircuit(c, 0, 0, W * 0.42, H);
-  drawPlot(c, W * 0.42, 0, W * 0.58, H);
+
+  if (!REG) layout();
+
+  drawCircuit(c, REG.circuit);
+  drawPlot(c, REG.plot);
 }
 
-function updateReadout() {
-  const tau = R * C;
-  const V = vC(t, V0, tau);
-  const I = iR(t, V0, R, tau);
-  readoutV.textContent = V.toFixed(3);
-  readoutI.textContent = (I * 1e3).toFixed(3);
-}
-
-let holdUntil = 0;   // 2-B: 1 s pause at full discharge before auto-replay.
+let holdUntil = 0;
 function tick(now) {
   const dt = Math.min((now - lastTime) / 1000, 0.1);
   lastTime = now;
@@ -219,16 +250,12 @@ function tick(now) {
     if (holdUntil > 0) {
       if (now >= holdUntil) { holdUntil = 0; t = 0; }
     } else {
-      // Fixed wall-clock duration for the full 0..7 tau sweep so the
-      // discharge is followable for any R, C (was real-time, which flew
-      // by whenever tau was small).
       const SWEEP_SECONDS = 9;
       t += dt * (7 * tau / SWEEP_SECONDS);
       if (t > 7 * tau) { t = 7 * tau; holdUntil = now + 1000; }
     }
   }
   render();
-  updateReadout();
   requestAnimationFrame(tick);
 }
 
@@ -239,10 +266,9 @@ function bootSync() {
     t = frac * 6 * tau;
   }
   valueV0.textContent = V0.toFixed(1);
-  valueR.textContent  = (R / 1e3).toFixed(1);
-  valueC.textContent  = (C / 1e-6).toFixed(1);
+  valueR.textContent = (R / 1e3).toFixed(1);
+  valueC.textContent = (C / 1e-6).toFixed(1);
   render();
-  updateReadout();
 
   if (DETERMINISTIC) {
     requestAnimationFrame(() => {
@@ -266,20 +292,17 @@ if (document.readyState === 'loading') {
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
 
-
 // === Diagnostics interface (Layout System v2) ===
-// State reports the time constant, the live capacitor voltage and
-// its fraction of V0. The invariant verifies the discharge curve
-// satisfies the defining RC ODE, dV/dt = -V / (RC), by comparing a
-// central finite difference of V(t) against -V(t)/tau.
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const tau = R * C;
   const V = vC(t, V0, tau);
+  const I = iR(t, V0, R, tau);
   return {
     fields: [
-      { key: 'tau', label: 'time constant RC (s)', value: tau, format: 'float' },
-      { key: 'voltage', label: 'capacitor voltage V(t)', value: V, format: 'float' },
+      { key: 'tau', label: 'time constant tau (s)', value: tau, format: 'float' },
+      { key: 'voltage', label: 'capacitor voltage V(t) (V)', value: V, format: 'float' },
+      { key: 'current', label: 'current I(t) (mA)', value: I * 1e3, format: 'float' },
       { key: 'fraction', label: 'V / V0', value: V0 > 0 ? V / V0 : 0, format: 'float' },
     ],
   };

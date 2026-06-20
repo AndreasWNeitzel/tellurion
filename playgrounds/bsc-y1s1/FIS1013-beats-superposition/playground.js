@@ -1,34 +1,41 @@
 // playground.js
-// Beats from superposition of two close-frequency cosines. Top: y1(t)
-// and y2(t) overlaid. Middle: sum with envelope. Bottom: spectrum bars.
+// Beats from superposition of two close-frequency cosines.
+// Vertical 4:5 composition: main animation panel (scrolling scope with live
+// waveforms and spectrum), then a diagnostic plot of beat envelope amplitude.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
-import { setCanvasFont } from '../../../shared/js/canvas-type.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { stack, fit } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
 import {
   y1, y2, ySum, envelope, envelopeFreq, beatRate, carrierFreq,
 } from './sim.js';
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const urlParams = new URLSearchParams(location.search);
+const SEED = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
+const DETERMINISTIC = urlParams.get('deterministic') === '1';
+const CAPTURE_NAME = urlParams.get('capture');
+const CAPTURE_FRAC = parseFloat(urlParams.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const sliderF1     = document.getElementById('slider-f1');
-const sliderF2     = document.getElementById('slider-f2');
-const sliderSpeed  = document.getElementById('slider-speed');
-const valueF1      = document.getElementById('value-f1');
-const valueF2      = document.getElementById('value-f2');
-const valueSpeed   = document.getElementById('value-speed');
-const btnReset     = document.getElementById('btn-reset');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+
+// Controls
+const sliderF1 = document.getElementById('slider-f1');
+const sliderF2 = document.getElementById('slider-f2');
+const sliderSpeed = document.getElementById('slider-speed');
+const valueF1 = document.getElementById('value-f1');
+const valueF2 = document.getElementById('value-f2');
+const valueSpeed = document.getElementById('value-speed');
+const btnReset = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
-const W = canvas.width, H = canvas.height;
+// Layout and timescale
 const T_WINDOW = 8.0;
+let REG = null;
 
+// Simulation state
 const state = {
   f1: 5.0,
   f2: 4.7,
@@ -37,168 +44,262 @@ const state = {
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  accentCool: cssVar('--accent-cool', '#7fb1d8'),
-  accentWarm: cssVar('--accent-warm', '#d68a69'),
-};
-
-const trails = { sum: [], y1: [], y2: [] };
-function pushTrail(key, x, y) {
-  const a = trails[key];
-  a.push({ x, y });
-  if (a.length > 46) a.shift();
+// Seeded RNG for tracer spawning
+let _seed = SEED >>> 0;
+function rnd() {
+  _seed = (_seed + 0x6D2B79F5) >>> 0;
+  let t = Math.imul(_seed ^ (_seed >>> 15), 1 | _seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
-function drawTrail(key, rgb) {
-  const a = trails[key];
-  for (let i = 1; i < a.length; i += 1) {
-    ctx.strokeStyle = `rgba(${rgb}, ${0.05 + 0.55 * (i / a.length)})`;
-    ctx.lineWidth = 1 + 1.8 * (i / a.length);
-    ctx.beginPath(); ctx.moveTo(a[i - 1].x, a[i - 1].y); ctx.lineTo(a[i].x, a[i].y); ctx.stroke();
+
+// Flowing tracers to animate the waveforms
+let tracers = { sum: [], y1: [], y2: [] };
+const TRAIL_LEN = 12;
+
+function spawnTracer(key, fresh) {
+  const p = REG ? REG.scene : { w: 760, h: 400, x: 0, y: 0 };
+  const life = 1.2 + rnd() * 1.6;
+  const x = rnd() * p.w;
+  const y = rnd() * p.h;
+  return { x, y, age: fresh ? rnd() * life : 0, life, hist: [[x, y]] };
+}
+
+function stepTracers(dt) {
+  if (!REG) return;
+  for (const key of Object.keys(tracers)) {
+    for (const t of tracers[key]) {
+      t.age += dt;
+      if (t.age > t.life) Object.assign(t, spawnTracer(key, false));
+    }
   }
 }
 
-function reset() { state.tNow = 0; trails.sum.length = 0; trails.y1.length = 0; trails.y2.length = 0; }
-
-function drawPanel(x, y, w, h, label) {
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.beginPath();
-  ctx.moveTo(x, y + h / 2);
-  ctx.lineTo(x + w, y + h / 2);
-  ctx.stroke();
-  setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'left' });
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(label, x + 6, y + 16);
+// Colors from design tokens or fallbacks
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    accentCool: css.getPropertyValue('--accent-cool').trim() || '#7fb1d8',
+    accentWarm: css.getPropertyValue('--accent-warm').trim() || '#d68a69',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    grid: '#23252a',
+  };
 }
 
-function plotFunc(x, y, w, h, fn, yMin, yMax, color, lw = 1.2) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lw;
-  ctx.beginPath();
-  const N = w;
-  for (let i = 0; i < N; i += 1) {
-    const t = state.tNow + (i / (N - 1)) * T_WINDOW;
-    const yval = fn(t);
-    const yClamped = Math.max(yMin, Math.min(yMax, yval));
-    const px = x + i;
-    const py = y + h * (1 - (yClamped - yMin) / (yMax - yMin));
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+// Compute layout on init and resize
+function layout() {
+  REG = stack(canvas, [
+    { name: 'scene', weight: 3 },
+    { name: 'plot', weight: 1 },
+  ]);
+}
+
+function reset() {
+  state.tNow = 0;
+  tracers = { sum: [], y1: [], y2: [] };
+  // Spawn initial tracers
+  for (let i = 0; i < 18; i += 1) {
+    tracers.sum.push(spawnTracer('sum', true));
+    tracers.y1.push(spawnTracer('y1', true));
+    tracers.y2.push(spawnTracer('y2', true));
   }
-  ctx.stroke();
 }
 
+// Main render pass
 function drawAll() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-  const padX = 30;
-  const PANEL_W = W - 2 * padX;
+  const col = colors();
 
-  // Title-bar state (f1, f2, carrier, beat rate) now lives in the rail.
-  const panelGap = 14;
-  const panelY0 = 16;
-  const panelH = (H - panelY0 - 3 * panelGap - 14) / 3;
-  const panelY1 = panelY0 + panelH + panelGap;
-  const panelY2 = panelY1 + panelH + panelGap;
+  // Background
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Panel 1: y1, y2
-  drawPanel(padX, panelY0, PANEL_W, panelH, 'y_1(t) and y_2(t)');
-  plotFunc(padX + 1, panelY0, PANEL_W - 2, panelH, (t) => y1(t, state.f1), -1.1, 1.1, tok.accentCool);
-  plotFunc(padX + 1, panelY0, PANEL_W - 2, panelH, (t) => y2(t, state.f2), -1.1, 1.1, tok.accentWarm);
+  // === SCENE PANEL: Scrolling scope + live waveforms ===
+  const sc = REG.scene;
+  ctx.fillStyle = '#0a0a0e';
+  ctx.fillRect(sc.x, sc.y, sc.w, sc.h);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(sc.x + 0.5, sc.y + 0.5, sc.w - 1, sc.h - 1);
 
-  // Panel 2: y1 + y2 with envelope
-  drawPanel(padX, panelY1, PANEL_W, panelH, 'y_1(t) + y_2(t) (with envelope shadow)');
-  ctx.strokeStyle = 'rgba(241, 210, 138, 0.45)';
-  ctx.lineWidth = 1.0;
-  ctx.beginPath();
-  for (let i = 0; i < PANEL_W - 2; i += 1) {
-    const t = state.tNow + (i / (PANEL_W - 3)) * T_WINDOW;
-    const env = Math.abs(envelope(t, state.f1, state.f2));
-    const px = padX + 1 + i;
-    const py = panelY1 + panelH * (1 - (env - (-2.2)) / 4.4);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-  }
-  ctx.stroke();
-  ctx.beginPath();
-  for (let i = 0; i < PANEL_W - 2; i += 1) {
-    const t = state.tNow + (i / (PANEL_W - 3)) * T_WINDOW;
-    const env = -Math.abs(envelope(t, state.f1, state.f2));
-    const px = padX + 1 + i;
-    const py = panelY1 + panelH * (1 - (env - (-2.2)) / 4.4);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-  }
-  ctx.stroke();
-  plotFunc(padX + 1, panelY1, PANEL_W - 2, panelH, (t) => ySum(t, state.f1, state.f2), -2.2, 2.2, '#f1d28a', 1.3);
+  // Fit domain [-2.2, 2.2] vertically within the scene for all three signals
+  const fit_scene = fit(sc, 1, 2.2 * 3 + 0.3, { pad: 8, flipY: false });
+  const h_sig = fit_scene.s(2.2);
+  const y_center = (y) => fit_scene.y(2.2 + 1.1 + y * 1.1);
 
-  // Panel 3: spectrum bars
-  drawPanel(padX, panelY2, PANEL_W, panelH, 'spectrum |Y(f)|');
-  function xF(f) { return padX + 6 + (PANEL_W - 12) * (f - 0) / 9.0; }
-  setCanvasFont(ctx, canvas, 'tick', { family: 'mono', align: 'center' });
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  for (let f = 0; f <= 9; f += 1) {
-    const px = xF(f);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
-    ctx.beginPath();
-    ctx.moveTo(px, panelY2 + panelH - 4);
-    ctx.lineTo(px, panelY2 + panelH);
-    ctx.stroke();
-    ctx.fillText(String(f), px, panelY2 + panelH - 8);
-  }
-  function bar(f, color) {
-    const px = xF(f);
+  // Three subpanels: y1, y2, sum (stacked vertically)
+  const panelH = (sc.h - 16) / 3 - 2;
+  const y1_y = sc.y + 8;
+  const y2_y = y1_y + panelH + 2;
+  const sum_y = y2_y + panelH + 2;
+
+  // Helper: draw a signal band
+  function drawSignalBand(label, yFunc, yStart, panelHeight, color) {
+    ctx.fillStyle = 'rgba(10, 10, 14, 0.7)';
+    ctx.fillRect(sc.x + 2, yStart, sc.w - 4, panelHeight);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sc.x + 2, yStart, sc.w - 4, panelHeight);
+
+    // Draw the signal
     ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(px, panelY2 + panelH - 14);
-    ctx.lineTo(px, panelY2 + 24);
+    const N = sc.w - 4;
+    for (let i = 0; i < N; i += 1) {
+      const t = state.tNow + (i / (N - 1)) * T_WINDOW;
+      const yval = Math.max(-1.1, Math.min(1.1, yFunc(t)));
+      const px = sc.x + 2 + i;
+      const py = yStart + panelHeight * (1 - (yval + 1.1) / 2.2);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
     ctx.stroke();
-  }
-  bar(state.f1, tok.accentCool);
-  bar(state.f2, tok.accentWarm);
-  setCanvasFont(ctx, canvas, 'tick', { family: 'mono', align: 'left' });
-  ctx.fillStyle = tok.accentCool;
-  ctx.fillText('f_1', xF(state.f1) + 4, panelY2 + 28);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('f_2', xF(state.f2) + 4, panelY2 + 44);
 
-  // Scrolling-scope reference line + instantaneous dots with trails.
-  ctx.strokeStyle = 'rgba(241, 210, 138, 0.70)';
-  ctx.lineWidth = 1.2;
+    // Label
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.font = fontString(canvas, 'caption', { family: 'mono' });
+    ctx.textAlign = 'left';
+    ctx.fillText(label, sc.x + 8, yStart + 14);
+  }
+
+  drawSignalBand('y₁(t)', (t) => y1(t, state.f1), y1_y, panelH, col.accentCool);
+  drawSignalBand('y₂(t)', (t) => y2(t, state.f2), y2_y, panelH, col.accentWarm);
+  drawSignalBand('sum (with envelope)', (t) => ySum(t, state.f1, state.f2), sum_y, panelH, col.accent);
+
+  // Draw envelope shadow on the sum panel
+  ctx.strokeStyle = 'rgba(255, 210, 138, 0.35)';
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  const cx = padX + 1;
-  ctx.moveTo(cx, panelY0);
-  ctx.lineTo(cx, panelY1 + panelH);
+  for (let i = 0; i < sc.w - 4; i += 1) {
+    const t = state.tNow + (i / (sc.w - 5)) * T_WINDOW;
+    const env = Math.abs(envelope(t, state.f1, state.f2));
+    const px = sc.x + 2 + i;
+    const py = sum_y + panelH * (1 - (env + 1.1) / 2.2);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.beginPath();
+  for (let i = 0; i < sc.w - 4; i += 1) {
+    const t = state.tNow + (i / (sc.w - 5)) * T_WINDOW;
+    const env = -Math.abs(envelope(t, state.f1, state.f2));
+    const px = sc.x + 2 + i;
+    const py = sum_y + panelH * (1 - (env + 1.1) / 2.2);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
   ctx.stroke();
 
-  const y1v = y1(state.tNow, state.f1), y2v = y2(state.tNow, state.f2);
-  const py1 = panelY0 + panelH * (1 - (Math.max(-1.1, Math.min(1.1, y1v)) + 1.1) / 2.2);
-  const py2 = panelY0 + panelH * (1 - (Math.max(-1.1, Math.min(1.1, y2v)) + 1.1) / 2.2);
-  pushTrail('y1', cx, py1); pushTrail('y2', cx, py2);
-  drawTrail('y1', '127, 177, 216'); drawTrail('y2', '214, 138, 105');
-  ctx.fillStyle = tok.accentCool; ctx.beginPath(); ctx.arc(cx, py1, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = tok.accentWarm; ctx.beginPath(); ctx.arc(cx, py2, 3, 0, Math.PI * 2); ctx.fill();
-
-  const ys = ySum(state.tNow, state.f1, state.f2);
-  const ydot = panelY1 + panelH * (1 - (ys - (-2.2)) / 4.4);
-  pushTrail('sum', cx, ydot);
-  drawTrail('sum', '241, 210, 138');
-  ctx.fillStyle = '#f1d28a';
+  // Vertical "now" line (scrolling cursor)
+  const nowX = sc.x + 2;
+  ctx.strokeStyle = 'rgba(255, 210, 138, 0.5)';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([2, 2]);
   ctx.beginPath();
-  ctx.arc(cx, ydot, 3.5, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(nowX, y1_y);
+  ctx.lineTo(nowX, sum_y + panelH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Live readout overlay in the scene (bottom-right corner)
+  const fb = beatRate(state.f1, state.f2);
+  const fc = carrierFreq(state.f1, state.f2);
+  const fenv = envelopeFreq(state.f1, state.f2);
+  ctx.fillStyle = 'rgba(30, 30, 40, 0.75)';
+  ctx.fillRect(sc.x + sc.w - 180, sc.y + sc.h - 88, 172, 80);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(sc.x + sc.w - 180, sc.y + sc.h - 88, 172, 80);
+
+  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 11 });
+  ctx.fillStyle = col.accent;
+  ctx.textAlign = 'right';
+  let dy = sc.y + sc.h - 72;
+  ctx.fillText(`f₁: ${state.f1.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
+  dy += 14;
+  ctx.fillText(`f₂: ${state.f2.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
+  dy += 14;
+  ctx.fillText(`beat: ${fb.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
+  dy += 14;
+  ctx.fillText(`carrier: ${fc.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
+  dy += 14;
+  ctx.fillText(`envelope: ${fenv.toFixed(3)} Hz`, sc.x + sc.w - 8, dy);
+
+  // === PLOT PANEL: Beat envelope amplitude over time ===
+  const pl = REG.plot;
+  ctx.fillStyle = '#0a0a0e';
+  ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(pl.x + 0.5, pl.y + 0.5, pl.w - 1, pl.h - 1);
+
+  // Fit the plot: time [state.tNow, state.tNow + T_WINDOW] x amplitude [0, 2]
+  const fit_plot = fit(pl, T_WINDOW, 2.0, { pad: 6, flipY: false });
+
+  // Draw envelope amplitude trace
+  ctx.strokeStyle = col.accent;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  const plot_N = pl.w - 12;
+  for (let i = 0; i < plot_N; i += 1) {
+    const t = state.tNow + (i / (plot_N - 1)) * T_WINDOW;
+    const env = Math.abs(envelope(t, state.f1, state.f2));
+    const px = fit_plot.x(i / plot_N * T_WINDOW);
+    const py = fit_plot.y(env);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Grid lines and labels
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.lineWidth = 0.5;
+  for (let f = 0; f <= 2; f += 1) {
+    const py = fit_plot.y(f);
+    ctx.beginPath();
+    ctx.moveTo(pl.x + 6, py);
+    ctx.lineTo(pl.x + pl.w - 6, py);
+    ctx.stroke();
+  }
+
+  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 10 });
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.textAlign = 'right';
+  for (let f = 0; f <= 2; f += 1) {
+    const py = fit_plot.y(f);
+    ctx.fillText(String(f), pl.x + 4, py + 3);
+  }
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 10 });
+  ctx.fillText('|envelope|', pl.x + pl.w / 2, pl.y + 10);
 }
 
 function tickN(n) {
-  for (let i = 0; i < n; i += 1) state.tNow += 0.002;
+  for (let i = 0; i < n; i += 1) {
+    state.tNow += 0.002;
+    stepTracers(0.002);
+  }
 }
 
-sliderF1.addEventListener('input', () => { state.f1 = parseFloat(sliderF1.value); valueF1.textContent = state.f1.toFixed(2); drawAll(); });
-sliderF2.addEventListener('input', () => { state.f2 = parseFloat(sliderF2.value); valueF2.textContent = state.f2.toFixed(2); drawAll(); });
-sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click', () => { reset(); drawAll(); });
+// Control event listeners
+sliderF1.addEventListener('input', () => {
+  state.f1 = parseFloat(sliderF1.value);
+  valueF1.textContent = state.f1.toFixed(2);
+  drawAll();
+});
+sliderF2.addEventListener('input', () => {
+  state.f2 = parseFloat(sliderF2.value);
+  valueF2.textContent = state.f2.toFixed(2);
+  drawAll();
+});
+sliderSpeed.addEventListener('input', () => {
+  state.speed = parseInt(sliderSpeed.value, 10);
+  valueSpeed.textContent = String(state.speed);
+});
+btnReset.addEventListener('click', () => {
+  reset();
+  drawAll();
+});
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
@@ -206,6 +307,7 @@ btnPlayPause.addEventListener('click', () => {
 });
 
 function bootSync() {
+  layout();
   reset();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
@@ -234,9 +336,13 @@ function tick() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+  document.addEventListener('DOMContentLoaded', () => {
+    bootSync();
+    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  }, { once: true });
 } else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  bootSync();
+  if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
 
 // === Diagnostics interface (Layout System v2) ===
@@ -244,16 +350,15 @@ window.playground = window.playground || {};
 window.playground.getState = function getState() {
   return {
     fields: [
-      { key: 'f1', label: 'frequency f₁', value: state.f1, unit: 'Hz', format: 'fixed-3' },
-      { key: 'f2', label: 'frequency f₂', value: state.f2, unit: 'Hz', format: 'fixed-3' },
+      { key: 'f1', label: 'frequency f₁', value: state.f1, unit: 'Hz', format: 'fixed-2' },
+      { key: 'f2', label: 'frequency f₂', value: state.f2, unit: 'Hz', format: 'fixed-2' },
       { key: 'carrier', label: 'carrier f̄', value: carrierFreq(state.f1, state.f2), unit: 'Hz', format: 'fixed-3' },
       { key: 'envelope', label: 'envelope f_b', value: envelopeFreq(state.f1, state.f2), unit: 'Hz', format: 'fixed-3' },
-      { key: 'beat', label: 'audible beat', value: beatRate(state.f1, state.f2), unit: 'Hz', format: 'fixed-3' },
+      { key: 'beat', label: 'audible beat', value: beatRate(state.f1, state.f2), unit: 'Hz', format: 'fixed-2' },
     ],
   };
 };
 window.playground.getInvariants = function getInvariants() {
-  // Trig-identity checks for the closed-form superposition.
   const f1 = state.f1, f2 = state.f2;
   const mk = (key, label, value, tol) => ({
     key, label, value, tolerance: tol,

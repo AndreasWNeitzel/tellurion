@@ -1,23 +1,34 @@
 // Map Projection Explorer. Canvas2D. Drapes the Blue Marble Earth
 // texture, the graticule, and Tissot indicatrices over a chosen map
-// projection; the globe is recentred by dragging the canvas. The
-// projection mathematics, the spherical rotation, and the Tissot
-// construction all live in sim.js; this file is rendering and
-// interaction only.
+// projection; the globe is recentred by dragging the canvas. Portrait
+// 4:5 layout with the main projection scene (3 weight) and a diagnostic
+// distortion-vs-latitude plot below (1 weight). The projection
+// mathematics, the spherical rotation, and the Tissot construction all
+// live in sim.js; this file is rendering and interaction only.
 
 import {
   PROJECTIONS, PROJECTION_KEYS, rotate, unrotate, tissot,
 } from './sim.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { stack } from '../../../shared/js/render/vertical-layout.js';
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
 const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+const DETERMINISTIC = params.get('deterministic') === '1';
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const W = canvas.width, H = canvas.height;
 const controlsEl = document.getElementById('controls');
+
+let REG = null;  // layout regions from stack()
+function layout() {
+  REG = stack(canvas, [
+    { name: 'scene', weight: 3 },
+    { name: 'plot', weight: 1 }
+  ]);
+}
 
 const DEG = Math.PI / 180;
 const R0 = 0.07;                       // sphere radius of a Tissot test circle
@@ -61,8 +72,9 @@ function projectGeo(lonDeg, latDeg) {
 // the whole sphere does not change as the globe is dragged; the fit is
 // therefore computed once per projection and cached.
 const fitCache = {};
-function computeFit(key) {
-  if (fitCache[key]) return fitCache[key];
+function computeFit(key, sceneReg) {
+  const cacheKey = key;
+  if (fitCache[cacheKey]) return fitCache[cacheKey];
   const fn = PROJECTIONS[key].fn;
   let minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
   for (let lo = -180; lo <= 180; lo += 5) {
@@ -75,15 +87,15 @@ function computeFit(key) {
       if (r.y > maxy) maxy = r.y;
     }
   }
-  const s = Math.min(W / (maxx - minx), H / (maxy - miny)) * 0.86;
+  const s = Math.min(sceneReg.w / (maxx - minx), sceneReg.h / (maxy - miny)) * 0.86;
   const fit = { s, cx: (minx + maxx) / 2, cy: (miny + maxy) / 2 };
-  fitCache[key] = fit;
+  fitCache[cacheKey] = fit;
   return fit;
 }
-function toScreen(proj, fit) {
+function toScreen(proj, fit, sceneReg) {
   return {
-    x: W / 2 + (proj.x - fit.cx) * fit.s,
-    y: H / 2 - (proj.y - fit.cy) * fit.s,
+    x: sceneReg.x + sceneReg.w / 2 + (proj.x - fit.cx) * fit.s,
+    y: sceneReg.y + sceneReg.h / 2 - (proj.y - fit.cy) * fit.s,
   };
 }
 
@@ -109,15 +121,15 @@ const GRATICULE = graticule();
 
 // Draw a geographic polyline, lifting the pen where the projection is
 // undefined and where the path jumps the antimeridian seam.
-function strokeGeo(pts, fit) {
+function strokeGeo(pts, fit, sceneReg) {
   ctx.beginPath();
   let pen = false, prev = null;
   for (const [lo, la] of pts) {
     const pr = projectGeo(lo, la);
     if (!pr) { pen = false; prev = null; continue; }
-    const sc = toScreen(pr, fit);
+    const sc = toScreen(pr, fit, sceneReg);
     if (!pen) { ctx.moveTo(sc.x, sc.y); pen = true; }
-    else if (prev && Math.abs(sc.x - prev.x) > W * 0.5) { ctx.moveTo(sc.x, sc.y); }
+    else if (prev && Math.abs(sc.x - prev.x) > sceneReg.w * 0.5) { ctx.moveTo(sc.x, sc.y); }
     else { ctx.lineTo(sc.x, sc.y); }
     prev = sc;
   }
@@ -127,27 +139,42 @@ function strokeGeo(pts, fit) {
 // ---- render -------------------------------------------------------------
 
 function render() {
-  const fit = computeFit(st.projection);
+  layout();
+  const sceneReg = REG.scene;
+  const plotReg = REG.plot;
+
   ctx.fillStyle = '#0a0c12';
   ctx.fillRect(0, 0, W, H);
 
+  // Draw scene in the scene region (top 75% of canvas)
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(sceneReg.x, sceneReg.y, sceneReg.w, sceneReg.h);
+  ctx.clip();
+
+  const fit = computeFit(st.projection, sceneReg);
+
   if (st.showEarth) {
-    renderEarth(fit, dragging);
-    if (earthKey) ctx.drawImage(earthCanvas, 0, 0, W, H);
+    renderEarth(fit, dragging, sceneReg);
+    if (earthKey) ctx.drawImage(earthCanvas, sceneReg.x, sceneReg.y, sceneReg.w, sceneReg.h);
   }
 
   if (st.showGraticule) {
     for (const { pts, edge } of GRATICULE) {
       ctx.strokeStyle = edge ? 'rgba(225,235,255,0.7)' : 'rgba(210,225,255,0.32)';
       ctx.lineWidth = edge ? 1.4 : 1;
-      strokeGeo(pts, fit);
+      strokeGeo(pts, fit, sceneReg);
     }
   }
 
-  if (st.showTissot) drawTissot(fit);
+  if (st.showTissot) drawTissot(fit, sceneReg);
 
-  drawDistortionDiagnostic();
-  drawCaption();
+  drawCaption(sceneReg);
+  ctx.restore();
+
+  // Draw diagnostic plot in the plot region (bottom 25% of canvas)
+  drawDistortionDiagnostic(plotReg);
+
   refreshRail();
 }
 
@@ -162,7 +189,7 @@ let earthKey = '';
 // buffer is built at half resolution and scaled up; a settled view is
 // rendered at full resolution for a crisp map. Pixels that inverse-
 // project outside the map are left transparent.
-function renderEarth(fit, lowRes) {
+function renderEarth(fit, lowRes, sceneReg) {
   const inv = PROJECTIONS[st.projection].inv;
   if (!texData || !inv) { earthKey = ''; return; }
   // Aitoff and Winkel tripel have no closed-form inverse, so their
@@ -171,7 +198,7 @@ function renderEarth(fit, lowRes) {
   // turns smoothly. The settled view is always full resolution.
   const slow = st.projection === 'aitoff' || st.projection === 'winkelTripel';
   const scale = lowRes ? (slow ? 3 : 2) : 1;
-  const ew = Math.ceil(W / scale), eh = Math.ceil(H / scale);
+  const ew = Math.ceil(sceneReg.w / scale), eh = Math.ceil(sceneReg.h / scale);
   const key = `${st.projection}|${st.lon0.toFixed(4)}|${st.lat0.toFixed(4)}|${scale}`;
   if (key === earthKey && earthCanvas.width === ew) return;
   earthKey = key;
@@ -180,9 +207,9 @@ function renderEarth(fit, lowRes) {
   const img = earthCtx.createImageData(ew, eh);
   const d = img.data;
   for (let j = 0; j < eh; j += 1) {
-    const Y = -((j * scale) - H / 2) / fit.s + fit.cy;
+    const Y = -((j * scale) - sceneReg.h / 2) / fit.s + fit.cy;
     for (let i = 0; i < ew; i += 1) {
-      const X = ((i * scale) - W / 2) / fit.s + fit.cx;
+      const X = ((i * scale) - sceneReg.w / 2) / fit.s + fit.cx;
       const ll = inv(X, Y);
       const o = (j * ew + i) * 4;
       if (!ll) { d[o + 3] = 0; continue; }
@@ -204,7 +231,7 @@ function renderEarth(fit, lowRes) {
 // of a small circle of sphere-radius R0; an equal-area projection
 // keeps every ellipse the same area, a conformal one keeps every
 // ellipse a circle.
-function drawTissot(fit) {
+function drawTissot(fit, sceneReg) {
   const fn = PROJECTIONS[st.projection].fn;
   for (let loD = -150; loD <= 180; loD += 30) {
     for (let laD = -60; laD <= 60; laD += 30) {
@@ -213,7 +240,7 @@ function drawTissot(fit) {
       if (!pr) continue;
       const t = tissot(fn, l, p);
       if (!t) continue;
-      const sc = toScreen(pr, fit);
+      const sc = toScreen(pr, fit, sceneReg);
       const rx = Math.min(60, t.a * fit.s * R0);
       const ry = Math.min(60, t.b * fit.s * R0);
       ctx.beginPath();
@@ -231,19 +258,19 @@ function drawTissot(fit) {
 // central meridian vs latitude. The area curve is flat for an
 // equal-area projection; the angular curve is flat at zero for a
 // conformal one; Mercator shows the runaway polar area inflation.
-function drawDistortionDiagnostic() {
+// This plot fills the entire plot region provided.
+function drawDistortionDiagnostic(plotReg) {
   const fn = PROJECTIONS[st.projection].fn;
-  const pw = 232, ph = 150, px = W - pw - 14, py = 14;
   ctx.fillStyle = 'rgba(8,12,22,0.9)';
-  ctx.fillRect(px, py, pw, ph);
+  ctx.fillRect(plotReg.x, plotReg.y, plotReg.w, plotReg.h);
   ctx.strokeStyle = 'rgba(220,230,255,0.3)';
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.strokeRect(plotReg.x + 0.5, plotReg.y + 0.5, plotReg.w - 1, plotReg.h - 1);
   ctx.fillStyle = 'rgba(220,230,255,0.92)';
   ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.textAlign = 'left';
-  ctx.fillText('distortion vs latitude', px + 8, py + 15);
+  ctx.fillText('distortion vs latitude', plotReg.x + 8, plotReg.y + 15);
 
-  const ax = px + 30, ay = py + 24, aw = pw - 42, ah = ph - 46;
+  const ax = plotReg.x + 32, ay = plotReg.y + 24, aw = plotReg.w - 50, ah = plotReg.h - 40;
   const eqT = tissot(fn, 0, 0);
   const eqArea = eqT ? eqT.area : 1;
   const samples = [];
@@ -281,7 +308,7 @@ function drawDistortionDiagnostic() {
   ctx.stroke();
   ctx.fillStyle = 'rgba(200,210,240,0.7)';
   ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillText('area x' + areaMax.toFixed(0), px + 8, ay + 9);
+  ctx.fillText('area x' + areaMax.toFixed(0), plotReg.x + 8, ay + 9);
   ctx.fillStyle = '#5fe39b';
   ctx.fillText('area', ax + 4, ay + ah - 4);
   ctx.fillStyle = '#ef6f9f';
@@ -292,15 +319,15 @@ function drawDistortionDiagnostic() {
   ctx.fillText('N', ax + aw - 8, ay + ah + 11);
 }
 
-function drawCaption() {
+function drawCaption(sceneReg) {
   const meta = PROJECTIONS[st.projection];
   ctx.fillStyle = 'rgba(210,220,245,0.9)';
   ctx.font = fontString(canvas, 'caption', 'sans');
   ctx.textAlign = 'left';
-  ctx.fillText(`${meta.name}  (${meta.family}, ${meta.property})`, 14, 22);
+  ctx.fillText(`${meta.name}  (${meta.family}, ${meta.property})`, sceneReg.x + 8, sceneReg.y + 18);
   ctx.fillStyle = 'rgba(170,185,215,0.7)';
   ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillText('drag to recentre the globe', 14, H - 14);
+  ctx.fillText('drag to recentre the globe', sceneReg.x + 8, sceneReg.y + sceneReg.h - 8);
 }
 
 // ---- diagnostics interface (v2 rail) ------------------------------------
@@ -428,6 +455,13 @@ window.addEventListener('pointermove', (e) => {
   render();
 });
 
+// ---- render loop --------------------------------------------------------
+
+function loop() {
+  render();
+  requestAnimationFrame(loop);
+}
+
 // ---- boot ---------------------------------------------------------------
 
 function finishBoot() {
@@ -437,6 +471,8 @@ function finishBoot() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
     }));
+  } else {
+    requestAnimationFrame(loop);
   }
 }
 
