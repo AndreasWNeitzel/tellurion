@@ -1,4 +1,5 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
 // Coupled pendulums and normal modes. Left: two shaded pendulums on a
 // pivot beam, coupled by a drawn coil spring, with bob trails. Right:
 // the energy sloshing between the two pendulums (the beat) and the
@@ -29,7 +30,16 @@ const btnAsym  = document.getElementById('btn-asym');
 const btnSym   = document.getElementById('btn-sym');
 const btnAnti  = document.getElementById('btn-anti');
 
-const W = canvas.width, H = canvas.height;
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 2.0 },
+    { name: 'energy', weight: 1.3 },
+    { name: 'trace', weight: 1.5 },
+  ]);
+}
 const PHYSICS_DT = 1 / 240;
 let accumulator = 0;
 let lastTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -45,26 +55,25 @@ const histT = new Float32Array(HIST_MAX);
 const histT1 = new Float32Array(HIST_MAX);
 const histT2 = new Float32Array(HIST_MAX);
 const histE1 = new Float32Array(HIST_MAX);
+const histE2 = new Float32Array(HIST_MAX);
 let histLen = 0;
-const trail1 = [], trail2 = [];
-const TRAIL_MAX = 90;
 
 function e1of(s) { return 0.5 * m * s.L * s.L * s.omega1 * s.omega1 + 0.5 * m * G * s.L * s.theta1 * s.theta1; }
 function e2of(s) { return 0.5 * m * s.L * s.L * s.omega2 * s.omega2 + 0.5 * m * G * s.L * s.theta2 * s.theta2; }
 
 function pushHist() {
-  const e1 = e1of(sim);
+  const e1 = e1of(sim), e2 = e2of(sim);
   if (histLen < HIST_MAX) {
-    histT[histLen] = sim.t; histT1[histLen] = sim.theta1; histT2[histLen] = sim.theta2; histE1[histLen] = e1; histLen += 1;
+    histT[histLen] = sim.t; histT1[histLen] = sim.theta1; histT2[histLen] = sim.theta2; histE1[histLen] = e1; histE2[histLen] = e2; histLen += 1;
   } else {
-    histT.copyWithin(0, 1); histT1.copyWithin(0, 1); histT2.copyWithin(0, 1); histE1.copyWithin(0, 1);
-    histT[HIST_MAX - 1] = sim.t; histT1[HIST_MAX - 1] = sim.theta1; histT2[HIST_MAX - 1] = sim.theta2; histE1[HIST_MAX - 1] = e1;
+    histT.copyWithin(0, 1); histT1.copyWithin(0, 1); histT2.copyWithin(0, 1); histE1.copyWithin(0, 1); histE2.copyWithin(0, 1);
+    histT[HIST_MAX - 1] = sim.t; histT1[HIST_MAX - 1] = sim.theta1; histT2[HIST_MAX - 1] = sim.theta2; histE1[HIST_MAX - 1] = e1; histE2[HIST_MAX - 1] = e2;
   }
 }
 
 function reinitWith(t1, t2) {
   sim = createCoupled({ L, m, k, d: dL * L, theta1: t1, theta2: t2 });
-  histLen = 0; trail1.length = 0; trail2.length = 0;
+  histLen = 0;
 }
 
 sliderK.addEventListener('input', () => { k = parseFloat(sliderK.value); valueK.textContent = k.toFixed(1); reinitWith(sim.theta1, sim.theta2); });
@@ -98,9 +107,13 @@ function shadedBob(x, y, r, base) {
 }
 
 function drawScene(c, x0, y0, w, h) {
-  const barY = y0 + 26;
-  const p1x = x0 + w * 0.36, p2x = x0 + w * 0.64;
-  const Lpx = h * 0.62;
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+
+  const barY = y0 + 46;
+  const p1x = x0 + w * 0.38, p2x = x0 + w * 0.62;
+  const Lpx = Math.min((h - 64) * 0.74, w * 0.42);
+  const bob = (th, px) => [px + Lpx * Math.sin(th), barY + Lpx * Math.cos(th)];
 
   // Pivot beam with end caps.
   ctx.fillStyle = c.muted;
@@ -108,17 +121,22 @@ function drawScene(c, x0, y0, w, h) {
   ctx.fillStyle = c.fg;
   for (const pxp of [p1x, p2x]) { ctx.beginPath(); ctx.arc(pxp, barY, 4, 0, 2 * Math.PI); ctx.fill(); }
 
-  const b1x = p1x + Lpx * Math.sin(sim.theta1), b1y = barY + Lpx * Math.cos(sim.theta1);
-  const b2x = p2x + Lpx * Math.sin(sim.theta2), b2y = barY + Lpx * Math.cos(sim.theta2);
-
-  // Trails.
-  for (const [tr, col] of [[trail1, c.accent], [trail2, c.blue]]) {
-    for (let i = 1; i < tr.length; i += 1) {
-      ctx.strokeStyle = col; ctx.globalAlpha = 0.05 + 0.30 * i / tr.length; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(tr[i - 1][0], tr[i - 1][1]); ctx.lineTo(tr[i][0], tr[i][1]); ctx.stroke();
+  // Bob trails from recent angle history (region-independent).
+  const drawTrail = (arr, px, col) => {
+    const N = Math.min(histLen, 110);
+    for (let j = 1; j < N; j += 1) {
+      const [ax, ay] = bob(arr[histLen - N + j - 1], px);
+      const [bx, by] = bob(arr[histLen - N + j], px);
+      ctx.strokeStyle = col; ctx.globalAlpha = 0.04 + 0.32 * j / N; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
     }
-  }
-  ctx.globalAlpha = 1;
+    ctx.globalAlpha = 1;
+  };
+  drawTrail(histT1, p1x, c.accent);
+  drawTrail(histT2, p2x, c.blue);
+
+  const [b1x, b1y] = bob(sim.theta1, p1x);
+  const [b2x, b2y] = bob(sim.theta2, p2x);
 
   // Coil spring between the rod attach points at fraction dL.
   const aX = p1x + Lpx * dL * Math.sin(sim.theta1), aY = barY + Lpx * dL * Math.cos(sim.theta1);
@@ -138,57 +156,55 @@ function drawScene(c, x0, y0, w, h) {
   ctx.strokeStyle = c.fg; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(p1x, barY); ctx.lineTo(b1x, b1y); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(p2x, barY); ctx.lineTo(b2x, b2y); ctx.stroke();
-  shadedBob(b1x, b1y, 17, c.accent);
-  shadedBob(b2x, b2y, 17, c.blue);
+  shadedBob(b1x, b1y, 16, c.accent);
+  shadedBob(b2x, b2y, 16, c.blue);
 
-  return { b1x, b1y, b2x, b2y };
+  // Title + normal-mode readout.
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('coupled pendulums', x0 + 8, y0 + 7);
+  const wp = omegaSym(L), wm = omegaAnti(L, m, k, dL * L), Tb = beatPeriod(L, m, k, dL * L);
+  ctx.font = fontString(canvas, 'mono', 'mono'); ctx.textAlign = 'right'; ctx.fillStyle = c.fg;
+  ctx.fillText(`ω₊ ${wp.toFixed(2)}   ω₋ ${wm.toFixed(2)}`, x0 + w - 8, y0 + 7);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillText(`beat ${Number.isFinite(Tb) ? Tb.toFixed(1) + ' s' : 'inf'}`, x0 + w - 8, y0 + 23);
 }
 
-function drawEnergyBars(c, x0, y0, w, h) {
-  const e1 = e1of(sim), e2 = e2of(sim);
-  const E = energy(sim);
-  const tot = Math.max(1e-9, E.total);
-  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('energy exchange (the beat)', x0, y0 - 10);
-  const barW = 34, gap = 26, baseY = y0 + h;
-  const items = [['E1', e1, c.accent], ['spring', E.spr, c.orange], ['E2', e2, c.blue]];
-  let bx = x0 + 8;
-  for (const [lab, val, col] of items) {
-    const bh = h * Math.max(0, Math.min(1, val / tot));
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(bx, y0, barW, h);
-    ctx.fillStyle = col;
-    ctx.fillRect(bx, baseY - bh, barW, bh);
-    ctx.fillStyle = c.muted; ctx.textAlign = 'center';
-    ctx.fillText(lab, bx + barW / 2, baseY + 14);
-    ctx.fillStyle = c.fg;
-    ctx.fillText(`${(100 * val / tot).toFixed(0)}%`, bx + barW / 2, baseY - bh - 5);
-    bx += barW + gap;
-  }
-}
-
-function drawPortrait(c, x0, y0, s) {
-  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(x0, y0, s, s);
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, s - 1, s - 1);
-  const A = 0.35, cx = x0 + s / 2, cy = y0 + s / 2, sc = (s / 2 - 6) / A;
-  // Normal-mode axes: theta1=theta2 (symmetric), theta1=-theta2 (anti).
-  ctx.strokeStyle = 'rgba(244,162,97,0.55)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(x0 + 6, y0 + s - 6); ctx.lineTo(x0 + s - 6, y0 + 6); ctx.stroke();
-  ctx.strokeStyle = 'rgba(91,192,235,0.55)';
-  ctx.beginPath(); ctx.moveTo(x0 + 6, y0 + 6); ctx.lineTo(x0 + s - 6, y0 + s - 6); ctx.stroke();
-  // Trajectory.
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.4; ctx.beginPath();
-  let st = false;
-  for (let i = 0; i < histLen; i += 1) {
-    const X = cx + histT1[i] * sc, Y = cy - histT2[i] * sc;
-    if (!st) { ctx.moveTo(X, Y); st = true; } else ctx.lineTo(X, Y);
-  }
-  ctx.stroke();
-  ctx.fillStyle = c.fg;
-  ctx.beginPath(); ctx.arc(cx + sim.theta1 * sc, cy - sim.theta2 * sc, 4, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('theta1 vs theta2', x0 + 6, y0 - 6);
-  ctx.fillStyle = 'rgba(244,162,97,0.85)'; ctx.fillText('sym', x0 + s - 28, y0 + 26);
-  ctx.fillStyle = 'rgba(91,192,235,0.85)'; ctx.fillText('anti', x0 + s - 30, y0 + s - 8);
+function drawEnergySlosh(c, x0, y0, w, h) {
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('energy slosh between the pendulums', x0 + 8, y0 + 7);
+  ctx.fillStyle = c.accent; ctx.fillText('E₁', x0 + 8, y0 + 23);
+  ctx.fillStyle = c.blue; ctx.fillText('E₂', x0 + 34, y0 + 23);
+  if (histLen < 2) return;
+  const padL = 10, padR = 10, padT = 42, padB = 10;
+  const pw = w - padL - padR, ph = h - padT - padB;
+  const tMax = histT[histLen - 1], tMin = Math.max(0, tMax - 12);
+  let eTot = 1e-9;
+  for (let i = 0; i < histLen; i += 1) eTot = Math.max(eTot, histE1[i] + histE2[i]);
+  const xF = (t) => x0 + padL + pw * (t - tMin) / Math.max(1e-6, tMax - tMin);
+  const baseY = y0 + padT + ph;
+  const yF = (e) => baseY - ph * Math.max(0, Math.min(1, e / eTot));
+  const fillTrace = (arr, line, fillCol) => {
+    ctx.beginPath(); let st = false; let lastX = xF(tMin);
+    for (let i = 0; i < histLen; i += 1) {
+      if (histT[i] < tMin) continue;
+      const xx = xF(histT[i]), yy = yF(arr[i]); lastX = xx;
+      if (!st) { ctx.moveTo(xx, baseY); ctx.lineTo(xx, yy); st = true; } else ctx.lineTo(xx, yy);
+    }
+    if (st) { ctx.lineTo(lastX, baseY); ctx.closePath(); ctx.fillStyle = fillCol; ctx.fill(); }
+    ctx.beginPath(); st = false;
+    for (let i = 0; i < histLen; i += 1) {
+      if (histT[i] < tMin) continue;
+      const xx = xF(histT[i]), yy = yF(arr[i]);
+      if (!st) { ctx.moveTo(xx, yy); st = true; } else ctx.lineTo(xx, yy);
+    }
+    ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.stroke();
+  };
+  fillTrace(histE1, c.accent, 'rgba(255,209,102,0.22)');
+  fillTrace(histE2, c.blue, 'rgba(91,192,235,0.22)');
 }
 
 function drawTrace(c, x0, y0, w, h) {
@@ -237,13 +253,12 @@ function drawTrace(c, x0, y0, w, h) {
 }
 
 function render() {
+  if (!REG) relayout();
   const c = colors();
-  ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H);
-  const sceneW = 470;
-  drawScene(c, 0, 0, sceneW, 300);
-  drawEnergyBars(c, sceneW + 20, 40, W - sceneW - 36, 96);
-  drawPortrait(c, sceneW + 22, 168, 120);
-  drawTrace(c, 0, 308, W, H - 312);
+  ctx.fillStyle = c.bg; ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(c, REG.scene.x, REG.scene.y, REG.scene.w, REG.scene.h);
+  drawEnergySlosh(c, REG.energy.x, REG.energy.y, REG.energy.w, REG.energy.h);
+  drawTrace(c, REG.trace.x, REG.trace.y, REG.trace.w, REG.trace.h);
 }
 
 function updateReadout() {
@@ -254,14 +269,7 @@ function updateReadout() {
 
 function physicsTick() {
   stepCoupled(sim, PHYSICS_DT);
-  if (sim.nSteps % 4 === 0) {
-    pushHist();
-    const barY = 26, p1x = 470 * 0.36, p2x = 470 * 0.64, Lpx = 300 * 0.62;
-    trail1.push([p1x + Lpx * Math.sin(sim.theta1), barY + Lpx * Math.cos(sim.theta1)]);
-    trail2.push([p2x + Lpx * Math.sin(sim.theta2), barY + Lpx * Math.cos(sim.theta2)]);
-    if (trail1.length > TRAIL_MAX) trail1.shift();
-    if (trail2.length > TRAIL_MAX) trail2.shift();
-  }
+  if (sim.nSteps % 4 === 0) pushHist();
 }
 
 function tick(now) {
@@ -274,7 +282,17 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
+if (typeof ResizeObserver !== 'undefined') {
+  let raf = 0;
+  const ro = new ResizeObserver(() => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { relayout(); render(); });
+  });
+  ro.observe(canvas);
+}
+
 function bootSync() {
+  relayout();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     const Tb = beatPeriod(L, m, k, dL * L);
