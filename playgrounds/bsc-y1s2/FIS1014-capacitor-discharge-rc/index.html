@@ -13,11 +13,9 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 760px; }
-    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
     .pg-controls input[type="range"] { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
@@ -44,14 +42,16 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A capacitor charged to $V_0$ discharges through a resistor $R$ in a smooth exponential fall. The voltage $V_C(t) = V_0 e^{-t/\tau}$ drops to 37 percent at time $\tau = RC$, the heartbeat of every timing circuit. Watch the charge drain from the capacitor above while the voltage and current curves decay below.</p>
+      <p class="t-body">A capacitor charged to $V_0$ discharges through a resistor $R$ in a smooth exponential fall. The voltage $V_C(t) = V_0 e^{-t/\tau}$ drops to 37 percent (that is $1/e$) at the time constant $\tau = RC$, the characteristic time of every timing circuit. Watch the charge drain through the glowing resistor at the top, the voltage decay against the $\tau$ markers in the middle, and the stored energy turn into heat in the budget below.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0" aria-label="RC discharge: circuit on top, voltage and current curves below."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="RC discharge: a circuit discharging through a resistor, the voltage decay curve, and the energy budget."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
@@ -72,9 +72,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Increase $R$ or $C$: watch the decay stretch out, $\tau = RC$ stretches linearly.</li>
-        <li class="t-body">Watch the curve cross the tau line at 37 percent, independent of $V_0$.</li>
-        <li class="t-body">Compare the circuit diagram charge cloud size to the voltage curve height.</li>
+        <li class="t-body">Increase $R$ or $C$ and the decay stretches out: $\tau = RC$ grows in proportion.</li>
+        <li class="t-body">Watch the voltage curve cross the $\tau$ line at 37 percent, the same fraction whatever $V_0$ is.</li>
+        <li class="t-body">Follow the energy budget: the stored energy decays at twice the rate of the voltage, and all of it ends up as heat in the resistor.</li>
       </ul>
     </section>
 
