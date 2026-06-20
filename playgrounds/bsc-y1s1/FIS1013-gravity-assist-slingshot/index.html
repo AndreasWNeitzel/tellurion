@@ -56,7 +56,9 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="600"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950"
+              data-plot-role="diagnostic"
+              aria-label="A spacecraft's hyperbolic flyby of a planet, with the solar-frame velocity composition showing the speed it gains."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption">Figure 1. Gravity-assist slingshot: a spacecraft's path bent by a flyby of a moving planet, gaining or losing speed in the Sun frame while its speed relative to the planet is unchanged. Method: planar restricted three-body flyby with before/after velocity vectors.</figcaption>
@@ -69,8 +71,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Relative to the planet the spacecraft only turns, its speed never changes. The slingshot lives in the lower panel, in the Sun frame.</li>
+        <li class="t-body">There, the same flyby adds the planet's velocity to the craft's: line them up and it comes out faster (a boost) for free, no fuel burned.</li>
+        <li class="t-body">Pull the periapsis $r_{\min}$ in closer for a sharper turn and a bigger boost; flip the approach to lose speed instead (braking, used to settle into orbit).</li>
       </ul>
     </section>
 
