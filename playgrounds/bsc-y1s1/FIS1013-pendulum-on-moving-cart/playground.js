@@ -1,259 +1,453 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
-// playground.js
-// Cart with pendulum render + energy and phase panels.
+import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
+// Vertical 4:5 hero for a pendulum on a frictionless moving cart.
+// Top region: the cart and hanging bob. Released from rest the total
+// horizontal momentum is zero, so the centre of mass cannot move; it is
+// drawn as a fixed dashed line while the cart recoils against the swinging
+// bob. Bottom region: the cart and bob horizontal positions versus time,
+// mirror images about the flat centre-of-mass line.
 
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createCart, stepCart, energy, horizontalMomentum,
-  M_CART, M_BOB, L_PEN,
 } from './sim.js';
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const sliderTheta  = document.getElementById('slider-theta');
-const sliderSpeed  = document.getElementById('slider-speed');
-const valueTheta   = document.getElementById('value-theta');
-const valueSpeed   = document.getElementById('value-speed');
-const btnReset     = document.getElementById('btn-reset');
-const btnPlayPause = document.getElementById('btn-playpause');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-const W = canvas.width, H = canvas.height;
+const sliderTheta = document.getElementById('slider-theta');
+const sliderMcart = document.getElementById('slider-mcart');
+const sliderMbob = document.getElementById('slider-mbob');
+const valueTheta = document.getElementById('value-theta');
+const valueMcart = document.getElementById('value-mcart');
+const valueMbob = document.getElementById('value-mbob');
+const btnReset = document.getElementById('btn-reset');
+const btnPlay = document.getElementById('btn-playpause');
 
-const state = {
-  theta0: 0.8,
-  speed: 3,
-  sim: null,
-  E0: 0,
-  trail: [],     // bob trail
-  phase: [],     // (theta, x) phase
-  playing: !(DETERMINISTIC || prefersReducedMotion()),
-};
+const PHYSICS_DT = 0.005;
+const WINDOW = 6.0;              // diagnostic time window (s)
+let running = !DETERMINISTIC;
+let theta0 = parseFloat(sliderTheta.value);
+let comX = 0;                    // world centre-of-mass x (constant per run)
+let e0 = null;
+const trail = [];               // bob screen positions for a motion streak
+const hist = [];                // {t, xc, xb} for the diagnostic
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  accentCool: cssVar('--accent-cool', '#7fb1d8'),
-  accentWarm: cssVar('--accent-warm', '#d68a69'),
-};
+function makeSim() {
+  theta0 = parseFloat(sliderTheta.value);
+  const M = parseFloat(sliderMcart.value);
+  const m = parseFloat(sliderMbob.value);
+  const s = createCart({ theta: theta0, M, m, L: 1.0 });
+  comX = s.m * s.L * Math.sin(theta0) / (s.M + s.m);
+  e0 = null;
+  trail.length = 0;
+  hist.length = 0;
+  return s;
+}
+let sim = makeSim();
 
-function rebuild() {
-  state.sim = createCart({ theta: state.theta0, thetadot: 0, x: 0, xdot: 0 });
-  state.E0 = energy(state.sim);
-  state.trail = [];
-  state.phase = [];
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 2.0 },
+    { name: 'diagnostic', weight: 1.35 },
+  ]);
 }
 
-function drawScene() {
-  // Top half of canvas: cart on rail with pendulum.
-  const sceneY = 60, sceneH = 240;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(30, sceneY, W - 60, sceneH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(30.5, sceneY + 0.5, W - 61, sceneH - 1);
+function reinit() { sim = makeSim(); }
 
-  // Rail (horizontal line at center)
-  const railY = sceneY + sceneH * 0.55;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
-  ctx.beginPath();
-  ctx.moveTo(40, railY); ctx.lineTo(W - 40, railY);
-  ctx.stroke();
-
-  // Cart position (center of canvas + scaled x)
-  const cxBase = W / 2;
-  const scale = 60;     // pixels per length unit
-  const cartX = cxBase + state.sim.x * scale;
-  const cartW = 60, cartH = 28;
-  ctx.fillStyle = tok.accentCool;
-  ctx.fillRect(cartX - cartW / 2, railY - cartH, cartW, cartH);
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
-  ctx.strokeRect(cartX - cartW / 2, railY - cartH, cartW, cartH);
-  // Wheels
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.beginPath(); ctx.arc(cartX - cartW * 0.3, railY, 5, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cartX + cartW * 0.3, railY, 5, 0, Math.PI * 2); ctx.fill();
-
-  // Pivot on top of cart
-  const pivotX = cartX, pivotY = railY - cartH;
-  // Pendulum bob: theta measured from straight down (theta = 0 is hanging).
-  const bobX = pivotX + L_PEN * scale * Math.sin(state.sim.theta);
-  const bobY = pivotY + L_PEN * scale * Math.cos(state.sim.theta);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.70)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(pivotX, pivotY); ctx.lineTo(bobX, bobY);
-  ctx.stroke();
-  ctx.fillStyle = tok.accentWarm;
-  ctx.beginPath();
-  ctx.arc(bobX, bobY, 10, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-  ctx.stroke();
-
-  // Bob trail
-  ctx.strokeStyle = 'rgba(214, 138, 105, 0.40)';
-  ctx.lineWidth = 1.0;
-  ctx.beginPath();
-  for (let i = 0; i < state.trail.length; i += 1) {
-    const t = state.trail[i];
-    if (i === 0) ctx.moveTo(t.x, t.y); else ctx.lineTo(t.x, t.y);
-  }
-  ctx.stroke();
-}
-
-function drawAll() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-  if (!state.sim) return;
-  const E = energy(state.sim);
-  const p = horizontalMomentum(state.sim);
-
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`t = ${state.sim.t.toFixed(2)}   theta = ${state.sim.theta.toFixed(3)}   x = ${state.sim.x.toFixed(3)}`, 30, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`E_drift = ${((E - state.E0) / Math.abs(state.E0 || 1)).toExponential(2)}   p_x = ${p.toFixed(3)}   M = ${M_CART}, m = ${M_BOB}, L = ${L_PEN}`, 30, 40);
-
-  drawScene();
-
-  // Bottom: phase portrait (x, theta)
-  const phaseY = 320, phaseH = H - phaseY - 60;
-  const phaseX = 30, phaseW = W - 60;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(phaseX, phaseY, phaseW, phaseH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(phaseX + 0.5, phaseY + 0.5, phaseW - 1, phaseH - 1);
-  // Phase trail
-  const xMax = Math.max(...state.phase.map(p => Math.abs(p.x)), 1);
-  const tMax = Math.max(...state.phase.map(p => Math.abs(p.th)), 1);
-  function ppX(x) { return phaseX + phaseW / 2 + (x / xMax) * (phaseW / 2 - 6); }
-  function ppY(th) { return phaseY + phaseH / 2 - (th / tMax) * (phaseH / 2 - 6); }
-  ctx.strokeStyle = 'rgba(127, 177, 216, 0.55)';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  for (let i = 0; i < state.phase.length; i += 1) {
-    const pt = state.phase[i];
-    if (i === 0) ctx.moveTo(ppX(pt.x), ppY(pt.th)); else ctx.lineTo(ppX(pt.x), ppY(pt.th));
-  }
-  ctx.stroke();
-  // Current
-  if (state.phase.length > 0) {
-    const cur = state.phase[state.phase.length - 1];
-    ctx.fillStyle = '#f1d28a';
-    ctx.beginPath();
-    ctx.arc(ppX(cur.x), ppY(cur.th), 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'left';
-  ctx.fillText('phase (x_cart, θ)', phaseX + 6, phaseY + 14);
-}
-
-function tickN(n) {
-  for (let i = 0; i < n; i += 1) {
-    stepCart(state.sim, 0.005);
-    if (state.sim.nSteps % 1 === 0) {
-      const pivotY = 60 + 240 * 0.55 - 28;
-      const cxBase = W / 2;
-      const scale = 60;
-      const cartX = cxBase + state.sim.x * scale;
-      const bx = cartX + L_PEN * scale * Math.sin(state.sim.theta);
-      const by = pivotY + L_PEN * scale * Math.cos(state.sim.theta);
-      state.trail.push({ x: bx, y: by });
-      state.phase.push({ x: state.sim.x, th: state.sim.theta });
-      if (state.trail.length > 600) state.trail.shift();
-      if (state.phase.length > 1200) state.phase.shift();
-    }
-  }
-}
-
-sliderTheta.addEventListener('change', () => { state.theta0 = parseFloat(sliderTheta.value); valueTheta.textContent = state.theta0.toFixed(2); rebuild(); drawAll(); });
-sliderTheta.addEventListener('input', () => { valueTheta.textContent = parseFloat(sliderTheta.value).toFixed(2); });
-sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
-btnPlayPause.addEventListener('click', () => {
-  state.playing = !state.playing;
-  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
-  btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
+[sliderTheta, sliderMcart, sliderMbob].forEach((sl) => sl.addEventListener('input', () => {
+  valueTheta.textContent = parseFloat(sliderTheta.value).toFixed(2);
+  valueMcart.textContent = parseFloat(sliderMcart.value).toFixed(1);
+  valueMbob.textContent = parseFloat(sliderMbob.value).toFixed(1);
+  reinit();
+  render();
+}));
+btnReset.addEventListener('click', () => { reinit(); render(); });
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
 });
 
-function bootSync() {
-  rebuild();
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const target = Math.round(frac * 2000);
-    tickN(target);
-    drawAll();
-    if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
-    }
-    return;
-  }
-  drawAll();
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    cart: '#5bc0eb',
+    bob: '#ff9d6e',
+    com: '#b58cff',
+    border: 'rgba(255,255,255,0.12)',
+    grid: 'rgba(255,255,255,0.08)',
+  };
 }
 
-function tick() {
-  if (state.playing) {
-    tickN(state.speed);
-    drawAll();
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
+}
+
+function roundRect(x, y, w, h, rad) {
+  const rr = Math.min(rad, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
+}
+
+function drawScene(col, r) {
+  panel(col, r, 'Cart recoils, center of mass stays put');
+
+  const titleH = 22, stripH = 30;
+  const draw = {
+    x: r.x + 10, y: r.y + titleH + 4,
+    w: r.w - 20, h: r.h - titleH - 4 - stripH - 4,
+  };
+
+  const L = sim.L;
+  const amp = Math.abs(Math.sin(theta0));
+  const bobAmpX = (sim.M / (sim.M + sim.m)) * L * amp;
+  const worldHalfW = Math.max(bobAmpX, 0.15) + 0.28;
+  const scaleX = Math.min((draw.w * 0.5 - 14) / worldHalfW, (draw.h * 0.66) / L);
+  const centerX = draw.x + draw.w / 2;
+  const railY = draw.y + draw.h * 0.30;
+  const sx = (wx) => centerX + (wx - comX) * scaleX;
+
+  // Center-of-mass marker (fixed vertical line).
+  ctx.save();
+  ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = col.com;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(centerX, draw.y);
+  ctx.lineTo(centerX, draw.y + draw.h);
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = col.com;
+  ctx.font = fontString(canvas, 'tick', 'sans', 600);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('center of mass', centerX, draw.y + 1);
+
+  // Rail.
+  ctx.strokeStyle = col.muted;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(draw.x + 6, railY);
+  ctx.lineTo(draw.x + draw.w - 6, railY);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let hx = draw.x + 10; hx < draw.x + draw.w - 6; hx += 14) {
+    ctx.moveTo(hx, railY);
+    ctx.lineTo(hx - 7, railY + 8);
+  }
+  ctx.stroke();
+
+  // Positions.
+  const pivotX = sx(sim.x);
+  const bobWX = sim.x + L * Math.sin(sim.theta);
+  const bobX = sx(bobWX);
+  const bobY = railY + L * Math.cos(sim.theta) * scaleX;
+
+  // Bob trail.
+  if (running && Math.abs(sim.thetadot) > 0.05) {
+    trail.push({ x: bobX, y: bobY });
+    if (trail.length > 40) trail.shift();
+  }
+  for (let i = 1; i < trail.length; i++) {
+    ctx.strokeStyle = `rgba(255,157,110,${0.04 + 0.16 * (i / trail.length)})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
+    ctx.lineTo(trail[i].x, trail[i].y);
+    ctx.stroke();
+  }
+
+  // Rod.
+  ctx.strokeStyle = col.fg;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(pivotX, railY);
+  ctx.lineTo(bobX, bobY);
+  ctx.stroke();
+
+  // Cart (box above the rail) with two wheels and a pivot.
+  const cartW = Math.max(48, Math.min(120, scaleX * 0.5));
+  const cartH = cartW * 0.46;
+  ctx.fillStyle = col.cart;
+  roundRect(pivotX - cartW / 2, railY - cartH, cartW, cartH, 6);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#0a0c12';
+  ctx.beginPath();
+  ctx.arc(pivotX, railY, 4, 0, 2 * Math.PI);
+  ctx.fill();
+  const wheelR = Math.max(5, cartW * 0.12);
+  for (const wd of [-1, 1]) {
+    ctx.fillStyle = '#2a3340';
+    ctx.beginPath();
+    ctx.arc(pivotX + wd * cartW * 0.3, railY + wheelR * 0.6, wheelR, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Bob.
+  const bobR = Math.max(9, Math.min(26, 7 + 6 * Math.cbrt(sim.m)));
+  ctx.fillStyle = col.bob;
+  ctx.beginPath();
+  ctx.arc(bobX, bobY, bobR, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Readout strip.
+  const p = horizontalMomentum(sim);
+  const ry = r.y + r.h - stripH / 2 + 1;
+  const items = [
+    [`θ = ${(sim.theta * 180 / Math.PI).toFixed(0)}°`, col.fg],
+    [`cart ${sim.x.toFixed(2)}`, col.cart],
+    [`bob ${bobWX.toFixed(2)}`, col.bob],
+    [`p ${p.toFixed(2)}`, col.com],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => {
+    ctx.fillStyle = c;
+    ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry);
+  });
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Horizontal positions vs time');
+
+  const inner = {
+    x: r.x + 50,
+    y: r.y + 28,
+    w: r.w - 50 - 14,
+    h: r.h - 28 - 40,
+  };
+
+  const L = sim.L;
+  const amp = Math.abs(Math.sin(theta0));
+  const bobAmpX = (sim.M / (sim.M + sim.m)) * L * amp;
+  const yHalf = Math.max(bobAmpX, 0.12) * 1.15;
+  const yMin = comX - yHalf, yMax = comX + yHalf;
+  const tNow = sim.t;
+  const t0 = Math.max(0, tNow - WINDOW);
+  const tSpan = Math.max(WINDOW, tNow) - t0 || 1;
+
+  const xOf = (t) => inner.x + ((t - t0) / tSpan) * inner.w;
+  const yOf = (xx) => inner.y + inner.h - ((xx - yMin) / (yMax - yMin)) * inner.h;
+
+  // Grid + y ticks.
+  ctx.strokeStyle = col.grid;
+  ctx.lineWidth = 0.8;
+  ctx.fillStyle = col.muted;
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (const yv of [yMin, comX, yMax]) {
+    const y = yOf(yv);
+    ctx.beginPath();
+    ctx.moveTo(inner.x, y);
+    ctx.lineTo(inner.x + inner.w, y);
+    ctx.stroke();
+    ctx.fillText(yv.toFixed(2), inner.x - 5, y);
+  }
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+
+  // Center-of-mass line (constant).
+  ctx.save();
+  ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = col.com;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(inner.x, yOf(comX));
+  ctx.lineTo(inner.x + inner.w, yOf(comX));
+  ctx.stroke();
+  ctx.restore();
+
+  // Cart and bob position traces.
+  const plot = (key, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let started = false;
+    for (const h of hist) {
+      if (h.t < t0) continue;
+      const X = xOf(h.t), Y = yOf(h[key]);
+      if (!started) { ctx.moveTo(X, Y); started = true; } else { ctx.lineTo(X, Y); }
+    }
+    ctx.stroke();
+  };
+  plot('xc', col.cart);
+  plot('xb', col.bob);
+
+  // Leading dots at the current time.
+  if (hist.length) {
+    const cur = hist[hist.length - 1];
+    const dot = (yy, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(xOf(cur.t), yy, 3.5, 0, 2 * Math.PI); ctx.fill(); };
+    dot(yOf(cur.xc), col.cart);
+    dot(yOf(cur.xb), col.bob);
+  }
+
+  // Axis labels.
+  ctx.fillStyle = col.muted;
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('time (s)', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save();
+  ctx.translate(inner.x - 40, inner.y + inner.h / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('x (m)', 0, 0);
+  ctx.restore();
+
+  // Legend.
+  const legend = [['cart', col.cart], ['bob', col.bob], ['COM', col.com]];
+  ctx.fillStyle = 'rgba(10,12,18,0.72)';
+  ctx.fillRect(inner.x + 6, inner.y + 6, 140, 18);
+  let lx = inner.x + 12;
+  const ly = inner.y + 15;
+  ctx.font = fontString(canvas, 'legend', 'mono');
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  for (const [lab, c] of legend) {
+    ctx.strokeStyle = c;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(lx, ly);
+    ctx.lineTo(lx + 14, ly);
+    ctx.stroke();
+    ctx.fillStyle = col.fg;
+    ctx.fillText(lab, lx + 17, ly);
+    lx += ctx.measureText(lab).width + 34;
+  }
+}
+
+function render() {
+  if (!REG) relayout();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
+}
+
+function recordHistory() {
+  const xb = sim.x + sim.L * Math.sin(sim.theta);
+  hist.push({ t: sim.t, xc: sim.x, xb });
+  while (hist.length && hist[0].t < sim.t - WINDOW - 0.5) hist.shift();
+}
+
+let last = performance.now();
+let accum = 0;
+let sample = 0;
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (running) {
+    accum += dt;
+    while (accum >= PHYSICS_DT) {
+      stepCart(sim, PHYSICS_DT);
+      accum -= PHYSICS_DT;
+      if ((sample++ % 4) === 0) recordHistory();
+    }
+  }
+  render();
   requestAnimationFrame(tick);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-} else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+function bootSync() {
+  if (CAPTURE_NAME) {
+    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    const steps = Math.round(f * (WINDOW / PHYSICS_DT));
+    for (let i = 0; i < steps; i++) {
+      stepCart(sim, PHYSICS_DT);
+      if ((i % 4) === 0) recordHistory();
+    }
+  }
+  relayout();
+  render();
 }
 
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const xb = sim.x + sim.L * Math.sin(sim.theta);
   return {
     fields: [
-      { key: 'cart-x', label: 'cart position $x$', value: state.sim.x, format: 'float' },
-      { key: 'pendulum-theta', label: 'pendulum angle $\\theta$', value: state.sim.theta, format: 'float' },
-      { key: 'energy', label: 'total energy $E$', value: energy(state.sim), format: 'float' },
-      { key: 'momentum', label: 'horizontal momentum $p_x$', value: horizontalMomentum(state.sim), format: 'float' },
+      { key: 'theta', label: 'angle $\\theta$ (deg)', value: sim.theta * 180 / Math.PI, format: 'float' },
+      { key: 'xcart', label: 'cart $x$ (m)', value: sim.x, format: 'float' },
+      { key: 'xbob', label: 'bob $x$ (m)', value: xb, format: 'float' },
+      { key: 'p', label: 'momentum $p_x$', value: horizontalMomentum(sim), format: 'float' },
     ],
   };
 };
-// A conservative (Hamiltonian) system: total energy is the
-// invariant. The baseline is the energy at the start of the run and
-// is re-taken whenever a control change steps the energy.
-let __energy0 = null, __energyPrev = null;
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () {
-    try {
-      const E = energy(state.sim);
-      if (!Number.isFinite(E)) return [];
-      if (__energyPrev !== null
-        && Math.abs(E - __energyPrev) > 0.02 * Math.max(1e-9, Math.abs(__energyPrev)) + 1e-9) {
-        __energy0 = E;                    // discontinuity: a control changed the system
-      }
-      __energyPrev = E;
-      if (__energy0 === null) __energy0 = E;
-      const dE = Math.abs(E - __energy0) / Math.max(1e-12, Math.abs(__energy0));
-      return [{
-        key: 'energy',
-        label: 'total energy conserved (rel. drift)',
-        value: dE.toExponential(2),
-        status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
-      }];
-    } catch (e) { return []; }
-  };
-}
+
+window.playground.getInvariants = function () {
+  try {
+    const E = energy(sim);
+    if (!Number.isFinite(E)) return [];
+    if (e0 === null) e0 = E;
+    const dE = Math.abs(E - e0) / Math.max(1e-6, Math.abs(e0));
+    return [{
+      key: 'energy',
+      label: 'total energy conserved (rel. drift)',
+      value: dE.toExponential(2),
+      status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
+  }
+};

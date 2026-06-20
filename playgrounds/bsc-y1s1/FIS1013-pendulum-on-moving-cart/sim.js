@@ -19,18 +19,22 @@ export const M_BOB  = 0.5;
 export const L_PEN  = 1.0;
 export const G_GRAV = 9.81;
 
-export function createCart({ x = 0, theta = 0.8, xdot = 0, thetadot = 0 } = {}) {
-  return { x, theta, xdot, thetadot, t: 0, nSteps: 0 };
+export function createCart({
+  x = 0, theta = 0.8, xdot = 0, thetadot = 0,
+  M = M_CART, m = M_BOB, L = L_PEN,
+} = {}) {
+  return { x, theta, xdot, thetadot, M, m, L, t: 0, nSteps: 0 };
 }
 
 function accelerations(s) {
+  const M = s.M ?? M_CART, m = s.m ?? M_BOB, L = s.L ?? L_PEN;
   const c = Math.cos(s.theta), si = Math.sin(s.theta);
   // (M+m) x'' + m L c th'' = m L si th'^2
   // c x'' + L th'' = -g si
   // Matrix A * [x'', th''] = b:
-  const a11 = M_CART + M_BOB, a12 = M_BOB * L_PEN * c;
-  const a21 = c,              a22 = L_PEN;
-  const b1 = M_BOB * L_PEN * si * s.thetadot * s.thetadot;
+  const a11 = M + m, a12 = m * L * c;
+  const a21 = c,     a22 = L;
+  const b1 = m * L * si * s.thetadot * s.thetadot;
   const b2 = -G_GRAV * si;
   const det = a11 * a22 - a12 * a21;
   const xdd = (b1 * a22 - b2 * a12) / det;
@@ -46,7 +50,8 @@ function deriv(s) {
 export function stepCart(s, dt = 0.005) {
   function combine(s0, k, fac) {
     return { x: s0.x + dt * fac * k.dx, theta: s0.theta + dt * fac * k.dth,
-             xdot: s0.xdot + dt * fac * k.dxdot, thetadot: s0.thetadot + dt * fac * k.dtdot };
+             xdot: s0.xdot + dt * fac * k.dxdot, thetadot: s0.thetadot + dt * fac * k.dtdot,
+             M: s0.M, m: s0.m, L: s0.L };
   }
   const k1 = deriv(s);
   const k2 = deriv(combine(s, k1, 0.5));
@@ -61,15 +66,17 @@ export function stepCart(s, dt = 0.005) {
 }
 
 export function energy(s) {
-  const KE = 0.5 * (M_CART + M_BOB) * s.xdot * s.xdot
-           + 0.5 * M_BOB * L_PEN * L_PEN * s.thetadot * s.thetadot
-           + M_BOB * L_PEN * Math.cos(s.theta) * s.xdot * s.thetadot;
-  const PE = -M_BOB * G_GRAV * L_PEN * Math.cos(s.theta);
+  const M = s.M ?? M_CART, m = s.m ?? M_BOB, L = s.L ?? L_PEN;
+  const KE = 0.5 * (M + m) * s.xdot * s.xdot
+           + 0.5 * m * L * L * s.thetadot * s.thetadot
+           + m * L * Math.cos(s.theta) * s.xdot * s.thetadot;
+  const PE = -m * G_GRAV * L * Math.cos(s.theta);
   return KE + PE;
 }
 
 // Total horizontal momentum: should be conserved (no external horizontal force).
 export function horizontalMomentum(s) {
+  const M = s.M ?? M_CART, m = s.m ?? M_BOB, L = s.L ?? L_PEN;
   const c = Math.cos(s.theta);
-  return (M_CART + M_BOB) * s.xdot + M_BOB * L_PEN * c * s.thetadot;
+  return (M + m) * s.xdot + m * L * c * s.thetadot;
 }

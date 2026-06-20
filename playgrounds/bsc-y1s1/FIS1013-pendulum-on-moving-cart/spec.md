@@ -9,7 +9,7 @@ primary_citation: taylor-mech
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
 hook: "Hang a pendulum from a cart that is free to roll. Swing the pendulum and the cart slides the other way: with no outside push the centre of mass cannot move, so the two trade momentum back and forth."
-one_paragraph: "A pendulum hangs from a cart that rolls without friction on a horizontal rail, a coupled two-degree-of-freedom system. With no external horizontal force the total horizontal momentum is conserved (zero here), so every time the bob swings one way the cart recoils the other and the centre of mass stays put. The fast pendulum swing and the slow cart drift are coupled through the rod, giving a nonlinear exchange that the phase portrait (cart position against pendulum angle) shows as a structured orbit. The readout tracks the angle, the cart position, the conserved p_x (which stays at zero to machine precision) and the energy drift. A heavy cart barely recoils; a light cart does most of the moving. This is the same momentum bookkeeping as a person walking on a free raft or a rocket recoiling from its exhaust."
+one_paragraph: "A pendulum hangs from a cart that rolls without friction on a horizontal rail, a coupled two-degree-of-freedom system. With no external horizontal force the total horizontal momentum is conserved (zero here), so every time the bob swings one way the cart recoils the other and the centre of mass stays put. The swing and the cart recoil are coupled through the rod, and because the rod forces are internal the center of mass holds a fixed vertical line; the diagnostic plots the cart and bob horizontal positions against time as mirror images about that constant level. The readout tracks the angle, the cart and bob positions, and the conserved p_x (which stays at zero to machine precision). A heavy cart barely recoils; a light cart does most of the moving. This is the same momentum bookkeeping as a person walking on a free raft or a rocket recoiling from its exhaust."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -120,16 +120,20 @@ Fourth-order Runge-Kutta, dt = 0.005.
 ## Controls
 
 - theta_0: initial pendulum angle, -1.4 to 1.4 rad.
-- speed: integrator steps per render frame.
+- cart M: cart mass, 0.5 to 6 kg.
+- bob m: bob mass, 0.2 to 3 kg.
 - Reset / Pause / Play.
 
 ## Expected qualitative features
 
 1. Pendulum swings; cart slides to keep total p_x constant.
-2. Energy bounded by RK4 truncation.
+2. Released from rest, the center of mass stays on a fixed vertical line;
+   the diagnostic shows the cart and bob horizontal positions as mirror
+   images about that constant center-of-mass level.
 3. For small theta_0 the period is close to the simple pendulum with
    effective gravity g_eff = g (M + m) / M.
-4. Bob trail traces a Lissajous-like pattern.
+4. A light cart recoils far; a heavy cart barely moves. The cart and bob
+   position amplitudes are in the ratio m : M.
 
 ## Invariants and acceptance thresholds
 
@@ -148,8 +152,9 @@ All confirmed in `invariants.test.mjs`.
 
 ## Visual fallback
 
-Canvas2D only. Top: cart on rail with pendulum and bob trail. Bottom:
-phase portrait (x_cart, theta).
+Canvas2D only. Top: cart on rail with pendulum, bob trail, and the fixed
+center-of-mass line. Bottom: cart and bob horizontal positions versus time,
+straddling the constant center of mass.
 
 ## Citations
 

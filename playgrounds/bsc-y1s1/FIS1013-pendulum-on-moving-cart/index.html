@@ -13,8 +13,6 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 760px; }
-    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
     .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
@@ -44,48 +42,42 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-    <strong>What you are seeing:</strong> a frictionless cart of mass <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.109em;">M</span></span></span></span></span>
-    constrained to move horizontally, with a rigid pendulum of length <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi></mrow><annotation encoding="application/x-tex">L</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal">L</span></span></span></span></span>
-    and bob mass <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> hanging from a pivot on top of the cart. Classical
-    two-degree-of-freedom Lagrangian system. Both energy and total
-    horizontal momentum are conserved (no external horizontal forces).
-  </p>
-      <p class="t-body">
-    Release the pendulum from angle <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\theta_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8444em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: -0.0278em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span> and watch it swing. The
-    cart slides to keep total <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>x</mi></msub><mo>=</mo><mo stretchy="false">(</mo><mi>M</mi><mo>+</mo><mi>m</mi><mo stretchy="false">)</mo><mover accent="true"><mi>x</mi><mo>˙</mo></mover><mo>+</mo><mi>m</mi><mi>L</mi><mi>cos</mi><mo>⁡</mo><mi>θ</mi> <mover accent="true"><mi>θ</mi><mo>˙</mo></mover></mrow><annotation encoding="application/x-tex">p_x = (M+m) \dot{x} + m L \cos\theta \, \dot\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">x</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.109em;">M</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6679em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal">x</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.1111em;"><span class="mord">˙</span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.9313em;"></span><span class="mord mathnormal">m</span><span class="mord mathnormal">L</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">cos</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.9313em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span></span><span class="" style="top: -3.2634em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.0556em;"><span class="mord">˙</span></span></span></span></span></span></span></span></span></span></span>
-    constant. The traces below show energy drift (tiny under RK4) and the
-    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi></mrow><annotation encoding="application/x-tex">\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal" style="margin-right: 0.0278em;">θ</span></span></span></span></span> vs cart-<span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span> phase portrait.
-  </p>
+      <p class="t-body">A pendulum hangs from a cart that rolls without friction. Let the bob swing and the cart rolls the other way: the rod only pushes and pulls along itself, and those are internal forces, so they cannot move the system's center of mass. Released from rest the total horizontal momentum is zero and stays zero, which pins the center of mass to one vertical line (the dashed marker) while the cart and bob trade places around it. The scene shows the swing and the recoil; the diagnostic plots the cart and bob horizontal positions over time, straddling that flat center-of-mass line. A light cart recoils far, a heavy one barely moves, set by the mass ratio $m/M$.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="560" tabindex="0" aria-label="Cart with hanging pendulum and trace panels."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A pendulum hanging from a frictionless cart that recoils as the bob swings, with the center of mass held fixed; below, the cart and bob horizontal positions versus time."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Cart-pendulum dynamics. Method: RK4 on coupled Euler-Lagrange
-      equations.</figcaption>
+      Pendulum on a frictionless moving cart. Top: the cart recoils as the bob swings, the center of mass fixed on the dashed line. Bottom: cart and bob horizontal positions versus time, straddling the constant center of mass. Method: RK4 on the coupled Lagrange equations.</figcaption>
+
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Cart-pendulum controls">
-    <div class="row"><span class="label">theta_0</span><input aria-label="theta_0" type="range" id="slider-theta" min="-1.4" max="1.4" step="0.05" value="0.8"><span class="value" id="value-theta">0.80</span></div>
-    <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="6" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row"><span class="label">theta_0 (rad)</span><input aria-label="theta_0 (rad)" type="range" id="slider-theta" min="-1.4" max="1.4" step="0.05" value="0.8"><span class="value" id="value-theta">0.80</span></div>
+    <div class="row"><span class="label">cart M (kg)</span><input aria-label="cart M (kg)" type="range" id="slider-mcart" min="0.5" max="6" step="0.1" value="2.0"><span class="value" id="value-mcart">2.0</span></div>
+    <div class="row"><span class="label">bob m (kg)</span><input aria-label="bob m (kg)" type="range" id="slider-mbob" min="0.2" max="3" step="0.1" value="0.5"><span class="value" id="value-mbob">0.5</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>
   </div>
+      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
+      <span class="label">energy drift:</span><span class="value" id="readout-invariant">0</span>
+    </div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the dashed center-of-mass line: the cart and bob both move, but their mass-weighted average never leaves it.</li>
+        <li class="t-body">Lighten the cart and it recoils much further per swing; make it heavy and the cart barely twitches while the bob does almost all the moving.</li>
+        <li class="t-body">On the diagnostic the cart and bob curves are mirror images about the flat center-of-mass line, with amplitudes in the ratio of the opposite masses.</li>
+        <li class="t-body">Release from a larger angle for a wider swing; the period stretches as the amplitude grows (the pendulum is not quite simple harmonic).</li>
       </ul>
     </section>
 
