@@ -205,23 +205,23 @@ function drawAll() {
   const fc = carrierFreq(state.f1, state.f2);
   const fenv = envelopeFreq(state.f1, state.f2);
   ctx.fillStyle = 'rgba(30, 30, 40, 0.75)';
-  ctx.fillRect(sc.x + sc.w - 180, sc.y + sc.h - 88, 172, 80);
+  ctx.fillRect(sc.x + sc.w - 192, sc.y + sc.h - 100, 184, 92);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.lineWidth = 1;
-  ctx.strokeRect(sc.x + sc.w - 180, sc.y + sc.h - 88, 172, 80);
+  ctx.strokeRect(sc.x + sc.w - 192, sc.y + sc.h - 100, 184, 92);
 
-  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 11 });
+  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 12 });
   ctx.fillStyle = col.accent;
   ctx.textAlign = 'right';
-  let dy = sc.y + sc.h - 72;
+  let dy = sc.y + sc.h - 80;
   ctx.fillText(`f₁: ${state.f1.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
-  dy += 14;
+  dy += 15;
   ctx.fillText(`f₂: ${state.f2.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
-  dy += 14;
+  dy += 15;
   ctx.fillText(`beat: ${fb.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
-  dy += 14;
+  dy += 15;
   ctx.fillText(`carrier: ${fc.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
-  dy += 14;
+  dy += 15;
   ctx.fillText(`envelope: ${fenv.toFixed(3)} Hz`, sc.x + sc.w - 8, dy);
 
   // === PLOT PANEL: Beat envelope amplitude over time ===
@@ -260,7 +260,7 @@ function drawAll() {
     ctx.stroke();
   }
 
-  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 10 });
+  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 12 });
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.textAlign = 'right';
   for (let f = 0; f <= 2; f += 1) {
@@ -270,7 +270,7 @@ function drawAll() {
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.textAlign = 'center';
-  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 10 });
+  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 12 });
   ctx.fillText('|envelope|', pl.x + pl.w / 2, pl.y + 10);
 }
 
