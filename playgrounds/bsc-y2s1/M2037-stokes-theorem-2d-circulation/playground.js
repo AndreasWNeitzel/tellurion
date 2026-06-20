@@ -1,6 +1,7 @@
 import { curlAtPoint, circulationRect } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { stack } from '../../../shared/js/render/vertical-layout.js';
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -23,34 +24,47 @@ function vec(field, x, y) {
   return { u: x, v: y };
 }
 function arrow(c, x0, y0, x1, y1) { ctx.strokeStyle = c; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); const a = Math.atan2(y1 - y0, x1 - x0); const head = 4; ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - head * Math.cos(a - 0.32), y1 - head * Math.sin(a - 0.32)); ctx.lineTo(x1 - head * Math.cos(a + 0.32), y1 - head * Math.sin(a + 0.32)); ctx.closePath(); ctx.fill(); }
+// Vertical 4:5 composition: the vector field fills the scene region (its
+// width carries x in [-3, 3] at an isotropic scale, so arrows are never
+// distorted) and the circulation-vs-area diagnostic sits in a band beneath
+// it. SC/SCX/SCY and REG are recomputed each frame and reused by the drag
+// handler so the pointer maps to field coordinates correctly.
+let SC = 70, SCX = 0, SCY = 0, REG = null;
+function layout() {
+  REG = stack(canvas, [{ name: 'scene', weight: 3 }, { name: 'plot', weight: 1 }]);
+  const s = REG.scene;
+  SC = s.w / 6;                       // x in [-3, 3] across the full width
+  SCX = s.x + s.w / 2;
+  SCY = s.y + s.h / 2;
+}
+const toX = (x) => SCX + x * SC;
+const toY = (y) => SCY - y * SC;
+
 // Rule-13 diagnostic: the loop circulation against the enclosed area.
-// Stokes (Green) in 2D makes this a straight line through the origin
-// with slope equal to the curl; the marker is the measured
-// circulation, which sits exactly on the line.
+// Stokes (Green) in 2D makes this a straight line through the origin with
+// slope equal to the curl; the marker is the measured circulation.
 function drawStokesPlot() {
-  const pw = 280, ph = 150, px = canvas.width - pw - 16, py = 48;
+  const p = REG.plot;
   ctx.fillStyle = 'rgb(10, 13, 24)';
-  ctx.fillRect(px, py, pw, ph);
+  ctx.fillRect(p.x, p.y, p.w, p.h);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'mono', 600);
   ctx.textAlign = 'left';
-  ctx.fillText('circulation vs enclosed area', px + 8, py + 16);
-  const ax = px + 16, ay = py + 26, aw = pw - 30, ah = ph - 44;
+  ctx.fillText('circulation vs enclosed area', p.x + 8, p.y + 16);
+  const ax = p.x + 44, ay = p.y + 24, aw = p.w - 60, ah = p.h - 46;
   const areaMax = 12, circMax = 12;
   const curl = curlAtPoint(field, cx0, cy0);
   const xOf = (A) => ax + (A / areaMax) * aw;
   const yOf = (C) => ay + ah / 2 - (C / circMax) * (ah / 2);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
   ctx.beginPath(); ctx.moveTo(ax, yOf(0)); ctx.lineTo(ax + aw, yOf(0)); ctx.stroke();
-  // Stokes line: circulation = curl times area.
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(xOf(0), yOf(0));
   ctx.lineTo(xOf(areaMax), yOf(curl * areaMax));
   ctx.stroke();
-  // Marker at the measured (area, circulation).
   const area = w * h;
   const circ = circulationRect(field, cx0, cy0, w, h);
   ctx.fillStyle = '#ffd166';
@@ -59,7 +73,7 @@ function drawStokesPlot() {
   ctx.fill();
   ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 240, 0.75)';
-  ctx.fillText('circulation', px + 8, ay + 10);
+  ctx.fillText('circulation', p.x + 8, ay + 10);
   ctx.textAlign = 'right';
   ctx.fillText('area', ax + aw, ay + ah + 12);
   ctx.textAlign = 'left';
@@ -67,37 +81,43 @@ function drawStokesPlot() {
 
 function render() {
   const c = colors(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const cx = canvas.width / 2, cy = canvas.height / 2; const scale = 70;
+  layout();
+  const s = REG.scene;
+  // Axes within the scene region.
   ctx.strokeStyle = c.muted; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
-  for (let ix = -3; ix <= 3; ix += 0.4) for (let iy = -2; iy <= 2; iy += 0.4) {
+  ctx.beginPath(); ctx.moveTo(s.x, toY(0)); ctx.lineTo(s.x + s.w, toY(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(toX(0), s.y); ctx.lineTo(toX(0), s.y + s.h); ctx.stroke();
+  // Field arrows over the visible domain (y-extent follows the scene height
+  // at the same isotropic scale, filling the portrait without stretching).
+  const yhalf = Math.ceil((s.h / 2) / SC);
+  for (let ix = -3; ix <= 3; ix += 0.4) for (let iy = -yhalf; iy <= yhalf; iy += 0.4) {
     const { u, v } = vec(field, ix, iy);
     const mag = Math.hypot(u, v); if (mag < 1e-9) continue;
     const len = Math.min(0.35, 0.08 + 0.05 * mag);
     const dx = len * u / mag, dy = len * v / mag;
-    arrow(c.muted, cx + scale * ix, cy - scale * iy, cx + scale * (ix + dx), cy - scale * (iy + dy));
+    arrow(c.muted, toX(ix), toY(iy), toX(ix + dx), toY(iy + dy));
   }
-  // Rectangle (now positioned at cx0, cy0 instead of center).
-  const rectX = cx + scale * cx0, rectY = cy - scale * cy0;
+  // Rectangle at (cx0, cy0).
+  const rx = toX(cx0), ry = toY(cy0);
   ctx.fillStyle = 'rgba(255, 209, 102, 0.15)';
-  ctx.fillRect(rectX - scale * w / 2, rectY - scale * h / 2, scale * w, scale * h);
+  ctx.fillRect(rx - SC * w / 2, ry - SC * h / 2, SC * w, SC * h);
   ctx.strokeStyle = c.accent; ctx.lineWidth = 2.5;
-  ctx.strokeRect(rectX - scale * w / 2, rectY - scale * h / 2, scale * w, scale * h);
+  ctx.strokeRect(rx - SC * w / 2, ry - SC * h / 2, SC * w, SC * h);
   // Boundary arrows showing CCW orientation.
   ctx.strokeStyle = c.blue; ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(rectX - scale * w / 2, rectY - scale * h / 2);
-  ctx.lineTo(rectX + scale * w / 2, rectY - scale * h / 2);
-  ctx.lineTo(rectX + scale * w / 2, rectY + scale * h / 2);
-  ctx.lineTo(rectX - scale * w / 2, rectY + scale * h / 2);
+  ctx.moveTo(rx - SC * w / 2, ry - SC * h / 2);
+  ctx.lineTo(rx + SC * w / 2, ry - SC * h / 2);
+  ctx.lineTo(rx + SC * w / 2, ry + SC * h / 2);
+  ctx.lineTo(rx - SC * w / 2, ry + SC * h / 2);
   ctx.closePath();
   ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`field: ${field}`, 12, 20);
-  ctx.fillText(`curl = ${curlAtPoint(field, 0, 0)}`, 12, 38);
+  // In-canvas readout overlay (top-left of the scene).
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(`field: ${field}`, s.x + 6, s.y + 16);
+  ctx.fillText(`curl = ${curlAtPoint(field, 0, 0)}`, s.x + 6, s.y + 34);
   ctx.fillStyle = c.accent;
-  ctx.fillText(`circulation = ${circulationRect(field, cx0, cy0, w, h).toFixed(3)}, area = ${(w * h).toFixed(3)}`, 12, 56);
+  ctx.fillText(`circulation = ${circulationRect(field, cx0, cy0, w, h).toFixed(3)}, area = ${(w * h).toFixed(3)}`, s.x + 6, s.y + 52);
   drawStokesPlot();
 }
 function updateReadout() { readoutC.textContent = circulationRect(field, cx0, cy0, w, h).toFixed(3); readoutA.textContent = (w * h).toFixed(3); }
@@ -119,9 +139,8 @@ canvas.addEventListener('pointermove', e => {
   const y = e.clientY - rect.top;
   const dx = x - dragStartX;
   const dy = y - dragStartY;
-  const scale = 70;
-  cx0 = dragStartCx0 + dx / scale;
-  cy0 = dragStartCy0 - dy / scale;
+  cx0 = dragStartCx0 + dx / SC;
+  cy0 = dragStartCy0 - dy / SC;
 });
 canvas.addEventListener('pointerup', () => { isDragging = false; });
 canvas.addEventListener('pointercancel', () => { isDragging = false; });
