@@ -10,6 +10,7 @@ import { viridis } from '../../../shared/js/render/colormaps.js';
 import { buildCity, dijkstra, astarWeighted, WALL } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas } from '../../../shared/js/render/vertical-layout.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -31,14 +32,28 @@ const btnRestart = document.getElementById('btn-restart');
 const btnPlay = document.getElementById('btn-playpause');
 const btnNextMap = document.getElementById('btn-nextmap');
 
-const W = canvas.width, H = canvas.height;
-// Higher resolution: ~3.3x the cells of the old 40x26 map, so the
-// flood genuinely struggles and the A*-vs-Dijkstra contrast is stark.
-const COLS = 72, ROWS = 48;
-const PAD = 18, GAP = 24;
-const PANEL_W = (W - 2 * PAD - GAP) / 2;
-const TOP = 30;
-const CS = Math.min(PANEL_W / COLS, (H - TOP - 20) / ROWS);
+// Wide-short grid so each stacked panel fills the portrait width.
+const COLS = 88, ROWS = 44;
+
+// Responsive layout: two panels stacked vertically (Dijkstra top, A* bottom)
+// with a shared info strip at the bottom. Recomputed on resize.
+let view = { w: 760, h: 950, dpr: 1 };
+let L = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  const pad = 14, gap = 14, titleH = 22, infoH = 52;
+  const availW = view.w - 2 * pad;
+  const panelH = (view.h - 2 * pad - infoH - gap) / 2;
+  const CS = Math.min(availW / COLS, (panelH - titleH) / ROWS);
+  const gridW = COLS * CS, gridH = ROWS * CS;
+  const panelX = pad + (availW - gridW) / 2;
+  L = {
+    pad, gap, CS, gridW, gridH, panelX,
+    p1GridY: pad + titleH, p1TitleY: pad + 15,
+    p2GridY: pad + panelH + gap + titleH, p2TitleY: pad + panelH + gap + 15,
+    infoY: view.h - infoH, infoH,
+  };
+}
 
 // One dramatic bolt, not a pulsation: a white-hot head sweeps the path
 // (FLASH_SWEEP frames), then the whole path blazes and the glow decays
@@ -73,11 +88,11 @@ function rebuild() {
   st.djFlashT = -1; st.asFlashT = -1;
 }
 
-function pathPx(x0, res) {
+function pathPx(x0, y0, res) {
   const g = st.g;
   return res.path.map((idx) => [
-    x0 + (idx % g.cols) * CS + CS / 2,
-    TOP + ((idx / g.cols) | 0) * CS + CS / 2,
+    x0 + (idx % g.cols) * L.CS + L.CS / 2,
+    y0 + ((idx / g.cols) | 0) * L.CS + L.CS / 2,
   ]);
 }
 
@@ -100,6 +115,7 @@ function strokePath(pts, lo, hi, width, style) {
 // flashes later when it finishes; the two are never coupled.
 function drawBolt(pts, ft) {
   if (pts.length < 2 || ft < 0) return;
+  const CS = L.CS;
   const P = pts.length - 1;
   if (ft < FLASH_SWEEP) {
     const head = Math.max(1, Math.round((ft / FLASH_SWEEP) * P));
@@ -128,12 +144,10 @@ function drawBolt(pts, ft) {
   }
 }
 
-function drawPanel(x0, title, res, ft) {
-  const g = st.g;
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText(title, x0, TOP - 12);
-  // Once this search has reached its goal (ft >= 0) its panel holds the
-  // full settled field while the other may still be flooding.
+function drawPanel(x0, y0, title, res, ft) {
+  const g = st.g, CS = L.CS;
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(title, x0, y0 - 7);
   const reachedHere = ft >= 0;
   const revealed = reachedHere ? res.order.length : Math.min(res.order.length, st.k);
   const rank = new Int32Array(g.cols * g.rows).fill(-1);
@@ -141,7 +155,7 @@ function drawPanel(x0, title, res, ft) {
   for (let y = 0; y < g.rows; y += 1) {
     for (let x = 0; x < g.cols; x += 1) {
       const idx = y * g.cols + x;
-      const px = x0 + x * CS, py = TOP + y * CS;
+      const px = x0 + x * CS, py = y0 + y * CS;
       let col;
       if (g.cost[idx] === WALL) col = '#161922';
       else if (rank[idx] >= 0) {
@@ -154,55 +168,55 @@ function drawPanel(x0, title, res, ft) {
     }
   }
   const goalRank = res.order.indexOf(g.goal);
-  if (reachedHere && res.path.length > 1) drawBolt(pathPx(x0, res), ft);
+  if (reachedHere && res.path.length > 1) drawBolt(pathPx(x0, y0, res), ft);
   for (const [node, c] of [[g.start, '#06d6a0'], [g.goal, '#ef476f']]) {
-    const cx = x0 + (node % g.cols) * CS + CS / 2, cy = TOP + ((node / g.cols) | 0) * CS + CS / 2;
-    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx, cy, CS * 0.7, 0, 2 * Math.PI); ctx.fill();
+    const cx = x0 + (node % g.cols) * CS + CS / 2, cy = y0 + ((node / g.cols) | 0) * CS + CS / 2;
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx, cy, CS * 0.8, 0, 2 * Math.PI); ctx.fill();
   }
-  // Per-panel status by the title: this is where the asymmetry shows.
-  // The instant A* reaches its goal it reads "reached" and flashes
-  // while Dijkstra still says "scanning...".
   const settledHere = Math.min(revealed, res.expanded);
   const arrival = goalRank >= 0 ? goalRank + 1 : res.expanded;
   ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
   if (reachedHere) {
     ctx.fillStyle = '#9be19b';
-    ctx.fillText(`done ${arrival} -> path ${res.path.length}`, x0 + PANEL_W, TOP - 12);
+    ctx.fillText(`done: ${arrival} scanned -> path ${res.path.length}`, x0 + L.gridW, y0 - 7);
   } else {
     ctx.fillStyle = 'rgba(160,200,255,0.85)';
-    ctx.fillText(`scan ${settledHere}`, x0 + PANEL_W, TOP - 12);
+    ctx.fillText(`scanning ${settledHere}...`, x0 + L.gridW, y0 - 7);
   }
   ctx.textAlign = 'left';
   return revealed;
 }
 
 function render() {
+  if (!L) relayout();
+  const W = view.w, H = view.h;
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
-  const rd = drawPanel(PAD, 'Dijkstra (flood)', st.dj, st.djFlashT);
+  const rd = drawPanel(L.panelX, L.p1GridY, 'Dijkstra (flood)', st.dj, st.djFlashT);
   const aTitle = st.w > 1 ? `A* greedy w=${st.w.toFixed(2)}` : 'A* (optimal)';
-  const ra = drawPanel(PAD + PANEL_W + GAP, aTitle, st.as, st.asFlashT);
+  const ra = drawPanel(L.panelX, L.p2GridY, aTitle, st.as, st.asFlashT);
   readoutD.textContent = String(Math.min(rd, st.dj.expanded));
   readoutA.textContent = String(Math.min(ra, st.as.expanded));
   const costTxt = Number.isFinite(st.dj.cost) ? st.dj.cost.toFixed(0) : 'inf';
   const pathLen = st.dj.path.length;
   readoutCost.textContent = `${costTxt}  (path ${pathLen} cells)`;
-  // Bottom info strip (dark backdrop so it stays legible over the grid).
-  ctx.fillStyle = 'rgba(6,7,11,0.82)'; ctx.fillRect(0, H - 34, W, 34);
+  // Bottom info strip.
+  ctx.fillStyle = 'rgba(6,7,11,0.9)'; ctx.fillRect(0, L.infoY, W, L.infoH);
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, L.infoY + 0.5); ctx.lineTo(W, L.infoY + 0.5); ctx.stroke();
   ctx.textAlign = 'center';
   const dSet = st.dj.expanded, aSet = st.as.expanded;
   const bothReached = st.djFlashT >= 0 && st.asFlashT >= 0;
+  const r1 = L.infoY + 22, r2 = L.infoY + 40;
   if (!bothReached) {
     const dLive = Math.min(rd, dSet), aLive = Math.min(ra, aSet);
     const aDone = st.asFlashT >= 0, dDone = st.djFlashT >= 0;
-    let tail = '(A* drives a beam, Dijkstra floods)';
-    if (aDone && !dDone) tail = '(A* solved; Dijkstra still flooding)';
-    else if (dDone && !aDone) tail = '(Dijkstra solved; A* still searching)';
+    let tail = 'A* drives a beam, Dijkstra floods';
+    if (aDone && !dDone) tail = 'A* solved; Dijkstra still flooding';
+    else if (dDone && !aDone) tail = 'Dijkstra solved; A* still searching';
     ctx.fillStyle = 'rgba(160,200,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`Dijkstra ${dLive} scanned    A* ${aLive} scanned    ${tail}`, W / 2, H - 12);
+    ctx.fillText(`Dijkstra ${dLive} scanned    A* ${aLive} scanned`, W / 2, r1);
+    ctx.fillStyle = col_muted(); ctx.fillText(tail, W / 2, r2);
   } else {
-    // w = 1: identical optimal path, A* just cheaper to compute.
-    // w > 1: greedy A* scans even fewer cells but returns a SUBOPTIMAL
-    // (longer) path. This is the pros/cons the playground exists for.
     const ratio = aSet > 0 ? (dSet / aSet).toFixed(1) : '--';
     const aCost = Number.isFinite(st.as.cost) ? st.as.cost : Infinity;
     const dCost = Number.isFinite(st.dj.cost) ? st.dj.cost : Infinity;
@@ -211,14 +225,14 @@ function render() {
     if (suboptimal) {
       const over = (((aCost - dCost) / dCost) * 100).toFixed(0);
       ctx.fillStyle = 'rgba(255,140,90,0.95)';
-      ctx.fillText(`greedy A* path cost ${aCost.toFixed(0)} vs Dijkstra optimum ${dCost.toFixed(0)}  (+${over}% longer)`, W / 2, H - 21);
+      ctx.fillText(`greedy A* path +${over}% longer (cost ${aCost.toFixed(0)} vs ${dCost.toFixed(0)})`, W / 2, r1);
       ctx.fillStyle = 'rgba(160,200,255,0.9)';
-      ctx.fillText(`but it scanned only ${aSet} cells vs ${dSet} (${ratio}x less): speed traded for optimality`, W / 2, H - 7);
+      ctx.fillText(`but scanned ${aSet} vs ${dSet} cells (${ratio}x less): speed for optimality`, W / 2, r2);
     } else {
       ctx.fillStyle = 'rgba(255,209,102,0.92)';
-      ctx.fillText(`Both found the SAME shortest path: ${pathLen} cells, cost ${costTxt}`, W / 2, H - 21);
+      ctx.fillText(`Same shortest path: ${pathLen} cells, cost ${costTxt}`, W / 2, r1);
       ctx.fillStyle = 'rgba(160,200,255,0.9)';
-      ctx.fillText(`A* reached it scanning ${aSet} cells; Dijkstra needed ${dSet} (${ratio}x more work)`, W / 2, H - 7);
+      ctx.fillText(`A* scanned ${aSet} cells; Dijkstra ${dSet} (${ratio}x more work)`, W / 2, r2);
     }
     if (st.phase === 'rest') {
       const frac = 1 - st.restT / REST_DUR;
@@ -228,6 +242,7 @@ function render() {
   }
   ctx.textAlign = 'left';
 }
+function col_muted() { return 'rgba(255,255,255,0.5)'; }
 
 sliderSpeed.addEventListener('input', () => { st.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(st.speed); });
 sliderSeed.addEventListener('input', () => { st.seed = parseInt(sliderSeed.value, 10); valueSeed.textContent = String(st.seed); rebuild(); });
@@ -269,7 +284,17 @@ function tick() {
   requestAnimationFrame(tick);
 }
 
+if (typeof ResizeObserver !== 'undefined') {
+  let raf = 0;
+  const ro = new ResizeObserver(() => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { relayout(); render(); });
+  });
+  ro.observe(canvas);
+}
+
 function bootSync() {
+  relayout();
   valueSpeed.textContent = String(st.speed);
   valueSeed.textContent = String(st.seed);
   // The reference frames showcase the headline feature: a greedy A*
