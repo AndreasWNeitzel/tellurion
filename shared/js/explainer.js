@@ -306,11 +306,8 @@ function mountChrome() {
   // also homepage-only.
   mountCursor();
 
-  // Rotate-for-landscape hint on portrait phones. The canvas + in-canvas
-  // text were designed for desktop; a brief tap-dismissable pill invites
-  // the user to flip the device. Self-suppresses on rotation, on tap, or
-  // after 8 seconds.
-  mountRotateHint();
+  // The portrait 4:5 makeover makes vertical the intended view, so the old
+  // "rotate for the best view" hint is gone (mountRotateHint is retired).
 
   // The Layout System v2 template provides its own .playground-back.
   // Only inject the legacy .pg-back on pre-v2 pages; otherwise wire

@@ -84,8 +84,10 @@
   --fs-label:   clamp(0.6875rem, 0.12vw + 0.65rem, 0.8rem);
   --fs-mono:    clamp(0.8125rem, 0.18vw + 0.75rem, 0.95rem);
 
-  /* Layout columns */
-  --col-center-max:   880px;
+  /* Layout columns. The centre column is portrait-width so a 4:5 canvas
+     clears 1080p without scroll and a laptop recording crops to 9:16; prose
+     keeps a wider measure via --col-text-max. */
+  --col-center-max:   560px;
   --col-text-max:     720px;
   --col-controls-max: 720px;
   --col-rail-width:   320px;
