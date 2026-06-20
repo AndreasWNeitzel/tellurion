@@ -1,19 +1,24 @@
 // playground.js
 // Beats from superposition of two close-frequency cosines.
-// Vertical 4:5 composition: main animation panel (scrolling scope with live
-// waveforms and spectrum), then a diagnostic plot of beat envelope amplitude.
+//
+// Vertical 4:5 composition, top to bottom:
+//   1. HERO: the sum y1 + y2 inside a glowing envelope band whose colour
+//      tracks the instantaneous amplitude (viridis), so the beat reads as a
+//      swell-and-pinch even when the carrier is a dense hatch at small sizes.
+//   2. COMPONENTS: y1 and y2 drawn together so you watch them drift into and
+//      out of phase, tinted by the same envelope so "aligned" reads as "loud".
+//   3. DIAGNOSTICS: a frequency spectrum (two lines that separate as the
+//      detuning grows) beside the |envelope| trace with the beat period marked.
 
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
-import { stack, fit } from '../../../shared/js/render/vertical-layout.js';
+import { stack, setupCanvas } from '../../../shared/js/render/vertical-layout.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import {
   y1, y2, ySum, envelope, envelopeFreq, beatRate, carrierFreq,
 } from './sim.js';
 
 const urlParams = new URLSearchParams(location.search);
-const SEED = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
 const DETERMINISTIC = urlParams.get('deterministic') === '1';
 const CAPTURE_NAME = urlParams.get('capture');
 const CAPTURE_FRAC = parseFloat(urlParams.get('captureFraction') ?? '0');
@@ -31,9 +36,9 @@ const valueSpeed = document.getElementById('value-speed');
 const btnReset = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
-// Layout and timescale
-const T_WINDOW = 8.0;
-let REG = null;
+// Slider bounds, mirrored from the HTML, used for the spectrum frequency axis.
+const F_LO = parseFloat(sliderF1.min);
+const F_HI = parseFloat(sliderF1.max);
 
 // Simulation state
 const state = {
@@ -44,241 +49,367 @@ const state = {
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
-// Seeded RNG for tracer spawning
-let _seed = SEED >>> 0;
-function rnd() {
-  _seed = (_seed + 0x6D2B79F5) >>> 0;
-  let t = Math.imul(_seed ^ (_seed >>> 15), 1 | _seed);
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+// Logical drawing size (CSS px) and region rects, recomputed on resize.
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+// The visible time window adapts so roughly 1.7 beat periods are always on
+// screen: tight detuning stretches the window, equal frequencies cap it.
+function windowSpan() {
+  const fb = beatRate(state.f1, state.f2);
+  return clamp(1.7 / Math.max(fb, 1e-3), 3.5, 12);
 }
 
-// Flowing tracers to animate the waveforms
-let tracers = { sum: [], y1: [], y2: [] };
-const TRAIL_LEN = 12;
+function rgba(c, a) { return `rgba(${c.r},${c.g},${c.b},${a})`; }
 
-function spawnTracer(key, fresh) {
-  const p = REG ? REG.scene : { w: 760, h: 400, x: 0, y: 0 };
-  const life = 1.2 + rnd() * 1.6;
-  const x = rnd() * p.w;
-  const y = rnd() * p.h;
-  return { x, y, age: fresh ? rnd() * life : 0, life, hist: [[x, y]] };
-}
-
-function stepTracers(dt) {
-  if (!REG) return;
-  for (const key of Object.keys(tracers)) {
-    for (const t of tracers[key]) {
-      t.age += dt;
-      if (t.age > t.life) Object.assign(t, spawnTracer(key, false));
-    }
-  }
-}
-
-// Colors from design tokens or fallbacks
+// Colours from design tokens with fallbacks.
 function colors() {
   const css = getComputedStyle(document.body);
+  const g = (k, d) => css.getPropertyValue(k).trim() || d;
   return {
-    bg: css.getPropertyValue('--bg').trim() || '#060608',
-    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
-    accentCool: css.getPropertyValue('--accent-cool').trim() || '#7fb1d8',
-    accentWarm: css.getPropertyValue('--accent-warm').trim() || '#d68a69',
-    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
-    grid: '#23252a',
+    bg: g('--bg', '#07090f'),
+    panel: '#0a0c12',
+    fg: g('--fg', '#e8e8e8'),
+    cool: g('--accent-cool', '#7fb1d8'),
+    warm: g('--accent-warm', '#d68a69'),
+    accent: g('--accent', '#ffd166'),
+    grid: 'rgba(255,255,255,0.10)',
+    border: 'rgba(255,255,255,0.12)',
   };
 }
 
-// Compute layout on init and resize
-function layout() {
-  REG = stack(canvas, [
-    { name: 'scene', weight: 3 },
-    { name: 'plot', weight: 1 },
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'sum', weight: 3.0 },
+    { name: 'comp', weight: 1.5 },
+    { name: 'diag', weight: 1.5 },
   ]);
 }
 
-function reset() {
-  state.tNow = 0;
-  tracers = { sum: [], y1: [], y2: [] };
-  // Spawn initial tracers
-  for (let i = 0; i < 18; i += 1) {
-    tracers.sum.push(spawnTracer('sum', true));
-    tracers.y1.push(spawnTracer('y1', true));
-    tracers.y2.push(spawnTracer('y2', true));
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
 }
 
-// Main render pass
-function drawAll() {
-  const col = colors();
+// ---- HERO: sum inside a glowing envelope band -----------------------------
+function drawHero(col, T) {
+  const r = REG.sum;
+  panel(col, r, null);
 
-  // Background
-  ctx.fillStyle = col.bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const padL = 10, padR = 10, padTop = 26, padBot = 10;
+  const x0 = r.x + padL, x1 = r.x + r.w - padR, sw = x1 - x0;
+  const yc = r.y + padTop + (r.h - padTop - padBot) / 2;
+  const half = (r.h - padTop - padBot) / 2;
+  const AMAX = 2.15;
+  const ay = (a) => yc - (a / AMAX) * half;
+  const tAt = (i) => state.tNow + (i / sw) * T;
 
-  // === SCENE PANEL: Scrolling scope + live waveforms ===
-  const sc = REG.scene;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(sc.x, sc.y, sc.w, sc.h);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  // Envelope band: one column per logical pixel, coloured by local amplitude.
+  for (let i = 0; i <= sw; i += 1) {
+    const env = Math.abs(envelope(tAt(i), state.f1, state.f2)); // 0..2
+    const c = viridis(clamp(env / 2, 0, 1));
+    ctx.fillStyle = rgba(c, 0.55);
+    const yTop = ay(env), yBot = ay(-env);
+    ctx.fillRect(x0 + i, yTop, 1, Math.max(1, yBot - yTop));
+  }
+
+  // Zero line.
+  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
   ctx.lineWidth = 1;
-  ctx.strokeRect(sc.x + 0.5, sc.y + 0.5, sc.w - 1, sc.h - 1);
+  ctx.beginPath();
+  ctx.moveTo(x0, ay(0));
+  ctx.lineTo(x1, ay(0));
+  ctx.stroke();
 
-  // Fit domain [-2.2, 2.2] vertically within the scene for all three signals
-  const fit_scene = fit(sc, 1, 2.2 * 3 + 0.3, { pad: 8, flipY: false });
-  const h_sig = fit_scene.s(2.2);
-  const y_center = (y) => fit_scene.y(2.2 + 1.1 + y * 1.1);
-
-  // Three subpanels: y1, y2, sum (stacked vertically)
-  const panelH = (sc.h - 16) / 3 - 2;
-  const y1_y = sc.y + 8;
-  const y2_y = y1_y + panelH + 2;
-  const sum_y = y2_y + panelH + 2;
-
-  // Helper: draw a signal band
-  function drawSignalBand(label, yFunc, yStart, panelHeight, color) {
-    ctx.fillStyle = 'rgba(10, 10, 14, 0.7)';
-    ctx.fillRect(sc.x + 2, yStart, sc.w - 4, panelHeight);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(sc.x + 2, yStart, sc.w - 4, panelHeight);
-
-    // Draw the signal
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
+  // Envelope outline (+/-), brighter than the band fill.
+  for (const sign of [1, -1]) {
+    ctx.strokeStyle = rgba(viridis(0.9), 0.7);
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
-    const N = sc.w - 4;
-    for (let i = 0; i < N; i += 1) {
-      const t = state.tNow + (i / (N - 1)) * T_WINDOW;
-      const yval = Math.max(-1.1, Math.min(1.1, yFunc(t)));
-      const px = sc.x + 2 + i;
-      const py = yStart + panelHeight * (1 - (yval + 1.1) / 2.2);
+    for (let i = 0; i <= sw; i += 1) {
+      const env = Math.abs(envelope(tAt(i), state.f1, state.f2));
+      const px = x0 + i, py = ay(sign * env);
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.stroke();
-
-    // Label
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.font = fontString(canvas, 'caption', { family: 'mono' });
-    ctx.textAlign = 'left';
-    ctx.fillText(label, sc.x + 8, yStart + 14);
   }
 
-  drawSignalBand('y₁(t)', (t) => y1(t, state.f1), y1_y, panelH, col.accentCool);
-  drawSignalBand('y₂(t)', (t) => y2(t, state.f2), y2_y, panelH, col.accentWarm);
-  drawSignalBand('sum (with envelope)', (t) => ySum(t, state.f1, state.f2), sum_y, panelH, col.accent);
-
-  // Draw envelope shadow on the sum panel
-  ctx.strokeStyle = 'rgba(255, 210, 138, 0.35)';
-  ctx.lineWidth = 1;
+  // The sum waveform threaded through the band.
+  ctx.strokeStyle = col.accent;
+  ctx.lineWidth = 1.6;
   ctx.beginPath();
-  for (let i = 0; i < sc.w - 4; i += 1) {
-    const t = state.tNow + (i / (sc.w - 5)) * T_WINDOW;
+  for (let i = 0; i <= sw; i += 1) {
+    const yv = clamp(ySum(tAt(i), state.f1, state.f2), -AMAX, AMAX);
+    const px = x0 + i, py = ay(yv);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Rider dots bob on the sum and glow with the local amplitude: the motion
+  // that makes a still frame read as alive.
+  const nDots = Math.max(6, Math.round(sw / 60));
+  for (let k = 0; k <= nDots; k += 1) {
+    const i = (k / nDots) * sw;
+    const t = tAt(i);
     const env = Math.abs(envelope(t, state.f1, state.f2));
-    const px = sc.x + 2 + i;
-    const py = sum_y + panelH * (1 - (env + 1.1) / 2.2);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    const yv = clamp(ySum(t, state.f1, state.f2), -AMAX, AMAX);
+    const c = viridis(clamp(env / 2, 0, 1));
+    const rad = 1.6 + 2.4 * clamp(env / 2, 0, 1);
+    ctx.beginPath();
+    ctx.fillStyle = rgba(c, 0.95);
+    ctx.arc(x0 + i, ay(yv), rad, 0, Math.PI * 2);
+    ctx.fill();
   }
-  ctx.stroke();
-  ctx.beginPath();
-  for (let i = 0; i < sc.w - 4; i += 1) {
-    const t = state.tNow + (i / (sc.w - 5)) * T_WINDOW;
-    const env = -Math.abs(envelope(t, state.f1, state.f2));
-    const px = sc.x + 2 + i;
-    const py = sum_y + panelH * (1 - (env + 1.1) / 2.2);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-  }
-  ctx.stroke();
 
-  // Vertical "now" line (scrolling cursor)
-  const nowX = sc.x + 2;
-  ctx.strokeStyle = 'rgba(255, 210, 138, 0.5)';
-  ctx.lineWidth = 1.2;
-  ctx.setLineDash([2, 2]);
-  ctx.beginPath();
-  ctx.moveTo(nowX, y1_y);
-  ctx.lineTo(nowX, sum_y + panelH);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // Live readout overlay in the scene (bottom-right corner)
+  // Mark the nearest beat node (the silence) inside the window.
   const fb = beatRate(state.f1, state.f2);
-  const fc = carrierFreq(state.f1, state.f2);
-  const fenv = envelopeFreq(state.f1, state.f2);
-  ctx.fillStyle = 'rgba(30, 30, 40, 0.75)';
-  ctx.fillRect(sc.x + sc.w - 192, sc.y + sc.h - 100, 184, 92);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(sc.x + sc.w - 192, sc.y + sc.h - 100, 184, 92);
+  if (fb > 1e-3) {
+    // envelope zeros where cos(pi*df*t) = 0 -> t = (2n+1)/(2*df)
+    const df = Math.abs(state.f1 - state.f2);
+    const nFirst = Math.ceil((2 * df * state.tNow - 1) / 2);
+    const tNode = (2 * nFirst + 1) / (2 * df);
+    const frac = (tNode - state.tNow) / T;
+    if (frac >= 0.04 && frac <= 0.96) {
+      const xN = x0 + frac * sw;
+      ctx.strokeStyle = 'rgba(255,255,255,0.30)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(xN, r.y + padTop);
+      ctx.lineTo(xN, r.y + r.h - padBot);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = fontString(canvas, 'caption', 'sans');
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('beat node', xN, r.y + r.h - padBot - 2);
+    }
+  }
 
-  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 12 });
+  // Title.
+  ctx.font = fontString(canvas, 'heading', 'sans', 600);
+  ctx.fillStyle = col.accent;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('y₁ + y₂', r.x + 8, r.y + 6);
+
+  // Compact readout (top-right), self-contained for a Reel crop.
+  const lines = [
+    `f₁ ${state.f1.toFixed(2)} Hz`,
+    `f₂ ${state.f2.toFixed(2)} Hz`,
+    `beat ${fb.toFixed(2)} Hz`,
+    `carrier ${carrierFreq(state.f1, state.f2).toFixed(2)} Hz`,
+  ];
+  ctx.font = fontString(canvas, 'mono', 'mono');
+  const lh = 16;
+  let bw = 0;
+  for (const s of lines) bw = Math.max(bw, ctx.measureText(s).width);
+  bw += 14;
+  const bh = lines.length * lh + 10;
+  const bx = r.x + r.w - bw - 8, by = r.y + 6;
+  ctx.fillStyle = 'rgba(8,10,18,0.78)';
+  ctx.fillRect(bx, by, bw, bh);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
   ctx.fillStyle = col.accent;
   ctx.textAlign = 'right';
-  let dy = sc.y + sc.h - 80;
-  ctx.fillText(`f₁: ${state.f1.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
-  dy += 15;
-  ctx.fillText(`f₂: ${state.f2.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
-  dy += 15;
-  ctx.fillText(`beat: ${fb.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
-  dy += 15;
-  ctx.fillText(`carrier: ${fc.toFixed(2)} Hz`, sc.x + sc.w - 8, dy);
-  dy += 15;
-  ctx.fillText(`envelope: ${fenv.toFixed(3)} Hz`, sc.x + sc.w - 8, dy);
+  ctx.textBaseline = 'top';
+  let dy = by + 6;
+  for (const s of lines) { ctx.fillText(s, bx + bw - 7, dy); dy += lh; }
+}
 
-  // === PLOT PANEL: Beat envelope amplitude over time ===
-  const pl = REG.plot;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(pl.x + 0.5, pl.y + 0.5, pl.w - 1, pl.h - 1);
+// ---- COMPONENTS: y1 and y2 drifting in and out of phase -------------------
+function drawComponents(col, T) {
+  const r = REG.comp;
+  panel(col, r, null);
 
-  // Fit the plot: time [state.tNow, state.tNow + T_WINDOW] x amplitude [0, 2]
-  const fit_plot = fit(pl, T_WINDOW, 2.0, { pad: 6, flipY: false });
+  const padL = 10, padR = 10, padTop = 22, padBot = 8;
+  const x0 = r.x + padL, x1 = r.x + r.w - padR, sw = x1 - x0;
+  const yc = r.y + padTop + (r.h - padTop - padBot) / 2;
+  const half = (r.h - padTop - padBot) / 2;
+  const AMAX = 1.18;
+  const ay = (a) => yc - (a / AMAX) * half;
+  const tAt = (i) => state.tNow + (i / sw) * T;
 
-  // Draw envelope amplitude trace
-  ctx.strokeStyle = col.accent;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  const plot_N = pl.w - 12;
-  for (let i = 0; i < plot_N; i += 1) {
-    const t = state.tNow + (i / (plot_N - 1)) * T_WINDOW;
-    const env = Math.abs(envelope(t, state.f1, state.f2));
-    const px = fit_plot.x(i / plot_N * T_WINDOW);
-    const py = fit_plot.y(env);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  // Faint envelope tint so loud regions (waves aligned) are visibly brighter.
+  const step = 3;
+  for (let i = 0; i <= sw; i += step) {
+    const env = Math.abs(envelope(tAt(i), state.f1, state.f2));
+    const c = viridis(clamp(env / 2, 0, 1));
+    ctx.fillStyle = rgba(c, 0.10);
+    ctx.fillRect(x0 + i, r.y + padTop, step, r.h - padTop - padBot);
   }
-  ctx.stroke();
 
-  // Grid lines and labels
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-  ctx.lineWidth = 0.5;
-  for (let f = 0; f <= 2; f += 1) {
-    const py = fit_plot.y(f);
+  const drawWave = (fn, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.3;
     ctx.beginPath();
-    ctx.moveTo(pl.x + 6, py);
-    ctx.lineTo(pl.x + pl.w - 6, py);
+    for (let i = 0; i <= sw; i += 1) {
+      const yv = clamp(fn(tAt(i)), -AMAX, AMAX);
+      const px = x0 + i, py = ay(yv);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
     ctx.stroke();
+  };
+  drawWave((t) => y1(t, state.f1), col.cool);
+  drawWave((t) => y2(t, state.f2), col.warm);
+
+  // Labels.
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = col.cool;
+  ctx.fillText('y₁', r.x + 8, r.y + 7);
+  ctx.fillStyle = col.warm;
+  ctx.fillText('y₂', r.x + 28, r.y + 7);
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillText('aligned → loud', r.x + 56, r.y + 7);
+}
+
+// ---- DIAGNOSTICS: spectrum beside the |envelope| trace --------------------
+function drawDiagnostics(col, T) {
+  const r = REG.diag;
+  const gap = 12;
+  const leftW = Math.round(r.w * 0.42);
+  const spec = { x: r.x, y: r.y, w: leftW - gap / 2, h: r.h };
+  const env = { x: r.x + leftW + gap / 2, y: r.y, w: r.w - leftW - gap / 2, h: r.h };
+
+  // Spectrum: two stems on a frequency axis that separate with the detuning.
+  panel(col, spec, 'spectrum');
+  {
+    const padL = 8, padR = 8, padBot = 18, padTop = 24;
+    const x0 = spec.x + padL, x1 = spec.x + spec.w - padR, sw = x1 - x0;
+    const yBase = spec.y + spec.h - padBot;
+    const yTop = spec.y + padTop;
+    const fx = (f) => x0 + ((f - F_LO) / (F_HI - F_LO)) * sw;
+    // Frequency axis ticks.
+    ctx.strokeStyle = col.grid;
+    ctx.lineWidth = 1;
+    ctx.font = fontString(canvas, 'tick', 'mono');
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (let f = Math.ceil(F_LO); f <= Math.floor(F_HI); f += 1) {
+      const px = fx(f);
+      ctx.beginPath();
+      ctx.moveTo(px, yBase);
+      ctx.lineTo(px, yBase + 3);
+      ctx.stroke();
+      ctx.fillText(String(f), px, yBase + 4);
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.20)';
+    ctx.beginPath();
+    ctx.moveTo(x0, yBase);
+    ctx.lineTo(x1, yBase);
+    ctx.stroke();
+    // Stems (equal unit amplitude).
+    const stem = (f, color) => {
+      const px = fx(f);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(px, yBase);
+      ctx.lineTo(px, yTop);
+      ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(px, yTop, 3, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    stem(state.f1, col.cool);
+    stem(state.f2, col.warm);
   }
 
-  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 12 });
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  ctx.textAlign = 'right';
-  for (let f = 0; f <= 2; f += 1) {
-    const py = fit_plot.y(f);
-    ctx.fillText(String(f), pl.x + 4, py + 3);
+  // |envelope| over the window, with the beat period marked.
+  panel(col, env, '|envelope|');
+  {
+    const padL = 10, padR = 8, padBot = 14, padTop = 24;
+    const x0 = env.x + padL, x1 = env.x + env.w - padR, sw = x1 - x0;
+    const yBase = env.y + env.h - padBot;
+    const yTop = env.y + padTop;
+    const EMAX = 2.05;
+    const ey = (e) => yBase - (e / EMAX) * (yBase - yTop);
+    const tAt = (i) => state.tNow + (i / sw) * T;
+    // Gridlines at 0,1,2.
+    ctx.strokeStyle = col.grid;
+    ctx.lineWidth = 0.75;
+    ctx.font = fontString(canvas, 'tick', 'mono');
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (let e = 0; e <= 2; e += 1) {
+      const py = ey(e);
+      ctx.beginPath();
+      ctx.moveTo(x0, py);
+      ctx.lineTo(x1, py);
+      ctx.stroke();
+      ctx.fillText(String(e), x0 - 2, py);
+    }
+    // Trace.
+    ctx.strokeStyle = col.accent;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    for (let i = 0; i <= sw; i += 1) {
+      const e = Math.abs(envelope(tAt(i), state.f1, state.f2));
+      const px = x0 + i, py = ey(e);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    // Beat period span between two adjacent |envelope| maxima (t = k/df).
+    const df = Math.abs(state.f1 - state.f2);
+    if (df > 1e-3) {
+      const Tb = 1 / df;
+      const kFirst = Math.ceil(state.tNow * df);
+      const ta = kFirst / df, tb = (kFirst + 1) / df;
+      const xa = x0 + ((ta - state.tNow) / T) * sw;
+      const xb = x0 + ((tb - state.tNow) / T) * sw;
+      if (xa >= x0 && xb <= x1) {
+        const yArr = yTop + 6;
+        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xa, yArr); ctx.lineTo(xb, yArr);
+        ctx.moveTo(xa, yArr - 3); ctx.lineTo(xa, yArr + 3);
+        ctx.moveTo(xb, yArr - 3); ctx.lineTo(xb, yArr + 3);
+        ctx.stroke();
+        ctx.font = fontString(canvas, 'caption', 'sans');
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`T_b = ${Tb.toFixed(2)} s`, (xa + xb) / 2, yArr + 3);
+      }
+    }
   }
+}
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  ctx.textAlign = 'center';
-  ctx.font = fontString(canvas, 'tick', { family: 'mono', size: 12 });
-  ctx.fillText('|envelope|', pl.x + pl.w / 2, pl.y + 10);
+function drawAll() {
+  if (!REG) relayout();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  const T = windowSpan();
+  drawHero(col, T);
+  drawComponents(col, T);
+  drawDiagnostics(col, T);
 }
 
 function tickN(n) {
-  for (let i = 0; i < n; i += 1) {
-    state.tNow += 0.002;
-    stepTracers(0.002);
-  }
+  for (let i = 0; i < n; i += 1) state.tNow += 0.002;
 }
 
 // Control event listeners
@@ -297,7 +428,7 @@ sliderSpeed.addEventListener('input', () => {
   valueSpeed.textContent = String(state.speed);
 });
 btnReset.addEventListener('click', () => {
-  reset();
+  state.tNow = 0;
   drawAll();
 });
 btnPlayPause.addEventListener('click', () => {
@@ -306,19 +437,27 @@ btnPlayPause.addEventListener('click', () => {
   btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
 });
 
+if (typeof ResizeObserver !== 'undefined') {
+  let raf = 0;
+  const ro = new ResizeObserver(() => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { relayout(); drawAll(); });
+  });
+  ro.observe(canvas);
+}
+
 function bootSync() {
-  layout();
-  reset();
+  relayout();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.tNow = frac * T_WINDOW;
+    state.tNow = frac * windowSpan();
     drawAll();
     if (DETERMINISTIC) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
+          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
           window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
+          window.__simulationReadyDetail = { capture: CAPTURE_NAME };
         });
       });
     }

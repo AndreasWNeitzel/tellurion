@@ -23,7 +23,33 @@
 const MARGIN_FRAC = 0.035;
 const GAP_FRAC = 0.03;
 
+// setupCanvas(canvas, ctx) -> { w, h, dpr }
+// Switch a canvas to display-resolution rendering. A canvas authored with a
+// fixed internal resolution (e.g. width="760") but shown at 370 px on a phone
+// renders every line and glyph at half size, which is why canvas text sized by
+// canvas-type.js (from clientWidth) looks correct on a laptop and shrinks to
+// ~6 px on a phone. This sets the backing store to clientWidth/Height x dpr
+// (dpr capped at 2 to bound fill cost), scales the 2D context so all drawing
+// happens in CSS-pixel coordinates, and returns the logical drawing size. Pass
+// the returned { w, h } to stack() via { width: w, height: h }; re-run on
+// resize, then re-layout and redraw. fontString() then renders at its intended
+// on-screen size on every device, as its own header documents for a
+// pre-scaled context.
+export function setupCanvas(canvas, ctx) {
+  const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+  const cssW = Math.round(canvas.clientWidth) || canvas.width;
+  const cssH = Math.round(canvas.clientHeight) || canvas.height;
+  canvas.width = Math.max(1, Math.round(cssW * dpr));
+  canvas.height = Math.max(1, Math.round(cssH * dpr));
+  const c = ctx || canvas.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { w: cssW, h: cssH, dpr };
+}
+
 // stack(canvas, regions, opts) -> { name: {x, y, w, h}, ... }
+// `canvas` may be the real canvas or any { width, height } view object (use
+// the { w, h } from setupCanvas as { width, height } when drawing in logical
+// CSS-pixel coordinates).
 // regions: array of { name, weight } sharing the leftover height by weight,
 // and/or { name, px } for a fixed pixel height (e.g. a readout strip).
 // Fixed-height regions are allocated first; the rest split the remainder by
