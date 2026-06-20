@@ -65,7 +65,9 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="520" tabindex="0" aria-label="Five beads on a cycloid bowl arriving at the bottom simultaneously."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="Beads on a cycloid bowl arriving at the bottom together, and their arc-length traces crossing zero at the same instants."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
@@ -95,8 +97,9 @@ M1001 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlis
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the beads: they start at wildly different heights yet swing through the bottom at exactly the same instant, over and over.</li>
+        <li class="t-body">Click anywhere on the bowl to drop another bead. However high or low you place it, it falls into step with the rest.</li>
+        <li class="t-body">In the lower plot, every bead's arc length is a cosine of the same period, so they all cross zero (the bottom) together regardless of amplitude.</li>
       </ul>
     </section>
 
