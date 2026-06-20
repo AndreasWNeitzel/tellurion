@@ -55,7 +55,9 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="560"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950"
+              data-plot-role="diagnostic"
+              aria-label="A particle orbiting a central force, with the effective-potential curve, energy line, and turning points below."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption">Figure 1. Central-force orbit with the live effective-potential panel and turning points.</figcaption>
@@ -68,8 +70,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Leave the exponent at $p = -1$ (gravity): the orbit is a closed ellipse that retraces itself forever.</li>
+        <li class="t-body">Nudge $p$ away from $-1$ and the ellipse stops closing, sweeping out a slowly turning rosette, a flower. Only gravity ($1/r^2$) and the spring ($r$) close.</li>
+        <li class="t-body">In the lower panel, the energy line cuts the effective-potential well at the turning points (red): raise the angular momentum $L$ and the well lifts, squeezing the orbit.</li>
       </ul>
     </section>
 
