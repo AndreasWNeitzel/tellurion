@@ -16,7 +16,8 @@
   body { padding: var(--space-4); }
   .pg-figure { max-width: 760px; position: relative; }
   .pg-figure canvas#stage { width: 100%; height: auto; background: #02030a; cursor: grab; display: block; border-radius: 4px; }
-  .playground-extra-canvases { display: none; }
+  .playground-extra-canvases { position: absolute; top: 0; left: 0; width: 100%; }
+  .playground-extra-canvases canvas#diag { width: 100%; height: auto; background: transparent; display: block; pointer-events: auto; }
   figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
   .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
   .pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
@@ -55,13 +56,13 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="580" tabindex="0"></canvas>
     </div>
 
     <figcaption class="t-small playground-caption">Figure 1. Exoplanet transit in 3D and diagnostics. The 3D scene shows a star with an orbiting planet at the true orbital inclination. The light curve (middle) plots stellar flux vs orbital phase; the dip depth equals $(R_p/R_s)^2$, and the U-shape arises from quadratic limb darkening. The transmission spectrum (bottom) shows how the effective transit radius varies with wavelength due to atmospheric absorption features and Rayleigh scattering. Source: Mandel and Agol, ApJ 580 (2002) L171.</figcaption>
 
     <div class="playground-extra-canvases">
-      <canvas id="diag" width="760" height="950" aria-label="Diagnostic plots: light curve and transmission spectrum."></canvas>
+      <canvas id="diag" width="760" height="370" aria-label="Diagnostic plots: light curve and transmission spectrum."></canvas>
     </div>
 
     <section class="playground-controls">

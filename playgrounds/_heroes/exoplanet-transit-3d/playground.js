@@ -19,13 +19,12 @@ const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage');
 const diagCanvas = document.getElementById('diag');
 const dctx = diagCanvas.getContext('2d');
-// Layout: vertical stacking of 3D scene (60%), light curve (20%), and
-// transmission spectrum (20%). The diagnostic canvas reuses the same
-// regions to draw both plots in their bands.
+// Layout: the 3D scene (WebGL, 760x580) sits atop, and below it the
+// diagnostic canvas (760x370) contains the light curve and transmission
+// spectrum split 50-50. Compute regions within the diagnostic canvas.
 let regions = {};
 function layoutRegions() {
   regions = stack(diagCanvas, [
-    { name: 'scene', weight: 0 },    // unused, 3D on main stage canvas
     { name: 'plot', weight: 1 },
     { name: 'spectrum', weight: 1 },
   ]);
