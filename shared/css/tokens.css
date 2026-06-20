@@ -84,11 +84,13 @@
   --fs-label:   clamp(0.6875rem, 0.12vw + 0.65rem, 0.8rem);
   --fs-mono:    clamp(0.8125rem, 0.18vw + 0.75rem, 0.95rem);
 
-  /* Layout columns. The centre column is portrait-width so a 4:5 canvas
-     clears 1080p without scroll and a laptop recording crops to 9:16; prose
-     keeps a wider measure via --col-text-max. */
-  --col-center-max:   560px;
-  --col-text-max:     720px;
+  /* Layout columns. The centre column hosts a large 4:5 canvas (the hero):
+     wide enough to stay big and readable on a laptop, tall enough to fill
+     the vertical frame and crop to 9:16 for a reel. The canvas grows in
+     height; it does not shrink in width. Controls/diagnostics sit in the
+     beside-rail using the laptop's horizontal space; prose goes below. */
+  --col-center-max:   760px;
+  --col-text-max:     760px;
   --col-controls-max: 720px;
   --col-rail-width:   320px;
   --col-rail-gap:     40px;
