@@ -127,7 +127,7 @@ export function createSystem({
       const u = 2 * rng() - 1, v = 2 * rng() - 1;
       if (!test(u, v)) continue;
       balls.push({
-        x: 1.75 * u, y: 2.5 + 1.05 * v, vx: 0, vy: 0,
+        x: 1.55 * u, y: 3.2 + 0.95 * v, vx: 0, vy: 0,
         ci: Math.max(0, Math.min(5, Math.floor((u + 1) * 3))), alive: true,
       });
       made += 1;

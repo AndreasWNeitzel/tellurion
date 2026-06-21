@@ -13,14 +13,11 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 760px; }
-    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
-    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-    .pg-controls .row.buttons button { font: inherit; padding: 6px 14px; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -41,60 +38,46 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Bouncing balls in a concave bowl</h1>
+      <h1 class="t-title playground-title">Shatter a shape into a bowl</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-    <strong>What you are seeing:</strong> up to 1800 balls released at
-    rest in the outline of a shape (a star, a heart, the letter A, a
-    crescent moon), then shattered by gravity into a bowl whose profile
-    you choose. On each contact the velocity is reflected about the
-    local tangent and the normal component is scaled by the restitution
-    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi></mrow><annotation encoding="application/x-tex">e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">e</span></span></span></span></span>. The recognizable figure survives for a moment, then collapses:
-    every ball follows the same simple law, so the shape dissolves into
-    the bowl's natural motion. The bowl profile sets that motion: a
-    parabola gives near-simple-harmonic swings, the V-bowl piecewise
-    constant acceleration, the quartic a strongly amplitude-dependent
-    period, the arc a pendulum. With <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">e = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> the balls bounce forever.
-  </p>
+      <p class="t-body">Build a picture out of thousands of little balls, hold it in the air, and let go. Gravity does not care what the picture was: every ball falls into the bowl and bounces. On each bounce the velocity reflects about the local surface tangent, the normal part flipped and scaled by the restitution $e$, so with $e = 1$ the balls bounce forever and energy is conserved, while $e \lt 1$ bleeds energy away on every hit until the shape pools into a still layer at the bottom. The bowl profile sets the motion: a parabola gives near simple-harmonic swings, a V-bowl constant-acceleration sweeps, a steep quartic strongly amplitude-dependent ones. The diagnostic tracks the total energy, flat when nothing is lost and a descending staircase when it is.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="520" tabindex="0" aria-label="Balls bouncing under gravity inside a selectable concave bowl."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="Thousands of balls forming a shape, dropped into a concave bowl where they bounce and settle; below, the total energy over time."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Gravity plus tangent-reflection with restitution in a chosen bowl
-      profile.</figcaption>
+      Balls forming a shape, dropped into a selectable concave bowl. Top: the shape shatters on the surface and bounces, each impact reflecting velocity about the local tangent with restitution e. Bottom: total energy over time, conserved at e = 1 and stepping down at e &lt; 1. Method: gravity plus tangent-plane restitution.</figcaption>
+
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Bowl controls">
-    <div class="row"><span class="label">bowl shape</span><select aria-label="bowl shape" id="select-shape"><option value="parabola">parabola</option><option value="vbowl">V-bowl</option><option value="quartic">quartic</option><option value="arc">circular arc</option><option value="cosine">cosine well</option></select><span class="value" id="value-shape">parabola</span></div>
-    <div class="row"><span class="label">restitution e</span><input aria-label="restitution" type="range" id="slider-e" min="0.4" max="1" step="0.01" value="0.85"><span class="value" id="value-e">0.85</span></div>
+    <div class="row"><span class="label">bowl</span><select aria-label="bowl shape" id="select-shape"><option value="parabola">parabola</option><option value="vbowl">V-bowl</option><option value="quartic">quartic</option><option value="arc">circular arc</option><option value="cosine">cosine well</option></select><span class="value" id="value-shape">parabola</span></div>
+    <div class="row"><span class="label">shape</span><select aria-label="initial arrangement" id="select-arrange"><option value="star" selected="">star</option><option value="heart">heart</option><option value="letterA">letter A</option><option value="crescent">crescent</option><option value="ball">disk</option><option value="square">square</option><option value="scatter">scatter</option></select><span class="value" id="value-arrange">star</span></div>
+    <div class="row"><span class="label">restitution e</span><input aria-label="restitution" type="range" id="slider-e" min="0.4" max="1" step="0.01" value="0.88"><span class="value" id="value-e">0.88</span></div>
     <div class="row"><span class="label">curvature a</span><input aria-label="curvature" type="range" id="slider-a" min="0.25" max="0.9" step="0.01" value="0.55"><span class="value" id="value-a">0.55</span></div>
-    <div class="row"><span class="label">arrangement</span><select aria-label="initial arrangement" id="select-arrange"><option value="scatter">scatter (line)</option><option value="star" selected="">5-pointed star</option><option value="heart">heart</option><option value="square">square</option><option value="letterA">letter A</option><option value="ball">ball (disk)</option><option value="crescent">crescent moon</option></select><span class="value" id="value-arrange">star</span></div>
-    <div class="row"><span class="label">particles</span><input aria-label="particle count" type="range" id="slider-n" min="6" max="1800" step="2" value="1200"><span class="value" id="value-n">1200</span></div>
+    <div class="row"><span class="label">balls</span><input aria-label="particle count" type="range" id="slider-n" min="100" max="1800" step="20" value="1200"><span class="value" id="value-n">1200</span></div>
     <div class="row buttons">
       <button id="btn-drop" type="button">Drop again</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>
   </div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">energy:</span><span class="value" id="readout-e">0</span>
-      <span class="label">max speed:</span><span class="value" id="readout-v">0</span>
-      <span class="label">state:</span><span class="value" id="readout-state">bouncing</span>
-    </div></div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Pick a shape and drop it: it holds for an instant, then shatters into the bowl and pools at the bottom.</li>
+        <li class="t-body">Set restitution e = 1: nothing is lost, the balls bounce forever and the energy line stays flat.</li>
+        <li class="t-body">Lower e: each bounce loses a fraction of the normal energy, the energy line steps down, and the shape settles faster.</li>
+        <li class="t-body">Change the bowl: a parabola swings like a spring, a V-bowl sweeps at constant acceleration, a steep quartic traps the balls near the bottom.</li>
       </ul>
     </section>
 

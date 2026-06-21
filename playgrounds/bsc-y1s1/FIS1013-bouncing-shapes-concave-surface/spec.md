@@ -10,7 +10,7 @@ curriculum_year: bsc-y1s1
 primary_citation: kleppner
 primary_chapter: 4
 hook: 'Drop balls into a bowl you choose: a parabola swings them like a spring, a V-bowl ticks, a quartic drifts, an arc swings like a pendulum.'
-one_paragraph: 'Point balls fall under gravity into a concave bowl whose profile y = f(x) is selectable (parabola, V, quartic, circular arc, cosine well). On contact the velocity is reflected about the local tangent: the normal component is scaled by the restitution e, the tangential by 1 - mu. With e = 1 and mu = 0 the total mechanical energy is conserved; with e < 1 the balls dissipate and settle. The bowl shape governs the qualitative motion, near-simple-harmonic for the parabola, piecewise-constant acceleration for the V, strongly amplitude-dependent for the quartic.'
+one_paragraph: 'Thousands of balls are arranged into a shape (star, heart, letter A, crescent, disk) and released into a concave bowl whose profile y = f(x) is selectable (parabola, V, quartic, circular arc, cosine well). On contact the velocity is reflected about the local tangent: the normal component is scaled by the restitution e, the tangential by 1 - mu. With e = 1 and mu = 0 the total mechanical energy is conserved and the balls bounce forever; with e < 1 they dissipate and settle, the shape shattering into a pool at the bottom. The bowl shape governs the qualitative motion, near-simple-harmonic for the parabola, piecewise-constant acceleration for the V, strongly amplitude-dependent for the quartic. The diagnostic tracks the total energy over time, flat at e = 1 and a descending staircase below it.'
 tags: [mechanics, collisions, animation, live-readout, interactive]
 difficulty: 3
 tier: simple
