@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Method of Images: Charge Above a Grounded Plane</title>
+<title>Method of Images: Grounded Conductors</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -38,11 +38,11 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Method of Images: Charge Above a Grounded Plane</h1>
+      <h1 class="t-title playground-title">Method of Images: Grounded Conductors</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">Hold a charge above a grounded sheet of metal and something has to give: a conductor cannot have any field along its surface, so the charges inside it rearrange until the field meets the metal at a perfect right angle everywhere. Working out that rearrangement looks hard, until you notice a trick. The field above the plane is exactly the field you would get by throwing away the metal and putting an equal and opposite charge at the mirror position below. That fictitious image charge reproduces the real induced surface charge perfectly, and it pulls the real charge toward the plane with a genuine, measurable force. The scene shows the charge above the conductor, its field lines bending in to strike the surface head-on, and the negative charge it induces pooling underneath; flip on the image and watch the conductor vanish into a clean dipole. The diagnostic plots the induced surface charge along the plane, a sharp bell whose total is exactly minus the real charge.</p>
+      <p class="t-body">Hold a charge near a grounded conductor and something has to give: a conductor cannot have any field along its surface, so the charges inside it rearrange until the field meets the metal at a perfect right angle everywhere. Working out that rearrangement looks hard, until you notice a trick. The field in the empty region is exactly the field of the real charge plus a few fictitious image charges placed where the conductor used to be, chosen so the potential is zero on the surface. Those images reproduce the real induced surface charge perfectly and pull the real charge in with a genuine, measurable force. Switch the geometry to see the classic cases from Griffiths: a single image below a grounded plane; three images for a right-angle corner; five for a sixty-degree wedge; and the one image inside a grounded sphere, sitting at the inverse point R squared over d with charge scaled by R over d. The scene shows the field lines bending in to strike the surface head-on and the induced charge shaded along the boundary; flip to reveal image and the conductor vanishes, leaving only the image charges. The diagnostic plots the induced surface charge along the conductor.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -53,10 +53,11 @@
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Method of images for a charge above a grounded plane. Top: the real charge, its field lines meeting the conductor perpendicular, the induced surface charge beneath it, and (optionally) the image charge that reproduces the same field above the plane. Bottom: the induced surface charge density sigma(x) along the plane, a bell whose integral is minus the real charge. Method: V = q/r1 - q/r2 with the image at the mirror point; sigma = -q b / (2 pi (x^2 + b^2)^{3/2}).</figcaption>
+      Method of images for grounded conductors (plane, right-angle corner, 60° wedge, sphere). Top: the real charge, its field lines meeting the conductor perpendicular, the induced charge shaded along the boundary, and (in reveal mode) the image charges that reproduce the same field. Bottom: the induced surface charge along the conductor. Method: place image charges so the potential vanishes on the surface; the field is the Coulomb superposition of real and image charges.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Method of images controls">
+    <div class="row"><span class="label">geometry</span><select aria-label="conductor geometry" id="select-geom"><option value="plane" selected="">grounded plane</option><option value="corner">right-angle corner</option><option value="wedge">60° wedge</option><option value="sphere">grounded sphere</option></select><span class="value" id="value-geom">grounded plane</span></div>
     <div class="row"><span class="label">view</span><select aria-label="view mode" id="select-view"><option value="conductor" selected="">conductor</option><option value="image">reveal image</option></select><span class="value" id="value-view">conductor</span></div>
     <div class="row"><span class="label">charge</span><select aria-label="charge sign" id="select-sign"><option value="pos" selected="">+ charge</option><option value="neg">- charge</option></select><span class="value" id="value-sign">+</span></div>
     <div class="row buttons">
@@ -70,10 +71,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Drag the charge around above the plane: the field lines always meet the metal at a right angle, never at a slant.</li>
-        <li class="t-body">Lower the charge toward the surface: the induced charge sharpens into a tighter, taller spike, and the attraction grows.</li>
-        <li class="t-body">Switch to reveal image: the conductor disappears and a clean dipole appears, identical above the plane.</li>
-        <li class="t-body">Read the lower plot: however you move the charge, the induced charge always integrates to exactly minus the real charge.</li>
+        <li class="t-body">Switch the geometry: the plane needs one image, the corner three, the wedge five, the sphere one (inside it). The image count is shown in the readout.</li>
+        <li class="t-body">Drag the charge around: the field lines always meet the metal at a right angle, never at a slant, and the rail confirms the potential stays zero on the conductor.</li>
+        <li class="t-body">Move the charge closer to the surface: the induced charge sharpens into a tighter spike and the attraction grows.</li>
+        <li class="t-body">Switch to reveal image: the conductor disappears, leaving only the image charges that produced the same field.</li>
       </ul>
     </section>
 

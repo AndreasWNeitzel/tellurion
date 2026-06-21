@@ -1,32 +1,36 @@
-# Method of images: a charge above a grounded plane
+# Method of images: grounded conductors
 
-A point charge held above a grounded conductor induces a surface charge that
+A point charge held near a grounded conductor induces a surface charge that
 makes the metal an equipotential. Solving that directly is hard, but the field
-above the plane is identical to that of the real charge plus an equal and
-opposite image charge at the mirror position below. The scene shows the field
-lines bending in to strike the conductor at a right angle, the induced negative
-charge pooling under the real charge, and the attractive image force pulling it
-toward the plane.
+in the empty region is identical to that of the real charge plus a few image
+charges placed where the conductor used to be, chosen so the potential is zero
+on the surface. Switch the geometry to see the classic Griffiths cases: a
+grounded plane (one image at the mirror point), a right-angle corner (three
+images), a 60-degree wedge or "pizza slice" (five images around the apex), and
+a grounded sphere (one image inside, at the inverse point R squared over d with
+charge scaled by R over d).
 
-Look for the perpendicular incidence of every field line on the conductor (the
-signature of an equipotential surface) and the induced-charge lobe sharpening as
-you lower the charge. Switch to reveal image and the conductor disappears into a
-clean dipole that is identical above the plane. The lower plot is the induced
-surface charge density sigma(x); however you move the charge, it integrates to
-exactly minus the real charge.
+Every field line strikes the conductor at a right angle, the signature of an
+equipotential surface, and the induced charge is shaded along the boundary,
+darkest where the real charge is closest. Switch to reveal image and the
+conductor disappears, leaving only the image charges that produced the same
+field. The lower plot is the induced surface charge along the conductor; the
+rail confirms the potential stays zero on the metal (max |V| is machine-zero).
 
-Use the view selector (conductor or reveal image) and the charge-sign selector;
-drag the charge anywhere above the plane with the pointer. Pause freezes the
-field-line flow and Reset restores the defaults.
+Use the geometry, view, and charge-sign selectors; drag the charge anywhere in
+the field region. The static scene is cached and only the marching arrowheads
+redraw each frame, so the field-line flow stays smooth. Pause freezes it and
+Reset restores the defaults.
 
 ## Reference
 
 Primary citation: Griffiths, *Introduction to Electrodynamics*, 4th ed.,
-Sec. 3.2.
+Sec. 3.2 (`griffiths-em`).
 
 ## Verification
 
-- Strong invariants: potential zero on the plane; field-free below it;
-  tangential field vanishing on the surface; sigma decaying as |x|^-3.
-- Live readout: the total induced charge integrates to -q, checked each frame
-  in the rail.
+- The potential is zero on the conductor for all four geometries (max |V| <
+  1e-9 in the tests, machine-zero in the live rail).
+- The image counts (1, 3, 5, 1) and the sphere rule (image -(R/d)q at R^2/d)
+  are checked exactly, as is the net induced charge. All in
+  `invariants.test.mjs` (8 tests).

@@ -270,7 +270,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Two quantum angular momenta (two spins, or orbit plus spin) add, but not like ordinary vectors: the total comes in a discrete ladder of allowed magnitudes. The playground shows the vector model picture and the Clebsch-Gordan table that translates between "the two separately" and "the combined total".
 
 - **[Biot-Savart 3D Field Explorer](../playgrounds/bsc-y1s2/FIS1014-biot-savart-3d-explorer/index.html)** &nbsp; (verified, verified 2026-05-19T02:03:57Z)
-  Run a current through a wire and it wraps space in a magnetic field. The playground lets you pick the wire (a straight wire, a single loop, a Helmholtz pair, a solenoid) and shows the field as colored arrows and traced field lines, with the on-axis strength in a side panel. It is the rule that connects electric current to magnetism made visible.
+  Run a current through a wire and it wraps space in a magnetic field. The playground lets you pick the coil (a single loop, a Helmholtz pair, a solenoid) and shows the field as traced field lines over a strength colour map, with the on-axis profile below. It is the rule that connects electric current to magnetism made visible.
 
 - **[Brownian Motion and the Diffusion Law](../playgrounds/bsc-y2s1/FIS2014-brownian-motion-diffusion/index.html)** &nbsp; (verified, verified 2026-05-19T02:03:57Z)
   A speck of pollen in water jitters endlessly, kicked by invisible molecules. Release a cloud of such specks from one point and they spread, not at constant speed, but with the cloud's width growing as the square root of time. Einstein realized in 1905 that watching this proves atoms exist and measures their size.
@@ -408,7 +408,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   The electron in a hydrogen atom has no orbit and no path. It is a standing wave around the proton, and what you can know is only the probability of finding it somewhere. The playground draws those probability clouds, the orbitals, in 3D, and lets you dial the three quantum numbers to morph the shape.
 
 - **[Projectile with Drag and the Magnus Force in 3D](../playgrounds/bsc-y1s1/FIS1013-projectile-drag-magnus-3d/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
-  The clean parabola of school physics is a vacuum fiction. The playground fires three identical balls at once, in vacuum, with air drag, and with drag plus spin, over a 3D ground grid, so you see exactly how much air and spin bend a real trajectory and why a sideways-spinning ball curves out of its launch plane.
+  The clean parabola of school physics is a vacuum fiction. The playground flies one ball along its real trajectory, with air drag and spin, over a 3D ground grid, alongside a faint reference path showing where the same ball would land with no spin. The gap between the two, made plain by the ground-shadow tracks, is the Magnus bend: drag sets how far it reache
 
 - **[q-state Potts Model on a 2D Square Lattice](../playgrounds/bsc-y2s1/FIS2014-potts-q-state-transition/index.html)** &nbsp; (verified, verified 2026-05-18T22:16:55Z)
   The Ising model has two states per site; the Potts model generalizes to $q$ states, and that one number changes the very nature of the phase transition: continuous for small $q$, abruptly first-order for large $q$. The playground runs the 2D Potts model and lets you watch order appear, and the transition change character, as you vary $q$ and temperature.
@@ -530,17 +530,17 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Projectile Motion with Air Drag](../playgrounds/bsc-y1s1/FIS1013-projectile-with-air-drag/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
   The textbook says a projectile traces a clean parabola and the optimal launch angle is exactly 45 degrees. Add air drag and both statements break: the path becomes a lopsided arc that falls steeper than it rose, and the best angle drops below 45. The playground fires projectiles with and without drag side by side so the difference is unmistakable.
 
+- **[Scattering off a Central Potential](../playgrounds/bsc-y1s1/FIS1013-collision-scattering-lab/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
+  A parallel beam of identical particles is fired at a fixed scattering center. Each particle is aimed at a different sideways distance from the center, its impact parameter $b$. Particles aimed near the center swing through a large angle; particles aimed wide barely turn. The beam fans out, and the mapping from $b$ to the deflection angle $\chi$ is the deflec
+
 - **[Series Convergence Tests](../playgrounds/bsc-y1s1/M1017-series-convergence-tests/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
   Four series (geometric, p-series 2, harmonic, alternating Leibniz) with partial sums plotted and the limit as a dashed line where finite. Source: Arfken-Weber Ch. 1.
 
 - **[Tautochrone: Cycloid Isochronism](../playgrounds/bsc-y1s1/FIS1013-tautochrone-isochronism/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
   Release several beads from different heights on the same special curve, and they all reach the bottom at exactly the same instant, no matter where they started. That curve is the cycloid, and this "same-time" property (the tautochrone) is one of the most beautiful results in mechanics. The playground releases beads from different points and they arrive toget
 
-- **[Two-Body Collision: Lab and CM Frames](../playgrounds/bsc-y1s1/FIS1013-collision-scattering-lab/index.html)** &nbsp; (verified, verified 2026-05-18T19:52:25Z)
-  The same collision looks completely different depending on where you stand. In the lab a fast projectile hits a stationary target and both fly off forward; in the centre-of-mass frame the two simply approach, bounce, and recede symmetrically. The playground shows both views of one collision side by side, which is the key trick for analysing scattering.
-
 - **[Coulomb Equilibrium of Charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/index.html)** &nbsp; (verified, verified 2026-05-18T19:46:55Z)
-  Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths, Introduction to Electrodynamics, Ch. 2.
+  Fixed point charges (two +, a + square, or a + triangle) generate a 2D field drawn as equipotential contours over a colour map; a test charge can be dragged or released to flow under the Coulomb force, and the force-free balance point is marked. The diagnostic slices the potential along the two in-plane axes and out of the plane to show that the balance poin
 
 - **[1D TDSE Wavepacket Scattering](../playgrounds/bsc-y3s2/FIS3029-1d-tdse-scattering-comparator/index.html)** &nbsp; (verified, verified 2026-05-18T19:37:23Z)
   Fire a quantum particle at a barrier and it does not simply bounce or pass: part of the wavefunction reflects and part tunnels through, even when the particle has less energy than the barrier is tall. The playground launches a Gaussian wavepacket at a barrier, step, or well and shows the probability splitting into reflected and transmitted parts in real time
@@ -810,7 +810,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   Push something from A to B through a force field and add up the work done along the way. For some fields the answer depends only on A and B; for others it depends on the route you took. The playground walks two paths between the same endpoints (a straight chord and a semicircular arc) and shows the work each accumulates. When they disagree, the field is not 
 
 - **[Multiple Integral Fubini](../playgrounds/bsc-y1s2/M1015-multiple-integral-fubini/index.html)** &nbsp; (verified, verified 2026-05-18T16:05:47Z)
-  Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10.
+  The double integral over a rectangle is the volume under the surface, built by slicing the solid into slabs in either order; both orders match numerically and fill the same solid. Shown on three non-negative integrands with an oblique 3D solid you can slice two ways and a both-orders accumulation diagnostic; drag the back corner to resize the region. Source:
 
 - **[Brewster Angle and Fresnel Equations](../playgrounds/bsc-y1s2/FIS1014-brewster-angle-fresnel/index.html)** &nbsp; (verified, verified 2026-05-18T15:56:36Z)
   Light hitting glass partly reflects and partly refracts. How much reflects depends on the angle and on the polarization, and at one special angle (Brewster's angle) one polarization does not reflect at all. That is why polarized sunglasses kill glare off water and roads.
@@ -821,8 +821,8 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[Gauss Law in 2D](../playgrounds/bsc-y1s2/FIS1014-gauss-law-flux-through-surface/index.html)** &nbsp; (verified, verified 2026-05-18T15:56:36Z)
   Draw any closed loop around a charge and count the electric field lines poking out through it. The number depends only on the charge inside, not on the loop's size or shape, and is exactly zero if the charge sits outside. Drag the charge in and out of the loop and watch the flux readout snap between a fixed value and zero. That is Gauss's law, made tactile.
 
-- **[Method of Images: Charge Above a Grounded Plane](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/index.html)** &nbsp; (verified, verified 2026-05-18T15:56:36Z)
-  A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Source: Griffiths E&M Ch. 3.2.
+- **[Method of Images: Grounded Conductors](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/index.html)** &nbsp; (verified, verified 2026-05-18T15:56:36Z)
+  A point charge near a grounded conductor: the field is built by adding image charges placed so the potential is zero on the surface. Four geometries: a grounded plane (one image), a right-angle corner (three images), a 60-degree wedge (five images), and a grounded sphere (one image inside, at R^2/d with charge -(R/d)q). Drag the charge; toggle "reveal image"
 
 - **[Brachistochrone: Why the Cycloid Wins](../playgrounds/bsc-y1s1/FIS1013-brachistochrone-cycloid/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
   Three frictionless beads start together at A and slide under gravity to a lower point B: one down a straight ramp, one along a circular arc, one along a cycloid (the curve traced by a point on a rolling wheel). The straight line is the shortest path, yet the cycloid bead always arrives first. The fastest descent is not the shortest route. Johann Bernoulli po
@@ -846,7 +846,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
   A pendulum normally hangs down; balanced upside down it falls over at the slightest nudge. But shake the pivot up and down fast enough and the upside-down position becomes stable: the pendulum stands on end and stays there, returning if you push it. This is the Kapitza pendulum, and it is the principle behind ion traps and vibration-stabilized systems.
 
 - **[SVD as Rotate-Scale-Rotate](../playgrounds/bsc-y1s1/M1038-svd-singular-values-2d-shape/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
-  Feed a unit circle through a 2x2 matrix and it comes out an ellipse. The singular value decomposition (SVD) says that every matrix, no matter how it shears or skews, does only three simple things in sequence: rotate, stretch along axes, rotate again. The four panels show exactly those three steps turning the circle into the ellipse.
+  Feed a unit circle through a 2x2 matrix and it comes out an ellipse. The singular value decomposition (SVD) says that every matrix, no matter how it shears or skews, does only three simple things in sequence: rotate, stretch along axes, rotate again. The scene animates the circle riding through exactly those three steps into the ellipse.
 
 - **[Tennis Racket Theorem](../playgrounds/bsc-y1s1/FIS1013-tennis-racket-theorem/index.html)** &nbsp; (verified, verified 2026-05-18T15:46:29Z)
   Spin a tennis racket, a phone, or a book tossed in the air about its middle axis and it does not spin cleanly: it flips over, end for end, and flips back, again and again. Spin it about its long or its short axis and it spins steadily. Cosmonaut Vladimir Dzhanibekov noticed this with a wing-nut in orbit in 1985. It is not friction or a wobble; it is exact ri
@@ -950,7 +950,7 @@ Auto-generated from spec.md frontmatter. Do not edit by hand. Run `npm run build
 - **[pp Chain vs CNO Cycle](../playgrounds/_heroes/pp-chain-cno-cycle-nucleosynthesis-3d/index.html)** &nbsp; (verified)
   T^4 vs T^17. Source: Kippenhahn, Weigert, Weiss, Stellar Structure and Evolution, Ch. 18. Solar-neutrino context: Bahcall, Neutrino Astrophysics, CUP 1989.
 
-- **[Quadtree N-body and the Barnes-Hut Approximation](../playgrounds/bsc-y1s1/CC1017-quadtree-nbody-2d/index.html)** &nbsp; (verified)
+- **[Quadtree Collision Detection](../playgrounds/bsc-y1s1/CC1017-quadtree-nbody-2d/index.html)** &nbsp; (verified)
   2D galactic disk under gravity; live Barnes-Hut tree. Source: Barnes and Hut, Nature 324 (1986) 446.
 
 - **[Quantum Tunnelling](../playgrounds/_heroes/quantum-tunnelling-barrier-3d/index.html)** &nbsp; (verified)

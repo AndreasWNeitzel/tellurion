@@ -42,7 +42,7 @@ Total playgrounds: 332
 - **Inclined Plane Friction** ([FIS1013-inclined-plane-friction](../playgrounds/bsc-y1s1/FIS1013-inclined-plane-friction/)). Status: `verified`. `marion-thornton` ch 2.
 - **Kapitza Inverted Pendulum** ([FIS1013-inverted-pendulum-kapitza](../playgrounds/bsc-y1s1/FIS1013-inverted-pendulum-kapitza/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
 - **Lissajous Figures** ([FIS1013-lissajous-figures](../playgrounds/bsc-y1s1/FIS1013-lissajous-figures/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS1015).
-- **Magnus Effect on a Spinning Ball** ([FIS1013-magnus-effect-spinning-ball](../playgrounds/bsc-y1s1/FIS1013-magnus-effect-spinning-ball/)). Status: `verified`. `taylor-mech` ch ? (supporting: AST3014).
+- **Magnus Effect on a Spinning Ball** ([FIS1013-magnus-effect-spinning-ball](../playgrounds/bsc-y1s1/FIS1013-magnus-effect-spinning-ball/)). Status: `verified`. `adair1990` ch ? (supporting: AST3014).
 - **Pendulum on a Moving Cart** ([FIS1013-pendulum-on-moving-cart](../playgrounds/bsc-y1s1/FIS1013-pendulum-on-moving-cart/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
 - **Projectile Motion with Air Drag** ([FIS1013-projectile-with-air-drag](../playgrounds/bsc-y1s1/FIS1013-projectile-with-air-drag/)). Status: `verified`. `taylor-mech` ch ?.
 - **Tautochrone: Cycloid Isochronism** ([FIS1013-tautochrone-isochronism](../playgrounds/bsc-y1s1/FIS1013-tautochrone-isochronism/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS2021).
@@ -71,7 +71,7 @@ Total playgrounds: 332
 - **Big-O Empirical Scaling** ([CC1017-big-o-empirical](../playgrounds/bsc-y1s1/CC1017-big-o-empirical/)). Status: `verified`. `newman2013` ch 4 (supporting: FIS2018).
 - **Floating-Point Precision Pitfalls** ([CC1017-floating-point-precision-pitfalls](../playgrounds/bsc-y1s1/CC1017-floating-point-precision-pitfalls/)). Status: `verified`. `newman2013` ch 4 (supporting: FIS2018).
 - **Pathfinding Dijkstra Astar** ([CC1017-pathfinding-dijkstra-astar](../playgrounds/bsc-y1s1/CC1017-pathfinding-dijkstra-astar/)). Status: `verified`. `cormen2009` ch 24.
-- **Quadtree N-body and the Barnes-Hut Approximation** ([CC1017-quadtree-nbody-2d](../playgrounds/bsc-y1s1/CC1017-quadtree-nbody-2d/)). Status: `verified`. `barnes-hut1986` ch 1.
+- **Quadtree Collision Detection** ([CC1017-quadtree-nbody-2d](../playgrounds/bsc-y1s1/CC1017-quadtree-nbody-2d/)). Status: `verified`. `barnes-hut1986` ch 1.
 
 ## BSc Year 1 Semester 2
 
@@ -81,12 +81,12 @@ Total playgrounds: 332
 
 6 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Brewster Angle and Fresnel Equations** ([FIS1014-brewster-angle-fresnel](../playgrounds/bsc-y1s2/FIS1014-brewster-angle-fresnel/)). Status: `verified`. `taylor-mech` ch ? (supporting: FIS3019).
+- **Brewster Angle and Fresnel Equations** ([FIS1014-brewster-angle-fresnel](../playgrounds/bsc-y1s2/FIS1014-brewster-angle-fresnel/)). Status: `verified`. `hecht2017` ch ? (supporting: FIS3019).
 - **Capacitor Discharge through a Resistor** ([FIS1014-capacitor-discharge-rc](../playgrounds/bsc-y1s2/FIS1014-capacitor-discharge-rc/)). Status: `verified`. `griffithsem2017` ch 7.
 - **Coulomb Equilibrium of Charges** ([FIS1014-coulomb-equilibrium-charges](../playgrounds/bsc-y1s2/FIS1014-coulomb-equilibrium-charges/)). Status: `verified`. `griffiths-em` ch 2.
-- **Electric Field Lines from Point Charges** ([FIS1014-electric-field-lines-charges](../playgrounds/bsc-y1s2/FIS1014-electric-field-lines-charges/)). Status: `verified`. `taylor-mech` ch ?.
+- **Electric Field Lines from Point Charges** ([FIS1014-electric-field-lines-charges](../playgrounds/bsc-y1s2/FIS1014-electric-field-lines-charges/)). Status: `verified`. `griffiths-em` ch ?.
 - **Gauss Law in 2D** ([FIS1014-gauss-law-flux-through-surface](../playgrounds/bsc-y1s2/FIS1014-gauss-law-flux-through-surface/)). Status: `verified`. `griffithsem2017` ch 2.
-- **Method of Images: Charge Above a Grounded Plane** ([FIS1014-method-of-images-2d](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/)). Status: `verified`. `griffiths-em` ch 3.
+- **Method of Images: Grounded Conductors** ([FIS1014-method-of-images-2d](../playgrounds/bsc-y1s2/FIS1014-method-of-images-2d/)). Status: `verified`. `griffiths-em` ch 3.
 
 ### M1015 Analysis II
 
@@ -173,8 +173,8 @@ Total playgrounds: 332
 
 7 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Advection Scheme Shootout** ([FIS2018-advection-scheme-shootout](../playgrounds/bsc-y2s2/FIS2018-advection-scheme-shootout/)). Status: `verified`. `hecht-optics` ch ? (supporting: MAA-NM).
-- **Gauss-Legendre vs Trapezoid Quadrature** ([FIS2018-gauss-quadrature-vs-trapezoid](../playgrounds/bsc-y2s2/FIS2018-gauss-quadrature-vs-trapezoid/)). Status: `verified`. `hecht-optics` ch ? (supporting: M3012, MAA-NM).
+- **Advection Scheme Shootout** ([FIS2018-advection-scheme-shootout](../playgrounds/bsc-y2s2/FIS2018-advection-scheme-shootout/)). Status: `verified`. `leveque2002` ch ? (supporting: MAA-NM).
+- **Gauss-Legendre vs Trapezoid Quadrature** ([FIS2018-gauss-quadrature-vs-trapezoid](../playgrounds/bsc-y2s2/FIS2018-gauss-quadrature-vs-trapezoid/)). Status: `verified`. `press2007` ch ? (supporting: M3012, MAA-NM).
 - **Linear System: Direct vs Iterative** ([FIS2018-linear-system-direct-vs-iterative](../playgrounds/bsc-y2s2/FIS2018-linear-system-direct-vs-iterative/)). Status: `verified`. `villate-vpython` ch 6.
 - **Monte Carlo Integration Convergence** ([FIS2018-mc-integration-convergence](../playgrounds/bsc-y2s2/FIS2018-mc-integration-convergence/)). Status: `verified`. `hecht-optics` ch ? (supporting: MAA-NM, MAA-ST).
 - **ODE Solvers: Euler vs RK4 vs RK45** ([FIS2018-ode-solver-euler-rk4-rk45](../playgrounds/bsc-y2s2/FIS2018-ode-solver-euler-rk4-rk45/)). Status: `verified`. `villate-vpython` ch 5.
@@ -185,23 +185,23 @@ Total playgrounds: 332
 
 17 primary; supporting use of this UC appears elsewhere when listed.
 
-- **Billiards - Circle, Stadium, Sinai** ([FIS2021-billiards-circle-stadium-sinai](../playgrounds/bsc-y2s2/FIS2021-billiards-circle-stadium-sinai/)). Status: `verified`. `griffithsqm2018` ch ?.
-- **Kuramoto Oscillators and Synchronization** ([FIS2021-coupled-kuramoto-oscillators](../playgrounds/bsc-y2s2/FIS2021-coupled-kuramoto-oscillators/)). Status: `verified`. `griffithsqm2018` ch ?.
-- **Driven Damped Duffing Oscillator** ([FIS2021-duffing-oscillator](../playgrounds/bsc-y2s2/FIS2021-duffing-oscillator/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS1013).
-- **FitzHugh-Nagumo Excitable Neuron** ([FIS2021-fitzhugh-nagumo-excitable](../playgrounds/bsc-y2s2/FIS2021-fitzhugh-nagumo-excitable/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Billiards - Circle, Stadium, Sinai** ([FIS2021-billiards-circle-stadium-sinai](../playgrounds/bsc-y2s2/FIS2021-billiards-circle-stadium-sinai/)). Status: `verified`. `berry1981` ch ?.
+- **Kuramoto Oscillators and Synchronization** ([FIS2021-coupled-kuramoto-oscillators](../playgrounds/bsc-y2s2/FIS2021-coupled-kuramoto-oscillators/)). Status: `verified`. `strogatz2015` ch ?.
+- **Driven Damped Duffing Oscillator** ([FIS2021-duffing-oscillator](../playgrounds/bsc-y2s2/FIS2021-duffing-oscillator/)). Status: `verified`. `strogatz2015` ch ? (supporting: FIS1013).
+- **FitzHugh-Nagumo Excitable Neuron** ([FIS2021-fitzhugh-nagumo-excitable](../playgrounds/bsc-y2s2/FIS2021-fitzhugh-nagumo-excitable/)). Status: `verified`. `fitzhugh-nagumo1961` ch ?.
 - **Hamiltonian Phase-Space Flow** ([FIS2021-hamiltonian-phase-space-flow](../playgrounds/bsc-y2s2/FIS2021-hamiltonian-phase-space-flow/)). Status: `verified`. `lemos-mech` ch 6.
-- **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `verified`. `griffithsqm2018` ch ?.
+- **Henon Strange Attractor** ([FIS2021-henon-strange-attractor](../playgrounds/bsc-y2s2/FIS2021-henon-strange-attractor/)). Status: `verified`. `strogatz2015` ch ?.
 - **Lagrangian vs Newtonian** ([FIS2021-lagrangian-vs-newtonian](../playgrounds/bsc-y2s2/FIS2021-lagrangian-vs-newtonian/)). Status: `verified`. `lemos-mech` ch 2.
-- **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `verified`. `griffithsqm2018` ch ?.
-- **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS2018).
+- **Liouvillian Flow on the Pendulum Phase Space** ([FIS2021-liouvillian-flow](../playgrounds/bsc-y2s2/FIS2021-liouvillian-flow/)). Status: `verified`. `lemos-mech` ch ?.
+- **Logistic Map Cobweb and Bifurcation Diagram** ([FIS2021-logistic-cobweb](../playgrounds/bsc-y2s2/FIS2021-logistic-cobweb/)). Status: `verified`. `strogatz2015` ch ? (supporting: FIS2018).
 - **Strange Attractor Zoo** ([FIS2021-lorenz-attractor](../playgrounds/bsc-y2s2/FIS2021-lorenz-attractor/)). Status: `verified`. `sprott2003` ch 4.
-- **Lyapunov Spectrum via Benettin QR** ([FIS2021-lyapunov-spectrum](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/)). Status: `verified`. `griffithsqm2018` ch ?.
-- **Mandelbrot Rainbow Explorer** ([FIS2021-mandelbrot-explorer](../playgrounds/bsc-y2s2/FIS2021-mandelbrot-explorer/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS2018).
+- **Lyapunov Spectrum via Benettin QR** ([FIS2021-lyapunov-spectrum](../playgrounds/bsc-y2s2/FIS2021-lyapunov-spectrum/)). Status: `verified`. `benettin1980` ch ?.
+- **Mandelbrot Rainbow Explorer** ([FIS2021-mandelbrot-explorer](../playgrounds/bsc-y2s2/FIS2021-mandelbrot-explorer/)). Status: `verified`. `mandelbrot1982` ch ? (supporting: FIS2018).
 - **Noether's Theorem: Symmetry to Conservation** ([FIS2021-noether-symmetry-to-conservation](../playgrounds/bsc-y2s2/FIS2021-noether-symmetry-to-conservation/)). Status: `verified`. `lemos-mech` ch 4.
-- **Predator-Prey and the Hopf Bifurcation** ([FIS2021-predator-prey-hopf](../playgrounds/bsc-y2s2/FIS2021-predator-prey-hopf/)). Status: `verified`. `griffithsqm2018` ch ?.
-- **Rossler Funnel Attractor** ([FIS2021-rossler-funnel](../playgrounds/bsc-y2s2/FIS2021-rossler-funnel/)). Status: `verified`. `griffithsqm2018` ch ?.
-- **Chirikov Standard Map - KAM Tori** ([FIS2021-standard-map-kam](../playgrounds/bsc-y2s2/FIS2021-standard-map-kam/)). Status: `verified`. `griffithsqm2018` ch ?.
-- **Van der Pol: Limit Cycle to Relaxation Oscillator** ([FIS2021-van-der-pol-relaxation](../playgrounds/bsc-y2s2/FIS2021-van-der-pol-relaxation/)). Status: `verified`. `griffithsqm2018` ch ? (supporting: FIS1013).
+- **Predator-Prey and the Hopf Bifurcation** ([FIS2021-predator-prey-hopf](../playgrounds/bsc-y2s2/FIS2021-predator-prey-hopf/)). Status: `verified`. `strogatz2015` ch ?.
+- **Rossler Funnel Attractor** ([FIS2021-rossler-funnel](../playgrounds/bsc-y2s2/FIS2021-rossler-funnel/)). Status: `verified`. `strogatz2015` ch ?.
+- **Chirikov Standard Map - KAM Tori** ([FIS2021-standard-map-kam](../playgrounds/bsc-y2s2/FIS2021-standard-map-kam/)). Status: `verified`. `lichtenberg-lieberman` ch ?.
+- **Van der Pol: Limit Cycle to Relaxation Oscillator** ([FIS2021-van-der-pol-relaxation](../playgrounds/bsc-y2s2/FIS2021-van-der-pol-relaxation/)). Status: `verified`. `strogatz2015` ch ? (supporting: FIS1013).
 
 ## BSc Year 3 Semester 1 (Astrophysics profile)
 
@@ -268,7 +268,7 @@ Total playgrounds: 332
 
 - **BBN Light-Element Abundances** ([AST3017-bbn-light-element-toy](../playgrounds/bsc-y3s2/AST3017-bbn-light-element-toy/)). Status: `verified`. `liddle-cosmology` ch 11.
 - **Gravitational Lensing: Microlensing and Caustics** ([AST3017-gravitational-microlensing-event](../playgrounds/bsc-y3s2/AST3017-gravitational-microlensing-event/)). Status: `verified`. `kippenhahn-weigert` ch ?.
-- **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. `kippenhahn-weigert` ch ?.
+- **Gravitational Redshift in Schwarzschild** ([AST3017-gravitational-redshift](../playgrounds/bsc-y3s2/AST3017-gravitational-redshift/)). Status: `verified`. `hartle-gravity` ch ?.
 - **Schwarzschild Light Bending** ([AST3017-schwarzschild-geodesics](../playgrounds/bsc-y3s2/AST3017-schwarzschild-geodesics/)). Status: `verified`. `kippenhahn-weigert` ch ?.
 - **Shapiro Time Delay** ([AST3017-shapiro-time-delay](../playgrounds/bsc-y3s2/AST3017-shapiro-time-delay/)). Status: `verified`. `kippenhahn-weigert` ch ?.
 
@@ -299,7 +299,7 @@ Total playgrounds: 332
 - **Addition of Two Angular Momenta** ([FIS3029-addition-of-angular-momenta](../playgrounds/bsc-y3s2/FIS3029-addition-of-angular-momenta/)). Status: `verified`. `sakurai-qm` ch 3.
 - **Aharonov-Bohm Effect** ([FIS3029-aharonov-bohm-flux-line](../playgrounds/bsc-y3s2/FIS3029-aharonov-bohm-flux-line/)). Status: `verified`. `sakurai-qm` ch 2.
 - **Hydrogen Fine Structure** ([FIS3029-fine-structure-hydrogen](../playgrounds/bsc-y3s2/FIS3029-fine-structure-hydrogen/)). Status: `verified`. `griffiths-qm` ch 6.
-- **Kronig-Penney Band Structure** ([FIS3029-kronig-penney-bands](../playgrounds/bsc-y3s2/FIS3029-kronig-penney-bands/)). Status: `verified`. `chen1984` ch ? (supporting: FIS3020).
+- **Kronig-Penney Band Structure** ([FIS3029-kronig-penney-bands](../playgrounds/bsc-y3s2/FIS3029-kronig-penney-bands/)). Status: `verified`. `kittel-cm` ch ? (supporting: FIS3020).
 - **Particle in a Well - A Quantum Zoo** ([FIS3029-particle-in-a-well-zoo](../playgrounds/bsc-y3s2/FIS3029-particle-in-a-well-zoo/)). Status: `verified`. `chen1984` ch ? (supporting: FIS2017).
 - **Quantum Confinement in Nanostructures** ([FIS3029-quantum-confinement-nanostructure](../playgrounds/bsc-y3s2/FIS3029-quantum-confinement-nanostructure/)). Status: `verified`. `davies1998` ch ?.
 - **Quantum vs Classical Random Walk** ([FIS3029-quantum-random-walk](../playgrounds/bsc-y3s2/FIS3029-quantum-random-walk/)). Status: `verified`. `chen1984` ch ?.
@@ -345,7 +345,7 @@ Total playgrounds: 332
 - **Mixing-Length Convection** ([MAA-SA-convection-mixing-length](../playgrounds/msc-y1/MAA-SA-convection-mixing-length/)). Status: `verified`. `hansen-kawaler` ch 5.
 - **Main-Sequence Mass-Luminosity Relation** ([MAA-SA-main-sequence-mass-luminosity](../playgrounds/msc-y1/MAA-SA-main-sequence-mass-luminosity/)). Status: `verified`. `carroll-ostlie` ch 7.
 - **Nuclear Burning Rates vs Temperature** ([MAA-SA-nuclear-burning-rate-temperature](../playgrounds/msc-y1/MAA-SA-nuclear-burning-rate-temperature/)). Status: `verified`. `hansen-kawaler` ch 6.
-- **Lane-Emden Polytrope** ([MAA-SA-polytrope-lane-emden](../playgrounds/msc-y1/MAA-SA-polytrope-lane-emden/)). Status: `verified`. `hansen-kawaler` ch 7.
+- **Lane-Emden Polytrope** ([MAA-SA-polytrope-lane-emden](../playgrounds/msc-y1/MAA-SA-polytrope-lane-emden/)). Status: `verified`. `chandrasekhar1939` ch 7.
 
 ### MAA-SP Stellar Atmospheres and Spectra
 

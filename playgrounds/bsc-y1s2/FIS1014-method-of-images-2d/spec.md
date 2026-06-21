@@ -1,5 +1,5 @@
 ---
-title: "Method of Images: Charge Above a Grounded Plane"
+title: "Method of Images: Grounded Conductors"
 slug: method-of-images-2d
 status: verified
 audience: portfolio
@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s2
 primary_citation: griffiths-em
 primary_chapter: 3
-hook: 'A charge above a grounded metal sheet feels a pull, exactly as if a mirror-image charge of opposite sign sat the same distance below the surface.'
-one_paragraph: 'Finding the field of a charge near a grounded conductor looks hard: the induced surface charge rearranges itself until the metal is an equipotential. The method of images replaces that entire induced distribution with one fictitious charge, equal and opposite, mirrored below the plane. The two-charge field is trivial to write down and, above the plane, is identical to the real one. The playground draws the field lines bending in to strike the conductor perpendicular, the induced surface charge pooling beneath the charge, and (with a toggle) the dashed image charge that reproduces the same field; it integrates the induced charge along the conductor, which always sums to exactly minus the real charge, the check that the trick is exact rather than an approximation. Drag the charge and watch the field, the induced charge, and the image track it, while the attractive force grows like q^2 / (2d)^2 as it nears the plane.'
+hook: 'A charge near a grounded conductor feels a pull, exactly as if a few mirror-image charges sat where the metal used to be; one image for a plane or sphere, three for a corner, five for a wedge.'
+one_paragraph: 'Finding the field of a charge near a grounded conductor looks hard: the induced surface charge rearranges itself until the metal is an equipotential. The method of images replaces that entire induced distribution with a few fictitious charges, placed so the potential is zero on the surface. The superposed field is trivial to write down and, in the empty region, is identical to the real one. The playground draws the four classic geometries from Griffiths: a grounded plane (one image), a right-angle corner (three), a 60-degree wedge (five), and a grounded sphere (one image inside, at the inverse point R^2/d with charge -(R/d)q). It shows the field lines bending in to strike the conductor perpendicular, the induced charge shaded along the boundary, and (with a toggle) the image charges that reproduce the same field, while the rail confirms the potential stays zero on the conductor. Drag the charge and everything tracks it, and the static scene is cached so only the marching arrowheads redraw each frame.'
 tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
 tier: hero
@@ -29,43 +29,48 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Switch geometry (plane, corner, wedge, sphere) and watch the image count change.
+  - Drag the charge; the field always meets the metal at a right angle and V stays zero on the conductor.
+  - Toggle reveal image to replace the conductor with its image charges.
 references:
   - "Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 3."
 ---
-# Method of images, 2D
-A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Drag the charge; toggle "reveal image" to replace the conductor with the mirror charge; flip the charge sign. Source: Griffiths E&M Ch. 3.2.
+# Method of images for grounded conductors
+A point charge near a grounded conductor: the field is built by adding image charges placed so the potential is zero on the surface. Four geometries: a grounded plane (one image), a right-angle corner (three images), a 60-degree wedge (five images), and a grounded sphere (one image inside, at R^2/d with charge -(R/d)q). Drag the charge; toggle "reveal image"; flip the charge sign. Source: Griffiths E&M Ch. 3.2.
 
 ## Controls
 
-- view: conductor / reveal image (show the mirror charge and full dipole).
+- geometry: grounded plane, right-angle corner, 60-degree wedge, grounded sphere.
+- view: conductor / reveal image (show the image charges that replace the conductor).
 - charge sign: + or -.
-- drag the charge anywhere above the plane with the pointer.
+- drag the charge anywhere in the field region with the pointer.
 - Reset / Pause / Play.
 
 ## Numerical method
 
-Field lines are streamline-integrated (normalized arc-length steps of
-0.04) in the two-charge dipole field of the real charge and its image;
-in conductor view a line stops at the plane crossing (y = 0). The
-induced density sigma(x) = -q b / (2 pi (x^2 + b^2)^{3/2}) is evaluated
-analytically along the plane, and the total induced charge is integrated
-numerically (the 3D radial integral) and checked against -q. Rendering
-is plain Canvas2D: the conductor body with hatching, the field lines
-with marching arrowheads, the induced-charge lobe on the plane, the
-image charge (reveal view), and the attractive image force.
+Each geometry returns a list of point charges (real plus images). The
+wedge family (plane n=1, corner n=2, wedge n=3, beta = pi/n) places, for
+k = 0..n-1, +q at angle 2k*beta + phi and -q at 2k*beta - phi; the
+grounded sphere places -(R/d)q at R^2/d^2 times the charge position. Field
+lines are streamline-integrated (normalized arc-length steps of 0.03) in
+the superposed Coulomb field; in conductor view a line is bisected onto
+the boundary where it leaves the field region. The induced surface charge
+is read off the normal field just outside the conductor and shaded along
+the boundary. The static scene (conductor, field lines, induced charge,
+charges, diagnostic) is rendered once to an offscreen canvas and blitted
+each frame; only the marching arrowheads are redrawn, keeping the
+animation smooth.
 
 ## Invariants and acceptance thresholds
 
 | invariant | threshold | location |
-| potential is zero on the conducting plane | < 1e-6 | invariants test |
-| potential below the plane is zero | exact | invariants test |
-| tangential field vanishes on the plane | < 1e-3 | invariants test |
-| total induced charge equals -q | within 0.05 | invariants test + live |
-| induced sigma decays as |x|^{-3} far out | within 0.05 | invariants test |
+| potential is zero on the conductor (plane, corner, wedge, sphere) | < 1e-9 | invariants test + live |
+| plane has 1 image, corner 3, wedge 5 | exact | invariants test |
+| sphere image is -(R/d)q at R^2/d (Griffiths) | exact | invariants test |
+| net induced charge: -q (plane, corner), -(R/d)q (sphere) | exact | invariants test |
+| tangential field vanishes just outside the plane | < 1e-2 | invariants test |
 
-All confirmed in `invariants.test.mjs` (6 tests passing).
+All confirmed in `invariants.test.mjs` (8 tests passing).
 
 ## Explainer
 
@@ -108,6 +113,17 @@ whole plane and the total induced charge is exactly $-q$: the
 conductor pulls up just enough opposite charge to screen the field
 below. The charge is also attracted to the plane with the force it
 would feel from the image alone, $F = -q^2/[4\pi\epsilon_0 (2d)^2]$.
+
+### Other geometries
+
+The same uniqueness argument handles more than the plane. Two grounded
+planes meeting at a right angle need three images (signs $-,-,+$) at the
+reflected positions; a wedge of opening angle $\pi/n$ needs $2n-1$
+images arranged around the apex with alternating signs (the 60-degree
+wedge, $n=3$, takes five). A grounded sphere of radius $R$ takes a single
+image $q' = -(R/d)\,q$ at the inverse point $R^2/d$ inside it. In every
+case the images are chosen so the potential is zero on the conductor,
+which the rail verifies as $\max|V|$ on the boundary.
 
 ### Things to try
 

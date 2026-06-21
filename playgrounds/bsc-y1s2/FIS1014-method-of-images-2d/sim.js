@@ -1,33 +1,62 @@
-// Method of images for a point charge above a grounded conducting plane.
-// Place the real charge q at (a, b) with b > 0 above the y = 0 plane.
-// The potential above the plane equals that of the real charge plus an
-// image charge -q at (a, -b). Below the plane the potential is zero.
-// Reference: Griffiths E&M Ch. 3.2 (`griffiths-em`).
-export function potential(x, y, q, a, b) {
-  if (y <= 0) return 0;
-  const r1 = Math.hypot(x - a, y - b) + 1e-8;
-  const r2 = Math.hypot(x - a, y + b) + 1e-8;
-  return q / r1 - q / r2;
-}
-export function field(x, y, q, a, b) {
-  if (y <= 0) return { ex: 0, ey: 0 };
-  const dx1 = x - a, dy1 = y - b, r1 = Math.hypot(dx1, dy1) + 1e-8;
-  const dx2 = x - a, dy2 = y + b, r2 = Math.hypot(dx2, dy2) + 1e-8;
-  const r1_3 = r1 ** 3, r2_3 = r2 ** 3;
-  return { ex: q * dx1 / r1_3 - q * dx2 / r2_3, ey: q * dy1 / r1_3 - q * dy2 / r2_3 };
-}
-// Surface charge on plane: sigma(x) = -q b / (2 pi (x^2 + b^2)^{3/2}).
-export function inducedSigma(x, q, b) {
-  return -q * b / (2 * Math.PI * Math.pow(x * x + b * b, 1.5));
-}
-// Integrated total induced charge over the conducting plane (3D, dA = 2 pi rho drho).
-// Analytic result: -q.
-export function totalInducedCharge(q, b, L = 1e3, N = 5000) {
-  let s = 0;
-  const drho = L / N;
-  for (let i = 0; i < N; i += 1) {
-    const rho = (i + 0.5) * drho;
-    s += inducedSigma(rho, q, b) * 2 * Math.PI * rho;
+// Method of images for several grounded conductor geometries. Each geometry
+// returns a list of point charges (the real one, marked real:true, plus its
+// images). The superposed field of that list matches the real problem in the
+// field region and forces the potential to zero on the conductor, which is the
+// whole trick. Reference: Griffiths, Introduction to Electrodynamics, 4th ed.,
+// Sec. 3.2 (`griffiths-em`).
+
+export const R_SPHERE = 1.0;
+
+// Wedge family: the field region is the sector 0 < phi < beta with beta = pi/n.
+//   n = 1  -> grounded plane (region y > 0), one image.
+//   n = 2  -> right-angle corner (two perpendicular planes), three images.
+//   n = 3  -> 60-degree wedge ("pizza slice"), five images.
+// Images: for k = 0..n-1 place +q at angle 2k*beta + phi and -q at 2k*beta -
+// phi, all at the real charge's radius r. The k = 0, +q charge is the real one.
+// The alternating signs make V = 0 on both walls phi = 0 and phi = beta.
+export function wedgeCharges(n, r, phi, q) {
+  const beta = Math.PI / n;
+  const cs = [];
+  for (let k = 0; k < n; k += 1) {
+    const ap = 2 * k * beta + phi, am = 2 * k * beta - phi;
+    cs.push({ x: r * Math.cos(ap), y: r * Math.sin(ap), q, real: k === 0 });
+    cs.push({ x: r * Math.cos(am), y: r * Math.sin(am), q: -q });
   }
-  return s * drho;
+  return cs;
+}
+
+// Grounded sphere of radius R centred at the origin, real charge q at (a,b)
+// with d = |(a,b)| > R. The single image q' = -(R/d) q sits at (R^2/d^2)(a,b),
+// inside the sphere, and makes V = 0 on the surface (Griffiths 3.2).
+export function sphereCharges(R, a, b, q) {
+  const d = Math.hypot(a, b) || 1e-9;
+  const f = (R * R) / (d * d);
+  return [
+    { x: a, y: b, q, real: true },
+    { x: f * a, y: f * b, q: -(R / d) * q, image: true },
+  ];
+}
+
+export function fieldAt(cs, x, y) {
+  let ex = 0, ey = 0;
+  for (const c of cs) {
+    const dx = x - c.x, dy = y - c.y;
+    const r = Math.hypot(dx, dy) + 1e-6, r3 = r * r * r;
+    ex += c.q * dx / r3; ey += c.q * dy / r3;
+  }
+  return { ex, ey };
+}
+
+export function potentialAt(cs, x, y) {
+  let v = 0;
+  for (const c of cs) v += c.q / (Math.hypot(x - c.x, y - c.y) + 1e-9);
+  return v;
+}
+
+// Sum of the image charges only (the net induced charge the conductor must
+// carry): -q for the plane, -(R/d)q for the sphere, -q for the corner/wedge.
+export function imageChargeSum(cs) {
+  let s = 0;
+  for (const c of cs) if (!c.real) s += c.q;
+  return s;
 }
