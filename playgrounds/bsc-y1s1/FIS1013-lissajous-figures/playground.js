@@ -33,10 +33,10 @@ const btnReset = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 const presetBtns = document.querySelectorAll('[data-preset]');
 
-const GALLERY = [
-  [1, 1], [1, 2], [1, 3], [2, 3], [3, 2], [3, 4],
-  [4, 3], [3, 5], [5, 4], [4, 5], [5, 6], [5, 7],
-];
+// Full a:b matrix (columns a = 1..A_MAX, rows b = 1..B_MAX). A matrix, not a
+// row of picks, so the transpose pairs sit mirrored across the diagonal and you
+// can see a:b is not just a rotated b:a once the phase is non-trivial.
+const A_MAX = 5, B_MAX = 5;
 
 const state = {
   a: 3, b: 5, delta: Math.PI / 2, speed: 2, tNow: 0,
@@ -51,7 +51,7 @@ function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [
     { name: 'hero', weight: 3.0 },
-    { name: 'gallery', weight: 1.2 },
+    { name: 'gallery', weight: 1.7 },
   ]);
 }
 
@@ -209,45 +209,45 @@ function drawGallery(col) {
   panel(col, r);
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText('frequency ratios (tap one)', r.x + 8, r.y + 6);
+  ctx.fillText('ratio matrix a:b  (every cell at the shared phase δ — tap one)', r.x + 8, r.y + 6);
 
-  const cols = 6, rows = 2;
   const pad = 8, top = r.y + 24;
-  const cw = (r.w - pad * 2) / cols;
-  const ch = (r.y + r.h - top - pad) / rows;
+  const cw = (r.w - pad * 2) / A_MAX;
+  const ch = (r.y + r.h - top - pad) / B_MAX;
   galleryCells = [];
-  GALLERY.forEach(([a, b], idx) => {
-    const cxi = r.x + pad + (idx % cols) * cw;
-    const cyi = top + Math.floor(idx / cols) * ch;
-    galleryCells.push({ a, b, x: cxi, y: cyi, w: cw, h: ch });
-    const isCur = a === state.a && b === state.b;
-    if (isCur) {
-      ctx.fillStyle = 'rgba(255,209,102,0.12)';
-      ctx.fillRect(cxi + 1, cyi + 1, cw - 2, ch - 2);
-      ctx.strokeStyle = col.accent; ctx.lineWidth = 1.4;
-    } else {
-      ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1;
+  for (let bi = 1; bi <= B_MAX; bi += 1) {
+    for (let ai = 1; ai <= A_MAX; ai += 1) {
+      const cxi = r.x + pad + (ai - 1) * cw;
+      const cyi = top + (bi - 1) * ch;
+      galleryCells.push({ a: ai, b: bi, x: cxi, y: cyi, w: cw, h: ch });
+      const isCur = ai === state.a && bi === state.b;
+      // Distinct colour per cell across the matrix (viridis, not rainbow).
+      const tcol = viridis(((bi - 1) * A_MAX + (ai - 1)) / (A_MAX * B_MAX - 1));
+      if (isCur) { ctx.fillStyle = rgba(tcol, 0.20); ctx.fillRect(cxi + 1, cyi + 1, cw - 2, ch - 2); }
+      ctx.strokeStyle = isCur ? col.accent : 'rgba(255,255,255,0.10)';
+      ctx.lineWidth = isCur ? 1.6 : 1;
+      ctx.strokeRect(cxi + 0.5, cyi + 0.5, cw - 1, ch - 1);
+      // Thumbnail at the CURRENT shared phase delta, so dragging the phase
+      // reshapes the whole matrix and a:b stops looking like a rotated b:a.
+      const mxi = cxi + cw / 2, myi = cyi + ch / 2 + 4;
+      const rr = Math.min(cw, ch) * 0.34;
+      ctx.strokeStyle = isCur ? col.accent : rgba(tcol, 0.95);
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      const TT = period(ai, bi), NN = 200;
+      for (let k = 0; k <= NN; k += 1) {
+        const t = TT * k / NN;
+        const px = mxi + xFn(t, ai, state.delta) * rr;
+        const py = myi - yFn(t, bi) * rr;
+        if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.font = fontString(canvas, 'tick', 'mono');
+      ctx.fillStyle = isCur ? col.accent : col.muted;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      ctx.fillText(`${ai}:${bi}`, cxi + 3, cyi + 2);
     }
-    ctx.strokeRect(cxi + 0.5, cyi + 0.5, cw - 1, ch - 1);
-    // Thumbnail curve.
-    const mxi = cxi + cw / 2, myi = cyi + ch / 2 + 4;
-    const rr = Math.min(cw, ch) * 0.32;
-    ctx.strokeStyle = isCur ? col.accent : col.cool;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    const TT = period(a, b), NN = 240;
-    for (let k = 0; k <= NN; k += 1) {
-      const t = TT * k / NN;
-      const px = mxi + xFn(t, a, Math.PI / 2) * rr;
-      const py = myi - yFn(t, b) * rr;
-      if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-    }
-    ctx.stroke();
-    ctx.font = fontString(canvas, 'tick', 'mono');
-    ctx.fillStyle = isCur ? col.accent : col.muted;
-    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    ctx.fillText(`${a}:${b}`, cxi + 4, cyi + 3);
-  });
+  }
 }
 
 function drawAll() {
@@ -290,7 +290,7 @@ canvas.addEventListener('click', (e) => {
   const cy = (e.clientY - rect.top) * (view.h / rect.height);
   for (const cell of galleryCells) {
     if (cx >= cell.x && cx <= cell.x + cell.w && cy >= cell.y && cy <= cell.y + cell.h) {
-      applyAB(cell.a, cell.b); state.delta = Math.PI / 2; sliderDelta.value = '1.57'; valueDelta.textContent = '1.57';
+      applyAB(cell.a, cell.b);   // keep the current phase so the matrix and the hero share delta
       drawAll();
       return;
     }
