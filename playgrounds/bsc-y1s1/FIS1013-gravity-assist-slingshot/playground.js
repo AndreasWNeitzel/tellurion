@@ -174,15 +174,24 @@ function render() {
   const speedBefore = Math.hypot(vBefore.x, vBefore.y);
   const speedAfter = Math.hypot(vAfter.x, vAfter.y);
   const gain = speedAfter - speedBefore;
-  const vmaxMag = Math.max(speedBefore, speedAfter, 1) * 1.15;
-  const fpadL = 16, fpadT = 28, fpadB = 28;
-  const oxF = F.x + fpadL + 10;
-  const cyF = F.y + fpadT + (F.h - fpadT - fpadB) / 2;
-  const vScale = Math.min((F.w - fpadL - 90) / vmaxMag, (F.h - fpadT - fpadB) / 2 / vmaxMag * 1.4);
-  const O = { x: oxF, y: cyF };
-  // y is up in velocity space; screen y down.
-  const VX = (vx) => O.x + vx * vScale;
-  const VY = (vy) => O.y - vy * vScale;
+  // Fit and centre the whole velocity triangle (origin, planet, before, after)
+  // in the panel so it stays centred instead of drifting off the left edge as
+  // the geometry changes, and clip so nothing leaks outside the frame.
+  const fpadT = 28, fpadB = 26, fpadL = 14, rightPad = 96;
+  const qs = [{ x: 0, y: 0 }, vp, vBefore, vAfter];
+  let mnx = Infinity, mxx = -Infinity, mny = Infinity, mxy = -Infinity;
+  for (const q of qs) { mnx = Math.min(mnx, q.x); mxx = Math.max(mxx, q.x); mny = Math.min(mny, q.y); mxy = Math.max(mxy, q.y); }
+  const spanX = Math.max(mxx - mnx, 1e-6), spanY = Math.max(mxy - mny, 1e-6);
+  const plotX0 = F.x + fpadL, plotX1 = F.x + F.w - rightPad;
+  const plotY0 = F.y + fpadT, plotY1 = F.y + F.h - fpadB;
+  const vScale = Math.min((plotX1 - plotX0) / spanX, (plotY1 - plotY0) / spanY) * 0.9;
+  const cxv = (mnx + mxx) / 2, cyv = (mny + mxy) / 2;
+  const pcx = (plotX0 + plotX1) / 2, pcy = (plotY0 + plotY1) / 2;
+  const VX = (vx) => pcx + (vx - cxv) * vScale;       // y is up in velocity space
+  const VY = (vy) => pcy - (vy - cyv) * vScale;
+  const O = { x: VX(0), y: VY(0) };
+  ctx.save();
+  ctx.beginPath(); ctx.rect(F.x + 1, F.y + 1, F.w - 2, F.h - 2); ctx.clip();
   // planet velocity (gray), before (cool), after (warm).
   vec(O.x, O.y, VX(vp.x), VY(vp.y), 'rgba(180,184,190,0.9)', 2);
   vec(O.x, O.y, VX(vBefore.x), VY(vBefore.y), '#7c9cff', 2.6);
@@ -194,6 +203,7 @@ function render() {
   ctx.fillStyle = 'rgba(180,184,190,0.95)'; ctx.fillText('planet', VX(vp.x) + 4, VY(vp.y));
   ctx.fillStyle = '#7c9cff'; ctx.fillText('before', VX(vBefore.x) + 4, VY(vBefore.y));
   ctx.fillStyle = '#ffd57f'; ctx.fillText('after', VX(vAfter.x) + 4, VY(vAfter.y));
+  ctx.restore();
   // speed comparison readout (right side).
   ctx.font = fontString(canvas, 'mono', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'top';
   const rx = F.x + F.w - 8;
@@ -216,8 +226,12 @@ function buildControls() {
     row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
     controlsEl.appendChild(row);
   }
-  slider('r-min', 'r_min', 1.1, 8.0, 0.05, state.r_min, (v) => { state.r_min = v; });
-  slider('v-inf', 'v_inf', 0.3, 2.5, 0.05, state.v_inf, (v) => { state.v_inf = v; });
+  // r_min down to nearly the planet surface and v_inf down to a near-parabolic
+  // crawl: the eccentricity e = 1 + r_min v_inf^2 / GM then approaches 1, and
+  // the turning angle 2 asin(1/e) sweeps up toward 180 deg (a near reversal),
+  // instead of bottoming out around 131 deg.
+  slider('r-min', 'r_min', 1.05, 8.0, 0.05, state.r_min, (v) => { state.r_min = v; });
+  slider('v-inf', 'v_inf', 0.05, 2.5, 0.05, state.v_inf, (v) => { state.v_inf = v; });
   slider('approach', 'approach', -Math.PI, Math.PI, 0.05, state.approach, (v) => { state.approach = v; });
 }
 
