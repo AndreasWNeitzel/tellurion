@@ -18,7 +18,7 @@ import { prefersReducedMotion } from '../../../shared/js/controls/motion-prefere
 import {
   beadPosition, cycloidXY, sampleCycloid, arclengthFromBottom,
   circleXY, circlePhi0FromHeight, circleQuarter, stepCircleBead, R_CIRCLE,
-  R, OMEGA, QUARTER_PERIOD,
+  R, OMEGA, QUARTER_PERIOD, FULL_PERIOD,
 } from './sim.js';
 import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
@@ -39,16 +39,17 @@ const btnPlayPause = document.getElementById('btn-playpause');
 
 const HMAX = 1.7 * R;                         // top release height (just below the cusp)
 const DT = 1 / 240;
-const T_END = circleQuarter(circlePhi0FromHeight(HMAX)) * 1.18;   // run until the slowest circle bead lands
+const T_LOOP = 5 * FULL_PERIOD;               // let them oscillate several swings, then replay
+let cycFlashT = -10;                          // time of the last synchronized cycloid bottom-crossing
 
 const state = {
-  speed: 2,
+  speed: 1,
   tNow: 0,
   nBeads: 5,
   holdT: 0, holding: false,
   playing: !(DETERMINISTIC || prefersReducedMotion()),
   cyc: [],            // { s0, color, h }
-  cir: [],            // { phi, w, phi0, arrived, tArrive, color, h }
+  cir: [],            // { phi, w, phi0, color, h, lastCrossT }
 };
 
 function rebuildBeads() {
@@ -61,9 +62,9 @@ function rebuildBeads() {
     const theta = Math.acos(Math.max(-1, Math.min(1, h / R - 1)));   // left side, theta in (0, pi)
     state.cyc.push({ s0: arclengthFromBottom(theta), color, h });
     const phi0 = -circlePhi0FromHeight(h);                            // left side, phi < 0
-    state.cir.push({ phi: phi0, w: 0, phi0, arrived: false, tArrive: null, color, h });
+    state.cir.push({ phi: phi0, w: 0, phi0, color, h, lastCrossT: -10 });
   }
-  state.tNow = 0; state.holding = false; state.holdT = 0;
+  state.tNow = 0; state.holding = false; state.holdT = 0; cycFlashT = -10;
 }
 rebuildBeads();
 
@@ -121,7 +122,7 @@ function drawArrivalFlash(col, m, bx, by, intensity, label) {
 
 function drawCycloid(col) {
   const r = REG.cyc;
-  panel(col, r, 'cycloid bowl: every bead lands at the same instant');
+  panel(col, r, 'cycloid: every bead swings in step, crossing the bottom together');
   const m = bowlMap(r, 0, 2 * Math.PI * R, 2 * R);
   // bowl curve.
   const cyc = sampleCycloid(220);
@@ -129,16 +130,16 @@ function drawCycloid(col) {
   for (let i = 0; i < cyc.length; i += 1) { const p = [m.X(cyc[i].x), m.Y(cyc[i].y)]; i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
   ctx.stroke();
   const bx = m.X(R * Math.PI), by = m.Y(0);
-  // arrival flash: a single synchronized landing at the quarter period.
-  const dtq = Math.abs(state.tNow - QUARTER_PERIOD);
-  if (state.tNow >= QUARTER_PERIOD - 0.05) drawArrivalFlash(col, m, bx, by, Math.max(0, 1 - dtq / 0.25), 'all land together');
+  // synchronized flash: every half-period all beads reach the bottom at once.
+  drawArrivalFlash(col, m, bx, by, Math.max(0, 1 - (state.tNow - cycFlashT) / 0.3), 'all cross together');
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(bx, by - 8); ctx.lineTo(bx, by + 8); ctx.stroke(); ctx.setLineDash([]);
-  // beads (parked at the bottom once they reach it at the quarter period).
+  // beads oscillate: s(t) = s0 cos(omega t), the same phase for every amplitude,
+  // so they sweep up to their own turning points and back in unison. Faint
+  // markers show both turning points (+-s0).
   for (const b of state.cyc) {
-    const init = beadPosition(b.s0, 0); ctx.strokeStyle = `${b.color}66`; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(m.X(init.x), m.Y(init.y), 3.5, 0, 6.28); ctx.stroke();
-    const pos = beadPosition(b.s0, Math.min(state.tNow, QUARTER_PERIOD));
+    for (const sgn of [1, -1]) { const tp = beadPosition(sgn * b.s0, 0); ctx.strokeStyle = `${b.color}55`; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(m.X(tp.x), m.Y(tp.y), 3, 0, 6.28); ctx.stroke(); }
+    const pos = beadPosition(b.s0, state.tNow);
     ctx.fillStyle = b.color; ctx.beginPath(); ctx.arc(m.X(pos.x), m.Y(pos.y), 6.5, 0, 6.28); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.lineWidth = 1; ctx.stroke();
   }
@@ -146,7 +147,7 @@ function drawCycloid(col) {
 
 function drawCircle(col) {
   const r = REG.cir;
-  panel(col, r, 'circular bowl: the higher you start, the longer you take');
+  panel(col, r, 'circle: larger swings take longer, so the beads drift out of step');
   const phiMax = circlePhi0FromHeight(HMAX);
   const xm = R_CIRCLE * Math.sin(phiMax) * 1.04;
   const m = bowlMap(r, -xm, xm, R_CIRCLE * (1 - Math.cos(phiMax)) * 1.04);
@@ -157,24 +158,16 @@ function drawCircle(col) {
   const bx = m.X(0), by = m.Y(0);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(bx, by - 8); ctx.lineTo(bx, by + 8); ctx.stroke(); ctx.setLineDash([]);
-  // arrival flashes: each bead flashes as it lands, so they twinkle in sequence.
+  // each bead flashes the bottom on its own crossing; because the periods
+  // differ, the flashes scatter in time rather than firing together.
+  for (const b of state.cir) drawArrivalFlash(col, m, bx, by, Math.max(0, 1 - (state.tNow - b.lastCrossT) / 0.25) * 0.75, null);
+  // beads oscillate (no parking); markers show both turning points.
   for (const b of state.cir) {
-    if (b.arrived && b.tArrive !== null) {
-      const dtq = state.tNow - b.tArrive;
-      if (dtq >= 0) drawArrivalFlash(col, m, bx, by, Math.max(0, 1 - dtq / 0.25) * 0.8, null);
-    }
-  }
-  // beads.
-  for (const b of state.cir) {
-    const init = circleXY(b.phi0); ctx.strokeStyle = `${b.color}66`; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(m.X(init.x), m.Y(init.y), 3.5, 0, 6.28); ctx.stroke();
+    for (const sgn of [1, -1]) { const tp = circleXY(sgn * b.phi0); ctx.strokeStyle = `${b.color}55`; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(m.X(tp.x), m.Y(tp.y), 3, 0, 6.28); ctx.stroke(); }
     const c = circleXY(b.phi);
     ctx.fillStyle = b.color; ctx.beginPath(); ctx.arc(m.X(c.x), m.Y(c.y), 6.5, 0, 6.28); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.lineWidth = 1; ctx.stroke();
   }
-  const arrived = state.cir.filter((b) => b.arrived).length;
-  ctx.font = fontString(canvas, 'mono', 'mono'); ctx.fillStyle = col.muted; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-  ctx.fillText(`landed ${arrived}/${state.cir.length}`, r.x + r.w - 8, r.y + 7);
 }
 
 function drawDiag(col) {
@@ -224,20 +217,22 @@ function render() {
 }
 
 function advance(dt) {
+  const prevCos = Math.cos(OMEGA * state.tNow);
   state.tNow += dt;
-  for (const b of state.cir) {
-    if (!b.arrived) { stepCircleBead(b, dt); if (b.arrived) b.tArrive = state.tNow; }
-  }
+  // every cycloid bead is at s0 cos(omega t), so they all reach the bottom
+  // (cos = 0) at the same instants: flag a synchronized crossing.
+  if (prevCos * Math.cos(OMEGA * state.tNow) <= 0) cycFlashT = state.tNow;
+  for (const b of state.cir) { if (stepCircleBead(b, dt)) b.lastCrossT = state.tNow; }
 }
 
 function stepFrame(frameDt) {
   if (!state.holding) {
     let acc = frameDt * state.speed, guard = 0;
     while (acc > 0 && guard < 600) { const d = Math.min(DT, acc); advance(d); acc -= d; guard += 1; }
-    if (state.tNow >= T_END) { state.holding = true; state.holdT = 0; }
+    if (state.tNow >= T_LOOP) { state.holding = true; state.holdT = 0; }
   } else {
     state.holdT += frameDt;
-    if (state.holdT > 1.3) rebuildBeads();
+    if (state.holdT > 1.0) rebuildBeads();
   }
 }
 
@@ -262,7 +257,7 @@ function bootSync() {
   if (valueBeads) valueBeads.textContent = String(state.nBeads);
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const target = frac * T_END;
+    const target = frac * T_LOOP;
     let acc = 0; while (acc < target) { const d = Math.min(DT, target - acc); advance(d); acc += d; }
     render();
     if (DETERMINISTIC) {
@@ -292,13 +287,15 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const landedC = state.cir.filter((b) => b.arrived).length;
+  // Period spread across the released circle beads (the cycloid spread is 0).
+  const cir = state.cir.map((b) => circleQuarter(-b.phi0));
+  const cirSpread = cir.length ? Math.max(...cir) - Math.min(...cir) : 0;
   return {
     fields: [
       { key: 'beads', label: 'beads per bowl', value: state.nBeads, format: 'int' },
-      { key: 'time', label: 'elapsed time (s)', value: state.tNow, format: 'float' },
-      { key: 'cyctime', label: 'cycloid descent (s)', value: QUARTER_PERIOD, format: 'float' },
-      { key: 'landed', label: 'circle beads landed', value: landedC, format: 'int' },
+      { key: 'swings', label: 'cycloid swings elapsed', value: state.tNow / FULL_PERIOD, format: 'float' },
+      { key: 'cyctime', label: 'cycloid quarter-period (s)', value: QUARTER_PERIOD, format: 'float' },
+      { key: 'spread', label: 'circle descent-time spread (s)', value: cirSpread, format: 'float' },
     ],
   };
 };

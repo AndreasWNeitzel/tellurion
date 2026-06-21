@@ -137,17 +137,19 @@ function ellipticK(k) {
 export function circleQuarter(phi0) {
   return Math.sqrt(R_CIRCLE / G) * ellipticK(Math.sin(phi0 / 2));
 }
-// Pendulum acceleration phi'' = -(g/R_C) sin(phi). One RK4 step in place.
+// Pendulum acceleration phi'' = -(g/R_C) sin(phi). One symplectic
+// (velocity-Verlet) step in place, so the bead keeps swinging to its release
+// height indefinitely without numerical damping. Returns true on the steps
+// where it crosses the bottom (phi = 0), so the caller can flash the crossing.
+// The bead is NOT parked: different amplitudes have different periods, so beads
+// released together drift out of step over successive swings, the contrast with
+// the cycloid's exact isochronism.
 export function stepCircleBead(b, dt) {
-  if (b.arrived) return;
   const k = (phi) => -(G / R_CIRCLE) * Math.sin(phi);
-  const a1 = k(b.phi);
-  const a2 = k(b.phi + 0.5 * dt * b.w);
-  const a3 = k(b.phi + 0.5 * dt * b.w);
-  const a4 = k(b.phi + dt * b.w);
   const prevPhi = b.phi;
-  b.phi += dt * (b.w + (dt / 6) * (a1 + a2 + a3));
-  b.w += (dt / 6) * (a1 + 2 * a2 + 2 * a3 + a4);
-  // First crossing of the bottom (phi = 0): park it there.
-  if ((prevPhi < 0 && b.phi >= 0) || (prevPhi > 0 && b.phi <= 0)) { b.phi = 0; b.arrived = true; }
+  const a0 = k(b.phi);
+  b.phi += b.w * dt + 0.5 * a0 * dt * dt;
+  const a1 = k(b.phi);
+  b.w += 0.5 * (a0 + a1) * dt;
+  return (prevPhi < 0 && b.phi >= 0) || (prevPhi > 0 && b.phi <= 0);
 }

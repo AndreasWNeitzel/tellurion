@@ -45,10 +45,11 @@
 
     <section class="playground-intro">
       <p class="t-body">
-    <strong>What you are seeing:</strong> five frictionless beads released
-    simultaneously from different heights along the same cycloid bowl.
-    Despite the wide range of release positions, all five reach the bottom
-    at exactly the same time. Huygens proved this in 1673 by showing that
+    <strong>What you are seeing:</strong> frictionless beads released
+    simultaneously from different heights along the same cycloid bowl, then
+    left to swing. They keep perfect step forever: every bead crosses the
+    bottom at the same instant and reaches its own turning point at the same
+    instant, swing after swing, no matter the amplitude. Huygens proved in 1673 that
     the equation of motion in arc-length <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span></span> from the bottom is
     <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>s</mi><mo>¨</mo></mover><mo>=</mo><mo>−</mo><mo stretchy="false">(</mo><mi>g</mi><mi mathvariant="normal">/</mi><mn>4</mn><mi>R</mi><mo stretchy="false">)</mo><mi>s</mi></mrow><annotation encoding="application/x-tex">\ddot{s} = -(g / 4R) s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6679em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal">s</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.1944em;"><span class="mord">¨</span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">−</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mord">/4</span><span class="mord mathnormal" style="margin-right: 0.0077em;">R</span><span class="mclose">)</span><span class="mord mathnormal">s</span></span></span></span></span>, an exact simple harmonic oscillator
     independent of amplitude.
@@ -56,8 +57,9 @@
       <p class="t-body">
     The second bowl is a plain circular arc, the shape of an ordinary
     pendulum, with the same beads dropped from the same heights. It matches the
-    cycloid for tiny swings but not for large ones: the higher beads lag and
-    arrive spread out in time. The diagnostic makes the difference exact, the
+    cycloid for tiny swings but not for large ones: the higher beads swing more
+    slowly, so beads that started together drift out of step over successive
+    swings and the bottom crossings smear apart. The diagnostic makes the difference exact, the
     cycloid's descent time is flat against release height while the circle's
     rises. That flatness is what makes the cycloid the tautochrone, the curve
     of equal time, and it is why Huygens built pendulum clocks with cycloidal
@@ -90,7 +92,7 @@ M1001 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlis
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Tautochrone controls">
-    <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="4" step="1" value="1"><span class="value" id="value-speed">1</span></div>
     <div class="row"><span class="label">beads</span><input aria-label="beads per bowl" type="range" id="slider-beads" min="2" max="9" step="1" value="5"><span class="value" id="value-beads">5</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
@@ -102,8 +104,8 @@ M1001 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlis
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Watch the top bowl: the beads start at wildly different heights yet all reach the bottom in one synchronized flash, over and over.</li>
-        <li class="t-body">Now watch the circular bowl below it with the same drops: the higher beads fall behind and land spread out in time. Same heights, different curve, different answer.</li>
+        <li class="t-body">Watch the top bowl: the beads start at wildly different heights yet swing in perfect step, all crossing the bottom together in one synchronized flash, swing after swing.</li>
+        <li class="t-body">Now watch the circular bowl below it with the same drops: the higher beads swing more slowly and drift out of step, so after a few swings their bottom crossings are scattered. Same heights, different curve, different answer.</li>
         <li class="t-body">Add more beads and read the lower plot: the cycloid's descent time is a flat line against release height, while the circle's climbs. The flatness is the whole point.</li>
       </ul>
     </section>
