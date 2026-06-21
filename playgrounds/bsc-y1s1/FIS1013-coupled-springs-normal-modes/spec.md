@@ -9,7 +9,7 @@ primary_citation: taylor-mech
 supporting_ucs: [FIS2016, FIS2021]
 curriculum_year: bsc-y1s1
 hook: "Two carts between three springs. Push them the same way and they march in step; push them apart and they bounce against each other faster. Every possible motion is just these two patterns added together."
-one_paragraph: "Two equal masses sit on a frictionless track joined by three identical springs (wall, mass, mass, wall). This is the textbook small-oscillation problem, and everything follows from diagonalising the 2x2 stiffness matrix into two normal modes: the symmetric mode (both masses move together, the middle spring never deforms, the lower frequency) and the antisymmetric mode (they move oppositely, the middle spring is doubly loaded, higher by a factor sqrt(3) here). A general start is a superposition, so the displacements show beats: energy trades between the two masses at the difference frequency. The playground draws the spring chain, the x1(t) and x2(t) traces, and a phase portrait that collapses to a straight eigen-line for a pure mode and fills a quasi-periodic orbit for a mixed one. The readout reports the two mode frequencies and the conserved energy."
+one_paragraph: "Two equal masses sit on a frictionless track joined by three identical springs (wall, mass, mass, wall). This is the textbook small-oscillation problem, and everything follows from diagonalising the 2x2 stiffness matrix into two normal modes: the symmetric mode (both masses move together, the middle spring never deforms, the lower frequency) and the antisymmetric mode (they move oppositely, the middle spring is doubly loaded, higher by a factor sqrt(3) here). A general start is a superposition, so the displacements show beats: energy trades between the two masses at the difference frequency. The playground draws the spring chain three times, the actual motion stacked above its in-phase and out-of-phase mode parts (so the top is visibly the sum of the two below), with the x1(t) and x2(t) traces underneath. The readout reports the displacements and the mode amplitudes A_+ and A_-."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -186,20 +186,22 @@ decomposition is used for the side-by-side numerical-vs-analytic test.
 
 ## Controls
 
-- + mode: launches a pure symmetric eigenmode.
-- - mode: launches a pure antisymmetric eigenmode.
-- generic: launches with x1(0) = 0.7, x2(0) = 0 (50/50 mix).
-- speed: integrator steps per render frame, 1 to 8.
+- x1 start, x2 start: initial displacements of the two masses, -0.8 to 0.8.
+- + mode: launches a pure symmetric eigenmode (x1 = x2).
+- - mode: launches a pure antisymmetric eigenmode (x1 = -x2).
+- generic: launches with x1(0) = 0.6, x2(0) = 0 (mix of both modes).
 
 ## Expected qualitative features
 
-1. + mode: both masses oscillate together at omega_+.
-2. - mode: masses oscillate exactly opposite at omega_-.
+1. + mode: both masses oscillate together at omega_+; the in-phase row in
+   the scene moves and the out-of-phase row is still.
+2. - mode: masses oscillate exactly opposite at omega_-; the out-of-phase
+   row moves and the in-phase row is still.
 3. generic: energy sloshes between the two masses; x1(t) and x2(t) traces
    show a clear beat envelope.
-4. Phase portrait (x1, x2): in eigenmodes it traces a line through the
-   origin; in generic IC, traces a dense quasiperiodic Lissajous orbit
-   because omega_- / omega_+ = sqrt(3) is irrational.
+4. The scene stacks the actual motion above its two mode parts, the slow
+   in-phase row and the fast out-of-phase row; the top is exactly their
+   sum, and the readout A_+, A_- reports how much of each mode is present.
 
 ## Invariants and acceptance thresholds
 
@@ -219,9 +221,9 @@ All confirmed in `invariants.test.mjs`.
 
 ## Visual fallback
 
-Canvas2D only. Top panel shows the mechanical scene (springs as zigzags);
-lower-left panel shows x1(t), x2(t) traces; lower-right shows the (x1, x2)
-phase portrait.
+Canvas2D only. Top region shows the spring chain three times (the actual
+motion above its in-phase and out-of-phase mode parts); the bottom region
+shows the x1(t) and x2(t) displacement traces versus time.
 
 ## Citations
 

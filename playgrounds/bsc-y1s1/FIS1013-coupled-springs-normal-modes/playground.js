@@ -1,342 +1,450 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
-// playground.js
-// Two-mass three-spring layout with stacked displacement traces and a
-// (x1, x2) phase portrait.
+import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
+// Vertical 4:5 hero for two masses coupled by three springs between walls.
+// Top region: three stacked copies of the system. The first is the actual
+// motion; below it are its two normal-mode parts, the slow in-phase mode at
+// omega+ (both masses together) and the fast out-of-phase mode at omega-
+// (masses opposed). The actual motion is exactly their sum. Bottom region:
+// the two mass displacements versus time (one frequency in a pure mode, a
+// beat in a generic mix).
 
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   createSprings, stepVerlet, totalEnergy, modeAmplitudes,
-  purePlusMode, pureMinusMode, OMEGA_PLUS, OMEGA_MINUS,
+  OMEGA_PLUS, OMEGA_MINUS,
 } from './sim.js';
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const sliderSpeed  = document.getElementById('slider-speed');
-const valueSpeed   = document.getElementById('value-speed');
-const btnPlus      = document.getElementById('btn-plus');
-const btnMinus     = document.getElementById('btn-minus');
-const btnGeneric   = document.getElementById('btn-generic');
-const btnReset     = document.getElementById('btn-reset');
-const btnPlayPause = document.getElementById('btn-playpause');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-const W = canvas.width, H = canvas.height;
-const HISTORY_LEN = 600;
+const sliderX1 = document.getElementById('slider-x1');
+const sliderX2 = document.getElementById('slider-x2');
+const valueX1 = document.getElementById('value-x1');
+const valueX2 = document.getElementById('value-x2');
+const btnPlus = document.getElementById('btn-plus');
+const btnMinus = document.getElementById('btn-minus');
+const btnGeneric = document.getElementById('btn-generic');
+const btnReset = document.getElementById('btn-reset');
+const btnPlay = document.getElementById('btn-playpause');
 
-const state = {
-  speed: 3,
-  sim: null,
-  history: [],   // {t, x1, x2}
-  E0: 0,
-  preset: 'generic',
-  playing: !(DETERMINISTIC || prefersReducedMotion()),
-};
+// Spring-system world layout (units of displacement). Walls bracket the two
+// equilibrium positions with enough room that the masses do not cross.
+const WALL_R = 5.4, EQ1 = 1.8, EQ2 = 3.6;
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  accentCool: cssVar('--accent-cool', '#7fb1d8'),
-  accentWarm: cssVar('--accent-warm', '#d68a69'),
-  fg:         cssVar('--fg',          '#f3f3f0'),
-};
+const PHYSICS_DT = 0.005;
+const WINDOW = 14.0;            // diagnostic time window (s)
+const PREROLL = 7.0;            // seconds advanced on load so traces show a beat
+let running = !DETERMINISTIC;
+let modeScale = 0.6;
+let e0 = null;
+const hist = [];
 
-function rebuild(preset = state.preset) {
-  state.preset = preset;
-  if (preset === '+')      state.sim = purePlusMode(0.6);
-  else if (preset === '-') state.sim = pureMinusMode(0.6);
-  else                     state.sim = createSprings({ x1_0: 0.7, x2_0: 0.0 });
-  state.history = [{ t: 0, x1: state.sim.x1, x2: state.sim.x2 }];
-  state.E0 = totalEnergy(state.sim);
+function makeSim() {
+  const x1 = parseFloat(sliderX1.value);
+  const x2 = parseFloat(sliderX2.value);
+  const s = createSprings({ x1_0: x1, x2_0: x2 });
+  modeScale = Math.max(Math.abs((x1 + x2) / 2), Math.abs((x1 - x2) / 2), 0.1);
+  e0 = null;
+  hist.length = 0;
+  return s;
+}
+let sim = makeSim();
+
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 2.0 },
+    { name: 'diagnostic', weight: 1.25 },
+  ]);
 }
 
-function drawSpring(x0, y0, x1, coils, amp = 6) {
-  // Draw a horizontal zigzag spring between x0 and x1 at y0.
-  ctx.beginPath();
-  ctx.moveTo(x0, y0);
-  const span = x1 - x0;
-  const segLen = span / coils;
-  for (let i = 0; i < coils; i += 1) {
-    const xa = x0 + (i + 0.25) * segLen;
-    const xb = x0 + (i + 0.75) * segLen;
-    const ya = y0 - amp;
-    const yb = y0 + amp;
-    ctx.lineTo(xa, ya);
-    ctx.lineTo(xb, yb);
-  }
-  ctx.lineTo(x1, y0);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
+function syncValues() {
+  valueX1.textContent = parseFloat(sliderX1.value).toFixed(2);
+  valueX2.textContent = parseFloat(sliderX2.value).toFixed(2);
 }
+function reinit() { sim = makeSim(); }
 
-function drawAll() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-  if (!state.sim) return;
-
-  // Layout: top -- mechanical scene (springs + masses). Bottom-left: displacement traces. Bottom-right: phase portrait.
-  const sceneH = 130;
-  const sceneY = 40;
-  const padX = 30;
-
-  // Walls at x = 80 and x = W - 80.
-  const wallLeftX  = 80;
-  const wallRightX = W - 80;
-  const railY      = sceneY + sceneH * 0.55;
-
-  // Floor / rail
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
-  ctx.lineWidth = 1.0;
-  ctx.beginPath();
-  ctx.moveTo(wallLeftX - 10, railY + 24);
-  ctx.lineTo(wallRightX + 10, railY + 24);
-  ctx.stroke();
-
-  // Walls (vertical hatches)
-  for (const wx of [wallLeftX, wallRightX]) {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.beginPath();
-    ctx.moveTo(wx, railY - 25);
-    ctx.lineTo(wx, railY + 25);
-    ctx.stroke();
-    for (let h = -25; h <= 25; h += 8) {
-      const sgn = wx === wallLeftX ? -1 : 1;
-      ctx.beginPath();
-      ctx.moveTo(wx, railY + h);
-      ctx.lineTo(wx + sgn * 8, railY + h + 8);
-      ctx.stroke();
-    }
-  }
-
-  // Equilibrium positions for the two masses (evenly spaced)
-  const eq1 = wallLeftX + (wallRightX - wallLeftX) / 3;
-  const eq2 = wallLeftX + 2 * (wallRightX - wallLeftX) / 3;
-  const DISPL_SCALE = 100;  // pixels per unit displacement
-  const m1x = eq1 + state.sim.x1 * DISPL_SCALE;
-  const m2x = eq2 + state.sim.x2 * DISPL_SCALE;
-
-  // Springs
-  drawSpring(wallLeftX, railY, m1x - 16, 10);
-  drawSpring(m1x + 16, railY, m2x - 16, 10);
-  drawSpring(m2x + 16, railY, wallRightX, 10);
-
-  // Equilibrium markers
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-  ctx.setLineDash([3, 4]);
-  for (const ex of [eq1, eq2]) {
-    ctx.beginPath();
-    ctx.moveTo(ex, railY - 18);
-    ctx.lineTo(ex, railY + 26);
-    ctx.stroke();
-  }
-  ctx.setLineDash([]);
-
-  // Masses
-  for (const [mx, color] of [[m1x, tok.accentCool], [m2x, tok.accentWarm]]) {
-    ctx.fillStyle = color;
-    ctx.fillRect(mx - 16, railY - 16, 32, 32);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.50)';
-    ctx.strokeRect(mx - 16 + 0.5, railY - 16 + 0.5, 31, 31);
-  }
-
-  // Title bar
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`t = ${state.sim.t.toFixed(2)}   step = ${state.sim.nSteps}   preset = ${state.preset}`, padX, 22);
-  const Ec = totalEnergy(state.sim);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'right';
-  ctx.fillText(`E / E_0 - 1 = ${((Ec - state.E0) / state.E0).toExponential(2)}`, W - padX, 22);
-
-  // Mode amplitudes label
-  const A = modeAmplitudes(state.sim);
-  ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`A_+ = ${A.Aplus.toFixed(3)}   A_- = ${A.Aminus.toFixed(3)}   omega_+ = ${OMEGA_PLUS.toFixed(3)}   omega_- = ${OMEGA_MINUS.toFixed(3)}`, padX, 38);
-
-  // Lower panels: displacement traces + phase portrait
-  const lowerY = sceneY + sceneH + 18;
-  const lowerH = H - lowerY - 16;
-  const traceW = (W - 3 * padX) * 0.62;
-  const phaseW = (W - 3 * padX) * 0.38;
-
-  // Trace panel
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(padX, lowerY, traceW, lowerH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(padX + 0.5, lowerY + 0.5, traceW - 1, lowerH - 1);
-
-  // Zero line
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.beginPath();
-  ctx.moveTo(padX, lowerY + lowerH / 2);
-  ctx.lineTo(padX + traceW, lowerY + lowerH / 2);
-  ctx.stroke();
-
-  if (state.history.length >= 2) {
-    const tNow = state.sim.t;
-    const tWindow = 20.0;
-    const tStart = Math.max(0, tNow - tWindow);
-    function xT(t) { return padX + 4 + (traceW - 8) * (t - tStart) / Math.min(tWindow, tNow - tStart + 1e-9); }
-    function yX(x) { return lowerY + lowerH / 2 - x * (lowerH * 0.4); }
-    for (const [key, color] of [['x1', tok.accentCool], ['x2', tok.accentWarm]]) {
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      let first = true;
-      for (const pt of state.history) {
-        if (pt.t < tStart) continue;
-        const px = xT(pt.t);
-        const py = yX(pt[key]);
-        if (first) { ctx.moveTo(px, py); first = false; }
-        else        ctx.lineTo(px, py);
-      }
-      ctx.stroke();
-    }
-  }
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillStyle = tok.accentCool;
-  ctx.fillText('x_1(t)', padX + 6, lowerY + 14);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('x_2(t)', padX + 60, lowerY + 14);
-
-  // Phase portrait
-  const phaseX = padX + traceW + padX;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(phaseX, lowerY, phaseW, lowerH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(phaseX + 0.5, lowerY + 0.5, phaseW - 1, lowerH - 1);
-  const cx = phaseX + phaseW / 2;
-  const cy = lowerY + lowerH / 2;
-  const RR = Math.min(phaseW, lowerH) / 2 - 8;
-  // Axes
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.beginPath();
-  ctx.moveTo(phaseX + 6, cy); ctx.lineTo(phaseX + phaseW - 6, cy);
-  ctx.moveTo(cx, lowerY + 6); ctx.lineTo(cx, lowerY + lowerH - 6);
-  ctx.stroke();
-  // Trail
-  ctx.strokeStyle = 'rgba(127, 177, 216, 0.55)';
-  ctx.lineWidth = 1.1;
-  ctx.beginPath();
-  let first = true;
-  for (const pt of state.history) {
-    const px = cx + pt.x1 * RR;
-    const py = cy - pt.x2 * RR;
-    if (first) { ctx.moveTo(px, py); first = false; }
-    else        ctx.lineTo(px, py);
-  }
-  ctx.stroke();
-  // Current point
-  ctx.fillStyle = '#f1d28a';
-  ctx.beginPath();
-  ctx.arc(cx + state.sim.x1 * RR, cy - state.sim.x2 * RR, 3.0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'left';
-  ctx.fillText('phase (x_1, x_2)', phaseX + 6, lowerY + 14);
+[sliderX1, sliderX2].forEach((sl) => sl.addEventListener('input', () => {
+  syncValues();
+  reinit();
+  render();
+}));
+function setStart(a, b) {
+  sliderX1.value = String(a);
+  sliderX2.value = String(b);
+  syncValues();
+  reinit();
+  running = true;
+  btnPlay.textContent = 'Pause';
+  btnPlay.setAttribute('aria-pressed', 'false');
+  render();
 }
-
-function tickN(n) {
-  if (!state.sim) return;
-  for (let i = 0; i < n; i += 1) {
-    stepVerlet(state.sim, 0.01);
-    if (state.sim.nSteps % 2 === 0) {
-      state.history.push({ t: state.sim.t, x1: state.sim.x1, x2: state.sim.x2 });
-      if (state.history.length > HISTORY_LEN) state.history.shift();
-    }
-  }
-}
-
-sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnPlus.addEventListener('click',    () => { rebuild('+');       drawAll(); });
-btnMinus.addEventListener('click',   () => { rebuild('-');       drawAll(); });
-btnGeneric.addEventListener('click', () => { rebuild('generic'); drawAll(); });
-btnReset.addEventListener('click',   () => { rebuild();          drawAll(); });
-btnPlayPause.addEventListener('click', () => {
-  state.playing = !state.playing;
-  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
-  btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
+btnPlus.addEventListener('click', () => setStart(0.6, 0.6));
+btnMinus.addEventListener('click', () => setStart(0.6, -0.6));
+btnGeneric.addEventListener('click', () => setStart(0.6, 0.0));
+btnReset.addEventListener('click', () => { reinit(); render(); });
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
 });
 
-function bootSync() {
-  rebuild();
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const target = Math.round(frac * 800);
-    tickN(target);
-    drawAll();
-    if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
-    }
-    return;
-  }
-  drawAll();
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    m1: '#5bc0eb',
+    m2: '#ff9d6e',
+    plus: '#67d98c',
+    minus: '#b58cff',
+    border: 'rgba(255,255,255,0.12)',
+    grid: 'rgba(255,255,255,0.08)',
+  };
 }
 
-function tick() {
-  if (state.playing) {
-    tickN(state.speed);
-    drawAll();
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
+}
+
+function roundRect(x, y, w, h, rad) {
+  const rr = Math.min(rad, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
+}
+
+function drawSpring(xA, xB, y, col, amp) {
+  const n = 14;
+  const lead = Math.min(10, (xB - xA) * 0.18);
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(xA, y);
+  const x0 = xA + lead, x1 = xB - lead;
+  ctx.lineTo(x0, y);
+  for (let i = 1; i < n; i++) {
+    const xx = x0 + (x1 - x0) * i / n;
+    ctx.lineTo(xx, y + (i % 2 === 0 ? amp : -amp));
+  }
+  ctx.lineTo(x1, y);
+  ctx.lineTo(xB, y);
+  ctx.stroke();
+}
+
+function drawSpringSystem(col, rect, x1, x2, label, labelCol) {
+  const pad = 16;
+  const sx = (wx) => rect.x + pad + (wx / WALL_R) * (rect.w - 2 * pad);
+  const yTrack = rect.y + rect.h * 0.60;
+  const pos1 = EQ1 + x1, pos2 = EQ2 + x2;
+  const wallH = rect.h * 0.52;
+
+  if (label) {
+    ctx.fillStyle = labelCol || col.muted;
+    ctx.font = fontString(canvas, 'tick', 'mono', 600);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(label, rect.x + 4, rect.y + 2);
+  }
+
+  // Walls.
+  ctx.fillStyle = '#23262f';
+  ctx.fillRect(sx(0) - 7, yTrack - wallH / 2, 7, wallH);
+  ctx.fillRect(sx(WALL_R), yTrack - wallH / 2, 7, wallH);
+
+  // Equilibrium markers.
+  ctx.save();
+  ctx.setLineDash([3, 4]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+  ctx.lineWidth = 1;
+  for (const eq of [EQ1, EQ2]) {
+    ctx.beginPath();
+    ctx.moveTo(sx(eq), yTrack - wallH / 2);
+    ctx.lineTo(sx(eq), yTrack + wallH / 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Springs.
+  const amp = Math.min(8, rect.h * 0.06);
+  drawSpring(sx(0), sx(pos1), yTrack, col.muted, amp);
+  drawSpring(sx(pos1), sx(pos2), yTrack, col.muted, amp);
+  drawSpring(sx(pos2), sx(WALL_R), yTrack, col.muted, amp);
+
+  // Masses.
+  const bs = Math.max(18, Math.min(34, rect.h * 0.32));
+  for (const [pos, color, name] of [[pos1, col.m1, 'm₁'], [pos2, col.m2, 'm₂']]) {
+    const bx = sx(pos);
+    ctx.fillStyle = color;
+    roundRect(bx - bs / 2, yTrack - bs / 2, bs, bs, 5);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#0a0c12';
+    ctx.font = fontString(canvas, 'tick', 'sans', 700);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, bx, yTrack);
+  }
+}
+
+function drawScene(col, r) {
+  panel(col, r, 'Any motion is the sum of two normal modes');
+
+  const titleH = 22, stripH = 28;
+  const top = r.y + titleH + 4;
+  const usable = r.h - titleH - 4 - stripH - 6;
+  const rowH = usable / 3;
+  const qPlus = (sim.x1 + sim.x2) / 2;
+  const qMinus = (sim.x1 - sim.x2) / 2;
+
+  drawSpringSystem(col, { x: r.x + 6, y: top, w: r.w - 12, h: rowH },
+    sim.x1, sim.x2, 'actual motion', col.fg);
+  drawSpringSystem(col, { x: r.x + 6, y: top + rowH, w: r.w - 12, h: rowH },
+    qPlus, qPlus, `=  in-phase mode    ω₊ = ${OMEGA_PLUS.toFixed(2)}`, col.plus);
+  drawSpringSystem(col, { x: r.x + 6, y: top + 2 * rowH, w: r.w - 12, h: rowH },
+    qMinus, -qMinus, `+  out-of-phase mode    ω₋ = ${OMEGA_MINUS.toFixed(2)}`, col.minus);
+
+  // Faint separators between the rows.
+  ctx.strokeStyle = col.grid;
+  ctx.lineWidth = 1;
+  for (let k = 1; k < 3; k++) {
+    ctx.beginPath();
+    ctx.moveTo(r.x + 8, top + k * rowH);
+    ctx.lineTo(r.x + r.w - 8, top + k * rowH);
+    ctx.stroke();
+  }
+
+  // Readout strip.
+  const { Aplus, Aminus } = modeAmplitudes(sim);
+  const ry = r.y + r.h - stripH / 2 + 1;
+  const items = [
+    [`x₁ = ${sim.x1.toFixed(2)}`, col.m1],
+    [`x₂ = ${sim.x2.toFixed(2)}`, col.m2],
+    [`A₊ = ${Aplus.toFixed(2)}`, col.plus],
+    [`A₋ = ${Aminus.toFixed(2)}`, col.minus],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => {
+    ctx.fillStyle = c;
+    ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry);
+  });
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Displacements vs time');
+
+  const inner = {
+    x: r.x + 44,
+    y: r.y + 28,
+    w: r.w - 44 - 14,
+    h: r.h - 28 - 38,
+  };
+  const yHalf = Math.max(Math.abs(sim.x1), Math.abs(sim.x2), modeScale, 0.2) * 1.1;
+  const tNow = sim.t;
+  const t0 = Math.max(0, tNow - WINDOW);
+  const tSpan = Math.max(WINDOW, tNow) - t0 || 1;
+  const xOf = (t) => inner.x + ((t - t0) / tSpan) * inner.w;
+  const yOf = (v) => inner.y + inner.h / 2 - (v / yHalf) * (inner.h / 2);
+
+  // Grid + y ticks.
+  ctx.strokeStyle = col.grid;
+  ctx.lineWidth = 0.8;
+  ctx.fillStyle = col.muted;
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (const v of [-yHalf, 0, yHalf]) {
+    const y = yOf(v);
+    ctx.beginPath();
+    ctx.moveTo(inner.x, y);
+    ctx.lineTo(inner.x + inner.w, y);
+    ctx.stroke();
+    ctx.fillText(v.toFixed(1), inner.x - 5, y);
+  }
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+
+  const plot = (key, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let started = false;
+    for (const h of hist) {
+      if (h.t < t0) continue;
+      const X = xOf(h.t), Y = yOf(h[key]);
+      if (!started) { ctx.moveTo(X, Y); started = true; } else { ctx.lineTo(X, Y); }
+    }
+    ctx.stroke();
+  };
+  plot('x1', col.m1);
+  plot('x2', col.m2);
+
+  if (hist.length) {
+    const cur = hist[hist.length - 1];
+    const dot = (yy, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(xOf(cur.t), yy, 3.5, 0, 2 * Math.PI); ctx.fill(); };
+    dot(yOf(cur.x1), col.m1);
+    dot(yOf(cur.x2), col.m2);
+  }
+
+  // Axis labels.
+  ctx.fillStyle = col.muted;
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('time (s)', inner.x + inner.w / 2, inner.y + inner.h + 18);
+  ctx.save();
+  ctx.translate(inner.x - 32, inner.y + inner.h / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('displacement', 0, 0);
+  ctx.restore();
+
+  // Legend.
+  const legend = [['x₁', col.m1], ['x₂', col.m2]];
+  ctx.fillStyle = 'rgba(10,12,18,0.72)';
+  ctx.fillRect(inner.x + 6, inner.y + 6, 96, 18);
+  let lx = inner.x + 12;
+  const ly = inner.y + 15;
+  ctx.font = fontString(canvas, 'legend', 'mono');
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  for (const [lab, c] of legend) {
+    ctx.strokeStyle = c;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(lx, ly);
+    ctx.lineTo(lx + 14, ly);
+    ctx.stroke();
+    ctx.fillStyle = col.fg;
+    ctx.fillText(lab, lx + 17, ly);
+    lx += 44;
+  }
+}
+
+function render() {
+  if (!REG) relayout();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
+}
+
+function recordHistory() {
+  hist.push({ t: sim.t, x1: sim.x1, x2: sim.x2 });
+  while (hist.length && hist[0].t < sim.t - WINDOW - 0.5) hist.shift();
+}
+
+let last = performance.now();
+let accum = 0;
+let sample = 0;
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (running) {
+    accum += dt;
+    while (accum >= PHYSICS_DT) {
+      stepVerlet(sim, PHYSICS_DT);
+      accum -= PHYSICS_DT;
+      if ((sample++ % 6) === 0) recordHistory();
+    }
+  }
+  render();
   requestAnimationFrame(tick);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-} else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+function preroll(seconds) {
+  const n = Math.round(seconds / PHYSICS_DT);
+  for (let i = 0; i < n; i++) {
+    stepVerlet(sim, PHYSICS_DT);
+    if ((i % 6) === 0) recordHistory();
+  }
 }
 
+function bootSync() {
+  if (CAPTURE_NAME) {
+    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+    preroll(f * WINDOW);
+  } else {
+    preroll(PREROLL);
+  }
+  syncValues();
+  relayout();
+  render();
+}
+
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const A = modeAmplitudes(state.sim);
+  const { Aplus, Aminus } = modeAmplitudes(sim);
   return {
     fields: [
-      { key: 'amp-symmetric', label: 'symmetric mode $A_+$', value: A.Aplus, format: 'float' },
-      { key: 'amp-antisymmetric', label: 'antisymmetric mode $A_-$', value: A.Aminus, format: 'float' },
-      { key: 'energy', label: 'total energy $E$', value: totalEnergy(state.sim), format: 'float' },
+      { key: 'x1', label: 'mass 1 $x_1$', value: sim.x1, format: 'float' },
+      { key: 'x2', label: 'mass 2 $x_2$', value: sim.x2, format: 'float' },
+      { key: 'aplus', label: 'in-phase $A_+$', value: Aplus, format: 'float' },
+      { key: 'aminus', label: 'out-of-phase $A_-$', value: Aminus, format: 'float' },
     ],
   };
 };
-// A conservative (Hamiltonian) system: total energy is the
-// invariant. The baseline is the energy at the start of the run and
-// is re-taken whenever a control change steps the energy.
-let __energy0 = null, __energyPrev = null;
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () {
-    try {
-      const E = totalEnergy(state.sim);
-      if (!Number.isFinite(E)) return [];
-      if (__energyPrev !== null
-        && Math.abs(E - __energyPrev) > 0.02 * Math.max(1e-9, Math.abs(__energyPrev)) + 1e-9) {
-        __energy0 = E;                    // discontinuity: a control changed the system
-      }
-      __energyPrev = E;
-      if (__energy0 === null) __energy0 = E;
-      const dE = Math.abs(E - __energy0) / Math.max(1e-12, Math.abs(__energy0));
-      return [{
-        key: 'energy',
-        label: 'total energy conserved (rel. drift)',
-        value: dE.toExponential(2),
-        status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
-      }];
-    } catch (e) { return []; }
-  };
-}
+
+window.playground.getInvariants = function () {
+  try {
+    const E = totalEnergy(sim);
+    if (!Number.isFinite(E)) return [];
+    if (e0 === null) e0 = E;
+    const dE = Math.abs(E - e0) / Math.max(1e-6, Math.abs(e0));
+    return [{
+      key: 'energy',
+      label: 'total energy conserved (rel. drift)',
+      value: dE.toExponential(2),
+      status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
+  }
+};
