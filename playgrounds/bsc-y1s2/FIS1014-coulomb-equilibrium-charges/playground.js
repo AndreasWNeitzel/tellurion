@@ -40,12 +40,19 @@ const PRESETS = {
   square: [{ x: -1.2, y: -1.2 }, { x: 1.2, y: -1.2 }, { x: 1.2, y: 1.2 }, { x: -1.2, y: 1.2 }].map((p) => ({ ...p, q: 1 })),
   triangle: [90, 210, 330].map((d) => ({ x: 1.5 * Math.cos(d * Math.PI / 180), y: 1.5 * Math.sin(d * Math.PI / 180), q: 1 })),
   two: [{ x: -1.3, y: 0, q: 1 }, { x: 1.3, y: 0, q: 1 }],
+  // Mixed-sign quadrupole: alternating +/- on a square. The centre is still a
+  // zero-force equilibrium by symmetry, and still a saddle (one diagonal a
+  // valley toward the negatives, the other a ridge toward the positives):
+  // Earnshaw holds whatever the signs.
+  quadrupole: [{ x: -1.2, y: -1.2, q: 1 }, { x: 1.2, y: -1.2, q: -1 }, { x: 1.2, y: 1.2, q: 1 }, { x: -1.2, y: 1.2, q: -1 }],
+  // Five positives on a ring: centre equilibrium, still a saddle.
+  pentagon: [90, 162, 234, 306, 18].map((d) => ({ x: 1.5 * Math.cos(d * Math.PI / 180), y: 1.5 * Math.sin(d * Math.PI / 180), q: 1 })),
 };
 function loadPreset() { charges = PRESETS[selPreset.value].map((c) => ({ ...c })); }
 function qTest() { return selTest.value === 'neg' ? -1 : 1; }
 
 function syncVals() {
-  valuePreset.textContent = { square: 'square', triangle: 'triangle', two: 'two +' }[selPreset.value];
+  valuePreset.textContent = { square: 'square', triangle: 'triangle', two: 'two +', quadrupole: '± quadrupole', pentagon: 'five +' }[selPreset.value];
   valueTest.textContent = selTest.value === 'neg' ? '- test' : '+ test';
 }
 selPreset.addEventListener('change', () => { syncVals(); loadPreset(); rebuild(); resetTest(); render(); });
@@ -281,7 +288,7 @@ function drawScene(col, r) {
   // readout strip.
   const v = Math.hypot(test.vx, test.vy);
   const items = [
-    [{ square: 'square', triangle: 'triangle', two: 'two +' }[selPreset.value], col.fg],
+    [{ square: 'square', triangle: 'triangle', two: 'two +', quadrupole: '± quadrupole', pentagon: 'five +' }[selPreset.value], col.fg],
     [`|F| ${(Math.hypot(Fx, Fy)).toFixed(2)}`, col.test],
     [test.alive ? (v < 0.06 ? 'balancing…' : 'sliding off') : 'escaped', col.muted],
     ['no stable trap', col.hill],
@@ -412,7 +419,7 @@ window.playground.getState = function () {
   const f = Efield(test.x, test.y);
   return {
     fields: [
-      { key: 'layout', label: 'layout', value: { square: 'square', triangle: 'triangle', two: 'two +' }[selPreset.value], format: 'text' },
+      { key: 'layout', label: 'layout', value: { square: 'square', triangle: 'triangle', two: 'two +', quadrupole: '± quadrupole', pentagon: 'five +' }[selPreset.value], format: 'text' },
       { key: 'eq', label: 'balance point', value: `(${eq.x.toFixed(2)}, ${eq.y.toFixed(2)})`, format: 'text' },
       { key: 'force', label: 'force on test $|F|$', value: Math.hypot(qTest() * f.fx, qTest() * f.fy), format: 'float' },
       { key: 'state', label: 'test charge', value: test.alive ? 'in flight' : 'escaped/hit', format: 'text' },
