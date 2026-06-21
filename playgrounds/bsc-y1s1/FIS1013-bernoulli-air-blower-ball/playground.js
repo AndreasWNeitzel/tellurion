@@ -84,6 +84,65 @@ btnPlay.addEventListener('click', () => {
   btnPlay.setAttribute('aria-pressed', String(!running));
 });
 
+// --- Grab and drag the ball -------------------------------------------------
+// The ball can be picked up and placed anywhere in the jet; on release the
+// physics resumes from there, so you can drop it into the core and watch it
+// settle, or pull it off-axis and watch the entrainment force tug it back.
+let dragging = false;
+function pScreen(ev) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    sx: (ev.clientX - rect.left) * (view.w / rect.width),
+    sy: (ev.clientY - rect.top) * (view.h / rect.height),
+  };
+}
+function worldFromScreen(sx, sy) {
+  if (!map) return null;
+  return { wx: (sx - map.nozX) / map.scale, wy: (map.nozY - sy) / map.scale };
+}
+function ballScreen() {
+  if (!map) return null;
+  return { bx: map.nozX + s.x * map.scale, by: map.nozY - s.y * map.scale, br: Math.max(8, s.ballR * map.scale) };
+}
+function placeBallAt(sx, sy) {
+  const w = worldFromScreen(sx, sy);
+  if (!w) return;
+  s.x = Math.max(-0.5, Math.min(0.5, w.wx));
+  s.y = Math.max(s.ballR, Math.min(1.12, w.wy));
+  s.vx = 0; s.vy = 0;
+}
+canvas.addEventListener('pointerdown', (ev) => {
+  const { sx, sy } = pScreen(ev);
+  const b = ballScreen();
+  if (!b) return;
+  const grab = Math.max(b.br, 16) + 8;
+  if ((b.bx - sx) ** 2 + (b.by - sy) ** 2 <= grab * grab) {
+    dragging = true;
+    canvas.setPointerCapture(ev.pointerId);
+    canvas.style.cursor = 'grabbing';
+    placeBallAt(sx, sy);
+    render();
+    ev.preventDefault();
+  }
+});
+canvas.addEventListener('pointermove', (ev) => {
+  const { sx, sy } = pScreen(ev);
+  if (dragging) { placeBallAt(sx, sy); render(); ev.preventDefault(); return; }
+  const b = ballScreen();
+  if (b) {
+    const grab = Math.max(b.br, 16) + 8;
+    canvas.style.cursor = ((b.bx - sx) ** 2 + (b.by - sy) ** 2 <= grab * grab) ? 'grab' : 'default';
+  }
+});
+const endDrag = (ev) => {
+  if (!dragging) return;
+  dragging = false;
+  canvas.style.cursor = 'grab';
+  try { canvas.releasePointerCapture(ev.pointerId); } catch { /* no capture */ }
+};
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+
 let view = { w: 760, h: 950, dpr: 1 };
 let REG = null;
 function relayout() {
@@ -349,9 +408,13 @@ function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05);
   last = now;
   if (running) {
-    accum += dt;
-    let guard = 0;
-    while (accum >= PHYSICS_DT && guard < 600) { step(s, PHYSICS_DT); accum -= PHYSICS_DT; guard++; }
+    if (!dragging) {
+      accum += dt;
+      let guard = 0;
+      while (accum >= PHYSICS_DT && guard < 600) { step(s, PHYSICS_DT); accum -= PHYSICS_DT; guard++; }
+    } else {
+      accum = 0;   // do not let held time pile up and lurch on release
+    }
     advectTracers(dt);
   }
   render();
