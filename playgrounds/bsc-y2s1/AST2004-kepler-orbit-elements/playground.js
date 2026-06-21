@@ -86,6 +86,30 @@ function project(p) {
 const PX = (q) => SCN.ox + q.sx * SCN.scale;
 const PY = (q) => SCN.oy - q.up * SCN.scale;
 
+// 3D vector helpers for drawing the element angle-arcs on the great circles
+// that define them (Omega in the reference plane, i between the planes, omega
+// and nu in the orbital plane).
+function unit(p) { const m = Math.hypot(p[0], p[1], p[2]) || 1; return [p[0] / m, p[1] / m, p[2] / m]; }
+function slerp(u, v, t) {
+  let d = u[0] * v[0] + u[1] * v[1] + u[2] * v[2]; d = Math.max(-1, Math.min(1, d));
+  const th = Math.acos(d); if (th < 1e-6) return u; const s = Math.sin(th);
+  const a = Math.sin((1 - t) * th) / s, b = Math.sin(t * th) / s;
+  return [a * u[0] + b * v[0], a * u[1] + b * v[1], a * u[2] + b * v[2]];
+}
+function drawArc(u, v, radius, color, label) {
+  u = unit(u); v = unit(v);
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+  const N = 28;
+  for (let k = 0; k <= N; k += 1) { const w = slerp(u, v, k / N); const q = project([w[0] * radius, w[1] * radius, w[2] * radius]); if (k) ctx.lineTo(PX(q), PY(q)); else ctx.moveTo(PX(q), PY(q)); }
+  ctx.stroke();
+  if (label) { const w = slerp(u, v, 0.5); const q = project([w[0] * radius * 1.18, w[1] * radius * 1.18, w[2] * radius * 1.18]); ctx.fillStyle = color; ctx.font = fontString(canvas, 'caption', 'mono', 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, PX(q), PY(q)); }
+}
+function line3(p0, p1, color, w, dash) {
+  const a = project(p0), b = project(p1);
+  ctx.strokeStyle = color; ctx.lineWidth = w || 1.5; if (dash) ctx.setLineDash(dash);
+  ctx.beginPath(); ctx.moveTo(PX(a), PY(a)); ctx.lineTo(PX(b), PY(b)); ctx.stroke(); ctx.setLineDash([]);
+}
+
 function colors() {
   const css = getComputedStyle(document.body);
   return {
@@ -117,68 +141,82 @@ function panel(col, r, title) {
 }
 
 function drawScene(col, r) {
-  panel(col, r, 'The orbit in space, oriented by i, Ω, ω');
-  const { draw } = SCN;
+  panel(col, r, 'Orbital elements against the celestial reference frame');
+  const Omv = Om(), iv = inc(), e = ecc();
+  const OmC = '#ffd166', iC = '#5bc0eb', wC = '#c77dff', nuC = '#67d98c';
 
   ctx.save();
-  clipTo(ctx, draw);
+  clipTo(ctx, SCN.draw);
 
-  // reference plane grid (z = 0).
+  // reference plane grid (z = 0, the ecliptic).
   const G = 1.55;
   ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
   for (let g = -G; g <= G + 1e-6; g += G / 3) {
-    let a1 = project([g, -G, 0]), b1 = project([g, G, 0]); ctx.beginPath(); ctx.moveTo(PX(a1), PY(a1)); ctx.lineTo(PX(b1), PY(b1)); ctx.stroke();
-    let a2 = project([-G, g, 0]), b2 = project([G, g, 0]); ctx.beginPath(); ctx.moveTo(PX(a2), PY(a2)); ctx.lineTo(PX(b2), PY(b2)); ctx.stroke();
+    line3([g, -G, 0], [g, G, 0], col.grid, 1);
+    line3([-G, g, 0], [G, g, 0], col.grid, 1);
   }
-  // reference direction (vernal equinox, +x).
-  const rx = project([G, 0, 0]); ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText('ref ♈', PX(rx) + 3, PY(rx));
 
-  // line of nodes (orbital plane ∩ reference plane), direction (cosΩ, sinΩ, 0).
-  const nd = [Math.cos(Om()), Math.sin(Om()), 0];
-  const na = project([nd[0] * 1.4, nd[1] * 1.4, 0]), nb = project([-nd[0] * 1.4, -nd[1] * 1.4, 0]);
-  ctx.strokeStyle = 'rgba(103,217,140,0.45)'; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
-  ctx.beginPath(); ctx.moveTo(PX(na), PY(na)); ctx.lineTo(PX(nb), PY(nb)); ctx.stroke(); ctx.setLineDash([]);
+  // orbit samples + orbital-plane disk fill (shows the inclination tilt).
+  const NS = 160, samp = [];
+  for (let k = 0; k <= NS; k += 1) { const nu = 2 * Math.PI * k / NS; samp.push({ q: project(pos(nu)), nu }); }
+  ctx.fillStyle = 'rgba(91,192,235,0.07)'; ctx.beginPath();
+  samp.forEach((s, k) => { if (k) ctx.lineTo(PX(s.q), PY(s.q)); else ctx.moveTo(PX(s.q), PY(s.q)); }); ctx.closePath(); ctx.fill();
+
+  // reference direction (vernal equinox) as a labelled axis from the origin.
+  line3([0, 0, 0], [G * 1.05, 0, 0], 'rgba(255,255,255,0.7)', 2);
+  { const rx = project([G * 1.05, 0, 0]); ctx.fillStyle = col.fg; ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText('♈ reference', PX(rx) + 4, PY(rx)); }
+
+  // line of nodes (orbital plane ∩ reference plane).
+  const nAsc = [Math.cos(Omv), Math.sin(Omv), 0];
+  line3([-nAsc[0] * 1.4, -nAsc[1] * 1.4, 0], [nAsc[0] * 1.4, nAsc[1] * 1.4, 0], 'rgba(103,217,140,0.8)', 1.6);
+  { const q = project([nAsc[0] * 1.4, nAsc[1] * 1.4, 0]); ctx.fillStyle = nuC; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText('☊ asc. node', PX(q) + 4, PY(q)); }
+  { const q = project([-nAsc[0] * 1.4, -nAsc[1] * 1.4, 0]); ctx.fillStyle = 'rgba(103,217,140,0.6)'; ctx.textAlign = 'right'; ctx.fillText('☋', PX(q) - 4, PY(q)); }
 
   // orbit ellipse, depth-shaded.
-  const NS = 160; const samp = [];
-  for (let k = 0; k <= NS; k++) { const nu = 2 * Math.PI * k / NS; const P = pos(nu); samp.push({ q: project(P), nu }); }
   let dmin = Infinity, dmax = -Infinity; for (const s of samp) { dmin = Math.min(dmin, s.q.depth); dmax = Math.max(dmax, s.q.depth); }
-  for (let k = 1; k <= NS; k++) {
+  for (let k = 1; k <= NS; k += 1) {
     const a0 = samp[k - 1], b0 = samp[k]; const dd = (a0.q.depth - dmin) / (dmax - dmin + 1e-9);
-    ctx.strokeStyle = `rgba(91,192,235,${0.35 + 0.6 * dd})`; ctx.lineWidth = 2.2;
+    ctx.strokeStyle = `rgba(91,192,235,${0.3 + 0.6 * dd})`; ctx.lineWidth = 2.2;
     ctx.beginPath(); ctx.moveTo(PX(a0.q), PY(a0.q)); ctx.lineTo(PX(b0.q), PY(b0.q)); ctx.stroke();
   }
 
-  // ascending node marker (orbit crosses z=0 upward).
-  for (let k = 1; k <= NS; k++) { const p0 = pos(2 * Math.PI * (k - 1) / NS), p1 = pos(2 * Math.PI * k / NS); if (p0[2] <= 0 && p1[2] > 0) { const q = project(p1); ctx.fillStyle = col.node; ctx.beginPath(); ctx.arc(PX(q), PY(q), 4, 0, 2 * Math.PI); ctx.fill(); ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('☊ node', PX(q) + 5, PY(q)); break; } }
+  // element angle arcs.
+  const pHat = unit(pos(0));                         // periapsis direction
+  const nuNow = nuOf(t);
+  const bHat = unit(pos(nuNow));                      // body direction
+  const u1 = [-Math.sin(Omv), Math.cos(Omv), 0];      // ref-plane normal-to-node
+  const u2 = [u1[0] * Math.cos(iv), u1[1] * Math.cos(iv), Math.sin(iv)]; // tilted into orbital plane
+  drawArc([1, 0, 0], nAsc, 0.55, OmC, 'Ω');          // longitude of ascending node
+  drawArc(u1, u2, 0.34, iC, 'i');                    // inclination (between planes)
+  drawArc(nAsc, pHat, 0.72, wC, 'ω');                // argument of periapsis
+  drawArc(pHat, bHat, 0.46, nuC, 'ν');               // true anomaly
 
-  // periapsis (nu = 0).
+  // radius vector + drop line to the reference plane (shows the height z).
+  const bp = pos(nuNow);
+  line3([0, 0, 0], [bp[0], bp[1], bp[2]], 'rgba(255,255,255,0.55)', 1.4);
+  line3([bp[0], bp[1], bp[2]], [bp[0], bp[1], 0], 'rgba(255,255,255,0.3)', 1, [3, 3]);
+
+  // periapsis marker.
   { const q = project(pos(0)); ctx.strokeStyle = col.peri; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(PX(q), PY(q), 5, 0, 2 * Math.PI); ctx.stroke(); ctx.fillStyle = col.peri; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('peri', PX(q) + 6, PY(q)); }
 
-  // star at the focus (origin).
+  // star at the focus.
   { const q = project([0, 0, 0]); ctx.fillStyle = col.star; ctx.beginPath(); ctx.arc(PX(q), PY(q), 7, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1; ctx.stroke(); }
 
-  // trail + planet.
-  const nuNow = nuOf(t);
+  // trail + body.
   ctx.strokeStyle = 'rgba(232,232,232,0.5)'; ctx.lineWidth = 2; ctx.beginPath();
-  for (let m = 0; m <= 26; m++) { const tm = t - (26 - m) * 0.05; const q = project(pos(nuOf(tm))); if (m) ctx.lineTo(PX(q), PY(q)); else ctx.moveTo(PX(q), PY(q)); }
+  for (let m = 0; m <= 26; m += 1) { const tm = t - (26 - m) * 0.05; const q = project(pos(nuOf(tm))); if (m) ctx.lineTo(PX(q), PY(q)); else ctx.moveTo(PX(q), PY(q)); }
   ctx.stroke();
   const pq = project(pos(nuNow)); ctx.fillStyle = col.planet; ctx.beginPath(); ctx.arc(PX(pq), PY(pq), 5.5, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = col.orbit; ctx.lineWidth = 1.6; ctx.stroke();
 
   ctx.restore();
 
-  // readout strip.
+  // readout strip (also the colour key for the arcs).
   const P = pos(nuNow), rr = P[3], vv = Math.sqrt(Math.max(0, 2 / rr - 1 / A));
-  const items = [
-    [`e ${ecc().toFixed(2)}`, col.fg],
-    [`i ${sI.value}°`, col.fg],
-    [`r ${rr.toFixed(2)}`, col.rC],
-    [`v ${vv.toFixed(2)}`, col.vC],
-  ];
-  ctx.font = fontString(canvas, 'caption', 'mono', 700);
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
-  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+  const items = [[`Ω ${sOm.value}°`, OmC], [`i ${sI.value}°`, iC], [`ω ${sW.value}°`, wC], [`ν ${(nuNow * 180 / Math.PI).toFixed(0)}°`, nuC]];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textBaseline = 'middle';
+  let need = 0; for (const [t2] of items) need += ctx.measureText(t2).width + 18;
+  if (need <= r.w) { ctx.textAlign = 'center'; items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); }); }
+  else { ctx.textAlign = 'center'; items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * ((i % 2) + 0.5) / 2, r.y + r.h - (i < 2 ? 22 : 8)); }); }
 }
 
 function drawDiagnostic(col, r) {
@@ -239,7 +277,11 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
-function bootSync() { syncVals(); relayout(); t = 0.9; render(); }
+function bootSync() {
+  for (const [key, el] of [['e', sE], ['i', sI], ['Om', sOm], ['w', sW]]) { const v = params.get(key); if (v !== null && Number.isFinite(parseFloat(v))) el.value = v; }
+  syncVals(); relayout(); t = 0.9; render();
+  if (CAPTURE_NAME && DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } })); }));
+}
 
 window.addEventListener('load', bootSync);
 if (document.readyState !== 'loading') bootSync();

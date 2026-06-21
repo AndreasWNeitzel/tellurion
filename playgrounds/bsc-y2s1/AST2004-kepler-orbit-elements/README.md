@@ -8,10 +8,17 @@ argument of periapsis omega rotates the closest point within the plane. The
 sixth, the true anomaly nu, places the body and is the animated time variable
 here, driven by Kepler's equation so the body moves at the correct varying speed.
 
-Look for the 3D orbit redrawing as you turn each element, with the line of nodes,
-periapsis, and ascending node marked. The lower plot is the orbital distance and
-speed versus true anomaly: they are mirror images, the body fastest at periapsis
-where it is closest and slowest at apoapsis (Kepler's second law).
+The scene draws an explicit celestial reference frame: the reference plane (the
+ecliptic), the vernal-equinox direction (the dial labelled with the Aries glyph),
+and the line of nodes where the orbital plane cuts the reference plane. Each
+element appears as the angle arc that defines it, colour-keyed to the readout:
+Omega measured in the reference plane from the equinox to the ascending node, i
+as the tilt between the two planes at the node, omega in the orbital plane from
+the node to periapsis, and nu from periapsis to the body now. Turning a slider
+moves exactly that arc, so it is clear what each element controls. The lower plot
+is the orbital distance and speed versus true anomaly: they are mirror images,
+the body fastest at periapsis where it is closest and slowest at apoapsis
+(Kepler's second law).
 
 Use the eccentricity, inclination, node, and periapsis sliders. Pause freezes the
 orbiting body and Reset restores a tilted, moderately eccentric example orbit.
