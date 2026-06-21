@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Coulomb Equilibrium</title>
+<title>Coulomb equilibrium and Earnshaw's theorem: you cannot trap a charge</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -12,7 +12,13 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; } .pg-figure canvas.dragging { cursor: grabbing; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr 1fr; grid-column: span 2; }</style>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -32,44 +38,42 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Coulomb equilibrium of charges</h1>
+      <h1 class="t-title playground-title">Why you cannot trap a charge</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> four fixed charges (the squares) generate a 2D electrostatic potential. A test charge (the dot) you drag is repelled by like charges and attracted by opposite charges. Equilibria are the points where the local force vanishes; their stability is governed by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">∇</mi><mn>2</mn></msup><mi>V</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\nabla^2 V = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord">∇</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord mathnormal" style="margin-right: 0.2222em;">V</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span> (Earnshaw: equilibria are saddles, never stable).</p>
+      <p class="t-body">Surround a spot with fixed charges and you can always find a point where their pulls and pushes cancel, a place where a test charge feels no net force at all. It looks like you could balance a charge there. You cannot. Earnshaw's theorem says no arrangement of fixed charges can hold another charge in stable equilibrium: every balance point is a saddle, a hill in one direction and a valley in the other, so the charge is stable against a nudge one way but rolls off the moment it drifts the other way. The scene shows the potential landscape as contours over a colour map, marks the balance point, and lets you release a test charge to watch it slide off; drag the fixed charges to reshape the landscape. The diagnostic takes two slices of the potential through the balance point, one a valley and one a hill, the signature of a saddle and the whole reason the trap is impossible.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="The electric potential of fixed charges as contours over a colour map, with the force-free balance point marked and a released test charge sliding off it. Below, two slices of the potential through the balance point showing a valley one way and a hill the other."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Drag the test charge to feel the field. Equilibrium at the center for symmetric configurations.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Coulomb equilibrium and Earnshaw's theorem. Top: the electric potential of fixed point charges (equipotential contours over a diverging colour map); the force-free balance point is marked, and a released test charge slides off it. Charges are draggable. Bottom: slices of the potential through the balance point, along the two in-plane axes and out of the plane (z); their curvatures sum to zero (Laplace), so there is always a hill, and no stable trap. Method: Coulomb superposition, F = sum k q q_j (r - r_j) / |r - r_j|^3.</figcaption>
 
     <section class="playground-controls">
-      <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">Q (corner)</span><input aria-label="Q (corner)" type="range" id="slider-Q" min="-2" max="2" step="0.1" value="1"><span class="value" id="value-Q">1.0</span></div>
-<div class="row"><span class="label">q (test)</span><input aria-label="q (test)" type="range" id="slider-q" min="-1" max="1" step="0.1" value="0.5"><span class="value" id="value-q">0.5</span></div>
-<div class="row"><span class="label">config</span><select aria-label="config" id="select-cfg" style="grid-column:span 2;">
-    <option value="quad">4 positive corners</option>
-    <option value="dipole">dipole</option>
-    <option value="line">3 in a row</option>
-    <option value="hex">hexagon</option>
-  </select>
-</div>
-<div class="row"><span class="label">show field</span><input aria-label="show field" type="checkbox" id="toggle-field" checked="" style="grid-column: span 2; justify-self: start;"></div>
-<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><button id="btn-equil" type="button">Find equilibrium</button><button id="btn-trace" type="button">Trace orbit</button></div>
-</div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">F:</span><span class="value" id="readout-f">0</span><span class="label">V:</span><span class="value" id="readout-v">0</span></div></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Coulomb controls">
+    <div class="row"><span class="label">charges</span><select aria-label="charge layout" id="select-preset"><option value="two" selected="">two +</option><option value="square">four + (square)</option><option value="triangle">three + (triangle)</option></select><span class="value" id="value-preset">two +</span></div>
+    <div class="row"><span class="label">test</span><select aria-label="test charge sign" id="select-test"><option value="pos" selected="">+ test charge</option><option value="neg">- test charge</option></select><span class="value" id="value-test">+ test</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Press Reset to drop the test charge right at the balance point: it sits a moment, then slides off and escapes.</li>
+        <li class="t-body">Drag the test charge anywhere and let go; it never settles, it always runs to a charge or off to infinity.</li>
+        <li class="t-body">Read the lower plot: through the balance point the potential is a valley one way and a hill the other, a saddle.</li>
+        <li class="t-body">Drag the fixed charges to reshape the landscape; the balance point moves, but it is always a saddle.</li>
       </ul>
     </section>
 

@@ -10,10 +10,10 @@ curriculum_year: bsc-y1s2
 primary_citation: griffiths-em
 primary_chapter: 2
 hook: "Fix a few electric charges in place and let a test charge loose. It races along the field lines toward the points where all the pushes and pulls cancel. Those balance points exist, but as Earnshaw proved, none is a stable resting place in pure electrostatics."
-one_paragraph: "Several point charges are pinned in a chosen pattern (a square, a dipole, a line, a hexagon) and a movable test charge feels the vector sum of their Coulomb forces, F = k q Q / r^2 along each separation. Drag it or release it and it flows along the field lines; at an equilibrium the net field is exactly zero and the charge coasts to a stop. The field lines and a live force and potential readout make the geometry explicit, and a find-equilibrium descent locates the balance points. The catch is Earnshaw's theorem: the electrostatic potential satisfies Laplace's equation and so has no local minimum in free space, which makes every such equilibrium a saddle (stable along some directions, unstable along others). That is why a charge cannot be trapped by static fields alone, and why real ion traps use oscillating fields instead."
-tags: [electromagnetism, animation, live-readout]
+one_paragraph: "Point charges are pinned in a chosen pattern (two +, a + square, or a + triangle) and a movable test charge feels the vector sum of their Coulomb forces. The potential is drawn as equipotential contours over a diverging colour map; a Newton solve locates the force-free balance point. Drag the test charge or the fixed charges and the landscape retraces live; release the test charge near the balance point and it slides off. The catch is Earnshaw's theorem: the electrostatic potential is 3D-harmonic (Vxx + Vyy + Vzz = 0), so the three curvatures at any balance point sum to zero and at least one must be a hill. The diagnostic plots the potential along the two in-plane axes and out of the plane (z), making that always-a-hill structure explicit. That is why a charge cannot be trapped by static fields alone, and why real ion traps use oscillating fields instead."
+tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -35,7 +35,37 @@ references:
   - "Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 2."
 ---
 # Coulomb equilibrium of charges
-Four fixed point charges generate a 2D field; the test charge can be dragged or released to flow under the Coulomb force. Equilibria are visible as zero-field locations. Source: Griffiths, Introduction to Electrodynamics, Ch. 2.
+Fixed point charges (two +, a + square, or a + triangle) generate a 2D field drawn as equipotential contours over a colour map; a test charge can be dragged or released to flow under the Coulomb force, and the force-free balance point is marked. The diagnostic slices the potential along the two in-plane axes and out of the plane to show that the balance point is never a stable trap (Earnshaw). Source: Griffiths, Introduction to Electrodynamics, Ch. 2.
+
+## Controls
+
+- charges: two + / four + (square) / three + (triangle).
+- test charge sign: + or -.
+- drag any fixed charge or the test charge with the pointer.
+- Reset / Pause / Play.
+
+## Numerical method
+
+The balance point is found by a coarse |E| scan refined with Newton's
+method on E = 0. The in-plane Hessian of V is taken by finite
+differences; the out-of-plane curvature Vzz is taken independently from
+the analytic z-cut, and Vxx + Vyy + Vzz is checked to vanish (3D
+Laplace). The test charge is integrated by semi-implicit Euler at
+dt = 1/240 s. Rendering is plain Canvas2D: a diverging potential map,
+equipotential contours (marching squares), the draggable charges, the
+balance point with its principal axes, and the released test charge.
+
+## Invariants and acceptance thresholds
+
+| invariant | threshold | location |
+| force at center of symmetric quadrupole is zero | < 1e-6 | invariants test |
+| force from a single charge matches k q / r^2 | < 1e-6 | invariants test |
+| opposite-symmetry cancellation on the bisector | < 1e-10 | invariants test |
+| potential at infinity is zero | < 1e-5 | invariants test |
+| quadrupole potential at origin equals 4/sqrt(2) | < 1e-6 | invariants test |
+| Vxx + Vyy + Vzz = 0 at the balance point (Laplace) | rel < 5e-2 | live readout |
+
+All confirmed in `invariants.test.mjs` (5 tests passing).
 
 ## Explainer
 
@@ -81,11 +111,13 @@ unstable direction.
 
 ### Things to try
 
-- Release the test charge near a field null and watch it pause, then
-  escape along the unstable (saddle) direction.
-- Move the fixed charges and watch the null points relocate or merge.
-- Confirm no placement gives a truly stable trap (Earnshaw): there is
-  always an escape direction.
+- Reset to drop the test charge at the balance point: it pauses, then
+  slides off along the unstable direction.
+- Drag the fixed charges and watch the balance point and the landscape
+  relocate.
+- Read the diagnostic: the two in-plane slices plus the out-of-plane z
+  slice; their curvatures sum to zero, so there is always a hill, hence
+  no stable trap.
 
 ### Where this comes from
 
