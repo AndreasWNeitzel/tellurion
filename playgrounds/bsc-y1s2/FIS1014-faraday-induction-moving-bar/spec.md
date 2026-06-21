@@ -1,7 +1,7 @@
 ---
 title: Faraday Induction on a Sliding Bar
 slug: faraday-induction-moving-bar
-status: draft
+status: verified
 audience: portfolio
 created: 2026-06-21
 primary_uc: FIS1014
