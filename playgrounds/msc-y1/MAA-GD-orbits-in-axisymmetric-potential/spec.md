@@ -19,18 +19,19 @@ renderer: canvas2d
 estimated_engagement_minutes: 3
 share_state_keys: []
 invariants:
-  - key: runs
-    label: simulation advances each frame
-    tolerance: 1
-  - key: bounded
-    label: state stays finite
-    tolerance: 1
-  - key: deterministic
-    label: fixed seed reproduces the run
-    tolerance: 1
+  - key: energy-conserved
+    label: the symplectic integrator conserves the orbital energy
+    tolerance: 1e-3
+  - key: lz-magnitude
+    label: L_z = R0 * v_phi is held fixed
+    tolerance: 0
+  - key: radius-positive
+    label: R(t) stays positive (the centrifugal wall holds)
+    tolerance: 0
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Lower v_phi below the circular speed: the orbit becomes eccentric and the rosette tightens between a near pericenter and a far apocenter.
+  - Add a vertical kick v_z: the star oscillates above and below the disk and the meridional (R, z) trace fills its allowed box inside the zero-velocity curve.
+  - Drag the 3D view to rotate it and watch the orbit weave a thick torus, never closing on itself.
 references:
   - "Binney, Tremaine, Galactic Dynamics, 2nd ed., Ch. 3."
 ---

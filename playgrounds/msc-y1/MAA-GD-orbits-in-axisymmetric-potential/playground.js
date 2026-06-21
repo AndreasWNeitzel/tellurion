@@ -14,6 +14,7 @@
 // and Tremaine, Galactic Dynamics 2e, Sec. 3.2; Miyamoto and Nagai,
 // PASJ 27, 533 (1975).
 import { leapfrogMeridional, effPotential, orbitEnergy, forceR } from './sim.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -28,7 +29,20 @@ const sR = document.getElementById('slider-R'), vRo = document.getElementById('v
 const sV = document.getElementById('slider-v'), vVo = document.getElementById('value-v');
 const sVz = document.getElementById('slider-vz'), vVzo = document.getElementById('value-vz');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-const W = canvas.width, H = canvas.height;
+let view = { w: 800, h: 1100, dpr: 1 }, REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.4 },
+    { name: 'rosette', weight: 1.05 },
+    { name: 'meridional', weight: 1.0 },
+  ]);
+}
+function panel(col, r, title) {
+  ctx.fillStyle = col; ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) { ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(title, r.x + 8, r.y + 7); }
+}
 
 const KPC = 3.086e19;
 const Mg = 5e40, aD = 3 * KPC, bD = 0.3 * KPC;          // galaxy potential
@@ -144,132 +158,108 @@ function step() {
   if (trailXY.length > TRAIL) { trailXY.shift(); trailRz.shift(); trail3D.shift(); }
 }
 
-function render() {
-  if (!CAPTURE_NAME && running) step();
-  ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
-  ctx.fillText('A disk-galaxy orbit never closes: it draws a rosette', 18, 26);
+function draw3D(r) {
+  panel('#0a0c14', r, '3D orbit: drag to rotate');
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  ctx.save(); clipTo(ctx, draw);
+  const cx = draw.x + draw.w / 2, cy = draw.y + draw.h / 2;
+  const scale = Math.min(draw.w, draw.h) / (2 * viewR) * 0.9;
+  const sorted = trail3D.map((pt, i) => ({ proj: project3D(pt[0], pt[1], pt[2]), i })).sort((a, b) => a.proj.z - b.proj.z);
+  for (let idx = 1; idx < sorted.length; idx += 1) {
+    const p0 = sorted[idx - 1].proj, p1 = sorted[idx].proj;
+    const aL = 0.10 + 0.85 * (sorted[idx].i / trail3D.length);
+    ctx.strokeStyle = `rgba(6,214,160,${aL.toFixed(3)})`; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(cx + p0.sx * scale, cy + p0.sy * scale); ctx.lineTo(cx + p1.sx * scale, cy + p1.sy * scale); ctx.stroke();
+  }
+  if (trail3D.length) {
+    const proj = project3D(...trail3D[trail3D.length - 1]);
+    ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(cx + proj.sx * scale, cy + proj.sy * scale, 5, 0, 6.2832); ctx.fill();
+  }
+  ctx.restore();
 
-  // TOP-LEFT PANEL: face-on rosette in the galactic plane
-  const lcx = 175, lcy = 160, lR = 140;
+  // conserved-quantities readout strip (the live invariant).
+  const E = orbitEnergy(state, Mg, aD, bD, Lz);
+  const dE = Math.abs((E - E0) / E0);
+  const items = [
+    [`peri/apo ${(Rmin / KPC).toFixed(1)}/${(Rmax / KPC).toFixed(1)} kpc`, '#cbd5e1'],
+    [`L_z ${(Lz / (KPC * 1000)).toFixed(0)} kpc km/s`, '#06d6a0'],
+    [`|dE/E| ${dE.toExponential(1)}`, '#06d6a0'],
+    [`v_phi ${st.vphi} (v_c ${(vCirc(st.R0 * KPC) / 1000).toFixed(0)})`, '#94a3b8'],
+  ];
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  let widest = 0; for (const [t] of items) widest = Math.max(widest, ctx.measureText(t).width);
+  if (widest > r.w / 4 - 8) ctx.font = fontString(canvas, 'tick', 'mono', 700);
+  items.forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+  rR.textContent = `|dE/E|=${dE.toExponential(1)}`;
+}
+
+function drawRosette(r) {
+  panel('#06070e', r, 'Face-on (x, y): the rosette never closes');
+  const titleH = 22;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - 18 };
+  const cx = draw.x + draw.w / 2, cy = draw.y + draw.h / 2;
+  const lR = Math.min(draw.w, draw.h) * 0.46;
   const sXY = lR / viewR;
-  const bg = ctx.createRadialGradient(lcx, lcy, 0, lcx, lcy, lR);
+  ctx.save(); clipTo(ctx, draw);
+  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, lR);
   bg.addColorStop(0, 'rgba(255,221,150,0.20)'); bg.addColorStop(0.35, 'rgba(120,110,200,0.07)'); bg.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(lcx, lcy, lR, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(cx, cy, lR, 0, 6.2832); ctx.fill();
   ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
-  ctx.strokeStyle = 'rgba(91,192,235,0.45)'; ctx.beginPath(); ctx.arc(lcx, lcy, Rmax * sXY, 0, 6.2832); ctx.stroke();
-  ctx.strokeStyle = 'rgba(239,71,111,0.45)'; ctx.beginPath(); ctx.arc(lcx, lcy, Rmin * sXY, 0, 6.2832); ctx.stroke();
+  ctx.strokeStyle = 'rgba(91,192,235,0.45)'; ctx.beginPath(); ctx.arc(cx, cy, Rmax * sXY, 0, 6.2832); ctx.stroke();
+  ctx.strokeStyle = 'rgba(239,71,111,0.45)'; ctx.beginPath(); ctx.arc(cx, cy, Rmin * sXY, 0, 6.2832); ctx.stroke();
   ctx.setLineDash([]);
   for (let i = 1; i < trailXY.length; i += 1) {
     const p0 = trailXY[i - 1], p1 = trailXY[i];
     const aL = 0.10 + 0.85 * (i / trailXY.length);
     ctx.strokeStyle = `rgba(6,214,160,${aL.toFixed(3)})`; ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.moveTo(lcx + p0[0] * sXY, lcy - p0[1] * sXY);
-    ctx.lineTo(lcx + p1[0] * sXY, lcy - p1[1] * sXY);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + p0[0] * sXY, cy - p0[1] * sXY); ctx.lineTo(cx + p1[0] * sXY, cy - p1[1] * sXY); ctx.stroke();
   }
-  ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(lcx, lcy, 4, 0, 6.2832); ctx.fill();
-  if (trailXY.length) {
-    const pe = trailXY[trailXY.length - 1];
-    ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(lcx + pe[0] * sXY, lcy - pe[1] * sXY, 5, 0, 6.2832); ctx.fill();
-  }
-  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('face-on  (x, y)', lcx - lR - 16, lcy + lR + 16);
+  ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 6.2832); ctx.fill();
+  if (trailXY.length) { const pe = trailXY[trailXY.length - 1]; ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(cx + pe[0] * sXY, cy - pe[1] * sXY, 5, 0, 6.2832); ctx.fill(); }
+  ctx.restore();
+  ctx.fillStyle = 'rgba(91,192,235,0.7)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('blue = apocenter, red = pericenter', draw.x + 8, r.y + r.h - 6);
+}
 
-  // BOTTOM-LEFT PANEL: meridional (R, z) box inside the zero-velocity curve
-  const px0 = 18, px1 = 332, py0 = 320, py1 = 548;
-  const Rlo = Math.max(0.05 * KPC, Rmin * 0.7), Rhi = viewR;
-  const zhi = viewZ;
-  const RtoX = (R) => px0 + (R - Rlo) / (Rhi - Rlo) * (px1 - px0);
-  const ztoY = (z) => (py0 + py1) / 2 - z / zhi * ((py1 - py0) / 2);
-  ctx.fillStyle = '#0a0c14'; ctx.fillRect(px0, py0, px1 - px0, py1 - py0);
-  const GX = 90, GY = 70;
+function drawMeridional(r) {
+  panel('#0a0c14', r, 'Meridional (R, z): orbit fills the zero-velocity curve Phi_eff = E');
+  const titleH = 24;
+  const inner = { x: r.x + 36, y: r.y + titleH, w: r.w - 36 - 14, h: r.h - titleH - 22 };
+  const Rlo = Math.max(0.05 * KPC, Rmin * 0.7), Rhi = viewR, zhi = viewZ;
+  const RtoX = (R) => inner.x + (R - Rlo) / (Rhi - Rlo) * inner.w;
+  const ztoY = (z) => inner.y + inner.h / 2 - z / zhi * (inner.h / 2);
+  ctx.save(); clipTo(ctx, inner);
+  const GX = 110, GY = 80;
   for (let j = 0; j < GY; j += 1) {
     const z = (1 - 2 * j / (GY - 1)) * zhi;
     for (let i = 0; i < GX; i += 1) {
       const R = Rlo + (Rhi - Rlo) * i / (GX - 1);
       if (effPotential(R, z, Mg, aD, bD, Lz) <= E0) {
-        const x = px0 + i / (GX - 1) * (px1 - px0);
-        const y = py0 + j / (GY - 1) * (py1 - py0);
         ctx.fillStyle = 'rgba(91,192,235,0.13)';
-        ctx.fillRect(x, y, (px1 - px0) / GX + 1, (py1 - py0) / GY + 1);
+        ctx.fillRect(inner.x + i / (GX - 1) * inner.w, inner.y + j / (GY - 1) * inner.h, inner.w / GX + 1, inner.h / GY + 1);
       }
     }
   }
-  ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.lineWidth = 1;
-  ctx.strokeRect(px0 + 0.5, py0 + 0.5, px1 - px0 - 1, py1 - py0 - 1);
-  ctx.beginPath(); ctx.moveTo(px0, ztoY(0)); ctx.lineTo(px1, ztoY(0)); ctx.stroke();
+  ctx.strokeStyle = 'rgba(226,232,240,0.18)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(inner.x, ztoY(0)); ctx.lineTo(inner.x + inner.w, ztoY(0)); ctx.stroke();
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.3; ctx.beginPath();
-  for (let i = 0; i < trailRz.length; i += 1) {
-    const x = RtoX(trailRz[i][0]), y = ztoY(trailRz[i][1]);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
+  for (let i = 0; i < trailRz.length; i += 1) { const x = RtoX(trailRz[i][0]), y = ztoY(trailRz[i][1]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
   ctx.stroke();
-  if (trailRz.length) {
-    const e = trailRz[trailRz.length - 1];
-    ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(RtoX(e[0]), ztoY(e[1]), 4, 0, 6.2832); ctx.fill();
-  }
-  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('meridional  (R, z)', px0, py1 + 16);
+  if (trailRz.length) { const e = trailRz[trailRz.length - 1]; ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(RtoX(e[0]), ztoY(e[1]), 4, 0, 6.2832); ctx.fill(); }
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.lineWidth = 1; ctx.strokeRect(inner.x + 0.5, inner.y + 0.5, inner.w - 1, inner.h - 1);
+  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('R (shaded region = where the orbit is allowed)', inner.x + inner.w / 2, r.y + r.h - 6);
+  ctx.save(); ctx.translate(r.x + 14, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('z', 0, 0); ctx.restore();
+}
 
-  // RIGHT PANEL: 3D isometric view (drag to rotate)
-  const r3dx0 = 360, r3dx1 = W - 12, r3dy0 = 50, r3dy1 = 470;
-  ctx.fillStyle = '#0a0c14'; ctx.fillRect(r3dx0, r3dy0, r3dx1 - r3dx0, r3dy1 - r3dy0);
-  ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.lineWidth = 1;
-  ctx.strokeRect(r3dx0 + 0.5, r3dy0 + 0.5, r3dx1 - r3dx0 - 1, r3dy1 - r3dy0 - 1);
-
-  // Render 3D orbit trail
-  const r3dcx = (r3dx0 + r3dx1) / 2, r3dcy = (r3dy0 + r3dy1) / 2;
-  const r3dscale = Math.min(r3dx1 - r3dx0, r3dy1 - r3dy0) / (2 * viewR) * 0.9;
-
-  // Sort trail by z-depth for painter's algorithm
-  const trail3Dsorted = trail3D.map((pt, i) => {
-    const proj = project3D(pt[0], pt[1], pt[2]);
-    return { proj, i, pt };
-  }).sort((a, b) => a.proj.z - b.proj.z);
-
-  for (let idx = 1; idx < trail3Dsorted.length; idx++) {
-    const p0 = trail3Dsorted[idx - 1].proj, p1 = trail3Dsorted[idx].proj;
-    const i = trail3Dsorted[idx].i;
-    const aL = 0.10 + 0.85 * (i / trail3D.length);
-    ctx.strokeStyle = `rgba(6,214,160,${aL.toFixed(3)})`; ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(r3dcx + p0.sx * r3dscale, r3dcy + p0.sy * r3dscale);
-    ctx.lineTo(r3dcx + p1.sx * r3dscale, r3dcy + p1.sy * r3dscale);
-    ctx.stroke();
-  }
-
-  // Current position
-  if (trail3D.length) {
-    const tail = trail3D[trail3D.length - 1];
-    const proj = project3D(tail[0], tail[1], tail[2]);
-    ctx.fillStyle = '#ef476f'; ctx.beginPath();
-    ctx.arc(r3dcx + proj.sx * r3dscale, r3dcy + proj.sy * r3dscale, 5, 0, 6.2832);
-    ctx.fill();
-  }
-
-  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('3D orbit  (drag to rotate)', r3dx0 + 8, r3dy1 + 16);
-
-  // CONSERVED QUANTITIES: the live invariant readout
-  const E = orbitEnergy(state, Mg, aD, bD, Lz);
-  const dE = Math.abs((E - E0) / E0);
-  const Rk = state[0] / KPC, zk = state[1] / KPC;
-  ctx.fillStyle = '#cbd5e1'; ctx.font = fontString(canvas, 'caption', 'mono');
-  let yy = r3dy0 + 14;
-  ctx.fillText(`R   = ${Rk.toFixed(2)} kpc`, r3dx0 + 8, yy); yy += 17;
-  ctx.fillText(`z   = ${zk.toFixed(2)} kpc`, r3dx0 + 8, yy); yy += 17;
-  ctx.fillText(`peri/apo = ${(Rmin / KPC).toFixed(1)} / ${(Rmax / KPC).toFixed(1)} kpc`, r3dx0 + 8, yy); yy += 17;
-  ctx.fillStyle = '#06d6a0';
-  ctx.fillText(`L_z = ${(Lz / (KPC * 1000)).toFixed(0)} kpc km/s`, r3dx0 + 8, yy); yy += 17;
-  ctx.fillText(`|dE/E| = ${dE.toExponential(1)}`, r3dx0 + 8, yy);
-
-  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  const vc = vCirc(st.R0 * KPC) / 1000;
-  ctx.fillText(`v_phi = ${st.vphi} km/s  (v_circ ~ ${vc.toFixed(0)});  v_phi < v_circ tightens the rosette`, 18, H - 10);
-
-  rR.textContent = `|dE/E|=${dE.toExponential(1)}`;
+function render() {
+  if (!REG) relayout();
+  if (!CAPTURE_NAME && running) step();
+  ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, view.w, view.h);
+  draw3D(REG.scene);
+  drawRosette(REG.rosette);
+  drawMeridional(REG.meridional);
 }
 
 function tick() { render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
@@ -284,6 +274,9 @@ function bootSync() {
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
+
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};

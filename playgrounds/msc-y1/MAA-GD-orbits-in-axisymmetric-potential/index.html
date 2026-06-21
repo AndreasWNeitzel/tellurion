@@ -56,7 +56,7 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="600"></canvas>
+      <canvas class="playground-canvas" id="stage" width="800" height="1120" aria-label="A 3D orbit in a disk-galaxy potential, the face-on rosette, and the meridional R-z motion inside its zero-velocity curve."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption">Figure 1. Meridional-plane orbit in a Miyamoto-Nagai potential.</figcaption>
@@ -77,8 +77,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Lower the azimuthal speed v_phi below the circular speed: the orbit is eccentric and the rosette tightens, sweeping between a near pericenter and a far apocenter.</li>
+        <li class="t-body">Add a vertical kick v_z: the star oscillates above and below the disk plane, and the meridional (R, z) trace fills its allowed box, the region inside the zero-velocity curve Phi_eff = E.</li>
+        <li class="t-body">Drag the 3D view to rotate it and watch the orbit weave a thick torus, never closing on itself, the generic behaviour in a non-Keplerian potential.</li>
+        <li class="t-body">Watch the readout: the energy and L_z hold flat (the symplectic integrator conserves them), which is why the peri and apo radii stay fixed.</li>
       </ul>
     </section>
 
