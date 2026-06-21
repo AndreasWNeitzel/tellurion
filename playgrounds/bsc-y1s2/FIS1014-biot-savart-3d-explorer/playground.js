@@ -1,221 +1,323 @@
-// Biot-Savart 3D explorer. Primary canvas: the current wire(s) in 3D
-// with a lattice of B-field arrow glyphs coloured by |B| (viridis) and
-// traced field lines. Secondary: the on-axis Bz(z) profile. The exact
-// Biot-Savart sum comes from the headless sim.js. Drag to orbit.
-// Reference: Griffiths, Introduction to Electrodynamics (4th ed.),
-// Sec. 5.2; Jackson, Classical Electrodynamics, Sec. 5.3.
-
-import { biotSavart, buildPreset, axialBz, K } from './sim.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
+// Vertical 4:5 hero for the Biot-Savart field of current coils, Canvas2D
+// only. Top region: a slice through the symmetry axis showing the
+// magnetic field lines (streamlines of the in-plane field) over a
+// field-strength colour map, with the wire crossings marked. Bottom
+// region: the axial field Bz along the symmetry axis, where the loop
+// peak, the Helmholtz flat spot, and the solenoid plateau each show up.
+//
+// Reference: Griffiths, Introduction to Electrodynamics, 4th ed., Sec.
+// 5.2; Jackson, Classical Electrodynamics, Sec. 5.3.
+
+import { biotSavart, divergence } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
-const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
-const readoutEl = document.getElementById('readout');
-const controlsEl = document.getElementById('controls');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-const READOUTS = ['preset', 'I', 'R', '|B|@axis', 'state'];
-const rEls = {};
-for (const k of READOUTS) {
-  const a = document.createElement('span'); a.className = 'label'; a.textContent = k;
-  const b = document.createElement('span'); b.className = 'value'; b.textContent = '--';
-  readoutEl.appendChild(a); readoutEl.appendChild(b); rEls[k] = b;
+const selCoil = document.getElementById('select-coil');
+const sliderCurrent = document.getElementById('slider-current');
+const valueCoil = document.getElementById('value-coil');
+const valueCurrent = document.getElementById('value-current');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
+
+const Z = 2.6, R = 1;
+let running = !DETERMINISTIC;
+let segs = [], rings = [];          // segs for field (I=1); rings = crossing markers
+let lines = [], heat = null, axial = [], bzMax = 1;
+let phase = 0;
+
+function current() { return parseFloat(sliderCurrent.value); }
+
+// coarse coil geometry (I = 1) for fast field evaluation.
+function circle(z0, n = 72) { const pts = []; for (let i = 0; i <= n; i++) { const t = 2 * Math.PI * i / n; pts.push([R * Math.cos(t), R * Math.sin(t), z0]); } return { pts, I: 1 }; }
+function coilSegments(name) {
+  if (name === 'helmholtz') return [circle(-R / 2), circle(R / 2)];
+  if (name === 'solenoid') { const N = 28, L = 4 * R, out = []; for (let k = 0; k < N; k++) out.push(circle(-L / 2 + L * k / (N - 1))); return out; }
+  return [circle(0)];
+}
+function ringZs(name) {
+  if (name === 'helmholtz') return [-R / 2, R / 2];
+  if (name === 'solenoid') { const N = 28, L = 4 * R, zs = []; for (let k = 0; k < N; k++) zs.push(-L / 2 + L * k / (N - 1)); return zs; }
+  return [0];
+}
+function Bplane(x, z) { const b = biotSavart(segs, [x, 0, z]); return [b[0], b[2]]; }
+
+function syncVals() { valueCoil.textContent = selCoil.value; valueCurrent.textContent = current().toFixed(1); }
+selCoil.addEventListener('change', () => { syncVals(); rebuild(); render(); });
+sliderCurrent.addEventListener('input', () => { syncVals(); render(); });
+btnReset.addEventListener('click', () => {
+  selCoil.value = 'loop'; sliderCurrent.value = '1.5';
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); rebuild(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
+
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null, SCN = null;
+function computeSceneTransform() {
+  const r = REG.scene;
+  const titleH = 22, stripH = 26, pad = 14;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const size = Math.min(draw.w, draw.h) - 2 * pad;
+  SCN = { draw, ox: draw.x + draw.w / 2, oy: draw.y + draw.h / 2, scale: size / (2 * Z) };
+}
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.95 },
+    { name: 'diagnostic', weight: 1.05 },
+  ]);
+  computeSceneTransform();
+  rebuild();
+}
+const WX = (x) => SCN.ox + x * SCN.scale;
+const WY = (z) => SCN.oy - z * SCN.scale;
+
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    line: 'rgba(232,237,247,0.78)', wire: '#ffd166', bz: '#5bc0eb',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)',
+  };
 }
 
-const st = { preset: 'loop', I: 2.0, R: 1.3, lines: 'on', t: 0, yaw: -0.6, pitch: 0.5 };
-let segs = buildPreset(st.preset, { I: st.I, R: st.R });
-function rebuild() { segs = buildPreset(st.preset, { I: st.I, R: st.R }); }
-let running = !prefersReducedMotion();
-
-function selectRow(label, opts, value, onChange) {
-  const row = document.createElement('div'); row.className = 'row';
-  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
-  const s = document.createElement('select'); s.setAttribute('aria-label', label);
-  for (const [v, t] of opts) { const o = document.createElement('option'); o.value = v; o.textContent = t; s.appendChild(o); }
-  s.value = value; s.addEventListener('change', () => onChange(s.value));
-  row.appendChild(lab); row.appendChild(s); const sp = document.createElement('span'); sp.className = 'value'; row.appendChild(sp);
-  controlsEl.appendChild(row); return s;
-}
-function slider(label, min, max, stp, val, key, fmt = v => v.toFixed(2)) {
-  const row = document.createElement('div'); row.className = 'row';
-  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
-  const inp = document.createElement('input'); inp.type = 'range'; inp.min = String(min); inp.max = String(max); inp.step = String(stp); inp.value = String(val); inp.setAttribute('aria-label', label);
-  const vEl = document.createElement('span'); vEl.className = 'value'; vEl.textContent = fmt(+val);
-  inp.addEventListener('input', () => { st[key] = parseFloat(inp.value); vEl.textContent = fmt(+inp.value); rebuild(); });
-  row.appendChild(lab); row.appendChild(inp); row.appendChild(vEl);
-  controlsEl.appendChild(row); return { inp, vEl };
-}
-const selP = selectRow('preset', [['wire', 'straight wire'], ['loop', 'circular loop'], ['helmholtz', 'Helmholtz coils'], ['solenoid', 'solenoid']], st.preset, v => { st.preset = v; rebuild(); });
-const cI = slider('current I', 0.4, 5, 0.1, st.I, 'I', v => v.toFixed(1));
-const cR = slider('coil radius R', 0.6, 2.4, 0.05, st.R, 'R');
-const selL = selectRow('field lines', [['on', 'show'], ['off', 'hide']], st.lines, v => { st.lines = v; });
-const bRow = document.createElement('div'); bRow.className = 'row buttons';
-const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
-const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
-bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
-bReset.addEventListener('click', () => { Object.assign(st, { preset: 'loop', I: 2.0, R: 1.3, lines: 'on', yaw: -0.6, pitch: 0.5 }); selP.value = 'loop'; cI.inp.value = '2'; cI.vEl.textContent = '2.0'; cR.inp.value = '1.3'; cR.vEl.textContent = '1.30'; selL.value = 'on'; rebuild(); running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); });
-bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
-
-let drag = false, lx = 0, ly = 0;
-canvas.addEventListener('pointerdown', e => { drag = true; lx = e.clientX; ly = e.clientY; canvas.classList.add('dragging'); });
-canvas.addEventListener('pointermove', e => { if (!drag) return; st.yaw += (e.clientX - lx) * 0.006; st.pitch = Math.max(-1.35, Math.min(1.35, st.pitch + (e.clientY - ly) * 0.006)); lx = e.clientX; ly = e.clientY; });
-window.addEventListener('pointerup', () => { drag = false; canvas.classList.remove('dragging'); });
-
-const SCALE = 88;
-function proj(x, y, z) {
-  const cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
-  const X = x * cy + y * sy, Yt = -x * sy + y * cy, Z = z;
-  const cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
-  const Zt = Z * cp - Yt * sp;
-  return [canvas.width / 2 + X * SCALE, canvas.height / 2 - Zt * SCALE - 6];
-}
-function viridis(t) {
-  const a = Math.max(0, Math.min(1, t));
-  return [Math.round(40 + 215 * a * a), Math.round(20 + 200 * a), Math.round(110 + 80 * Math.cos(2.6 * a) - 50 * a)];
-}
-function arrow(p0, p1, col, w) {
-  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = w;
-  ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke();
-  const a = Math.atan2(p1[1] - p0[1], p1[0] - p0[0]);
-  ctx.beginPath(); ctx.moveTo(p1[0], p1[1]);
-  ctx.lineTo(p1[0] - 6 * Math.cos(a - 0.4), p1[1] - 6 * Math.sin(a - 0.4));
-  ctx.lineTo(p1[0] - 6 * Math.cos(a + 0.4), p1[1] - 6 * Math.sin(a + 0.4));
-  ctx.closePath(); ctx.fill();
-}
-
-function render() {
-  const W = canvas.width, H = canvas.height;
-  ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, W, H);
-
-  // Wire(s), drawn with an animated dash so the current visibly flows
-  // (autoplay) and the current direction is unambiguous.
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.6;
-  ctx.setLineDash([10, 7]); ctx.lineDashOffset = -((st.t * 60) % 17);
-  for (const seg of segs) {
-    ctx.beginPath();
-    const step = Math.max(1, Math.floor(seg.pts.length / 160));
-    for (let i = 0; i < seg.pts.length; i += step) { const p = proj(...seg.pts[i]); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
-    ctx.stroke();
+// trace one streamline of the in-plane field from (x0,z0) in direction sgn.
+function streamline(x0, z0, sgn) {
+  const pts = [[x0, z0]]; let x = x0, z = z0; const ds = 0.05;
+  for (let s = 0; s < 360; s++) {
+    const [bx, bz] = Bplane(x, z); const m = Math.hypot(bx, bz); if (m < 1e-9) break;
+    x += sgn * bx / m * ds; z += sgn * bz / m * ds;
+    if (Math.abs(x) > Z * 1.05 || Math.abs(z) > Z * 1.05) break;
+    let hitWire = false;
+    for (const rz of ringZs(selCoil.value)) { if (Math.hypot(Math.abs(x) - R, z - rz) < 0.07) hitWire = true; }
+    if (hitWire) { pts.push([x, z]); break; }
+    pts.push([x, z]);
   }
-  ctx.setLineDash([]);
+  return pts;
+}
 
-  // Field-glyph lattice. Sample on planes; colour by |B|.
-  const ext = st.preset === 'wire' ? 3 : st.R * 2.6;
-  const pts3 = [];
-  for (let iz = -3; iz <= 3; iz += 1) for (let iy = -3; iy <= 3; iy += 1) for (let ix = -3; ix <= 3; ix += 1) {
-    const x = ix / 3 * ext, y = iy / 3 * ext, z = iz / 3 * ext;
-    if (Math.hypot(x, y) < 0.18 && st.preset === 'wire') continue;
-    pts3.push([x, y, z]);
+function rebuild() {
+  if (!SCN) return;
+  segs = coilSegments(selCoil.value);
+  // streamlines: seed near the axis at z=0 and a couple outside, mirror in x.
+  lines = [];
+  const seedsX = [0.18, 0.45, 0.72, 0.95], outer = [1.45, 2.0];
+  for (const sx of seedsX) {
+    for (const mir of [1, -1]) { lines.push(streamline(mir * sx, 0, 1).concat(streamline(mir * sx, 0, -1).slice(1).reverse().concat().reverse())); }
   }
-  // I-INDEPENDENT reference (per unit current) so a larger current
-  // visibly grows every arrow instead of being normalised away.
-  const normRef = st.preset === 'wire' ? 2 * K : 2 * Math.PI * K / st.R;
-  const data = pts3.map(P => { const B = biotSavart(segs, P); return { P, B, m: Math.hypot(...B) }; });
-  data.sort((a, b) => proj(...a.P)[1] - proj(...b.P)[1]);
-  for (const { P, B, m } of data) {
-    const tnorm = Math.min(1, Math.sqrt((m / normRef) / 4));
-    const c = viridis(tnorm);
-    const L = 0.1 + 0.55 * tnorm;
-    const bn = m || 1e-9;
-    const p0 = proj(P[0] - B[0] / bn * L * 0.5, P[1] - B[1] / bn * L * 0.5, P[2] - B[2] / bn * L * 0.5);
-    const p1 = proj(P[0] + B[0] / bn * L * 0.5, P[1] + B[1] / bn * L * 0.5, P[2] + B[2] / bn * L * 0.5);
-    arrow(p0, p1, `rgb(${c[0]},${c[1]},${c[2]})`, 1.6);
+  // simpler: build each line as forward + backward separately.
+  lines = [];
+  for (const sx of seedsX.concat(outer)) for (const mir of [1, -1]) {
+    const f = streamline(mir * sx, 0, 1), b = streamline(mir * sx, 0, -1);
+    lines.push(b.slice(1).reverse().concat(f));
   }
 
-  // Field lines: seed a ring near the wire and integrate along B.
-  if (st.lines === 'on') {
-    const seeds = [];
-    for (let a = 0; a < 6; a += 1) { const th = a / 6 * 2 * Math.PI; seeds.push([st.R * 0.35 * Math.cos(th), st.R * 0.35 * Math.sin(th), 0.01]); }
-    if (st.preset === 'wire') { seeds.length = 0; for (let a = 0; a < 6; a += 1) { const th = a / 6 * 2 * Math.PI; seeds.push([0.5 * Math.cos(th), 0.5 * Math.sin(th), -2 + a * 0.6]); } }
-    ctx.lineWidth = 1.6;
-    for (const s0 of seeds) {
-      for (const dir of [1, -1]) {
-        let p = s0.slice();
-        ctx.strokeStyle = 'rgba(120,210,255,0.65)'; ctx.beginPath();
-        const sp = proj(...p); ctx.moveTo(sp[0], sp[1]);
-        for (let k = 0; k < 240; k += 1) {
-          const B = biotSavart(segs, p); const bn = Math.hypot(...B) || 1e-9;
-          p = [p[0] + dir * B[0] / bn * 0.06, p[1] + dir * B[1] / bn * 0.06, p[2] + dir * B[2] / bn * 0.06];
-          if (Math.hypot(p[0], p[1], p[2]) > ext * 2.4) break;
-          const q = proj(...p); ctx.lineTo(q[0], q[1]);
-        }
-        ctx.stroke();
-      }
+  // heatmap of |B| (I = 1).
+  const { draw } = SCN;
+  const nx = 40, ny = Math.max(40, Math.round(40 * draw.h / draw.w));
+  if (!heat) heat = document.createElement('canvas');
+  heat.width = nx; heat.height = ny;
+  const hctx = heat.getContext('2d');
+  const img = hctx.createImageData(nx, ny);
+  let mmax = 1e-9; const mags = [];
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const x = -Z + 2 * Z * (i + 0.5) / nx, z = Z - 2 * Z * (j + 0.5) / ny;
+    const [bx, bz] = Bplane(x, z); const m = Math.hypot(bx, bz); mags.push(m); mmax = Math.max(mmax, m);
+  }
+  const sc = mags.slice().sort((a, b) => a - b)[Math.floor(mags.length * 0.75)] || 1;
+  for (let k = 0; k < nx * ny; k++) {
+    const t = mags[k] / (mags[k] + 1.5 * sc);
+    const c = viridis(0.08 + 0.85 * t);
+    const a = Math.min(0.5, 0.6 * Math.pow(t, 0.8));
+    img.data[k * 4] = c.r; img.data[k * 4 + 1] = c.g; img.data[k * 4 + 2] = c.b; img.data[k * 4 + 3] = a * 255;
+  }
+  hctx.putImageData(img, 0, 0);
+
+  // axial Bz (I = 1).
+  axial = []; bzMax = 1e-9;
+  for (let i = 0; i <= 160; i++) { const z = -Z + 2 * Z * i / 160; const bz = biotSavart(segs, [0, 0, z])[2]; axial.push([z, bz]); bzMax = Math.max(bzMax, Math.abs(bz)); }
+}
+
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
+  }
+}
+
+function drawScene(col, r) {
+  panel(col, r, 'Field lines through the coil (axial slice)');
+  const { draw, scale } = SCN;
+
+  ctx.save();
+  clipTo(ctx, { x: SCN.ox - Z * scale, y: SCN.oy - Z * scale, w: 2 * Z * scale, h: 2 * Z * scale });
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(heat, SCN.ox - Z * scale, SCN.oy - Z * scale, 2 * Z * scale, 2 * Z * scale);
+
+  // axis line.
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(WX(0), WY(-Z)); ctx.lineTo(WX(0), WY(Z)); ctx.stroke(); ctx.setLineDash([]);
+
+  // field lines.
+  ctx.strokeStyle = col.line; ctx.lineWidth = 1.5;
+  for (const ln of lines) { if (ln.length < 2) continue; ctx.beginPath(); ln.forEach((p, i) => { const X = WX(p[0]), Y = WY(p[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke(); }
+  // marching arrowheads along field lines.
+  ctx.fillStyle = '#fff'; const spacing = 0.9;
+  for (const ln of lines) {
+    if (ln.length < 4) continue; const len = (ln.length - 1) * 0.05;
+    for (let sdist = (phase % spacing); sdist < len - 0.05; sdist += spacing) {
+      const idx = Math.max(1, Math.min(ln.length - 1, Math.round(sdist / 0.05)));
+      const a = ln[idx - 1], b = ln[idx]; const ang = Math.atan2(WY(b[1]) - WY(a[1]), WX(b[0]) - WX(a[0]));
+      const X = WX(b[0]), Y = WY(b[1]), h = 4.5;
+      ctx.beginPath(); ctx.moveTo(X + h * Math.cos(ang), Y + h * Math.sin(ang)); ctx.lineTo(X + h * Math.cos(ang + 2.5), Y + h * Math.sin(ang + 2.5)); ctx.lineTo(X + h * Math.cos(ang - 2.5), Y + h * Math.sin(ang - 2.5)); ctx.closePath(); ctx.fill();
     }
   }
 
-  // Axial Bz(z) profile inset (secondary 2D panel, bottom-left).
-  const ax0 = 22, ay0 = H - 132, aw = 250, ah = 110;
-  ctx.fillStyle = '#0b0b13'; ctx.fillRect(ax0, ay0, aw, ah);
-  ctx.strokeStyle = '#2a2a34'; ctx.strokeRect(ax0, ay0, aw, ah);
-  ctx.fillStyle = '#7e828a'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('B_z on axis (z)', ax0 + 8, ay0 + 14);
-  const prof = axialBz(segs, -ext, ext, 90);
-  // Fixed scale (per the same I-independent reference) so the profile
-  // height grows with current rather than being self-normalised.
-  const pscale = normRef * 6;
-  ctx.strokeStyle = '#5bc6ff'; ctx.lineWidth = 1.8; ctx.beginPath();
-  prof.forEach(([z, v], i) => { const X = ax0 + 10 + (z + ext) / (2 * ext) * (aw - 20); const Y = ay0 + ah - 16 - Math.max(-1, Math.min(1, v / pscale)) * (ah - 36); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+  // wire crossings: +R out of page (dot), -R into page (cross).
+  for (const rz of ringZs(selCoil.value)) {
+    for (const side of [1, -1]) {
+      const X = WX(side * R), Y = WY(rz), rad = 5;
+      ctx.fillStyle = '#11151c'; ctx.strokeStyle = col.wire; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(X, Y, rad, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = col.wire; ctx.lineWidth = 1.6;
+      if (side === 1) { ctx.fillStyle = col.wire; ctx.beginPath(); ctx.arc(X, Y, 1.6, 0, 2 * Math.PI); ctx.fill(); }   // out of page
+      else { ctx.beginPath(); ctx.moveTo(X - 3, Y - 3); ctx.lineTo(X + 3, Y + 3); ctx.moveTo(X + 3, Y - 3); ctx.lineTo(X - 3, Y + 3); ctx.stroke(); } // into page
+    }
+  }
+
+  ctx.restore();
+
+  // readout strip.
+  const I = current();
+  const bcenter = Math.abs(biotSavart(segs, [0, 0, 0])[2]) * I;
+  const items = [
+    [selCoil.value, col.fg],
+    [`I ${I.toFixed(1)}`, col.wire],
+    [`B(0) ${bcenter.toFixed(1)}`, col.bz],
+    ['div B = 0', col.muted],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Axial field Bz along the symmetry axis');
+
+  const inner = { x: r.x + 54, y: r.y + 28, w: r.w - 54 - 16, h: r.h - 28 - 42 };
+  const I = current();
+  const ymax = bzMax * I * 1.12;
+  const xOf = (z) => inner.x + (z + Z) / (2 * Z) * inner.w;
+  const yOf = (bz) => inner.y + inner.h - (bz / ymax) * inner.h;
+
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const frac of [0, 0.5, 1]) { const y = inner.y + inner.h - frac * inner.h; ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText((ymax * frac).toFixed(1), inner.x - 5, y); }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const z of [-2, -1, 0, 1, 2]) ctx.fillText(String(z), xOf(z), inner.y + inner.h + 6);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  // coil location markers on the z axis.
+  for (const rz of ringZs(selCoil.value)) { ctx.strokeStyle = 'rgba(255,209,102,0.3)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xOf(rz), inner.y); ctx.lineTo(xOf(rz), inner.y + inner.h); ctx.stroke(); }
+
+  ctx.strokeStyle = col.bz; ctx.lineWidth = 2.6; ctx.beginPath();
+  axial.forEach((pt, i) => { const X = xOf(pt[0]), Y = yOf(pt[1] * I); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
   ctx.stroke();
+  // centre value dot.
+  ctx.fillStyle = col.accent; ctx.beginPath(); ctx.arc(xOf(0), yOf(biotSavart(segs, [0, 0, 0])[2] * I), 4.5, 0, 2 * Math.PI); ctx.fill();
 
-  const Baxis = Math.hypot(...biotSavart(segs, [0, 0, 0]));
-  rEls.preset.textContent = st.preset;
-  rEls.I.textContent = st.I.toFixed(2);
-  rEls.R.textContent = st.preset === 'wire' ? 'n/a' : st.R.toFixed(2);
-  rEls['|B|@axis'].textContent = Baxis.toFixed(3);
-  rEls.state.textContent = st.preset === 'helmholtz' ? 'uniform region' : st.preset === 'solenoid' ? 'uniform interior' : st.preset === 'wire' ? 'azimuthal' : 'dipolar';
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('position along axis  z', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 42, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('axial field Bz', 0, 0); ctx.restore();
 }
 
-function tick() { if (running) st.t += 0.02; render(); requestAnimationFrame(tick); }
-function bootSync() {
-  if (CAPTURE_NAME) { st.yaw = -0.6 + CAPTURE_FRAC * 1.2; st.t = CAPTURE_FRAC * 1.5; }
+function render() {
+  if (!REG) relayout();
+  if (!segs.length) rebuild();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
+}
+
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (running) phase += 0.5 * dt;
   render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  requestAnimationFrame(tick);
 }
 
-window.__physicsCheck = async () => {
-  const seg = buildPreset('loop', { I: 2.5, R: 1.4 });
-  const bz = biotSavart(seg, [0, 0, 0])[2];
-  const analytic = 2 * Math.PI * 2.5 * 1.4 * 1.4 / Math.pow(1.4 * 1.4, 1.5);
-  const err = Math.abs(bz - analytic) / analytic;
-  if (err > 5e-3) return { name: 'loop on-axis Bz', pass: false, msg: `err=${(err * 100).toFixed(3)}%` };
-  return { name: 'Biot-Savart loop Bz matches closed form', pass: true, msg: `within ${(err * 100).toFixed(4)}%` };
-};
+function bootSync() { syncVals(); relayout(); render(); }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
 
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const nSegments = segs.length;
-  const B = biotSavart(segs, [0, 0, 0]);
-  const Bmag = Math.hypot(...B);
+  const I = current();
   return {
     fields: [
-      { key: 'preset', label: 'geometry', value: st.preset, format: 'float' },
-      { key: 'I', label: 'current I (A)', value: st.I, format: 'float' },
-      { key: 'B-axis', label: '$|B|$ at origin (T)', value: Bmag, format: 'float' }
-    ]
+      { key: 'coil', label: 'coil', value: selCoil.value, format: 'text' },
+      { key: 'I', label: 'current I', value: I, format: 'float' },
+      { key: 'Bc', label: 'axial field at centre', value: biotSavart(segs, [0, 0, 0])[2] * I, format: 'float' },
+      { key: 'lines', label: 'field lines', value: lines.length, format: 'int' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
-  if (segs.length === 0) {
-    return [{ key: 'empty', label: 'no wire', value: 'pending', status: 'pending' }];
-  }
-  const B = biotSavart(segs, [0, 0, 0]);
-  const Bmag = Math.hypot(...B);
-  return [
-    {
-      key: 'biot-savart-computed',
-      label: 'Biot-Savart field computed',
-      value: Bmag.toExponential(2),
-      status: Bmag > 0 ? 'pass' : 'drift'
+  try {
+    // No magnetic monopoles: div B = 0 everywhere off the wire.
+    let worst = 0;
+    for (const P of [[0.4, 0.3, 0.2], [0.7, -0.2, 0.5], [0.2, 0.5, -0.3]]) {
+      const dv = Math.abs(divergence(segs, P, 0.02));
+      const scale = Math.hypot(...biotSavart(segs, P)) + 1e-6;
+      worst = Math.max(worst, dv / scale);
     }
-  ];
+    return [{
+      key: 'divB',
+      label: 'div B = 0 (no monopoles)',
+      value: worst.toExponential(2),
+      status: worst < 1e-2 ? 'pass' : (worst < 1e-1 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
+  }
 };

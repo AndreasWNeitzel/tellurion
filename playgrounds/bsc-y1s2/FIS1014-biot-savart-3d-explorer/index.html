@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Biot-Savart 3D Field Explorer</title>
+<title>Biot-Savart: the magnetic field a coil makes</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,19 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-  body { padding: var(--space-4); }
-  .pg-figure { max-width: 860px; position: relative; }
-  .pg-figure canvas { width: 100%; height: auto; background: #05060a; cursor: grab; display: block; }
-  .pg-figure canvas.dragging { cursor: grabbing; }
-  .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 11ch 10ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
-  figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -45,32 +38,42 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Biot-Savart 3D Field Explorer</h1>
+      <h1 class="t-title playground-title">The magnetic field a coil makes</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">The magnetic field of arbitrary current loops computed directly from the Biot-Savart law and shown as a 3D lattice of arrow glyphs coloured by |B| with traced field lines and an on-axis Bz profile. Presets give the straight wire (B falling as 1/r), the single circular loop, a Helmholtz pair (the central region where the field is most uniform), and a solenoid (a nearly uniform interior with return flux outside); current and coil radius are sliders and you drag to orbit.</p>
+      <p class="t-body">Run a current around a loop of wire and it wraps the space around it in a magnetic field. The Biot-Savart law adds up the contribution of every little length of wire, and for a circular loop the result is the familiar pattern: field lines thread up through the middle, flare out, and curl back around the outside, exactly like a bar magnet. The shape is fixed by the geometry; the current only sets the strength. Stack the loops cleverly and the field becomes useful. Two loops a radius apart, a Helmholtz pair, make a remarkably uniform field in the gap between them; many loops in a tube, a solenoid, make a nearly perfectly uniform field down the whole inside and almost nothing outside, which is how every electromagnet works. The scene shows a slice through the axis with the field lines and their strength; the diagnostic plots the field along the axis, where the loop's peak, the Helmholtz flat spot, and the solenoid's plateau each show up.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="560"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="An axial slice through a current coil showing the magnetic field lines and their strength. Below, the axial field Bz plotted along the symmetry axis."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Biot-Savart field glyphs and field lines with the axial profile.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Biot-Savart magnetic field of current coils. Top: a slice through the axis showing field lines (with strength as a colour map) and the wire crossings (current into and out of the plane). Bottom: the axial field Bz along the symmetry axis, with the single-loop peak, the Helmholtz flat region, or the solenoid plateau. Method: Biot-Savart summation over discretized current segments.</figcaption>
 
     <section class="playground-controls">
-      <div id="controls" class="pg-controls"></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Biot-Savart controls">
+    <div class="row"><span class="label">coil</span><select aria-label="coil type" id="select-coil"><option value="loop" selected="">single loop</option><option value="helmholtz">Helmholtz pair</option><option value="solenoid">solenoid</option></select><span class="value" id="value-coil">loop</span></div>
+    <div class="row"><span class="label">current</span><input aria-label="current" type="range" id="slider-current" min="0.5" max="3" step="0.1" value="1.5"><span class="value" id="value-current">1.5</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
       <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Start with a single loop and see the bar-magnet pattern: lines up through the middle, around the outside, back in.</li>
+        <li class="t-body">Switch to the Helmholtz pair and watch the field lines straighten into a uniform patch in the gap, flat in the lower plot.</li>
+        <li class="t-body">Switch to the solenoid: the lines lock parallel down the inside and the lower plot shows a long flat plateau, near zero outside.</li>
+        <li class="t-body">Raise the current: the pattern is unchanged but the field strength (lower plot, colour map) scales up with it.</li>
       </ul>
     </section>
 

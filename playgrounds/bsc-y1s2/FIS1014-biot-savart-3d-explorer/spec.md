@@ -5,10 +5,10 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Two coils at exactly one radius apart make a pocket of perfectly uniform field. Drag them apart and watch it collapse.'
-one_paragraph: 'The magnetic field of arbitrary current loops computed directly from the Biot-Savart law and shown as a 3D lattice of arrow glyphs coloured by |B| with traced field lines and an on-axis Bz profile. Presets give the straight wire (B falling as 1/r), the single circular loop, a Helmholtz pair (the central region where the field is most uniform), and a solenoid (a nearly uniform interior with return flux outside); current and coil radius are sliders and you drag to orbit. Reference: Griffiths, Introduction to Electrodynamics, Chapter 5.'
-tags: [electromagnetism, 3d, field-visualization, animation]
+one_paragraph: 'The magnetic field of current coils computed directly from the Biot-Savart law and shown on a slice through the symmetry axis: traced field lines (streamlines of the in-plane field) over a field-strength colour map, with the wire crossings marked into and out of the plane. Presets give the single circular loop (a bar-magnet dipole field), a Helmholtz pair (a uniform central region), and a solenoid (a nearly uniform interior with return flux outside). The diagnostic plots the on-axis Bz, where the loop peak, the Helmholtz flat spot, and the solenoid plateau each show up; the current slider scales the strength while the geometry sets the pattern. Reference: Griffiths, Introduction to Electrodynamics, Chapter 5.'
+tags: [electromagnetism, field-visualization, animation, interactive]
 difficulty: 3
-tier: advanced
+tier: hero
 hero_candidate: true
 renderer: canvas2d
 estimated_engagement_minutes: 4
@@ -41,10 +41,10 @@ references:
 ### What you are looking at
 
 Run a current through a wire and it wraps space in a magnetic field.
-The playground lets you pick the wire (a straight wire, a single loop,
-a Helmholtz pair, a solenoid) and shows the field as colored arrows and
-traced field lines, with the on-axis strength in a side panel. It is
-the rule that connects electric current to magnetism made visible.
+The playground lets you pick the coil (a single loop, a Helmholtz pair,
+a solenoid) and shows the field as traced field lines over a strength
+colour map, with the on-axis profile below. It is the rule that connects
+electric current to magnetism made visible.
 
 ### The one law: Biot-Savart
 
@@ -74,8 +74,9 @@ that sets the units.
 - Solenoid: the loops stack and the interior field becomes nearly
   uniform, $B \approx \mu_0 n I$, with $n$ turns per length.
 
-The playground computes the sum directly over a polyline of $d\ell$
-elements, so the same one law produces all four cases.
+The straight wire is the textbook starting point; the playground builds
+the loop, the Helmholtz pair, and the solenoid by summing the same law
+directly over a polyline of $d\ell$ elements.
 
 ### Things to try
 
@@ -93,11 +94,11 @@ Chapter 5 (magnetostatics).
 
 ## Physical setup
 
-Current-carrying wires (a straight wire, a loop, Helmholtz coils, a
-solenoid) sit in 3D. The magnetic field is computed at a lattice of
-sample points and drawn as arrow glyphs coloured by `|B|`, with field
-lines traced by integrating along `B` and the on-axis `Bz(z)` profile
-in a side panel. The wire is dashed and animated to show the current.
+Current coils (a loop, a Helmholtz pair, a solenoid) sit on a common
+axis. The field is evaluated on the plane through that axis; its in-plane
+components (Bx, Bz) are streamline-traced into field lines over a |B|
+colour map, with the wire crossings drawn as current into / out of the
+plane. The on-axis Bz(z) is plotted in the diagnostic.
 
 ## Governing equations
 
@@ -106,22 +107,25 @@ $$\mathbf B(\mathbf r)=\frac{\mu_0 I}{4\pi}\oint
 
 ## Numerical method
 
-Each wire is a polyline discretized into dl elements; the field is the
-direct Biot-Savart sum (units `mu0/4pi = 1`). Field lines are
-normalized-step Euler integrations of `B`.
+Each coil is a polyline discretized into dl elements; the field is the
+direct Biot-Savart sum (units `mu0/4pi = 1`), evaluated with I = 1 since
+B scales linearly in the current. Field lines are normalized-step
+integrations of the in-plane field. The colour map, field lines, and
+axial profile are recomputed only when the coil changes; the current
+slider rescales the magnitudes.
 
 ## Controls
 
-- preset selector (straight wire, loop, Helmholtz, solenoid).
-- current and coil-radius sliders; field-lines on/off; Reset, Pause.
-- drag to orbit the camera.
+- coil selector (single loop, Helmholtz pair, solenoid).
+- current slider (scales the field strength; the pattern is fixed).
+- Reset, Pause.
 
 ## Expected qualitative features
 
-- Straight wire: purely azimuthal field encircling the wire.
-- Loop: dipolar field, `Bz(z)` peaked at the centre.
-- Helmholtz (separation = R): a uniform central region.
-- Solenoid: nearly uniform interior, weak exterior.
+- Loop: dipolar field, `Bz(z)` peaked at the centre (bar-magnet pattern).
+- Helmholtz (separation = R): a uniform central region, flat `Bz`.
+- Solenoid: nearly uniform interior, weak exterior, plateau in `Bz`.
+- Field lines circle each wire crossing and thread the coil.
 
 ## Invariants and acceptance thresholds
 
