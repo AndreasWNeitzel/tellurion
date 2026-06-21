@@ -60,6 +60,7 @@
       <div class="controls pg-controls" id="controls" role="group" aria-label="Lagrange controls">
     <div class="row"><span class="label">mass ratio</span><input aria-label="mass ratio mu" type="range" id="slider-mu" min="0.004" max="0.18" step="0.002" value="0.0122"><span class="value" id="value-mu">0.012</span></div>
     <div class="row"><span class="label">release</span><select aria-label="test body start" id="select-start"><option value="L4" selected="">near L4</option><option value="L1">near L1</option><option value="L3">near L3</option></select><span class="value" id="value-start">L4</span></div>
+    <div class="row"><span class="label">frame</span><select aria-label="reference frame" id="select-frame"><option value="rotating" selected="">co-rotating</option><option value="inertial">inertial (orbiting)</option></select><span class="value" id="value-frame">co-rotating</span></div>
     <div class="row buttons">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
       <button id="btn-reset" type="button">Reset</button>
@@ -75,6 +76,7 @@
         <li class="t-body">Push the mass ratio above 0.0385: L4 and L5 turn red, and the body spirals away, the stability is lost.</li>
         <li class="t-body">Release near L1 or L3 and watch it slide off the saddle and fall toward a primary, those points are never stable.</li>
         <li class="t-body">Drag the test body anywhere and let go; the zero-velocity contour through it bounds where it can go.</li>
+        <li class="t-body">Switch to the inertial frame: the two masses orbit the barycentre, the five points sweep round with them, and a Trojan near L4 traces its real looping path through space.</li>
       </ul>
     </section>
 

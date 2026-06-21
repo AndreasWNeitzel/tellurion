@@ -22,14 +22,18 @@ const ctx = canvas.getContext('2d', { alpha: false });
 
 const sliderMu = document.getElementById('slider-mu');
 const selStart = document.getElementById('select-start');
+const selFrame = document.getElementById('select-frame');
 const valueMu = document.getElementById('value-mu');
 const valueStart = document.getElementById('value-start');
+const valueFrame = document.getElementById('value-frame');
 const btnPlay = document.getElementById('btn-playpause');
 const btnReset = document.getElementById('btn-reset');
 
 const VIEW = 1.7;
 let running = !DETERMINISTIC;
 let muVal = 0.0122;
+let frameMode = 'rotating';        // 'rotating' (synodic) or 'inertial'
+let simTime = 0;                   // dimensionless time; synodic frame rotates at omega = 1
 let sim = null, trail = [], LP = null, heat = null, contours = [];
 
 function mu() { return parseFloat(sliderMu.value); }
@@ -39,11 +43,18 @@ function startIC() {
 }
 function spawn() { sim = createCR3BP({ mu: mu(), ic: startIC() }); trail = []; }
 
-function syncVals() { valueMu.textContent = mu().toFixed(3); valueStart.textContent = selStart.value; }
+const FRAME_LABEL = { rotating: 'co-rotating', inertial: 'inertial' };
+function syncVals() {
+  valueMu.textContent = mu().toFixed(3);
+  valueStart.textContent = selStart.value;
+  if (valueFrame) valueFrame.textContent = FRAME_LABEL[frameMode];
+}
 sliderMu.addEventListener('input', () => { muVal = mu(); syncVals(); LP = lagrangePoints(muVal); buildLandscape(); spawn(); render(); });
 selStart.addEventListener('change', () => { syncVals(); spawn(); render(); });
+if (selFrame) selFrame.addEventListener('change', () => { frameMode = selFrame.value; syncVals(); render(); });
 btnReset.addEventListener('click', () => {
   sliderMu.value = '0.0122'; selStart.value = 'L4'; muVal = 0.0122;
+  frameMode = 'rotating'; if (selFrame) selFrame.value = 'rotating'; simTime = 0;
   running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
   syncVals(); LP = lagrangePoints(muVal); buildLandscape(); spawn(); render();
 });
@@ -76,6 +87,25 @@ const WY = (y) => SCN.oy - y * SCN.scale;
 const invX = (sx) => (sx - SCN.ox) / SCN.scale;
 const invY = (sy) => (SCN.oy - sy) / SCN.scale;
 
+// Project a synodic-frame world point to screen, honouring the active frame.
+// In the inertial frame the synodic plane has rotated by theta = omega * t = t
+// (the equations of motion are non-dimensionalised so the mean motion is 1), so
+// a point fixed in the rotating frame traces a circle of its own radius.
+function rotXY(x, y, th) { const c = Math.cos(th), s = Math.sin(th); return [x * c - y * s, x * s + y * c]; }
+function P(x, y) { if (frameMode === 'inertial') { const r = rotXY(x, y, simTime); return [WX(r[0]), WY(r[1])]; } return [WX(x), WY(y)]; }
+function Pt(x, y, t) { if (frameMode === 'inertial') { const r = rotXY(x, y, t); return [WX(r[0]), WY(r[1])]; } return [WX(x), WY(y)]; }
+// Inverse of P at the current time: screen -> synodic world (used by the drag).
+function screenToSyn(sx, sy) {
+  const ix = invX(sx), iy = invY(sy);
+  if (frameMode === 'inertial') { const r = rotXY(ix, iy, -simTime); return [r[0], r[1]]; }
+  return [ix, iy];
+}
+// Text with a dark halo so labels stay legible over the potential map.
+function haloText(txt, x, y, fill) {
+  ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(4,6,12,0.85)';
+  ctx.strokeText(txt, x, y); ctx.fillStyle = fill; ctx.fillText(txt, x, y);
+}
+
 function colors() {
   const css = getComputedStyle(document.body);
   return {
@@ -98,10 +128,14 @@ function uWindow() {
 function buildLandscape() {
   if (!SCN) return;
   const { draw } = SCN; const { hi, lo } = uWindow();
-  const nx = 84, ny = 84;
+  // Sample over the FULL draw rectangle (in world coordinates), not a centred
+  // VIEW-square, so the heatmap fills the panel and leaves no black bars when
+  // the column is wider than it is tall. Resolution tracks the panel aspect.
+  const ny = 90;
+  const nx = Math.max(60, Math.min(170, Math.round(ny * draw.w / draw.h)));
   const xs = [], ys = [], grid = new Float64Array(nx * ny);
-  for (let i = 0; i < nx; i++) xs.push(invX(WX(-VIEW) + (i + 0.5) / nx * 2 * VIEW * SCN.scale));
-  for (let j = 0; j < ny; j++) ys.push(invY(WY(VIEW) + (j + 0.5) / ny * 2 * VIEW * SCN.scale));
+  for (let i = 0; i < nx; i++) xs.push(invX(draw.x + (i + 0.5) / nx * draw.w));
+  for (let j = 0; j < ny; j++) ys.push(invY(draw.y + (j + 0.5) / ny * draw.h));
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) grid[j * nx + i] = effectivePotential(xs[i], ys[j], muVal);
 
   if (!heat) heat = document.createElement('canvas');
@@ -109,8 +143,10 @@ function buildLandscape() {
   const hctx = heat.getContext('2d'); const img = hctx.createImageData(nx, ny);
   for (let k = 0; k < nx * ny; k++) {
     const t = Math.max(0, Math.min(1, (grid[k] - lo) / (hi - lo)));
-    const c = viridis(0.05 + 0.9 * t);
-    img.data[k * 4] = c.r; img.data[k * 4 + 1] = c.g; img.data[k * 4 + 2] = c.b; img.data[k * 4 + 3] = 235;
+    // Stay in the dark half of viridis and dim it, so the bright yellow end no
+    // longer drowns the overlaid Lagrange labels, contours, and readout.
+    const c = viridis(0.5 * t);
+    img.data[k * 4] = c.r * 0.74; img.data[k * 4 + 1] = c.g * 0.74; img.data[k * 4 + 2] = c.b * 0.74; img.data[k * 4 + 3] = 226;
   }
   hctx.putImageData(img, 0, 0);
 
@@ -146,37 +182,75 @@ function panel(col, r, title) {
   }
 }
 
+// Inertial-frame backdrop: barycentre cross and the two circular orbits the
+// primaries trace about it. The rotating-frame potential map is meaningless
+// here (the centrifugal term is a rotating-frame construct), so it is dropped.
+function drawInertialBackdrop(col, m1, m2) {
+  const cx = WX(0), cy = WY(0);
+  ctx.setLineDash([4, 5]); ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255,210,74,0.30)'; ctx.beginPath(); ctx.arc(cx, cy, Math.hypot(m1[0], m1[1]) * SCN.scale, 0, 2 * Math.PI); ctx.stroke();
+  ctx.strokeStyle = 'rgba(188,196,208,0.32)'; ctx.beginPath(); ctx.arc(cx, cy, Math.hypot(m2[0], m2[1]) * SCN.scale, 0, 2 * Math.PI); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = col.muted; ctx.lineWidth = 1; const d = 5;
+  ctx.beginPath(); ctx.moveTo(cx - d, cy); ctx.lineTo(cx + d, cy); ctx.moveTo(cx, cy - d); ctx.lineTo(cx, cy + d); ctx.stroke();
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  haloText('barycentre', cx + 8, cy + 9, col.muted);
+}
+
 function drawScene(col, r) {
-  panel(col, r, 'Effective potential in the rotating frame');
+  panel(col, r, frameMode === 'inertial'
+    ? 'Inertial frame: the two masses orbit the barycentre'
+    : 'Effective potential in the co-rotating frame');
   const { draw } = SCN;
   const stable = muVal < MU_ROUTH;
+  const m1 = [-muVal, 0], m2 = [1 - muVal, 0];
 
   ctx.save();
   clipTo(ctx, draw);
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(heat, WX(-VIEW), WY(VIEW), 2 * VIEW * SCN.scale, 2 * VIEW * SCN.scale);
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1; ctx.beginPath();
-  for (const s of contours) { ctx.moveTo(WX(s[0][0]), WY(s[0][1])); ctx.lineTo(WX(s[1][0]), WY(s[1][1])); }
-  ctx.stroke();
-
-  // primaries.
-  const m1 = [-muVal, 0], m2 = [1 - muVal, 0];
-  ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(WX(m1[0]), WY(m1[1]), 9, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = '#bcc4d0'; ctx.beginPath(); ctx.arc(WX(m2[0]), WY(m2[1]), 5, 0, 2 * Math.PI); ctx.fill();
-
-  // Lagrange points.
-  for (const k of ['L1', 'L2', 'L3', 'L4', 'L5']) {
-    const p = LP[k]; const tri = (k === 'L4' || k === 'L5');
-    const c = tri ? (stable ? col.stable : col.unstable) : col.saddle;
-    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(WX(p[0]), WY(p[1]), 4, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = c; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(k, WX(p[0]) + 5, WY(p[1]) - 1);
+  if (frameMode === 'rotating') {
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(heat, draw.x, draw.y, draw.w, draw.h);
+    ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 1; ctx.beginPath();
+    for (const s of contours) { ctx.moveTo(WX(s[0][0]), WY(s[0][1])); ctx.lineTo(WX(s[1][0]), WY(s[1][1])); }
+    ctx.stroke();
+  } else {
+    drawInertialBackdrop(col, m1, m2);
   }
 
-  // test body trail + dot.
-  if (trail.length > 1) { ctx.strokeStyle = 'rgba(255,209,102,0.7)'; ctx.lineWidth = 1.6; ctx.beginPath(); trail.forEach((p, k) => { if (k) ctx.lineTo(WX(p[0]), WY(p[1])); else ctx.moveTo(WX(p[0]), WY(p[1])); }); ctx.stroke(); }
-  const tx = sim.inst.q[0], ty = sim.inst.q[1];
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(WX(tx), WY(ty), 4.5, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = col.test; ctx.lineWidth = 1.6; ctx.stroke();
+  // primaries (frame-aware positions).
+  const p1 = P(m1[0], m1[1]), p2 = P(m2[0], m2[1]);
+  // In the inertial frame, tie the two masses to L4/L5 to expose the rigid
+  // equilateral triangle that co-rotates with them.
+  if (frameMode === 'inertial') {
+    const triCol = stable ? 'rgba(103,217,140,0.34)' : 'rgba(239,84,102,0.34)';
+    ctx.strokeStyle = triCol; ctx.lineWidth = 1.1; ctx.beginPath();
+    for (const k of ['L4', 'L5']) { const s = P(LP[k][0], LP[k][1]); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(s[0], s[1]); ctx.lineTo(p2[0], p2[1]); }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,210,74,0.35)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+  }
+  ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(p1[0], p1[1], 9, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#bcc4d0'; ctx.beginPath(); ctx.arc(p2[0], p2[1], 5, 0, 2 * Math.PI); ctx.fill();
+
+  // Lagrange points (fixed in the rotating frame, so they sweep circles in the
+  // inertial one). Labels carry a dark halo to stay legible over the map.
+  ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  for (const k of ['L1', 'L2', 'L3', 'L4', 'L5']) {
+    const tri = (k === 'L4' || k === 'L5');
+    const c = tri ? (stable ? col.stable : col.unstable) : col.saddle;
+    const s = P(LP[k][0], LP[k][1]);
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(s[0], s[1], 4, 0, 2 * Math.PI); ctx.fill();
+    haloText(k, s[0] + 5, s[1] - 1, c);
+  }
+
+  // test body trail + dot (each trail point rotated by its own recorded time).
+  if (trail.length > 1) {
+    ctx.strokeStyle = 'rgba(255,209,102,0.74)'; ctx.lineWidth = 1.6; ctx.beginPath();
+    trail.forEach((p, k) => { const s = Pt(p[0], p[1], p[2]); if (k) ctx.lineTo(s[0], s[1]); else ctx.moveTo(s[0], s[1]); });
+    ctx.stroke();
+  }
+  const bs = P(sim.inst.q[0], sim.inst.q[1]);
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(bs[0], bs[1], 4.5, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = col.test; ctx.lineWidth = 1.6; ctx.stroke();
 
   ctx.restore();
 
@@ -185,11 +259,13 @@ function drawScene(col, r) {
   const items = [
     [`μ ${muVal.toFixed(3)}`, col.fg],
     [stable ? 'L4/L5 stable' : 'L4/L5 unstable', stable ? col.stable : col.unstable],
-    [`start ${selStart.value}`, col.test],
+    [FRAME_LABEL[frameMode], col.test],
     [`Jacobi Δ ${drift.toExponential(0)}`, col.muted],
   ];
-  ctx.font = fontString(canvas, 'caption', 'mono', 700);
   ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  let widest = 0; for (const [txt] of items) widest = Math.max(widest, ctx.measureText(txt).width);
+  if (widest > r.w / 4 - 8) ctx.font = fontString(canvas, 'tick', 'mono', 700);   // shrink on narrow folds
   items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
 }
 
@@ -236,9 +312,9 @@ function render() {
 }
 
 function advance() {
-  for (let s = 0; s < 7; s++) stepCR3BP(sim, DEFAULT_DT);
+  for (let s = 0; s < 7; s++) { stepCR3BP(sim, DEFAULT_DT); simTime += DEFAULT_DT; }
   const x = sim.inst.q[0], y = sim.inst.q[1];
-  trail.push([x, y]); if (trail.length > 280) trail.shift();
+  trail.push([x, y, simTime]); if (trail.length > 280) trail.shift();
   if (Math.hypot(x, y) > 3 || !Number.isFinite(x)) spawn();   // escaped: relaunch
 }
 
@@ -247,11 +323,13 @@ let dragging = false;
 function pScreen(ev) { const rect = canvas.getBoundingClientRect(); return { sx: ev.clientX - rect.left, sy: ev.clientY - rect.top }; }
 canvas.addEventListener('pointerdown', (ev) => {
   if (!SCN) return; const { sx, sy } = pScreen(ev);
-  if ((WX(sim.inst.q[0]) - sx) ** 2 + (WY(sim.inst.q[1]) - sy) ** 2 < 30 * 30) { dragging = true; canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); }
+  const bs = P(sim.inst.q[0], sim.inst.q[1]);
+  if ((bs[0] - sx) ** 2 + (bs[1] - sy) ** 2 < 30 * 30) { dragging = true; canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); }
 });
 canvas.addEventListener('pointermove', (ev) => {
   if (!dragging) return; const { sx, sy } = pScreen(ev);
-  const wx = Math.max(-VIEW, Math.min(VIEW, invX(sx))), wy = Math.max(-VIEW, Math.min(VIEW, invY(sy)));
+  const syn = screenToSyn(sx, sy);                          // drop point is set in synodic coordinates
+  const wx = Math.max(-VIEW, Math.min(VIEW, syn[0])), wy = Math.max(-VIEW, Math.min(VIEW, syn[1]));
   sim = createCR3BP({ mu: muVal, ic: { q: [wx, wy], v: [0, 0] } }); trail = [];
   render();
 });
@@ -268,6 +346,8 @@ function tick(now) {
 }
 
 function bootSync() {
+  const fp = params.get('frame');
+  if (fp === 'inertial' || fp === 'rotating') { frameMode = fp; if (selFrame) selFrame.value = fp; }
   muVal = mu(); syncVals(); relayout();
   LP = lagrangePoints(muVal); buildLandscape(); spawn();
   for (let i = 0; i < 120; i++) advance();
@@ -296,6 +376,7 @@ window.playground.getState = function () {
       { key: 'routh', label: 'Routh limit μ', value: MU_ROUTH, format: 'float' },
       { key: 'l45', label: 'L4 / L5', value: muVal < MU_ROUTH ? 'stable' : 'unstable', format: 'text' },
       { key: 'start', label: 'test body start', value: selStart.value, format: 'text' },
+      { key: 'frame', label: 'frame', value: FRAME_LABEL[frameMode], format: 'text' },
     ],
   };
 };

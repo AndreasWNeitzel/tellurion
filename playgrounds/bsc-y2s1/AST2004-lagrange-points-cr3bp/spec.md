@@ -129,18 +129,19 @@ Velocity-Verlet from `shared/js/engine/symplectic.js` with the predictor-correct
 
 ## Controls
 
-- mu: mass parameter, slider 0.0005 - 0.4, default 0.01215 (Earth-Moon)
-- speed: steps per render frame multiplier, slider 0.1 - 3.0, default 1.0
-- Drop near L4 / L5: add a test particle one milli-unit off the equilateral point
-- Clear trails: empty the particle buffer
+- mass ratio: mass parameter mu, slider 0.004 - 0.18, default 0.0122 (Earth-Moon)
+- release: where the test body starts, select near L4 / near L1 / near L3
+- frame: co-rotating (synodic) or inertial (the two masses orbit the barycentre), select, default co-rotating
+- Play / Pause, Reset
 
-Click anywhere on the plot to drop a particle at the cursor with zero rotating-frame velocity.
+Drag the test body anywhere on the scene and let go to drop it there with zero rotating-frame velocity. In the inertial frame the drop point is mapped back to the rotating frame, so the release is consistent across both views.
 
 ## Expected qualitative features
 
 1. At low mu (Earth-Moon, Sun-Jupiter): particles at L4 or L5 librate in tight "tadpole" orbits around the equilibrium point.
 2. At mu > mu_R (around 0.04): triangular Lagrange points become linearly unstable; L4/L5 particles drift away.
 3. L1, L2, L3 are always unstable; tiny offset particles drift away within a few synodic periods.
+4. Switching to the inertial frame: the two primaries trace circular orbits about the barycentre (the heavy one barely moving at small mu), the five Lagrange points sweep round rigidly with them keeping the equilateral triangle, and an L4 librator draws its real looping path through inertial space.
 
 ## Invariants and acceptance thresholds
 
