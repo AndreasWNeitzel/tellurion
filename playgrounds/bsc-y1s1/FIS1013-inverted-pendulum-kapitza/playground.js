@@ -173,7 +173,13 @@ function drawScene(col, r) {
   const titleH = 22, stripH = 28;
   const inner = { x: r.x + 6, y: r.y + titleH + 2, w: r.w - 12, h: r.h - titleH - 2 - stripH - 4 };
   const ratio = stabilityRatio(sim.a, sim.omega);
-  const stable = ratio > 1;
+  // The verdict reflects what the rod is actually doing, not just the
+  // leading-order criterion a^2 omega^2 > 2 g l. That criterion only says the
+  // upright is linearly stable; near the threshold its basin of attraction
+  // shrinks, so a large release still topples. If the rod has swung past ~70
+  // degrees from vertical recently, it has fallen, whatever the criterion says.
+  const toppled = thetaHist.some((h) => h.abs > 1.2);
+  const stable = ratio > 1 && !toppled;
 
   // Right-hand stability gauge.
   const gaugeW = Math.min(120, inner.w * 0.24);
@@ -320,7 +326,7 @@ function drawDiagnostic(col, r) {
   // Marker: the pendulum as a ball on the potential at its current angle.
   const thNow = Math.atan2(Math.sin(sim.theta), Math.cos(sim.theta)); // wrap to [-pi,pi]
   const mx = xOf(thNow), my = yOf(effectivePotential(thNow, a, omega));
-  const stable = stabilityRatio(a, omega) > 1;
+  const stable = stabilityRatio(a, omega) > 1 && !thetaHist.some((h) => h.abs > 1.2);
   ctx.fillStyle = stable ? col.stable : col.unstable;
   ctx.beginPath();
   ctx.arc(mx, my, 6, 0, 2 * Math.PI);
