@@ -22,15 +22,19 @@ const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const sliderV = document.getElementById('slider-v');
 const sliderAng = document.getElementById('slider-ang');
+const sliderDrag = document.getElementById('slider-drag');
 const sliderSpeed = document.getElementById('slider-speed');
 const valueV = document.getElementById('value-v');
 const valueAng = document.getElementById('value-ang');
+const valueDrag = document.getElementById('value-drag');
 const valueSpeed = document.getElementById('value-speed');
 const btnReset = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
-const DRAG_B = 0.20;   // Stokes coefficient
-const DRAG_C = 0.012;  // quadratic coefficient
+const DRAG_B0 = 0.20;   // Stokes coefficient at drag strength 1
+const DRAG_C0 = 0.012;  // quadratic coefficient at drag strength 1
+const dragB = () => DRAG_B0 * state.drag;
+const dragC = () => DRAG_C0 * state.drag;
 const KEYS = ['none', 'stokes', 'quadratic'];
 const COL = { none: '#f1d28a', stokes: '#7fb1d8', quadratic: '#e0925f' };
 const NAME = { none: 'vacuum', stokes: 'Stokes drag', quadratic: 'quadratic drag' };
@@ -38,6 +42,7 @@ const NAME = { none: 'vacuum', stokes: 'Stokes drag', quadratic: 'quadratic drag
 const state = {
   v0: 20,
   angle: 45,
+  drag: 1,
   speed: 2,
   sims: null,
   trails: { none: [], stokes: [], quadratic: [] },
@@ -51,8 +56,8 @@ let REG = null;
 function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [
-    { name: 'scene', weight: 1.5 },
-    { name: 'ra', weight: 2.5 },
+    { name: 'scene', weight: 2.2 },
+    { name: 'ra', weight: 1.25 },
   ]);
 }
 
@@ -88,8 +93,8 @@ function panel(col, r) {
 function rebuild() {
   state.sims = {
     none: createProjectile({ v0: state.v0, angleDeg: state.angle, dragMode: 'none' }),
-    stokes: createProjectile({ v0: state.v0, angleDeg: state.angle, dragMode: 'stokes', b: DRAG_B }),
-    quadratic: createProjectile({ v0: state.v0, angleDeg: state.angle, dragMode: 'quadratic', c: DRAG_C }),
+    stokes: createProjectile({ v0: state.v0, angleDeg: state.angle, dragMode: 'stokes', b: dragB() }),
+    quadratic: createProjectile({ v0: state.v0, angleDeg: state.angle, dragMode: 'quadratic', c: dragC() }),
   };
   state.trails = { none: [], stokes: [], quadratic: [] };
   state.landed = { none: false, stokes: false, quadratic: false };
@@ -99,7 +104,7 @@ function rebuild() {
 // Range as a function of launch angle, integrated for the drag laws. Cached
 // per launch speed since only v0 changes the curve, not the live angle cursor.
 function computeRange(v0, angDeg, mode) {
-  const s = createProjectile({ v0, angleDeg: angDeg, dragMode: mode, b: DRAG_B, c: DRAG_C });
+  const s = createProjectile({ v0, angleDeg: angDeg, dragMode: mode, b: dragB(), c: dragC() });
   for (let i = 0; i < 6000; i += 1) {
     const x0 = s.x, y0 = s.y;
     stepProjectile(s, 0.02);
@@ -107,7 +112,7 @@ function computeRange(v0, angDeg, mode) {
   }
   return s.x;
 }
-let rangeCurve = null, rangeCurveV0 = null;
+let rangeCurve = null, rangeCurveV0 = null, rangeCurveDrag = null;
 function buildRangeCurve() {
   const data = [];
   for (let a = 1; a <= 89; a += 1) {
@@ -118,7 +123,7 @@ function buildRangeCurve() {
       quadratic: computeRange(state.v0, a, 'quadratic'),
     });
   }
-  rangeCurve = data; rangeCurveV0 = state.v0;
+  rangeCurve = data; rangeCurveV0 = state.v0; rangeCurveDrag = state.drag;
 }
 function optimum(key) {
   let best = rangeCurve[0];
@@ -192,18 +197,26 @@ function drawScene(col) {
   ctx.fillStyle = col.accent; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
   ctx.fillText(`${state.angle}°`, X(0) + 26, gy - 12);
 
-  // Readout (top) + legend.
-  ctx.font = fontString(canvas, 'mono', 'mono');
-  ctx.fillStyle = col.fg; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText(`v₀ ${state.v0} m/s   θ ${state.angle}°`, r.x + 10, r.y + 8);
+  // The single shared legend (swatch + name) explains the colours for both
+  // panels in one place. Draw it first so we know its width, then place the
+  // v0/theta readout to its right, dropping to a second row on narrow (phone)
+  // folds where the two would otherwise collide.
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
   let lx = r.x + 10;
   for (const key of KEYS) {
     ctx.fillStyle = COL[key];
-    const label = NAME[key];
-    ctx.fillText(label, lx, r.y + 28);
-    lx += ctx.measureText(label).width + 16;
+    ctx.beginPath(); ctx.arc(lx + 4, r.y + 14, 4, 0, 6.28); ctx.fill();
+    ctx.fillStyle = col.fg;
+    ctx.fillText(NAME[key], lx + 12, r.y + 14);
+    lx += 12 + ctx.measureText(NAME[key]).width + 16;
   }
+  ctx.font = fontString(canvas, 'mono', 'mono');
+  const readout = `v₀ ${state.v0} m/s   θ ${state.angle}°`;
+  const rw = ctx.measureText(readout).width;
+  const fits = (r.x + r.w - 10 - rw) > (lx + 8);
+  ctx.fillStyle = col.fg; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(readout, r.x + r.w - 10, fits ? r.y + 14 : r.y + 34);
 }
 
 function drawRangeAngle(col) {
@@ -246,10 +259,13 @@ function drawRangeAngle(col) {
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     });
     ctx.stroke();
-    // optimum marker
+    // optimum marker, annotated with its best angle (the curves' colours are
+    // explained by the legend in the scene above, so no names repeated here).
     const o = optimum(key);
     ctx.fillStyle = COL[key];
     ctx.beginPath(); ctx.arc(fx(o.a), fy(o[key]), 4, 0, Math.PI * 2); ctx.fill();
+    ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`${o.a}°`, fx(o.a), fy(o[key]) - 5);
   }
 
   // Cursor at current angle.
@@ -259,18 +275,12 @@ function drawRangeAngle(col) {
   ctx.beginPath(); ctx.moveTo(cxp, y0); ctx.lineTo(cxp, y1); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Best-angle callout for vacuum vs quadratic.
-  const oVac = optimum('none'), oQ = optimum('quadratic');
+  // Title + axis label only; the dots carry the best angle, and drag pushes the
+  // best angle below the 45 deg line that vacuum sits on.
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.fillStyle = col.accent;
-  ctx.fillText('range vs launch angle', r.x + 10, r.y + 8);
-  ctx.font = fontString(canvas, 'caption', 'sans');
-  ctx.fillStyle = COL.none;
-  ctx.fillText(`best ${oVac.a}° (vacuum)`, r.x + 10, r.y + 26);
-  ctx.fillStyle = COL.quadratic;
-  ctx.textAlign = 'right';
-  ctx.fillText(`best ${oQ.a}° (quad drag)`, r.x + r.w - 12, r.y + 26);
+  ctx.fillText('range vs launch angle  (dot = best angle)', r.x + 10, r.y + 8);
   ctx.fillStyle = col.muted; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
   ctx.font = fontString(canvas, 'caption', 'sans');
   ctx.fillText('launch angle', (x0 + x1) / 2, r.y + r.h - 2);
@@ -278,7 +288,7 @@ function drawRangeAngle(col) {
 
 function drawAll() {
   if (!REG) relayout();
-  if (!rangeCurve || rangeCurveV0 !== state.v0) buildRangeCurve();
+  if (!rangeCurve || rangeCurveV0 !== state.v0 || rangeCurveDrag !== state.drag) buildRangeCurve();
   const col = colors();
   ctx.fillStyle = col.bg;
   ctx.fillRect(0, 0, view.w, view.h);
@@ -303,8 +313,16 @@ function tickN(n) {
 sliderV.addEventListener('change', () => { state.v0 = parseInt(sliderV.value, 10); valueV.textContent = String(state.v0); rebuild(); drawAll(); });
 sliderV.addEventListener('input', () => { valueV.textContent = String(parseInt(sliderV.value, 10)); });
 sliderAng.addEventListener('input', () => { state.angle = parseInt(sliderAng.value, 10); valueAng.textContent = `${state.angle} deg`; rebuild(); drawAll(); });
+// Drag strength rebuilds the range curve (expensive), so commit on release.
+sliderDrag.addEventListener('input', () => { valueDrag.textContent = `${parseFloat(sliderDrag.value).toFixed(1)}x`; });
+sliderDrag.addEventListener('change', () => { state.drag = parseFloat(sliderDrag.value); valueDrag.textContent = `${state.drag.toFixed(1)}x`; rebuild(); drawAll(); });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
+btnReset.addEventListener('click', () => {
+  state.v0 = 20; state.angle = 45; state.drag = 1;
+  sliderV.value = '20'; sliderAng.value = '45'; if (sliderDrag) sliderDrag.value = '1';
+  valueV.textContent = '20'; valueAng.textContent = '45 deg'; if (valueDrag) valueDrag.textContent = '1.0x';
+  rebuild(); drawAll();
+});
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
@@ -325,6 +343,7 @@ function bootSync() {
   rebuild();
   valueV.textContent = String(state.v0);
   valueAng.textContent = `${state.angle} deg`;
+  if (valueDrag) valueDrag.textContent = `${state.drag.toFixed(1)}x`;
   valueSpeed.textContent = String(state.speed);
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
@@ -369,17 +388,22 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const speed = (s) => (s ? Math.hypot(s.vx, s.vy) : 0);
-  const rng = (k) => {
-    const tr = state.trails[k];
-    return state.landed[k] && tr.length ? tr[tr.length - 1][0] : 0;
+  // Predicted quadratic-drag range at the current angle, read from the cached
+  // sweep so the rail shows the same value the curve plots (consistent with the
+  // analytic vacuum range, not the live landed distance which is 0 mid-flight).
+  const rangeQuad = () => {
+    if (rangeCurve) {
+      const d = rangeCurve.find((e) => e.a === Math.round(state.angle));
+      if (d) return d.quadratic;
+    }
+    return computeRange(state.v0, state.angle, 'quadratic');
   };
   return {
     fields: [
       { key: 'v0', label: 'launch speed v0 (m/s)', value: state.v0, format: 'float' },
       { key: 'angle', label: 'launch angle (deg)', value: state.angle, format: 'float' },
       { key: 'range-vac', label: 'range vacuum (m)', value: vacuumRange(state.v0, state.angle), format: 'float' },
-      { key: 'range-quad', label: 'range quad drag (m)', value: rng('quadratic'), format: 'float' },
+      { key: 'range-quad', label: 'range quad drag (m)', value: rangeQuad(), format: 'float' },
     ],
   };
 };

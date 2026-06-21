@@ -79,6 +79,7 @@
       <div class="controls pg-controls" id="controls" role="group" aria-label="Projectile controls">
     <div class="row"><span class="label">v_0 (m/s)</span><input aria-label="v_0 (m/s)" type="range" id="slider-v" min="5" max="40" step="1" value="20"><span class="value" id="value-v">20</span></div>
     <div class="row"><span class="label">angle</span><input aria-label="angle" type="range" id="slider-ang" min="10" max="80" step="1" value="45"><span class="value" id="value-ang">45 deg</span></div>
+    <div class="row"><span class="label">drag</span><input aria-label="drag strength" type="range" id="slider-drag" min="0" max="2.5" step="0.1" value="1"><span class="value" id="value-drag">1.0x</span></div>
     <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
@@ -91,8 +92,9 @@
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
         <li class="t-body">Watch the three balls land: the vacuum shot flies farthest, the drag shots fall short and come down steeper than they went up.</li>
-        <li class="t-body">In the lower plot, the vacuum range peaks exactly at 45 degrees. With drag the best angle slides below 45.</li>
+        <li class="t-body">In the lower plot, the vacuum range peaks exactly at 45 degrees. With drag the best angle slides below 45, marked by the dots on each curve.</li>
         <li class="t-body">Push the launch speed up: quadratic drag bites harder and the gap to the vacuum shot widens.</li>
+        <li class="t-body">Sweep the drag slider from 0 to 2.5x: at zero all three curves collapse onto the vacuum parabola; turn it up and the drag optima slide further below 45 degrees while the ranges shrink.</li>
       </ul>
     </section>
 
