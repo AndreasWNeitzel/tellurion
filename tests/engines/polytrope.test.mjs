@@ -14,6 +14,11 @@ describe('Lane-Emden surface zeros', () => {
   it('n=3 has xi_1 = 6.89685', () => {
     expect(laneEmden(3).xi1).toBeCloseTo(6.89685, 3);
   });
+  it('surface slope theta\'(xi_1) gives the standard mass factor -xi_1^2 theta\' = 2.018', () => {
+    const m = laneEmden(3);
+    expect(-m.xi1 * m.xi1 * m.dth1).toBeCloseTo(2.018, 2);
+    expect(laneEmden(1).dth1).toBeCloseTo(-1 / Math.PI, 3);
+  });
 });
 
 describe('Lane-Emden solution shape', () => {

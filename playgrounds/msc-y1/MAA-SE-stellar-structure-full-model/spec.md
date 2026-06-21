@@ -18,18 +18,19 @@ renderer: canvas2d
 estimated_engagement_minutes: 6
 share_state_keys: [m, x]
 invariants:
-  - key: runs
-    label: simulation advances each frame
-    tolerance: 1
-  - key: bounded
-    label: state stays finite
-    tolerance: 1
-  - key: deterministic
-    label: fixed seed reproduces the run
-    tolerance: 1
+  - key: mass-conservation
+    label: the integrated mass recovers the input mass
+    tolerance: 0.05
+  - key: solar-calibration
+    label: the solar model radiates L_sun and the central pressure and temperature are within the Eddington-model tolerances
+    tolerance: 0.05
+  - key: cno-hierarchy
+    label: the pp chain dominates at solar temperature and the CNO cycle wins when hot
+    tolerance: 0
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Drag the mass up: L grows as about M^3.5, the central temperature climbs, and the CNO cycle overtakes the pp chain in the energy-generation panel.
+  - Drag the mass down: the core cools, the pp chain dominates, and the luminosity drops by orders of magnitude.
+  - Watch the HR panel: the model slides along the zero-age main sequence as the mass changes.
 references:
   - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed."
 ---
@@ -129,7 +130,7 @@ RK4 integration of the Lane-Emden equation from the regular centre (the xi = 0 l
 
 ## Expected qualitative features
 
-- A temperature-coloured sliced star: a bright hot core, a radiative zone and a thin photosphere; for a low-mass star the whole interior is convective and visibly bubbling.
+- A temperature-coloured sliced star: a bright hot core, a radiative zone and a thin photosphere. The Schwarzschild zoning of the n=3 polytrope is only a coarse guide (it misses the convective cores of massive stars and the deep convective envelopes of cool dwarfs, which a polytrope cannot capture); the global L, R and Teff follow the homology zero-age main sequence.
 - Density and pressure falling far faster than temperature; the luminosity rising to its total within the inner few tenths of the radius (energy is generated in the core).
 - pp dominating in the solar model, the CNO cycle overtaking it for massive stars, triple-alpha negligible until ~1e8 K.
 - The model point tracking the ZAMS in the HR diagram: more massive stars brighter and hotter.

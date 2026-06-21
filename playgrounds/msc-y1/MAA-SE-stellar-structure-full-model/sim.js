@@ -5,36 +5,16 @@
 // resulting HR position. Carroll and Ostlie Ch. 10; Hansen and Kawaler;
 // Kippenhahn and Weigert; Chandrasekhar 1939. SI units throughout.
 
+import { laneEmden, thetaAt } from '../../../shared/js/engine/polytrope.js';
+
 export const G = 6.674e-11, KB = 1.380649e-23, MH = 1.6726219e-27;
 export const A_RAD = 7.5657e-16, SIGMA_SB = 5.670374e-8;
 export const MSUN = 1.98892e30, RSUN = 6.957e8, LSUN = 3.828e26;
 
-// Lane-Emden: (1/xi^2) d/dxi(xi^2 dtheta/dxi) = -theta^n. Integrate
-// from the regular centre (theta=1, theta'=0) by RK4 to the surface
-// theta = 0. Returns the grid, the first zero xi1 and theta'(xi1).
-export function solveLaneEmden(n, dxi = 1e-3) {
-  const xi = [0], th = [1], dth = [0];
-  const f = (x, y, z) => (x === 0 ? -1 / 3 : -(Math.pow(Math.max(y, 0), n)) - 2 * z / x);
-  let x = 0, y = 1, z = 0;
-  while (y > 0 && x < 50) {
-    const k1y = z, k1z = f(x, y, z);
-    const k2y = z + 0.5 * dxi * k1z, k2z = f(x + 0.5 * dxi, y + 0.5 * dxi * k1y, z + 0.5 * dxi * k1z);
-    const k3y = z + 0.5 * dxi * k2z, k3z = f(x + 0.5 * dxi, y + 0.5 * dxi * k2y, z + 0.5 * dxi * k2z);
-    const k4y = z + dxi * k3z, k4z = f(x + dxi, y + dxi * k3y, z + dxi * k3z);
-    const ynew = y + (dxi / 6) * (k1y + 2 * k2y + 2 * k3y + k4y);
-    const znew = z + (dxi / 6) * (k1z + 2 * k2z + 2 * k3z + k4z);
-    x += dxi; y = ynew; z = znew;
-    xi.push(x); th.push(y); dth.push(z);
-  }
-  // linear-interpolate the exact surface where theta crosses zero
-  const m = xi.length - 1;
-  const t = th[m - 1] / (th[m - 1] - th[m]);
-  const xi1 = xi[m - 1] + t * (xi[m] - xi[m - 1]);
-  const dth1 = dth[m - 1] + t * (dth[m] - dth[m - 1]);
-  return { xi, th, dth, xi1, dth1 };
-}
-
-const LE3 = solveLaneEmden(3);
+// n = 3 Eddington standard model from the shared Lane-Emden engine. For a
+// polytrope rho ~ theta^3, P ~ theta^4, T ~ theta. The model exposes xi1 and
+// dth1 = theta'(xi1); the dimensionless mass goes as -xi1^2 dth1.
+const LE3 = laneEmden(3);
 
 // pp-chain energy generation (W/kg). Carroll and Ostlie Eq. 10.46:
 // power-law T^4 form near solar temperatures, with the overall rate
@@ -68,7 +48,7 @@ export function meanMolecularWeight(X, Y) {
 export function stellarModel({
   M = MSUN, R = RSUN, X = 0.70, Y = 0.28, nShell = 400,
 } = {}) {
-  const { xi, th, xi1, dth1 } = LE3;
+  const { xi1, dth1 } = LE3;
   const Z = Math.max(0, 1 - X - Y), XCNO = Z;
   const mu = meanMolecularWeight(X, Y);
   const rhoMean = 3 * M / (4 * Math.PI * R * R * R);
@@ -88,11 +68,7 @@ export function stellarModel({
   let mAcc = 0, lAcc = 0, rPrev = 0, rhoPrev = rhoC, ePrev = 0;
   for (let i = 0; i <= nShell; i += 1) {
     const xx = xi1 * i / nShell;
-    // interpolate theta(xx) on the Lane-Emden grid
-    let j = Math.min(xi.length - 2, Math.floor(xx / (xi[1] - xi[0])));
-    while (j + 1 < xi.length - 1 && xi[j + 1] < xx) j += 1;
-    const frac = (xx - xi[j]) / (xi[j + 1] - xi[j] || 1);
-    const thx = Math.max(0, th[j] + frac * (th[j + 1] - th[j]));
+    const thx = Math.max(0, thetaAt(LE3, xx));      // theta(xi) from the shared engine
     r[i] = R * xx / xi1;
     rho[i] = rhoC * thx ** 3;
     P[i] = Pc * thx ** 4;

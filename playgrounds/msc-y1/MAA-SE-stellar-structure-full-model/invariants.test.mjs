@@ -1,15 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import {
   G, KB, MH, SIGMA_SB, MSUN, RSUN, LSUN,
-  solveLaneEmden, stellarModel, meanMolecularWeight,
+  stellarModel, meanMolecularWeight,
   epsPP, epsCNO, epsTriAlpha, zamsPoint, zamsTrack,
 } from './sim.js';
+import { laneEmden } from '../../../shared/js/engine/polytrope.js';
 
 describe('stellar-structure-full-model invariants', () => {
   const sun = stellarModel({});
 
   it('the n = 3 Lane-Emden solution has the known surface values', () => {
-    const le = solveLaneEmden(3);
+    const le = laneEmden(3);
     expect(le.xi1).toBeCloseTo(6.89685, 3);              // first zero
     expect(le.dth1).toBeCloseTo(-0.042430, 4);           // theta'(xi1)
     for (let i = 1; i < le.th.length; i += 1) {

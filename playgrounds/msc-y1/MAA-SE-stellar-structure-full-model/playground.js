@@ -8,7 +8,7 @@ import {
   stellarModel, zamsTrack, zamsPoint, MSUN, RSUN, LSUN,
   epsPP, epsCNO, epsTriAlpha,
 } from './sim.js';
-import { viridis } from '../../../shared/js/render/colormaps.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
@@ -20,7 +20,15 @@ const CAPTURE_FRAC = parseFloat(qp.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const W = canvas.width, H = canvas.height;
+let view = { w: 800, h: 1040, dpr: 1 }, REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.4 },
+    { name: 'profiles', weight: 1.0 },
+    { name: 'epshr', weight: 1.05 },
+  ]);
+}
 const rM = document.getElementById('readout-m');
 const rTc = document.getElementById('readout-tc');
 const rPc = document.getElementById('readout-pc');
@@ -237,12 +245,12 @@ function epsParts(m, i) {
 }
 
 function draw() {
-  ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
+  if (!REG) relayout();
+  ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, view.w, view.h);
   const m = st.model;
-  const half = (W - 52) / 2;
-  drawStar(20, 20, half, H - 34);
-  drawProfiles(20 + half + 12, 20, half, (H - 46) / 2);
-  drawEpsHR(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
+  drawStar(REG.scene.x, REG.scene.y, REG.scene.w, REG.scene.h);
+  drawProfiles(REG.profiles.x, REG.profiles.y, REG.profiles.w, REG.profiles.h);
+  drawEpsHR(REG.epshr.x, REG.epshr.y, REG.epshr.w, REG.epshr.h);
   rM.textContent = `${massMsun().toFixed(2)} Msun`;
   rTc.textContent = `${m.Tc.toExponential(2)} K`;
   rPc.textContent = `${m.Pc.toExponential(1)} Pa`;
@@ -325,21 +333,34 @@ if (document.readyState === 'loading') {
 }
 
 
+window.addEventListener('resize', () => { relayout(); draw(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); draw(); }).observe(canvas);
+
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const model = window.st?.model;
+  const m = st.model;
+  // Global observables follow the homology zero-age main sequence (the reliable
+  // L-M, R-M relations the HR panel also uses); the polytrope supplies the
+  // interior central temperature and the convective fraction.
+  const zp = zamsPoint(massMsun());
   return {
     fields: [
-      { key: 'mass', label: 'stellar mass (Msun)', value: (st.mRaw / 10).toFixed(2), format: 'float' },
-      { key: 'radius', label: 'stellar radius (Rsun)', value: model ? (model.R / RSUN).toFixed(2) : 0, format: 'float' },
-      { key: 'teff', label: 'effective temperature (K)', value: model ? model.Teff.toFixed(0) : 0, format: 'float' },
-      { key: 'lum', label: 'luminosity (Lsun)', value: model ? (model.L / LSUN).toFixed(2) : 0, format: 'float' },
+      { key: 'mass', label: 'stellar mass (Msun)', value: massMsun(), format: 'float' },
+      { key: 'radius', label: 'stellar radius (Rsun)', value: zp.R, format: 'float' },
+      { key: 'teff', label: 'effective temperature (K)', value: zp.Teff, format: 'float' },
+      { key: 'lum', label: 'luminosity (Lsun)', value: zp.L, format: 'float' },
+      { key: 'tc', label: 'central temperature (K)', value: m ? m.Tc : 0, format: 'float' },
+      { key: 'rhoc', label: 'central density (kg/m3)', value: m ? m.rhoC : 0, format: 'float' },
     ],
   };
 };
 window.playground.getInvariants = function () {
-  const model = window.st?.model;
-  if (!model) return [{ key: 'model', label: 'model ready', value: 'pending', status: 'pending' }];
-  return [{ key: 'polytrope', label: 'n=3 polytrope model', value: 'computed', status: 'pass' }];
+  const m = st.model;
+  if (!m) return [{ key: 'model', label: 'model ready', value: 'pending', status: 'pending' }];
+  const massErr = Math.abs(m.massComputed - m.M) / m.M;
+  return [
+    { key: 'mass-conservation', label: 'integrated mass = M', value: `${(massErr * 100).toFixed(1)}%`, status: massErr < 0.05 ? 'pass' : 'drift' },
+    { key: 'luminosity', label: 'luminosity positive', value: m.Ltot > 0 ? 'pass' : 'fail', status: m.Ltot > 0 ? 'pass' : 'drift' },
+  ];
 };

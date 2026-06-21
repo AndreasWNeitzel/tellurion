@@ -44,9 +44,13 @@ export function laneEmden(nPoly = 3, opts = {}) {
     xi += h;
   }
   // surface zero by linear interpolation between the last positive sample and
-  // the first non-positive one.
-  const xi1 = prevXi + h * prevTh / (prevTh - theta);
-  const model = { nPoly, xi1, h, xs, th, dth };
+  // the first non-positive one; dth1 = theta'(xi1) (negative) by the same
+  // interpolation, since the dimensionless mass goes as -xi1^2 theta'(xi1).
+  const frac = prevTh / (prevTh - theta);
+  const xi1 = prevXi + h * frac;
+  const dthPrev = dth[dth.length - 1];
+  const dth1 = dthPrev + frac * (dtheta - dthPrev);
+  const model = { nPoly, xi1, dth1, h, xs, th, dth };
   CACHE.set(key, model);
   return model;
 }
