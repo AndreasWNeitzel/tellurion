@@ -10,10 +10,10 @@ curriculum_year: bsc-y1s2
 primary_citation: griffithsem2017
 primary_chapter: 2
 hook: 'Wrap any loop you like around a charge and the flux through it is the same number; slide the charge outside and it drops to zero, no matter how you bend the loop.'
-one_paragraph: 'Gauss''s law says the electric flux through a closed surface depends only on the charge enclosed, never on the shape or size of the surface. Here a point charge sits in a plane and you draw a closed curve around it (a circle, an ellipse, or a wobbly blob); the playground integrates E.n around the curve by Simpson quadrature and shows the flux live. Drag the charge or reshape the loop: while the charge stays inside, the flux holds fixed at q/epsilon_0; the instant it crosses outside, the flux collapses to zero. That shape independence is the entire content of Gauss''s law, and it is what lets you trade a hard field integral for a trivial charge count.'
-tags: [electromagnetism, animation, live-readout]
+one_paragraph: 'Gauss''s law says the electric flux through a closed surface depends only on the charge enclosed, never on the shape or size of the surface. Here point charges sit in a plane (one +, two +, or a + and - pair) and a closed Gaussian loop (circle, ellipse, or wobbly blob) is drawn around them; the field streams through the loop as advected tracer dots, with outflow marked red and inflow blue, and the playground integrates E.n around the curve by Simpson quadrature. Drag a charge or the loop, or reshape and resize it: while the enclosed charge is unchanged the flux holds fixed at q/epsilon_0; move a charge outside and the flux collapses to zero; enclose a + and - pair and the net is zero so the flux is zero even though the field is strong. The diagnostic plots the flux contribution all the way around the loop, whose signed area is the total flux.'
+tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -82,9 +82,10 @@ calculation shortcut for any symmetric problem.
 
 - Resize and distort the loop with the charge inside: the flux
   readout does not move.
-- Drag the charge across the boundary and watch the flux jump to zero.
-- Add the realization that the same law, in 3D, gives the field of a
-  sphere or an infinite plane in one line.
+- Drag the charge (or the loop) across the boundary and watch the flux
+  jump by one full unit as it crosses.
+- Enclose the + and - pair: the net charge is zero, so the flux is zero
+  even though the field between them is strong.
 
 ### Where this comes from
 
@@ -100,20 +101,23 @@ By Gauss's theorem in 2D, the flux equals $q / \epsilon_0$ whenever the charge s
 
 ## Numerical method
 
-Simpson 1/3 quadrature at $n = 400$ subintervals on the parameter $t \in [0, 2\pi]$ along the curve. The outward-normal integrand is $E_x \dot y - E_y \dot x$ for counterclockwise parameterization.
+Simpson 1/3 quadrature at $n = 400$ subintervals on the parameter $t \in [0, 2\pi]$ along the curve, summed over all charges (superposition). The outward-normal integrand is $E_x \dot y - E_y \dot x$ for counterclockwise parameterization. Rendering is plain Canvas2D: a field-magnitude map, tracer dots advected along E (the field as flow), the Gaussian loop, signed outward-normal arrows (red outflow, blue inflow), and the draggable charge discs. Enclosure is tested by point-in-polygon against the sampled loop.
 
 ## Controls
 
-- Shape selector (ellipse, blob).
-- Ellipse semi-axes $a$ and $b$.
-- Charge x-position (charge always at $y = 0$).
+- charges: one + / two + / + and - pair.
+- surface shape: circle / ellipse / blob.
+- surface size slider; drag any charge or the loop centre with the pointer.
+- Reset / Pause / Play.
 
 ## Expected qualitative features
 
-1. Flux exactly $q / \epsilon_0$ for any ellipse aspect ratio enclosing the charge.
-2. Flux drops to zero when the charge crosses the boundary.
-3. Blob (3-lobed perturbation) gives the same flux as the unperturbed ellipse.
-4. E-field arrows visibly diverge from the charge; the loop color flips between accent (inside) and muted (outside).
+1. Flux exactly $q / \epsilon_0$ for any shape or size enclosing the charge.
+2. Flux drops to zero when a charge crosses the boundary.
+3. Blob (3-lobed perturbation) gives the same flux as the circle.
+4. A + and - pair enclosed gives zero net flux (zero net charge).
+5. Tracer dots stream outward from + charges, through the loop; the
+   per-point flux contribution is positive (red) on outflow arcs.
 
 ## Invariants and acceptance thresholds
 
@@ -136,15 +140,15 @@ All confirmed in `invariants.test.mjs` (7 tests passing).
 
 ## Visual fallback
 
-If KaTeX or Canvas2D is unavailable, sliders still operate.
+Canvas2D only. The caption names the flux law and the shape-independence
+so the figure reads without Canvas2D; the controls remain operable.
 
 ## Citations
 
-- Griffiths, *Introduction to Electrodynamics*, 5e, Ch. 2.
+- Griffiths, *Introduction to Electrodynamics*, 4e, Ch. 2.
 
 ## Stretch goals
 
-- Add a second charge (positive or negative) and show flux = sum of enclosed charges.
 - Switch to 3D with a deformable closed surface; integrate over the surface.
 - Show Gauss's law in differential form via the divergence-arrow visualization.
 

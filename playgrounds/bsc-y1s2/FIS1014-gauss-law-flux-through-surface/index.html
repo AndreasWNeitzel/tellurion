@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Gauss Law: Flux Invariant Under Deformation</title>
+<title>Gauss's law: the flux counts only the charge inside</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,12 +13,11 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 760px; }
-    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -39,61 +38,43 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Gauss's law: flux is invariant under deformation</h1>
+      <h1 class="t-title playground-title">Gauss's law: the flux counts the charge inside</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-    <strong>What you are seeing:</strong> a point charge <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi></mrow><annotation encoding="application/x-tex">q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">q</span></span></span></span></span> inside (or
-    outside) a deformable closed 2D loop. The flux of the electric field
-    through the loop is computed numerically by Simpson quadrature on
-    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∮</mo><mi mathvariant="bold">E</mi><mo>⋅</mo><mover accent="true"><mi>n</mi><mo>^</mo></mover> <mi>d</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">\oint \mathbf{E} \cdot \hat n \, ds</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.1111em; vertical-align: -0.3061em;"></span><span class="mop op-symbol small-op" style="margin-right: 0.1945em; position: relative; top: -0.0006em;">∮</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathbf">E</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6944em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mathnormal">n</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.25em;"><span class="mord">^</span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">s</span></span></span></span></span>. For 2D Gauss the result is
-    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mi mathvariant="normal">/</mi><msub><mi>ϵ</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">q / \epsilon_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">q</span><span class="mord">/</span><span class="mord"><span class="mord mathnormal">ϵ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span> whenever the charge sits inside, and zero when it
-    sits outside, no matter how the loop is deformed.
-  </p>
-      <p class="t-body">
-    Slide the ellipse semi-axes or switch to the blob shape. The
-    readout reports the computed flux and the ratio to the theoretical
-    value <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mi mathvariant="normal">/</mi><msub><mi>ϵ</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">q / \epsilon_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">q</span><span class="mord">/</span><span class="mord"><span class="mord mathnormal">ϵ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span>. Move the charge position out past the
-    ellipse boundary and the flux drops to zero.
-  </p>
+      <p class="t-body">Picture the electric field as something streaming out of a charge. Now wrap any closed loop around it and count how much of that stream crosses the loop on the way out: that total is the flux. Gauss's law says something remarkable, the flux depends only on the charge enclosed, not on the size or the shape of the loop, and not on where the charge sits inside it. Stretch the loop, dent it into a blob, slide the charge around inside, and the flux does not budge. Move the charge outside and the flux drops to exactly zero, because every field line that enters the loop on one side leaves on the other. The scene streams the field through a Gaussian loop you can drag and deform, with the outflow and inflow marked along it; the diagnostic is the flux contribution all the way around, whose shaded area is the total flux, landing on the enclosed charge every time.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500" tabindex="0" aria-label="Closed 2D loop around a point charge with flux readout."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="Electric field streaming through a draggable, deformable Gaussian loop around point charges, with outflow and inflow marked. Below, the flux contribution around the loop, whose signed area is the total flux."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Gauss's law in 2D: flux is invariant under deformation when the
-      charge stays inside the closed curve. Method: Simpson quadrature
-      with <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>400</mn></mrow><annotation encoding="application/x-tex">n = 400</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">400</span></span></span></span></span>.</figcaption>
+      Gauss's law in 2D. Top: the field of point charges streaming through a Gaussian loop (draggable, resizable, deformable); red marks outflow and blue inflow along the loop. Bottom: the flux contribution E.n around the loop versus arc parameter; its signed area is the total flux, equal to the enclosed charge over epsilon-zero. Method: Simpson integration of the closed line integral.</figcaption>
 
     <section class="playground-controls">
-      <div class="controls pg-controls" id="controls" role="group" aria-label="Loop controls">
-    <div class="row"><span class="label">shape</span><select aria-label="shape" id="select-shape">
-        <option value="ellipse" selected="">ellipse</option>
-        <option value="blob">blob (k = 3)</option>
-      </select>
-      <span class="value" id="value-shape">ellipse</span>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Gauss law controls">
+    <div class="row"><span class="label">charges</span><select aria-label="charge configuration" id="select-charges"><option value="single" selected="">one + charge</option><option value="two-plus">two + charges</option><option value="pair">+ and - pair</option></select><span class="value" id="value-charges">one +</span></div>
+    <div class="row"><span class="label">surface</span><select aria-label="surface shape" id="select-shape"><option value="circle" selected="">circle</option><option value="ellipse">ellipse</option><option value="blob">blob</option></select><span class="value" id="value-shape">circle</span></div>
+    <div class="row"><span class="label">size</span><input aria-label="surface size" type="range" id="slider-size" min="0.45" max="2.1" step="0.05" value="1.15"><span class="value" id="value-size">1.15</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
     </div>
-    <div class="row"><span class="label">semi-axis a</span><input aria-label="semi-axis a" type="range" id="slider-a" min="0.3" max="2.5" step="0.05" value="1.4"><span class="value" id="value-a">1.40</span></div>
-    <div class="row"><span class="label">semi-axis b</span><input aria-label="semi-axis b" type="range" id="slider-b" min="0.3" max="2.5" step="0.05" value="1.0"><span class="value" id="value-b">1.00</span></div>
-    <div class="row"><span class="label">charge cx</span><input aria-label="charge cx" type="range" id="slider-cx" min="-2" max="2" step="0.05" value="0.0"><span class="value" id="value-cx">0.00</span></div>
   </div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">flux (V):</span><span class="value" id="readout-f">0</span>
-      <span class="label">flux / (q/eps_0):</span><span class="value" id="readout-r">0</span>
-    </div></div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Drag the loop off the charge: the flux drops to zero, every line that enters also leaves.</li>
+        <li class="t-body">Change the shape to ellipse or blob and resize it: while the charge stays inside, the flux does not change at all.</li>
+        <li class="t-body">Pick the + and - pair and enclose both: the net charge is zero, so the flux is zero even though the field is strong.</li>
+        <li class="t-body">Drag a charge across the loop boundary and watch the flux jump by one full unit as it crosses.</li>
       </ul>
     </section>
 
