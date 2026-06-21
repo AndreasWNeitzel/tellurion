@@ -1,229 +1,363 @@
-// playground.js
-// Interactive line integral. Drag A, B and the bend handle: a probe
-// walks the bent path while the work integral accumulates, next to the
-// straight-path reference. For a conservative field both match and the
-// closed loop is ~0; for a rotational field the path matters and the
-// loop encloses circulation. sim.js core is unchanged.
-
-import {
-  FIELDS, lineIntegral, straightPath, bezierPath, lineIntegralPolyline,
-  closedLoopIntegral,
-} from './sim.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
+// Vertical 4:5 hero for the path-dependence of a line integral, Canvas2D
+// only. Top region: a vector field with two endpoints and three routes
+// between them (straight, arc, and a draggable bent path), or a closed
+// loop. Bottom region: the running integral of F.dr along each route
+// versus progress, ending at the same value for a conservative field or
+// splitting apart otherwise.
+//
+// Reference: Riley, Hobson, Bence, Mathematical Methods for Physics and
+// Engineering, 3rd ed., Ch. 11.
+
+import { FIELDS, arcPath, bezierPath, closedLoopIntegral } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
-const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const readoutPaths = document.getElementById('readout-paths');
-const readoutLoop = document.getElementById('readout-loop');
-const selectField = document.getElementById('select-field');
+
+const selField = document.getElementById('select-field');
+const selRoutes = document.getElementById('select-routes');
 const valueField = document.getElementById('value-field');
+const valueRoutes = document.getElementById('value-routes');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
 
-const W = canvas.width, H = canvas.height;
-const VIEW = 3.2;
-const SCx = W / (2 * VIEW), SCy = H / (2 * VIEW);
-const CXp = W / 2, CYp = H / 2;
-const toPx = (p) => ({ px: CXp + p.x * SCx, py: CYp - p.y * SCy });
-const toWorld = (mx, my) => ({ x: (mx - CXp) / SCx, y: (CYp - my) / SCy });
+const VIEW = 2.6, M = 160;
+let running = !DETERMINISTIC;
+let A = { x: -1.5, y: -0.7 }, B = { x: 1.5, y: 0.6 }, C = { x: 0.1, y: 1.7 };
+let tphase = 0;
 
-const st = {
-  fieldKey: 'conservative1',
-  A: { x: -2, y: -0.4 }, B: { x: 2, y: 0.6 }, C: { x: 0, y: 1.8 },
-  probe: 0, drag: null, playing: !(DETERMINISTIC || prefersReducedMotion()),
-};
+function field() { return FIELDS[selField.value]; }
+function isLoop() { return selRoutes.value === 'loop'; }
+function syncVals() {
+  valueField.textContent = { rotation: 'rotation', shear: 'shear', conservative1: 'grad φ', conservative2: 'grad φ' }[selField.value];
+  valueRoutes.textContent = isLoop() ? 'loop' : 'all';
+}
+selField.addEventListener('change', () => { syncVals(); render(); });
+selRoutes.addEventListener('change', () => { syncVals(); render(); });
+btnReset.addEventListener('click', () => {
+  selField.value = 'rotation'; selRoutes.value = 'all';
+  A = { x: -1.5, y: -0.7 }; B = { x: 1.5, y: 0.6 }; C = { x: 0.1, y: 1.7 };
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
 
-function fieldMag(f, x, y) { return Math.hypot(f.P(x, y), f.Q(x, y)); }
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null, SCN = null;
+function computeSceneTransform() {
+  const r = REG.scene;
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const size = Math.min(draw.w, draw.h);
+  SCN = { draw, ox: draw.x + draw.w / 2, oy: draw.y + draw.h / 2, scale: size / (2 * VIEW) };
+}
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.95 },
+    { name: 'diagnostic', weight: 1.05 },
+  ]);
+  computeSceneTransform();
+}
+const WX = (x) => SCN.ox + x * SCN.scale;
+const WY = (y) => SCN.oy - y * SCN.scale;
+const invX = (sx) => (sx - SCN.ox) / SCN.scale;
+const invY = (sy) => (SCN.oy - sy) / SCN.scale;
 
-function ramp(t) {
-  const u = Math.max(0, Math.min(1, t));
-  const r = Math.round(255 * Math.min(1, Math.max(0, -0.35 + 2.2 * u)));
-  const g = Math.round(255 * Math.min(1, 0.1 + 0.95 * u));
-  const b = Math.round(255 * Math.min(1, 0.6 - 0.55 * u + 0.25 * (1 - u)));
-  return `rgb(${r},${g},${b})`;
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    A: '#67d98c', B: '#ef5466', C: '#ffd166',
+    straight: '#5bc0eb', arc: '#ff9f43', bent: '#c77dff',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)',
+  };
 }
 
-function drawField(f) {
-  let mMax = 1e-6;
-  for (let gx = -3; gx <= 3; gx += 0.5) for (let gy = -2.5; gy <= 2.5; gy += 0.5) { const m = fieldMag(f, gx, gy); if (m > mMax) mMax = m; }
-  for (let gx = -3; gx <= 3; gx += 0.5) {
-    for (let gy = -2.5; gy <= 2.5; gy += 0.5) {
-      const m = fieldMag(f, gx, gy); if (m < 1e-9) continue;
-      const ux = f.P(gx, gy) / m, uy = f.Q(gx, gy) / m;
-      const L = 0.16 + 0.18 * Math.min(1, m / mMax);
-      const a = toPx({ x: gx, y: gy });
-      const b = toPx({ x: gx + ux * L, y: gy + uy * L });
-      const col = ramp(m / mMax);
-      ctx.strokeStyle = col; ctx.lineWidth = 1.4;
-      ctx.beginPath(); ctx.moveTo(a.px, a.py); ctx.lineTo(b.px, b.py); ctx.stroke();
-      const ang = Math.atan2(b.py - a.py, b.px - a.px);
-      ctx.beginPath(); ctx.moveTo(b.px, b.py);
-      ctx.lineTo(b.px - 5 * Math.cos(ang - 0.4), b.py - 5 * Math.sin(ang - 0.4));
-      ctx.lineTo(b.px - 5 * Math.cos(ang + 0.4), b.py - 5 * Math.sin(ang + 0.4));
-      ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+// sample positions of each route as a polyline of M+1 points.
+function samplePts(kind) {
+  const pts = [];
+  if (kind === 'straight') { for (let i = 0; i <= M; i++) { const t = i / M; pts.push({ x: A.x + (B.x - A.x) * t, y: A.y + (B.y - A.y) * t }); } }
+  else if (kind === 'arc') { const ap = arcPath(A, B); for (let i = 0; i <= M; i++) { const t = i / M; pts.push({ x: ap.x(t), y: ap.y(t) }); } }
+  else if (kind === 'bent') { const bz = bezierPath(A, C, B); for (let i = 0; i <= M; i++) { const t = i / M; pts.push({ x: bz.x(t), y: bz.y(t) }); } }
+  else if (kind === 'loop') {
+    for (let i = 0; i <= M; i++) { const t = i / M; pts.push({ x: A.x + (B.x - A.x) * t, y: A.y + (B.y - A.y) * t }); }   // A->B straight
+    const ap = arcPath(A, B);
+    for (let i = 1; i <= M; i++) { const s = 1 - i / M; pts.push({ x: ap.x(s), y: ap.y(s) }); }                            // B->A arc
+  }
+  return pts;
+}
+// cumulative integral of F.dr along a polyline.
+function cumulative(f, pts) {
+  const G = [0];
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i];
+    const mx = 0.5 * (a.x + b.x), my = 0.5 * (a.y + b.y);
+    G.push(G[i - 1] + f.P(mx, my) * (b.x - a.x) + f.Q(mx, my) * (b.y - a.y));
+  }
+  return G;
+}
+
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
+  }
+}
+
+let routeData = [];   // [{kind,color,pts,G}]
+function buildRoutes(f) {
+  routeData = [];
+  if (isLoop()) {
+    const pts = samplePts('loop');
+    routeData.push({ kind: 'loop', color: colors().straight, pts, G: cumulative(f, pts) });
+  } else {
+    for (const [kind, color] of [['straight', colors().straight], ['arc', colors().arc], ['bent', colors().bent]]) {
+      const pts = samplePts(kind);
+      routeData.push({ kind, color, pts, G: cumulative(f, pts) });
     }
   }
 }
 
-function drawPath(pathFn, color, lw, tMax) {
-  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.beginPath();
-  const N = 120, lim = tMax ?? 1;
-  for (let i = 0; i <= N; i += 1) {
-    const t = lim * i / N;
-    const p = toPx({ x: pathFn.x(t), y: pathFn.y(t) });
-    if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
-  }
-  ctx.stroke();
+function drawArrow(x1, y1, x2, y2, color, lw) {
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw || 2;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  const a = Math.atan2(y2 - y1, x2 - x1), h = 6;
+  ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2 - h * Math.cos(a - 0.4), y2 - h * Math.sin(a - 0.4)); ctx.lineTo(x2 - h * Math.cos(a + 0.4), y2 - h * Math.sin(a + 0.4)); ctx.closePath(); ctx.fill();
 }
 
-function handle(p, label, col, active) {
-  const q = toPx(p);
-  ctx.fillStyle = active ? '#06d6a0' : col;
-  ctx.beginPath(); ctx.arc(q.px, q.py, 8, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText(label, q.px, q.py - 12);
+function drawScene(col, r) {
+  const f = field();
+  panel(col, r, isLoop() ? 'A round trip: out straight, back by the arc' : 'Same endpoints, different routes (drag them)');
+  const { draw } = SCN;
+
+  ctx.save();
+  clipTo(ctx, draw);
+
+  // field quiver.
+  const NG = 11; let fmax = 1e-6;
+  const samp = [];
+  for (let j = 0; j < NG; j++) for (let i = 0; i < NG; i++) {
+    const x = -VIEW + 2 * VIEW * (i + 0.5) / NG, y = -VIEW + 2 * VIEW * (j + 0.5) / NG;
+    const fx = f.P(x, y), fy = f.Q(x, y), m = Math.hypot(fx, fy);
+    samp.push({ x, y, fx, fy, m }); fmax = Math.max(fmax, m);
+  }
+  const cell = 2 * VIEW / NG * SCN.scale;
+  for (const s of samp) {
+    const m = s.m / fmax; if (m < 1e-3) continue;
+    const ux = s.fx / (s.m || 1), uy = s.fy / (s.m || 1), L = cell * 0.42;
+    const c = viridis(0.2 + 0.7 * m);
+    ctx.globalAlpha = 0.5 + 0.4 * m;
+    drawArrow(WX(s.x) - ux * L, WY(s.y) + uy * L, WX(s.x) + ux * L, WY(s.y) - uy * L, `rgb(${c.r},${c.g},${c.b})`, 1.4);
+  }
+  ctx.globalAlpha = 1;
+
+  // enclosed area shade for loop mode.
+  if (isLoop()) {
+    ctx.fillStyle = 'rgba(91,192,235,0.10)';
+    ctx.beginPath(); routeData[0].pts.forEach((p, i) => { const X = WX(p.x), Y = WY(p.y); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.closePath(); ctx.fill();
+  }
+
+  // routes.
+  for (const rt of routeData) {
+    ctx.strokeStyle = rt.color; ctx.lineWidth = 3; ctx.beginPath();
+    rt.pts.forEach((p, i) => { const X = WX(p.x), Y = WY(p.y); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke();
+    // moving marker.
+    const k = Math.min(rt.pts.length - 1, Math.round(tphase * (rt.pts.length - 1)));
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(WX(rt.pts[k].x), WY(rt.pts[k].y), 4, 0, 2 * Math.PI); ctx.fill();
+  }
+
+  // bent-path handle (only in all mode).
+  if (!isLoop()) {
+    ctx.strokeStyle = 'rgba(199,125,255,0.4)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(WX(A.x), WY(A.y)); ctx.lineTo(WX(C.x), WY(C.y)); ctx.lineTo(WX(B.x), WY(B.y)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = col.C; ctx.beginPath(); ctx.arc(WX(C.x), WY(C.y), 6, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+
+  // endpoints.
+  for (const [pt, c, lab] of [[A, col.A, 'A'], [B, col.B, 'B']]) {
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(WX(pt.x), WY(pt.y), 8, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = fontString(canvas, 'tick', 'mono', 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(lab, WX(pt.x), WY(pt.y) + 1);
+  }
+
+  ctx.restore();
+
+  // readout strip.
+  const cons = f.isConservative;
+  let items;
+  if (isLoop()) {
+    const cl = routeData[0].G[routeData[0].G.length - 1];
+    items = [
+      [valueField.textContent, col.fg],
+      [`loop ∮ ${cl.toFixed(2)}`, col.straight],
+      [cons ? 'conservative' : 'has curl', cons ? col.A : col.accent],
+      [Math.abs(cl) < 1e-3 ? 'round trip = 0' : 'net circulation', col.muted],
+    ];
+  } else {
+    const gs = routeData[0].G[M], ga = routeData[1].G[M];
+    items = [
+      [valueField.textContent, col.fg],
+      [`straight ${gs.toFixed(2)}`, col.straight],
+      [`arc ${ga.toFixed(2)}`, col.arc],
+      [cons ? 'path-independent' : 'path-dependent', cons ? col.A : col.accent],
+    ];
+  }
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, isLoop() ? 'Running integral around the loop' : 'Running integral ∫F·dr along each route');
+
+  const inner = { x: r.x + 44, y: r.y + 28, w: r.w - 44 - 16, h: r.h - 28 - 42 };
+  let mx = 1e-6;
+  for (const rt of routeData) for (const g of rt.G) mx = Math.max(mx, Math.abs(g));
+  mx *= 1.12;
+  const cy = inner.y + inner.h / 2;
+  const xOf = (frac) => inner.x + frac * inner.w;
+  const yOf = (g) => cy - (g / mx) * (inner.h / 2);
+
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(inner.x, cy); ctx.lineTo(inner.x + inner.w, cy); ctx.stroke();
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(mx.toFixed(1), inner.x - 5, yOf(mx)); ctx.fillText('0', inner.x - 5, cy);
+
+  for (const rt of routeData) {
+    ctx.strokeStyle = rt.color; ctx.lineWidth = 2.6; ctx.beginPath();
+    rt.G.forEach((g, i) => { const X = xOf(i / (rt.G.length - 1)), Y = yOf(g); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke();
+    // endpoint dot.
+    ctx.fillStyle = rt.color; ctx.beginPath(); ctx.arc(xOf(1), yOf(rt.G[rt.G.length - 1]), 4.5, 0, 2 * Math.PI); ctx.fill();
+  }
+
+  // current-progress cursor.
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(xOf(tphase), inner.y); ctx.lineTo(xOf(tphase), inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]);
+
+  // labels + legend.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(isLoop() ? 'progress around loop' : 'progress A → B', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 30, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('accumulated ∫F·dr', 0, 0); ctx.restore();
+  if (!isLoop()) {
+    const leg = [['straight', col.straight], ['arc', col.arc], ['bent', col.bent]];
+    let lx = inner.x + 8; const ly = inner.y + 11;
+    ctx.font = fontString(canvas, 'legend', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    for (const [lab, c] of leg) { ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 12, ly); ctx.stroke(); ctx.fillStyle = col.fg; ctx.fillText(lab, lx + 15, ly); lx += 66; }
+  }
 }
 
 function render() {
-  const f = FIELDS[st.fieldKey];
-  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
-  const o = toPx({ x: 0, y: 0 });
-  ctx.beginPath(); ctx.moveTo(0, o.py); ctx.lineTo(W, o.py); ctx.moveTo(o.px, 0); ctx.lineTo(o.px, H); ctx.stroke();
-
-  drawField(f);
-  const sp = straightPath(st.A, st.B);
-  const bz = bezierPath(st.A, st.C, st.B);
-  drawPath(sp, 'rgba(244,162,97,0.85)', 2.5);
-  drawPath(bz, '#5bc0eb', 2.5);
-
-  const tp = Math.max(0.001, st.probe);
-  const pts = [];
-  const Np = 80;
-  for (let i = 0; i <= Math.round(Np * tp); i += 1) { const t = i / Np; pts.push({ x: bz.x(t), y: bz.y(t) }); }
-  drawPath(bz, 'rgba(91,192,235,0.45)', 7, tp);
-  const probeP = toPx({ x: bz.x(tp), y: bz.y(tp) });
-  const dxv = bz.dx(tp), dyv = bz.dy(tp), dl = Math.hypot(dxv, dyv) || 1;
-  const Fp = (f.P(bz.x(tp), bz.y(tp)) * dxv + f.Q(bz.x(tp), bz.y(tp)) * dyv) / dl;
-  ctx.strokeStyle = Fp >= 0 ? '#06d6a0' : '#ef476f'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(probeP.px, probeP.py);
-  ctx.lineTo(probeP.px + (dxv / dl) * Fp * 18, probeP.py - (dyv / dl) * Fp * 18); ctx.stroke();
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(probeP.px, probeP.py, 5, 0, 2 * Math.PI); ctx.fill();
-
-  handle(st.A, 'A', '#1b6ca8', st.drag === 'A');
-  handle(st.B, 'B', '#1b6ca8', st.drag === 'B');
-  handle(st.C, 'bend', '#c13b27', st.drag === 'C');
-
-  const iS = lineIntegral(f, sp.x, sp.y, sp.dx, sp.dy);
-  const iB = lineIntegral(f, bz.x, bz.y, bz.dx, bz.dy);
-  const loop = iS - iB;
-  const workSoFar = lineIntegralPolyline(f, pts.length > 1 ? pts : [st.A, st.A]);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText(`field: ${f.label}   ${f.isConservative ? 'conservative (path-independent)' : 'non-conservative (path matters)'}`, 16, 22);
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText(`work along bent path so far = ${workSoFar.toFixed(3)}   (probe ${(tp * 100) | 0}%)`, 16, H - 16);
-  ctx.fillStyle = '#f4a261'; ctx.fillText('straight A->B', 16, 40);
-  ctx.fillStyle = '#5bc0eb'; ctx.fillText('your bent path A->B', 130, 40);
-
-  readoutPaths.textContent = `${iS.toFixed(3)}, ${iB.toFixed(3)}`;
-  readoutLoop.textContent = loop.toFixed(3);
-  valueField.textContent = f.isConservative ? 'conservative' : 'rotational';
+  if (!REG) relayout();
+  buildRoutes(field());
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
-function pickHandle(mx, my) {
-  for (const k of ['A', 'B', 'C']) {
-    const q = toPx(st[k]);
-    if (Math.hypot(mx - q.px, my - q.py) < 16) return k;
-  }
-  return null;
-}
-function evtPos(e) {
-  const r = canvas.getBoundingClientRect();
-  return { mx: (e.clientX - r.left) * (W / r.width), my: (e.clientY - r.top) * (H / r.height) };
-}
-canvas.addEventListener('pointerdown', (e) => {
-  const { mx, my } = evtPos(e); st.drag = pickHandle(mx, my);
-  canvas.classList.toggle('dragging', !!st.drag);
+// --- drag A, B, C ---
+let drag = null;
+function pScreen(ev) { const rect = canvas.getBoundingClientRect(); return { sx: ev.clientX - rect.left, sy: ev.clientY - rect.top }; }
+canvas.addEventListener('pointerdown', (ev) => {
+  if (!SCN) return; const { sx, sy } = pScreen(ev);
+  const cand = isLoop() ? [['A', A], ['B', B]] : [['A', A], ['B', B], ['C', C]];
+  let best = null, bd = 24 * 24;
+  for (const [name, pt] of cand) { const d = (WX(pt.x) - sx) ** 2 + (WY(pt.y) - sy) ** 2; if (d < bd) { bd = d; best = name; } }
+  if (best) { drag = best; canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); }
 });
-canvas.addEventListener('pointermove', (e) => {
-  if (!st.drag) return;
-  const { mx, my } = evtPos(e); const w = toWorld(mx, my);
-  st[st.drag] = { x: Math.max(-3, Math.min(3, w.x)), y: Math.max(-2.6, Math.min(2.6, w.y)) };
+canvas.addEventListener('pointermove', (ev) => {
+  if (!drag) return; const { sx, sy } = pScreen(ev);
+  const wx = Math.max(-VIEW + 0.1, Math.min(VIEW - 0.1, invX(sx))), wy = Math.max(-VIEW + 0.1, Math.min(VIEW - 0.1, invY(sy)));
+  const pt = drag === 'A' ? A : drag === 'B' ? B : C; pt.x = wx; pt.y = wy;
   render();
 });
-window.addEventListener('pointerup', () => { st.drag = null; canvas.classList.remove('dragging'); });
-selectField.addEventListener('change', () => { st.fieldKey = selectField.value; render(); });
+const endDrag = () => { drag = null; };
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
 
-function tick() {
-  if (st.playing) { st.probe += 0.006; if (st.probe > 1) st.probe = 0; render(); }
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (running) { tphase += 0.28 * dt; if (tphase > 1) tphase -= 1; }
+  render();
   requestAnimationFrame(tick);
 }
 
-function bootSync() {
-  if (CAPTURE_NAME) {
-    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const keys = Object.keys(FIELDS);
-    st.fieldKey = keys[Math.min(keys.length - 1, Math.round(f * (keys.length - 1)))];
-    selectField.value = st.fieldKey;
-    st.C = { x: -1.2 + 2.4 * f, y: 1.0 + 1.4 * f };
-    st.probe = 0.25 + 0.7 * f;
-    render();
-    if (DETERMINISTIC) {
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        window.__simulationReady = true;
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
-      }));
-    }
-    return;
-  }
-  render();
+function bootSync() { syncVals(); relayout(); tphase = 0.6; render(); }
+
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-} else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
 }
 
-
 // === Diagnostics interface (Layout System v2) ===
-// State reports the chosen vector field, whether it is conservative,
-// and the closed-loop integral. The invariant is the conservative-
-// field test: a conservative field has a vanishing closed-loop
-// integral, while a non-conservative field must enclose nonzero
-// circulation.
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const field = FIELDS[st.fieldKey];
+  const f = field();
+  const gs = cumulative(f, samplePts('straight'))[M], ga = cumulative(f, samplePts('arc'))[M];
   return {
     fields: [
-      { key: 'field', label: 'vector field', value: field.label },
-      { key: 'conservative', label: 'conservative', value: field.isConservative ? 'yes' : 'no' },
-      { key: 'closed-loop', label: 'closed-loop integral', value: closedLoopIntegral(st.fieldKey, st.A, st.B), format: 'float' },
+      { key: 'field', label: 'field', value: f.label, format: 'text' },
+      { key: 'straight', label: '∫ straight', value: gs, format: 'float' },
+      { key: 'arc', label: '∫ arc', value: ga, format: 'float' },
+      { key: 'spread', label: 'path dependence |Δ|', value: Math.abs(gs - ga), format: 'float' },
     ],
   };
 };
 window.playground.getInvariants = function () {
-  const field = FIELDS[st.fieldKey];
-  const loop = Math.abs(closedLoopIntegral(st.fieldKey, st.A, st.B));
-  if (field.isConservative) {
+  try {
+    // Stokes' theorem: the closed-loop integral equals the curl flux
+    // through the enclosed half-disk (curl is constant for these fields).
+    const f = field();
+    const h = 1e-3, mx = 0.5 * (A.x + B.x), my = 0.5 * (A.y + B.y);
+    const curl = (f.Q(mx + h, my) - f.Q(mx - h, my)) / (2 * h) - (f.P(mx, my + h) - f.P(mx, my - h)) / (2 * h);
+    const rad = 0.5 * Math.hypot(B.x - A.x, B.y - A.y);
+    const area = 0.5 * Math.PI * rad * rad;
+    const cl = closedLoopIntegral(selField.value, A, B);
+    const stokes = curl * area;
+    const denom = Math.max(1e-6, Math.abs(stokes));
+    const rel = Math.abs(Math.abs(cl) - Math.abs(stokes)) / denom;
     return [{
-      key: 'conservative',
-      label: 'closed-loop integral vanishes (conservative field)',
-      value: loop.toExponential(2),
-      status: loop < 1e-2 ? 'pass' : (loop < 1e-1 ? 'pending' : 'drift'),
+      key: 'stokes',
+      label: '∮F·dr = curl × area (Stokes)',
+      value: rel.toExponential(2),
+      status: rel < 5e-2 ? 'pass' : (rel < 2e-1 ? 'pending' : 'drift'),
     }];
+  } catch (e) {
+    return [];
   }
-  return [{
-    key: 'circulation',
-    label: 'non-conservative field encloses nonzero circulation',
-    value: loop.toExponential(2),
-    status: loop > 1e-2 ? 'pass' : 'pending',
-  }];
 };

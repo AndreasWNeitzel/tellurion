@@ -10,10 +10,10 @@ curriculum_year: bsc-y1s2
 primary_citation: riley-hobson
 primary_chapter: 10
 hook: 'Walk a force field from A to B along a straight line, then along a curved detour. For some fields the work is identical; for others the gap is exactly the curl you enclosed.'
-one_paragraph: 'The work done by a vector field along a path is a line integral. For a conservative field it depends only on the endpoints, so the straight chord and the curved arc from A to B give the same value and the closed loop is zero. For a non-conservative field the two paths disagree, and by Green''s theorem the closed-loop integral equals the curl integrated over the enclosed area. The playground evaluates F.dr by Simpson quadrature along both paths for four selectable fields (two conservative, two with constant curl) and shows the loop integral matching the analytic curl-times-area. It turns path-independence from a definition into something you watch succeed or fail. Reference: Riley and Hobson, Mathematical Methods, Ch. 10.'
-tags: [numerics, animation, live-readout]
+one_paragraph: 'The work done by a vector field along a path is a line integral. For a conservative field it depends only on the endpoints, so a straight chord, a curved arc, and a bent detour from A to B all give the same value and a closed loop is zero. For a non-conservative field the routes disagree, and by Green''s theorem the closed-loop integral equals the curl integrated over the enclosed area. The scene draws the field with draggable endpoints A and B and three routes between them (straight, arc, and a bent path with a draggable handle); the diagnostic accumulates F.dr along each route versus progress, so the curves either land on the same value (conservative, path-independent) or split apart (path-dependent). A closed-loop mode walks out straight and back by the arc and shows the round trip return to zero, or not. Reference: Riley and Hobson, Mathematical Methods, Ch. 11.'
+tags: [numerics, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -96,7 +96,7 @@ Physics and Engineering*, 3rd ed., Chapter 10.
 
 ## Physical setup
 
-A 2D vector field $\mathbf{F} = (P, Q)$ in the plane, with two paths from $A = (-1, 0)$ to $B = (1, 0)$: the straight chord and the upper semicircular arc. Simpson quadrature evaluates $\int_A^B \mathbf{F} \cdot d\mathbf{r}$ along each path; the closed-loop integral (straight forward, arc reversed) measures the failure of path-independence.
+A 2D vector field $\mathbf{F} = (P, Q)$ in the plane, with two draggable endpoints A and B and three routes between them: the straight chord, the upper semicircular arc, and a bent Bezier path with a draggable handle. Simpson (and midpoint) quadrature evaluates $\int_A^B \mathbf{F} \cdot d\mathbf{r}$ along each; the closed-loop integral (straight forward, arc reversed) measures the failure of path-independence.
 
 Four fields are available: two conservative ($\mathbf{F} = (2xy, x^2)$ with potential $x^2 y$; $\mathbf{F} = (x, y)$ with potential $\tfrac12(x^2+y^2)$) and two non-conservative ($\mathbf{F} = (-y, x)$ with curl $2$; $\mathbf{F} = (y, 0)$ with curl $-1$).
 
@@ -106,18 +106,28 @@ Stokes in 2D: $\oint \mathbf{F} \cdot d\mathbf{r} = \iint_S (\partial Q/\partial
 
 ## Numerical method
 
-Simpson 1/3 quadrature at $n = 200$ subintervals on each path.
+Midpoint accumulation along each sampled route for the live running
+integral, and Simpson 1/3 quadrature for the reference values.
+Rendering is plain Canvas2D: a field quiver coloured by magnitude, the
+three routes with travelling markers, the draggable A / B / handle, and
+the accumulated-integral-vs-progress diagnostic.
 
 ## Controls
 
-- Field selector (four named fields).
+- field selector (four named fields: two conservative, two with curl).
+- routes selector: all three (straight / arc / bent) or closed loop.
+- drag the endpoints A and B and the bent-path handle.
+- Reset, Pause.
 
 ## Expected qualitative features
 
-1. Conservative fields: straight and arc integrals coincide; closed loop is zero.
-2. Rotation field: closed loop is $\pi$ (up to sign).
-3. Shear field: closed loop is the curl times the enclosed area.
-4. Vector arrows visually clarify the conservative-vs-rotational structure.
+1. Conservative fields: all three routes accumulate to the same final
+   value; the closed loop returns to zero.
+2. Non-conservative fields: the routes split to different final values;
+   the closed loop nets the circulation.
+3. The closed-loop integral equals the curl times the enclosed area
+   (Stokes), exact for these constant-curl fields.
+4. The field quiver clarifies the conservative-vs-rotational structure.
 
 ## Invariants and acceptance thresholds
 
@@ -130,7 +140,7 @@ Simpson 1/3 quadrature at $n = 200$ subintervals on each path.
 | FIELDS object exposes the four named fields | strict | invariants test |
 | shear field is non-conservative | closed loop $> 10^{-3}$ | invariants test |
 
-All confirmed in `invariants.test.mjs` (7 tests passing).
+All confirmed in `invariants.test.mjs` (10 tests passing).
 
 ## Limiting cases for verification
 
@@ -140,7 +150,9 @@ All confirmed in `invariants.test.mjs` (7 tests passing).
 
 ## Visual fallback
 
-If KaTeX or Canvas2D is unavailable, the selector still operates.
+Canvas2D only. The caption names the path-independence criterion and
+Stokes' theorem so the figure reads without Canvas2D; the selectors
+remain operable.
 
 ## Citations
 
