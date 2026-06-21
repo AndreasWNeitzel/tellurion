@@ -19,18 +19,16 @@ renderer: canvas2d
 estimated_engagement_minutes: 3
 share_state_keys: []
 invariants:
-  - key: runs
-    label: simulation advances each frame
-    tolerance: 1
-  - key: bounded
-    label: state stays finite
-    tolerance: 1
-  - key: deterministic
-    label: fixed seed reproduces the run
+  - key: phase-integral-positive
+    label: the buoyancy integral that sets Pi_1 is positive
+    tolerance: 0
+  - key: mode-nodes
+    label: the eigenfunction has n radial nodes (matches the radial order)
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Switch RGB to red clump: the convective core punches a hole in the cavity, the integral drops, and Pi_1 jumps from about 80 s to about 250 s.
+  - Raise the mode order n: the standing wave gains nodes and the highlighted comb tooth steps along by exactly Pi_1.
+  - Switch l from 1 to 2: the comb spacing shrinks by sqrt(3), the asymptotic Pi_l = Pi_0/sqrt(l(l+1)).
 references:
   - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
 ---

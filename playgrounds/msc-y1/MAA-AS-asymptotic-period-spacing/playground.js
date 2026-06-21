@@ -1,13 +1,18 @@
-// Stellar-interior visualization of the g-mode period spacing. The
-// left half of the canvas renders a vertical cross-section of an
-// evolved star with the radial WKB displacement xi_n(r) modulated by
-// the dipole/quadrupole angular factor and the time-harmonic cos(omega
-// t). The right side shows the Brunt-Vaisala N(r) profile that sets
-// the cavity, and the resulting period comb. See sim.js for the
-// closed-form WKB construction and references.
-import { PROFILES, brunt, phaseIntegral, pi1FromProfile, Pi_l, evolutionStage, modeProfileArray } from './sim.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+// Asymptotic g-mode period spacing in red giants. The scene is a vertical
+// cross-section of the star with the WKB displacement eigenfunction xi_n(r)
+// times the angular factor P_l(cos theta) and cos(omega t). The two diagnostics
+// are the buoyancy frequency N(r) that fixes the cavity and the period comb
+// whose even spacing is Pi_1; both come from the one buoyancy integral in
+// sim.js. The spacing Pi_1 separates the RGB (inert He core) from the red-clump
+// (He-core burning) stars. Canvas2D only.
+//
+// Reference: Aerts, Christensen-Dalsgaard and Kurtz, Asteroseismology (2010),
+// Ch. 3.4; Bedding et al., Nature 471 (2011) 608 (the RGB / red-clump split).
+
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { rdbu } from '../../../shared/js/render/colormaps.js';
+import { PROFILES, brunt, phaseIntegral, pi1FromProfile, Pi_l, evolutionStage, modeProfileArray } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -16,11 +21,7 @@ const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const W = canvas.width, H = canvas.height;
 
-const rPi = document.getElementById('readout-pi');
-const rS = document.getElementById('readout-s');
-const rPn = document.getElementById('readout-pn');
 const selProfile = document.getElementById('select-profile');
 const selL = document.getElementById('select-l');
 const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
@@ -31,279 +32,200 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const NR = 240;
-const st = { profile: 'rgb', l: 1, n: 14, speed: 1, running: !prefersReducedMotion(), t: 0, modeArr: null, Pi1: 80, P_n: 1500 };
+const st = { profile: 'rgb', l: 1, n: 14, speed: 1, running: !DETERMINISTIC, t: 0, modeArr: null, Pi1: 80, P_n: 1500 };
 
-// Diverging red-blue colormap for the displacement amplitude in [-1, 1].
-// Negative side cool, positive side warm, midpoint a near-black so the
-// nodal surfaces read as dark contour lines rather than washed gray.
-function divergingRB(v) {
-  const x = Math.max(-1, Math.min(1, v));
-  if (x >= 0) {
-    const t = x;
-    return { r: Math.round(20 + 220 * t), g: Math.round(28 + 50 * t), b: Math.round(40 + 30 * t) };
-  } else {
-    const t = -x;
-    return { r: Math.round(28 + 30 * t), g: Math.round(40 + 90 * t), b: Math.round(60 + 190 * t) };
-  }
+let view = { w: 800, h: 1000, dpr: 1 };
+let REG = null, disk = null;
+
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.5 },
+    { name: 'brunt', weight: 0.95 },
+    { name: 'comb', weight: 0.9 },
+  ]);
+}
+
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.09)',
+    cavity: '#78c8ff', bv: '#ffd98c', comb: '#ffd166', comb2: '#5bc0eb',
+  };
+}
+
+// Shared RdBu blended toward a dark neutral at the midpoint, so the nodal
+// surfaces (displacement zero) read as dark contour lines.
+function rdbuDark(v) {
+  const t = 0.5 + 0.5 * Math.max(-1, Math.min(1, v));
+  const c = rdbu(t), w = Math.min(1, Math.abs(v) * 2.6);   // only the nodes (v~0) go dark
+  return { r: c.r * w + 14 * (1 - w), g: c.g * w + 16 * (1 - w), b: c.b * w + 24 * (1 - w) };
 }
 
 function recompute() {
   const p = PROFILES[st.profile];
   st.modeArr = modeProfileArray(p, st.n, NR);
-  const Pi_0 = pi1FromProfile(p) * Math.sqrt(2);      // recover Pi_0 from Pi_1
+  const Pi_0 = pi1FromProfile(p) * Math.sqrt(2);
   st.Pi1 = Pi_l(Pi_0, st.l === 1 ? 1 : 2);
   st.P_n = (st.n + 0.5) * st.Pi1;
-  st.t = 0;
 }
 
 function sampleMode(r) {
-  // Linear interp into the precomputed xi_n grid.
   if (r >= 1) return 0;
-  const idx = r * NR;
-  const i0 = Math.floor(idx), i1 = Math.min(NR, i0 + 1);
-  const a = idx - i0;
+  const idx = r * NR, i0 = Math.floor(idx), i1 = Math.min(NR, i0 + 1), a = idx - i0;
   return (1 - a) * st.modeArr[i0] + a * st.modeArr[i1];
 }
+function P_l(cosTheta, l) { return l === 1 ? cosTheta : 0.5 * (3 * cosTheta * cosTheta - 1); }
 
-// Legendre P_l(cos theta) evaluated by direct formula for l = 1, 2.
-function P_l(cosTheta, l) {
-  if (l === 1) return cosTheta;
-  return 0.5 * (3 * cosTheta * cosTheta - 1);
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel; ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
+  }
 }
 
-function drawCrossSection(ox, oy, R) {
-  // Render a vertical-plane cross-section of the star. The "depth into
-  // the page" axis is collapsed; what we draw is the (r, theta) slice
-  // at one azimuth. Pixels outside the disk are left as the background.
-  const t = st.t;
-  const cosWt = Math.cos(t);
-  const px = Math.floor(R);
-  const img = ctx.getImageData(ox - px, oy - px, 2 * px, 2 * px);
-  const data = img.data;
-  const w = 2 * px;
+// Build the cross-section into an offscreen canvas (dpr-safe) and blit it.
+function drawCrossSection(col, r) {
+  panel(col, r, 'Cross-section: the g-mode standing wave in the buoyancy cavity');
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const ox = draw.x + draw.w / 2, oy = draw.y + draw.h / 2;
+  const R = Math.min(draw.w, draw.h) * 0.46;
+  const px = Math.max(40, Math.round(R));
+  const SZ = 2 * px;
   const p = PROFILES[st.profile];
-  for (let yy = 0; yy < w; yy += 1) {
-    for (let xx = 0; xx < w; xx += 1) {
-      const dx = xx - px, dy = yy - px;
-      const rr = Math.hypot(dx, dy);
-      const idx = (yy * w + xx) * 4;
-      if (rr >= px - 0.5) continue;          // outside the disk
+  const cosWt = Math.cos(st.t);
+
+  if (!disk || disk.width !== SZ) disk = (typeof OffscreenCanvas !== 'undefined') ? new OffscreenCanvas(SZ, SZ) : Object.assign(document.createElement('canvas'), { width: SZ, height: SZ });
+  const dctx = disk.getContext('2d');
+  const img = dctx.createImageData(SZ, SZ);
+  const d = img.data;
+  for (let yy = 0; yy < SZ; yy += 1) {
+    for (let xx = 0; xx < SZ; xx += 1) {
+      const dx = xx - px, dy = yy - px, rr = Math.hypot(dx, dy), o = (yy * SZ + xx) * 4;
+      if (rr >= px - 0.5) { d[o + 3] = 0; continue; }
       const rNorm = rr / px;
-      const cosTheta = dy === 0 && dx === 0 ? 0 : (-dy) / rr;   // +y is "up"
-      // Background star color from a simple T(r) gradient: hot core,
-      // cool envelope (just a static tint, the displacement layers
-      // on top via the diverging colormap).
-      // Convective core gets a slightly orange tint; radiative tints to
-      // yellow-white; envelope tints to deep red.
+      const cosTheta = rr === 0 ? 0 : (-dy) / rr;
       const Nloc = brunt(rNorm, p);
-      let bgR, bgG, bgB;
+      let bgR = 52, bgG = 24, bgB = 18;
       if (rNorm < p.r_cc) { bgR = 60; bgG = 38; bgB = 22; }
-      else if (Nloc > 0.01) { bgR = 40 + Math.round(20 * Nloc / 8); bgG = 32; bgB = 26; }
-      else { bgR = 55; bgG = 22; bgB = 18; }
-      // Where the BV cavity exists, render the displacement. The
-      // threshold is set low so the colormap fills the visible cavity
-      // (not just the BV peak), and the WKB envelope is clipped near
-      // zero to avoid the 1/sqrt(N) singularity.
+      else if (Nloc > 0.01) { bgR = 44; bgG = 32; bgB = 26; }
       if (Nloc > 0.005) {
-        const xi = sampleMode(rNorm);
-        const ang = P_l(cosTheta, st.l);
-        const amp = xi * ang * cosWt;
-        const col = divergingRB(amp);
-        // Blend: cavity displacement dominates by 80%, hot interior
-        // tint shows through faintly so the photosphere reads as a
-        // continuous body.
-        data[idx]     = Math.round(0.85 * col.r + 0.15 * bgR);
-        data[idx + 1] = Math.round(0.85 * col.g + 0.15 * bgG);
-        data[idx + 2] = Math.round(0.85 * col.b + 0.15 * bgB);
-        data[idx + 3] = 255;
-      } else {
-        data[idx]     = bgR;
-        data[idx + 1] = bgG;
-        data[idx + 2] = bgB;
-        data[idx + 3] = 255;
-      }
+        const amp = sampleMode(rNorm) * P_l(cosTheta, st.l) * cosWt * 1.5;
+        const c = rdbuDark(amp);
+        d[o] = 0.85 * c.r + 0.15 * bgR; d[o + 1] = 0.85 * c.g + 0.15 * bgG; d[o + 2] = 0.85 * c.b + 0.15 * bgB; d[o + 3] = 255;
+      } else { d[o] = bgR; d[o + 1] = bgG; d[o + 2] = bgB; d[o + 3] = 255; }
     }
   }
-  ctx.putImageData(img, ox - px, oy - px);
+  dctx.putImageData(img, 0, 0);
 
-  // Outline the photosphere (smooth circle on top of the pixel disk).
-  ctx.strokeStyle = 'rgba(255,210,160,0.55)';
-  ctx.lineWidth = 1.4;
-  ctx.beginPath(); ctx.arc(ox, oy, R, 0, Math.PI * 2); ctx.stroke();
-
-  // Outline the g-mode cavity inner and outer turning radii.
-  ctx.strokeStyle = 'rgba(120, 200, 255, 0.55)';
-  ctx.setLineDash([4, 3]); ctx.lineWidth = 1.0;
-  ctx.beginPath(); ctx.arc(ox, oy, R * p.r_env, 0, Math.PI * 2); ctx.stroke();
-  if (p.r_cc > 0) { ctx.beginPath(); ctx.arc(ox, oy, R * p.r_cc, 0, Math.PI * 2); ctx.stroke(); }
+  ctx.save(); clipTo(ctx, draw);
+  ctx.save(); ctx.beginPath(); ctx.arc(ox, oy, R, 0, 2 * Math.PI); ctx.clip();
+  ctx.drawImage(disk, ox - R, oy - R, 2 * R, 2 * R); ctx.restore();
+  ctx.strokeStyle = 'rgba(255,210,160,0.55)'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(ox, oy, R, 0, 2 * Math.PI); ctx.stroke();
+  ctx.strokeStyle = 'rgba(120,200,255,0.6)'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(ox, oy, R * p.r_env, 0, 2 * Math.PI); ctx.stroke();
+  if (p.r_cc > 0) { ctx.beginPath(); ctx.arc(ox, oy, R * p.r_cc, 0, 2 * Math.PI); ctx.stroke(); }
   ctx.setLineDash([]);
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(255,210,160,0.85)'; ctx.fillText('photosphere', ox + R * 0.72, oy - R + 8);
+  ctx.fillStyle = col.cavity; ctx.fillText('g-mode cavity', draw.x + 10, draw.y + 12);
+  if (p.r_cc > 0) { ctx.fillStyle = '#ffb87a'; ctx.fillText('convective core (N=0)', draw.x + 10, draw.y + 28); }
+  ctx.restore();
 
-  // Labels.
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillText('photosphere', ox + R + 4, oy - R + 6);
-  ctx.fillStyle = 'rgba(120,200,255,0.75)';
-  ctx.fillText('g-mode cavity', ox + R + 4, oy - R + 20);
-  if (p.r_cc > 0) ctx.fillText('conv. core (N=0)', ox + R + 4, oy - R + 34);
+  // readout strip.
+  const stage = evolutionStage(st.l === 1 ? st.Pi1 : Pi_l(st.Pi1 * Math.sqrt(st.l * (st.l + 1)), 1));
+  const items = [
+    [st.profile.toUpperCase(), st.profile === 'rgb' ? '#ffb87a' : col.cavity],
+    [`Pi_${st.l} = ${st.Pi1.toFixed(0)} s`, col.comb],
+    [`n = ${st.n}`, col.fg],
+    [`stage ${stage}`, col.muted],
+  ];
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  let widest = 0; for (const [t] of items) widest = Math.max(widest, ctx.measureText(t).width);
+  if (widest > r.w / 4 - 8) ctx.font = fontString(canvas, 'tick', 'mono', 700);
+  items.forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
 }
 
-function drawBruntPanel(x0, y0, w, h) {
+function drawBrunt(col, r) {
+  panel(col, r, 'Buoyancy frequency N(r): the cavity that sets Pi_1');
+  const inner = { x: r.x + 40, y: r.y + 28, w: r.w - 40 - 16, h: r.h - 28 - 30 };
   const p = PROFILES[st.profile];
-  ctx.fillStyle = 'rgba(255,255,255,0.04)';
-  ctx.fillRect(x0, y0, w, h);
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  const xOf = (x) => inner.x + x * inner.w;
+  const yOf = (N) => inner.y + inner.h - (N / 8) * inner.h;
 
-  // Axes.
-  const pad = { l: 36, r: 8, t: 18, b: 22 };
-  const ax = x0 + pad.l, ay = y0 + pad.t;
-  const aw = w - pad.l - pad.r, ah = h - pad.t - pad.b;
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.fillStyle = 'rgba(120,200,255,0.10)'; ctx.fillRect(xOf(p.r_cc), inner.y, xOf(p.r_env) - xOf(p.r_cc), inner.h);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('8', inner.x - 5, inner.y); ctx.fillText('0', inner.x - 5, inner.y + inner.h);
 
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'right';
-  ctx.fillText('8', ax - 4, ay + 8);
-  ctx.fillText('0', ax - 4, ay + ah);
-  ctx.textAlign = 'left';
-  ctx.fillText('r/R*', ax + aw - 24, ay + ah + 14);
-  ctx.fillText('N(r)', ax - 32, ay - 4);
-
-  // Cavity shading.
-  ctx.fillStyle = 'rgba(120,200,255,0.10)';
-  const xCC = ax + p.r_cc * aw;
-  const xEnv = ax + p.r_env * aw;
-  ctx.fillRect(xCC, ay, xEnv - xCC, ah);
-
-  // N(r) curve.
-  ctx.strokeStyle = 'rgba(255, 220, 140, 0.95)';
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
-  for (let i = 0; i <= 200; i += 1) {
-    const r = i / 200;
-    const N = brunt(r, p);
-    const px = ax + r * aw;
-    const py = ay + ah - (N / 8) * ah;
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-  }
+  ctx.strokeStyle = col.bv; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i <= 220; i += 1) { const x = i / 220; const X = xOf(x), Y = yOf(brunt(x, p)); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
   ctx.stroke();
 
-  // Highlight the current mode's radial nodes as small ticks along the
-  // bottom: count of ticks visually matches n.
-  const arr = st.modeArr;
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-  ctx.lineWidth = 1;
-  let prev = arr[1];
-  for (let i = 2; i <= NR; i += 1) {
-    const cur = arr[i];
-    if (prev * cur < 0) {
-      const r = i / NR;
-      const px = ax + r * aw;
-      ctx.beginPath();
-      ctx.moveTo(px, ay + ah - 4);
-      ctx.lineTo(px, ay + ah + 0);
-      ctx.stroke();
-    }
-    prev = cur;
-  }
+  // radial nodes of the current mode along the bottom.
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1;
+  let prev = st.modeArr[1];
+  for (let i = 2; i <= NR; i += 1) { const cur = st.modeArr[i]; if (prev * cur < 0) { const X = xOf(i / NR); ctx.beginPath(); ctx.moveTo(X, inner.y + inner.h - 5); ctx.lineTo(X, inner.y + inner.h); ctx.stroke(); } prev = cur; }
+
+  ctx.fillStyle = col.bv; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.fillText('N(r)', inner.x + 6, inner.y + 4);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('radius  r / R     (cavity shaded; ticks = radial nodes of mode n)', inner.x + inner.w / 2, inner.y + inner.h + 8);
 }
 
-function drawCombPanel(x0, y0, w, h) {
-  ctx.fillStyle = 'rgba(255,255,255,0.04)';
-  ctx.fillRect(x0, y0, w, h);
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+function drawComb(col, r) {
+  panel(col, r, 'Period comb: even spacing Pi_1 is the asymptotic g-mode signature');
+  const inner = { x: r.x + 16, y: r.y + 30, w: r.w - 32, h: r.h - 30 - 30 };
+  const Pmin = Math.max(0, st.P_n - 8 * st.Pi1), Pmax = st.P_n + 8 * st.Pi1;
+  const xOf = (P) => inner.x + (P - Pmin) / (Pmax - Pmin) * inner.w;
 
-  const pad = { l: 28, r: 8, t: 18, b: 22 };
-  const ax = x0 + pad.l, ay = y0 + pad.t;
-  const aw = w - pad.l - pad.r, ah = h - pad.t - pad.b;
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-  ctx.beginPath();
-  ctx.moveTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(inner.x, inner.y + inner.h); ctx.lineTo(inner.x + inner.w, inner.y + inner.h); ctx.stroke();
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const raw = (Pmax - Pmin) / 7, mag = Math.pow(10, Math.floor(Math.log10(raw))), q = raw / mag;
+  const tick = (q < 1.5 ? 1 : q < 3.5 ? 2 : q < 7.5 ? 5 : 10) * mag;
+  for (let P = Math.ceil(Pmin / tick) * tick; P <= Pmax; P += tick) { const X = xOf(P); ctx.strokeStyle = col.grid; ctx.beginPath(); ctx.moveTo(X, inner.y + inner.h); ctx.lineTo(X, inner.y + inner.h + 4); ctx.stroke(); ctx.fillText(String(Math.round(P)), X, inner.y + inner.h + 6); }
 
-  // Comb spans 2 P_n centered on the current mode.
-  const Pmin = Math.max(0, st.P_n - 1.0 * st.Pi1 * 8);
-  const Pmax = st.P_n + 1.0 * st.Pi1 * 8;
-  const xToPx = (P) => ax + (P - Pmin) / (Pmax - Pmin) * aw;
-
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillText(`P (s),  Π_${st.l} = ${st.Pi1.toFixed(1)}`, ax, ay - 4);
-
-  // Tick marks at every 100 s.
-  for (let P = Math.ceil(Pmin / 100) * 100; P <= Pmax; P += 100) {
-    const px = xToPx(P);
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.beginPath(); ctx.moveTo(px, ay + ah); ctx.lineTo(px, ay + ah + 4); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.textAlign = 'center';
-    ctx.fillText(String(P), px, ay + ah + 14);
-  }
-
-  // Comb lines for n in [n-8, n+8].
+  const lineCol = st.l === 1 ? 'rgba(255,209,102,0.55)' : 'rgba(91,192,235,0.55)';
   for (let kk = -8; kk <= 8; kk += 1) {
-    const nn = st.n + kk;
-    const P = (nn + 0.5) * st.Pi1;
-    if (P < Pmin || P > Pmax) continue;
-    const px = xToPx(P);
-    if (kk === 0) {
-      ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.4;
-      ctx.beginPath(); ctx.moveTo(px, ay + 6); ctx.lineTo(px, ay + ah); ctx.stroke();
-      ctx.fillStyle = '#ffd166';
-      ctx.textAlign = 'center';
-      ctx.fillText(`n=${nn}`, px, ay + 4);
-    } else {
-      ctx.strokeStyle = st.l === 1 ? 'rgba(255,209,102,0.55)' : 'rgba(91,192,235,0.55)';
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(px, ay + 16); ctx.lineTo(px, ay + ah); ctx.stroke();
-    }
+    const nn = st.n + kk, P = (nn + 0.5) * st.Pi1; if (P < Pmin || P > Pmax) continue;
+    const X = xOf(P);
+    if (kk === 0) { ctx.strokeStyle = col.comb; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(X, inner.y + 14); ctx.lineTo(X, inner.y + inner.h); ctx.stroke(); ctx.fillStyle = col.comb; ctx.fillText(`n=${nn}`, X, inner.y); }
+    else { ctx.strokeStyle = lineCol; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(X, inner.y + 18); ctx.lineTo(X, inner.y + inner.h); ctx.stroke(); }
   }
+  // spacing bracket between two adjacent teeth.
+  const Xa = xOf((st.n + 0.5) * st.Pi1), Xb = xOf((st.n + 1.5) * st.Pi1);
+  if (Xb < inner.x + inner.w) {
+    ctx.strokeStyle = col.fg; ctx.lineWidth = 1; const yb = inner.y + 26;
+    ctx.beginPath(); ctx.moveTo(Xa, yb); ctx.lineTo(Xb, yb); ctx.stroke();
+    ctx.fillStyle = col.fg; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(`Pi_${st.l} = ${st.Pi1.toFixed(0)} s`, (Xa + Xb) / 2, yb - 2);
+  }
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('period P (s)', inner.x + inner.w / 2, inner.y + inner.h + 18);
 }
 
 function render() {
-  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
-
-  // Star cross-section on the left.
-  const ox = 220, oy = 270, R = 220;
-  drawCrossSection(ox, oy, R);
-
-  // Title strip under the star.
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillText(`profile: ${st.profile.toUpperCase()}    ℓ = ${st.l}    n = ${st.n}`, 20, 22);
-  const stage = evolutionStage(Pi_l(pi1FromProfile(PROFILES[st.profile]) * Math.sqrt(2), 1));
-  ctx.fillText(`Π_1 = ${pi1FromProfile(PROFILES[st.profile]).toFixed(1)} s    stage: ${stage}    P_n = ${st.P_n.toFixed(1)} s`, 20, 40);
-
-  // Brunt-Vaisala panel: top-right.
-  drawBruntPanel(490, 60, 370, 200);
-
-  // Period comb panel: bottom-right.
-  drawCombPanel(490, 290, 370, 200);
-
-  rPi.textContent = `${pi1FromProfile(PROFILES[st.profile]).toFixed(1)} s`;
-  rS.textContent = stage;
-  rPn.textContent = `${st.P_n.toFixed(1)} s`;
+  if (!REG) relayout();
+  if (!st.modeArr) recompute();
+  if (st.running && !CAPTURE_NAME) st.t += 0.06 * (st.speed || 0);
+  const col = colors();
+  ctx.fillStyle = col.bg; ctx.fillRect(0, 0, view.w, view.h);
+  drawCrossSection(col, REG.scene);
+  drawBrunt(col, REG.brunt);
+  drawComb(col, REG.comb);
 }
 
-function tick() {
-  if (st.running) {
-    st.t += 0.06 * (st.speed || 0);
-  }
-  render();
-  requestAnimationFrame(tick);
-}
+function tick() { render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 function syncLabels() {
-  vN.textContent = String(st.n);
-  vSpeed.textContent = String(st.speed);
-  vProfile.textContent = st.profile === 'rgb' ? 'RGB' : 'RC';
-  vL.textContent = String(st.l);
+  vN.textContent = String(st.n); vSpeed.textContent = String(st.speed);
+  vProfile.textContent = st.profile === 'rgb' ? 'RGB' : 'RC'; vL.textContent = String(st.l);
 }
 
 selProfile.addEventListener('change', () => { st.profile = selProfile.value; recompute(); syncLabels(); render(); });
@@ -316,71 +238,46 @@ btnReset.addEventListener('click', () => {
   btnPause.textContent = 'Pause'; btnPause.setAttribute('aria-pressed', 'false');
   recompute(); syncLabels(); render();
 });
-btnPause.addEventListener('click', () => {
-  st.running = !st.running;
-  btnPause.textContent = st.running ? 'Pause' : 'Play';
-  btnPause.setAttribute('aria-pressed', String(!st.running));
-});
+btnPause.addEventListener('click', () => { st.running = !st.running; btnPause.textContent = st.running ? 'Pause' : 'Play'; btnPause.setAttribute('aria-pressed', String(!st.running)); });
 
 function bootSync() {
-  recompute(); syncLabels();
+  relayout(); recompute(); syncLabels();
   if (CAPTURE_NAME) {
-    // Reference capture sweeps profile, mode order, and phase so the
-    // five goldens are visually distinct: t-000 RGB low n, t-025 RGB
-    // high n, t-050 transition, t-075 RC low n, t-100 RC high n.
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    if (f < 0.4) {
-      st.profile = 'rgb';
-      st.n = Math.round(8 + (f / 0.4) * 14);
-    } else if (f < 0.6) {
-      st.profile = 'rgb';
-      st.n = 28;        // tail end of RGB
-    } else {
-      st.profile = 'rc';
-      st.n = Math.round(8 + ((f - 0.6) / 0.4) * 14);
-    }
-    selProfile.value = st.profile;
-    sN.value = String(st.n);
-    st.t = f * 2 * Math.PI;
+    if (f < 0.4) { st.profile = 'rgb'; st.n = Math.round(8 + (f / 0.4) * 14); }
+    else if (f < 0.6) { st.profile = 'rgb'; st.n = 28; }
+    else { st.profile = 'rc'; st.n = Math.round(8 + ((f - 0.6) / 0.4) * 14); }
+    selProfile.value = st.profile; sN.value = String(st.n); st.t = 0;   // max-displacement phase
     recompute(); syncLabels();
   }
   render();
-  if (DETERMINISTIC) {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      window.__simulationReady = true;
-      window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
-    }));
-  }
+  if (DETERMINISTIC) { requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-} else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
-}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); }
+else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const pi_l = Pi_l(st.Pi1 * Math.sqrt(2), st.l);
   return { fields: [
-    { key: 'profile-type', label: 'Evolutionary stage', value: evolutionStage(st.Pi1), format: 'float' },
-    { key: 'period-spacing-l1', label: 'Pi_1 (s)', value: st.Pi1, format: 'float' },
-    { key: 'mode-degree', label: 'Mode degree (l)', value: st.l, format: 'float' },
-    { key: 'radial-order', label: 'Radial order (n)', value: st.n, format: 'float' }
+    { key: 'profile-type', label: 'Evolutionary stage', value: evolutionStage(st.l === 1 ? st.Pi1 : Pi_l(st.Pi1 * Math.sqrt(st.l * (st.l + 1)), 1)), format: 'text' },
+    { key: 'period-spacing', label: `Pi_${st.l} (s)`, value: st.Pi1, format: 'float' },
+    { key: 'mode-degree', label: 'Mode degree l', value: st.l, format: 'float' },
+    { key: 'radial-order', label: 'Radial order n', value: st.n, format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
   const profile = PROFILES[st.profile];
   if (!profile) return [];
-  const { total: phaseTotal } = phaseIntegral(profile, 400);
-  const pi1 = pi1FromProfile(profile);
-  const pi_l = Pi_l(pi1 * Math.sqrt(2), st.l);
-  const modeProfile = modeProfileArray(profile, st.n, NR);
-  const nodeCount = modeProfile.filter((v, i) => i > 0 && v * modeProfile[i - 1] < 0).length;
+  const { total } = phaseIntegral(profile, 400);
+  const arr = modeProfileArray(profile, st.n, NR);
+  let nodes = 0; for (let i = 1; i <= NR; i += 1) if (arr[i] * arr[i - 1] < 0) nodes += 1;
   return [
-    { key: 'phase-integral-positive', label: 'Phase integral positive', value: phaseTotal > 0 ? 'pass' : 'drift', status: phaseTotal > 0 ? 'pass' : 'drift' },
-    { key: 'mode-nodes', label: 'Mode nodes match radial order', value: Math.abs(nodeCount - st.n) <= 1 ? 'pass' : 'drift', status: Math.abs(nodeCount - st.n) <= 1 ? 'pass' : 'drift' }
+    { key: 'phase-integral-positive', label: 'Buoyancy integral positive', value: total > 0 ? 'pass' : 'drift', status: total > 0 ? 'pass' : 'drift' },
+    { key: 'mode-nodes', label: 'Mode nodes match radial order', value: `${nodes} vs ${st.n}`, status: Math.abs(nodes - st.n) <= 1 ? 'pass' : 'drift' },
   ];
 };
