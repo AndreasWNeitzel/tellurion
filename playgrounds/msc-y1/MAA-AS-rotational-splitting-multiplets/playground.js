@@ -16,6 +16,7 @@
 
 import { ledoux, splittedFreq } from './sim.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -75,7 +76,7 @@ function drawMode(cx, cy, RST, t) {
   // observer sees frequency m(1-C)Omega. drift = m(1-C)Omega (scaled).
   const drift = DRIFT * m * (1 - C) * st.Omega;
   const breath = 0.84 + 0.16 * Math.cos(2 * Math.PI * 0.11 * t);   // gentle oscillation cue
-  const step = 3;
+  const step = Math.max(3, Math.round(RST / 64));
   for (let py = -RST; py <= RST; py += step) {
     for (let px = -RST; px <= RST; px += step) {
       const nx = px / RST, ny = -py / RST, rr = nx * nx + ny * ny;   // ny up
@@ -140,12 +141,23 @@ function drawSpectrum(x0, x1, yb, yt) {
   rD.textContent = split.toFixed(3);
 }
 
+let view = { w: 800, h: 1020, dpr: 1 }, REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [{ name: 'star', weight: 1.18 }, { name: 'spec', weight: 0.82 }]);
+}
+
 function render() {
-  const W = canvas.width, H = canvas.height;
-  ctx.fillStyle = '#05050a'; ctx.fillRect(0, 0, W, H);
-  const ph = CAPTURE_NAME ? CAPTURE_FRAC * 6 : st.t;
-  drawMode(208, 226, 164, ph);
-  drawSpectrum(452, W - 28, H - 96, 96);
+  if (!REG) relayout();
+  ctx.fillStyle = '#05050a'; ctx.fillRect(0, 0, view.w, view.h);
+  const ph = CAPTURE_NAME ? (CAPTURE_FRAC > 0 ? CAPTURE_FRAC * 6 : 9.0) : st.t;
+  // star region (top): centred disc with room below for the two label lines.
+  const s = REG.star;
+  const RST = Math.min(s.w * 0.40, (s.h - 84) * 0.5);
+  drawMode(s.x + s.w / 2, s.y + 22 + RST, RST, ph);
+  // spectrum region (bottom).
+  const sp = REG.spec;
+  drawSpectrum(sp.x + 46, sp.x + sp.w - 22, sp.y + sp.h - 52, sp.y + 28);
 }
 
 let rafOn = false;
@@ -157,10 +169,13 @@ function bootSync() {
   if (params.get('mode') === 'g') { st.isG = true; selM.value = 'g'; }
   if (Number.isFinite(parseInt(params.get('m'), 10))) st.m = parseInt(params.get('m'), 10);
   populateAz(); recomputeNorm();
+  relayout();
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); startLoop(); }, { once: true }); } else { bootSync(); startLoop(); }
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
