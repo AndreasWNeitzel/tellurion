@@ -7,16 +7,20 @@ field (P_y = Q_x, the gradient of a potential) every route gives the same value
 and a closed loop is zero; for a field with curl the routes disagree and a round
 trip nets the circulation, which by Stokes equals the curl over the enclosed area.
 
-Look for the lower plot: it accumulates the integral along each route. For the
-rotation field the three curves split to different final values (the path
-matters); switch to a conservative field and they all land on the same value,
-the potential difference between the endpoints. The closed-loop mode walks out
-straight and back by the arc and shows the round trip returning to zero only when
-the field is conservative.
+The playground opens on a conservative field and draws its equipotential
+contours in green. The field crosses them at right angles, and the line integral
+from A to B is just the potential difference phi(B) - phi(A), the number of
+contours you cross, which is the same for every route. The endpoint potentials
+are labelled, and the lower plot shows the three running integrals all landing on
+that same value. Switch to a non-conservative field (rotation or shear) and the
+contours disappear (no potential exists), the three curves split to different
+final values, and a closed loop nets the circulation, which by Stokes equals the
+curl over the enclosed area.
 
-Use the field selector and the routes selector (all three, or closed loop); drag
-the endpoints A and B and the bent-path handle. Pause freezes the travelling
-markers and Reset restores the rotation field.
+Use the field selector (grouped into conservative and non-conservative) and the
+routes selector (all three, or closed loop); drag the endpoints A and B and the
+bent-path handle. Pause freezes the travelling markers and Reset restores the
+conservative field.
 
 ## Reference
 

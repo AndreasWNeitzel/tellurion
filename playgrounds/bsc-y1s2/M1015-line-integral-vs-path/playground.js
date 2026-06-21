@@ -35,13 +35,13 @@ let tphase = 0;
 function field() { return FIELDS[selField.value]; }
 function isLoop() { return selRoutes.value === 'loop'; }
 function syncVals() {
-  valueField.textContent = { rotation: 'rotation', shear: 'shear', conservative1: 'grad φ', conservative2: 'grad φ' }[selField.value];
+  valueField.textContent = { rotation: 'rotation', shear: 'shear', conservative1: 'conservative', conservative2: 'conservative' }[selField.value];
   valueRoutes.textContent = isLoop() ? 'loop' : 'all';
 }
 selField.addEventListener('change', () => { syncVals(); render(); });
 selRoutes.addEventListener('change', () => { syncVals(); render(); });
 btnReset.addEventListener('click', () => {
-  selField.value = 'rotation'; selRoutes.value = 'all';
+  selField.value = 'conservative1'; selRoutes.value = 'all';
   A = { x: -1.5, y: -0.7 }; B = { x: 1.5, y: 0.6 }; C = { x: 0.1, y: 1.7 };
   running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
   syncVals(); render();
@@ -141,6 +141,38 @@ function buildRoutes(f) {
   }
 }
 
+// Equipotential contours of the scalar potential phi, drawn for conservative
+// fields only. They are the visual proof of path-independence: the field is
+// perpendicular to these lines, and the integral A->B is just phi(B) - phi(A),
+// the number of contours crossed, no matter which route is taken. Marching
+// squares on a coarse grid.
+function drawEquipotentials(f, col) {
+  if (!f.potential) return;
+  const NG = 54;
+  const gx = (i) => -VIEW + 2 * VIEW * i / NG, gy = (j) => -VIEW + 2 * VIEW * j / NG;
+  const phi = [];
+  let mn = Infinity, mx = -Infinity;
+  for (let j = 0; j <= NG; j += 1) { phi[j] = []; for (let i = 0; i <= NG; i += 1) { const v = f.potential(gx(i), gy(j)); phi[j][i] = v; if (v < mn) mn = v; if (v > mx) mx = v; } }
+  const NL = 14;
+  const cross = (lev, xa, ya, va, xb, yb, vb) => { const t = (lev - va) / (vb - va); return [WX(xa + (xb - xa) * t), WY(ya + (yb - ya) * t)]; };
+  ctx.strokeStyle = 'rgba(103,217,140,0.22)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let l = 1; l < NL; l += 1) {
+    const lev = mn + (mx - mn) * l / NL;
+    for (let j = 0; j < NG; j += 1) for (let i = 0; i < NG; i += 1) {
+      const x0 = gx(i), x1 = gx(i + 1), y0 = gy(j), y1 = gy(j + 1);
+      const v0 = phi[j][i], v1 = phi[j][i + 1], v2 = phi[j + 1][i + 1], v3 = phi[j + 1][i];
+      const pts = [];
+      if ((v0 - lev) * (v1 - lev) < 0) pts.push(cross(lev, x0, y0, v0, x1, y0, v1));
+      if ((v1 - lev) * (v2 - lev) < 0) pts.push(cross(lev, x1, y0, v1, x1, y1, v2));
+      if ((v2 - lev) * (v3 - lev) < 0) pts.push(cross(lev, x1, y1, v2, x0, y1, v3));
+      if ((v3 - lev) * (v0 - lev) < 0) pts.push(cross(lev, x0, y1, v3, x0, y0, v0));
+      if (pts.length >= 2) { ctx.moveTo(pts[0][0], pts[0][1]); ctx.lineTo(pts[1][0], pts[1][1]); if (pts.length === 4) { ctx.moveTo(pts[2][0], pts[2][1]); ctx.lineTo(pts[3][0], pts[3][1]); } }
+    }
+  }
+  ctx.stroke();
+}
+
 function drawArrow(x1, y1, x2, y2, color, lw) {
   ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw || 2;
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
@@ -155,6 +187,10 @@ function drawScene(col, r) {
 
   ctx.save();
   clipTo(ctx, draw);
+
+  // equipotential contours (conservative fields only): the visual reason the
+  // integral is path-independent.
+  drawEquipotentials(f, col);
 
   // field quiver.
   const NG = 11; let fmax = 1e-6;
@@ -196,11 +232,15 @@ function drawScene(col, r) {
     ctx.fillStyle = col.C; ctx.beginPath(); ctx.arc(WX(C.x), WY(C.y), 6, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
   }
 
-  // endpoints.
+  // endpoints (with the potential value at each, for conservative fields).
   for (const [pt, c, lab] of [[A, col.A, 'A'], [B, col.B, 'B']]) {
     ctx.fillStyle = c; ctx.beginPath(); ctx.arc(WX(pt.x), WY(pt.y), 8, 0, 2 * Math.PI); ctx.fill();
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6; ctx.stroke();
     ctx.fillStyle = '#fff'; ctx.font = fontString(canvas, 'tick', 'mono', 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(lab, WX(pt.x), WY(pt.y) + 1);
+    if (f.potential) {
+      ctx.fillStyle = c; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textBaseline = 'top';
+      ctx.fillText(`φ=${f.potential(pt.x, pt.y).toFixed(1)}`, WX(pt.x), WY(pt.y) + 12);
+    }
   }
 
   ctx.restore();
@@ -218,16 +258,33 @@ function drawScene(col, r) {
     ];
   } else {
     const gs = routeData[0].G[M], ga = routeData[1].G[M];
-    items = [
-      [valueField.textContent, col.fg],
-      [`straight ${gs.toFixed(2)}`, col.straight],
-      [`arc ${ga.toFixed(2)}`, col.arc],
-      [cons ? 'path-independent' : 'path-dependent', cons ? col.A : col.accent],
-    ];
+    if (cons) {
+      const dphi = f.potential(B.x, B.y) - f.potential(A.x, A.y);
+      items = [
+        ['conservative', col.A],
+        [`all routes ${gs.toFixed(2)}`, col.straight],
+        [`φ(B)−φ(A) ${dphi.toFixed(2)}`, col.accent],
+        ['path-independent', col.A],
+      ];
+    } else {
+      items = [
+        ['not conservative', col.accent],
+        [`straight ${gs.toFixed(2)}`, col.straight],
+        [`arc ${ga.toFixed(2)}`, col.arc],
+        ['path-dependent', col.accent],
+      ];
+    }
   }
   ctx.font = fontString(canvas, 'caption', 'mono', 700);
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
-  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+  ctx.textBaseline = 'middle';
+  let need = 0; for (const [t] of items) need += ctx.measureText(t).width + 18;
+  if (need <= r.w) {
+    ctx.textAlign = 'center';
+    items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+  } else {
+    ctx.textAlign = 'center';
+    items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * ((i % 2) + 0.5) / 2, r.y + r.h - (i < 2 ? 24 : 9)); });
+  }
 }
 
 function drawDiagnostic(col, r) {
@@ -309,7 +366,11 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
-function bootSync() { syncVals(); relayout(); tphase = 0.6; render(); }
+function bootSync() {
+  if (FIELDS[params.get('field')]) selField.value = params.get('field');
+  if (['all', 'loop'].includes(params.get('routes'))) selRoutes.value = params.get('routes');
+  syncVals(); relayout(); tphase = 0.6; render();
+}
 
 window.addEventListener('load', bootSync);
 if (document.readyState !== 'loading') bootSync();

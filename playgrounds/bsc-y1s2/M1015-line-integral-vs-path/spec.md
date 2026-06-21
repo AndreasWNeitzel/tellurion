@@ -10,7 +10,7 @@ curriculum_year: bsc-y1s2
 primary_citation: riley-hobson
 primary_chapter: 10
 hook: 'Walk a force field from A to B along a straight line, then along a curved detour. For some fields the work is identical; for others the gap is exactly the curl you enclosed.'
-one_paragraph: 'The work done by a vector field along a path is a line integral. For a conservative field it depends only on the endpoints, so a straight chord, a curved arc, and a bent detour from A to B all give the same value and a closed loop is zero. For a non-conservative field the routes disagree, and by Green''s theorem the closed-loop integral equals the curl integrated over the enclosed area. The scene draws the field with draggable endpoints A and B and three routes between them (straight, arc, and a bent path with a draggable handle); the diagnostic accumulates F.dr along each route versus progress, so the curves either land on the same value (conservative, path-independent) or split apart (path-dependent). A closed-loop mode walks out straight and back by the arc and shows the round trip return to zero, or not. Reference: Riley and Hobson, Mathematical Methods, Ch. 11.'
+one_paragraph: 'The work done by a vector field along a path is a line integral. For a conservative field it depends only on the endpoints, so a straight chord, a curved arc, and a bent detour from A to B all give the same value and a closed loop is zero. The playground opens on a conservative field and draws its equipotential contours: the field crosses them at right angles and the integral A to B is simply the potential difference phi(B) - phi(A), the number of contours crossed, no matter the route. Switch to a non-conservative field and the contours vanish (no potential exists), the routes disagree, and by Green''s theorem the closed-loop integral equals the curl integrated over the enclosed area. The scene draws the field with draggable endpoints A and B and three routes (straight, arc, and a bent path with a draggable handle); the diagnostic accumulates F.dr along each route versus progress, so the curves either land on the same value (conservative, path-independent) or split apart. A closed-loop mode walks out straight and back by the arc and shows the round trip return to zero, or not. Reference: Riley and Hobson, Mathematical Methods, Ch. 11.'
 tags: [numerics, animation, live-readout, interactive]
 difficulty: 3
 tier: hero
@@ -29,8 +29,9 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - On the conservative field, all three routes land on phi(B) - phi(A); the equipotential contours show why.
+  - Drag the bent path far off the chord; the conservative total does not budge.
+  - Switch to rotation or shear: the contours vanish and the routes split apart (path-dependent).
 references:
   - "Riley, Hobson, Bence, Mathematical Methods for Physics and Engineering, Third ed., Ch. 10."
 ---
