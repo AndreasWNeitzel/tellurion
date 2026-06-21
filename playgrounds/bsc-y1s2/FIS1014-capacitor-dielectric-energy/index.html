@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Capacitor with a Dielectric: Energy and the Pull-In Force</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 6ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); }
+    .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Capacitor with a Dielectric: Energy and the Pull-In Force</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A parallel-plate capacitor stores charge $Q = CV$ with capacitance $C = \varepsilon_0 A/d$, and slipping a dielectric slab into the gap raises that capacitance by the dielectric constant $\varepsilon_r$. When the slab covers a fraction $x$ of the plate area it acts as two capacitors in parallel, $C(x) = C_0\,[1 + (\varepsilon_r - 1)x]$, and more charge crowds onto the plates where the dielectric sits. The slab is not just passive: the fringing field at the plate edge pulls it in. Whether that lowers or raises the stored energy depends on what you hold fixed. Disconnect the battery and the charge is fixed, so $U = Q^2/2C$ falls as the slab enters and the field itself does the work of pulling it in. Keep the battery connected and the voltage is fixed, so $U = \tfrac12 CV^2$ rises, but now the battery supplies the energy while the slab is still pulled in. Either way the dielectric is sucked into the capacitor, a small force with a clear sign.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1020" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A parallel-plate capacitor with a dielectric slab partially inserted, the free and bound charges, the field, and a plot of the stored energy and the inward force versus the inserted fraction."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Dielectric in a capacitor. Top: the plates with free charge (denser under the dielectric), the slab with its bound surface charges, the field, and the inward force on the slab. Bottom: the stored energy U and the inward force F versus the inserted fraction x; U falls at constant charge (the field does the work) and rises at constant voltage (the battery supplies it), while F is inward in both cases. Method: closed-form parallel-plate capacitance and energy, slab dynamics under F. Source: Griffiths, Introduction to Electrodynamics, 5th ed., Sec. 4.4.4.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Dielectric capacitor controls">
+    <div class="row"><span class="label">eps_r</span><input aria-label="dielectric constant" type="range" id="slider-eps" min="1.5" max="10" step="0.1" value="4"><span class="value" id="value-eps">4.0</span></div>
+    <div class="row"><span class="label">voltage</span><input aria-label="voltage" type="range" id="slider-V" min="0.5" max="3" step="0.1" value="2"><span class="value" id="value-V">2.0</span></div>
+    <div class="row wide"><button id="btn-mode" type="button">Toggle battery</button><span class="value" id="value-mode">constant Q (battery off)</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Slab out</button>
+      <button id="btn-release" type="button" aria-pressed="false">Release</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Press Release: the slab is pulled into the gap and settles fully inserted. Drag it back out and release again.</li>
+        <li class="t-body">In constant-Q mode (battery off) the energy curve falls as the slab enters and the field arrows shorten (the voltage drops); the energy released is the work that pulls the slab in.</li>
+        <li class="t-body">Toggle the battery on (constant V): now the energy curve rises, the force stays inward, and the charge $Q$ grows as the battery pushes more charge onto the plates.</li>
+        <li class="t-body">Raise $\varepsilon_r$ and the free charge crowds more densely under the dielectric and the pull-in force grows.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
