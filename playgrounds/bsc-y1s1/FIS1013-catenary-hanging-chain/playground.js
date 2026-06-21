@@ -23,6 +23,8 @@ const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const sliderA = document.getElementById('slider-a');
 const valueA = document.getElementById('value-a');
+const selMode = document.getElementById('select-mode');
+const valueMode = document.getElementById('value-mode');
 const btnReset = document.getElementById('btn-reset');
 
 const X_LIM = 2.1, Y_LIM = 3.0;
@@ -31,8 +33,21 @@ const state = {
   P1: { x: -1.6, y: 2.7 },
   P2: { x: 1.6, y: 2.7 },
   L: 6.0,             // deep default sag so the catenary visibly differs from a parabola
+  mode: urlParams.get('mode') === 'arch' ? 'arch' : 'hang',  // 'hang' = chain in tension; 'arch' = inverted, compression
   drag: null,
 };
+
+// Chord line between the two supports, and the vertical map that flips the
+// hanging catenary about that chord to make the self-supporting arch. The
+// inverted catenary carries pure compression, which is why real arches (the
+// Gateway Arch, Gaudi's vaults) take this exact shape.
+function chordLine(x, left, right) {
+  if (Math.abs(right.x - left.x) < 1e-9) return left.y;
+  return left.y + (right.y - left.y) * (x - left.x) / (right.x - left.x);
+}
+function vy(x, yval, left, right) {
+  return state.mode === 'arch' ? 2 * chordLine(x, left, right) - yval : yval;
+}
 
 let view = { w: 760, h: 950, dpr: 1 };
 let REG = null;
@@ -82,8 +97,21 @@ sliderA.addEventListener('input', () => {
   valueA.textContent = state.L.toFixed(2);
   render();
 });
+// Arch springs from a low base so it rises into the frame; the chain hangs
+// from high supports so it drops into the frame.
+function placeSupportsForMode() {
+  const baseY = state.mode === 'arch' ? 0.9 : 2.7;
+  state.P1.y = baseY; state.P2.y = baseY;
+}
+if (selMode) selMode.addEventListener('change', () => {
+  state.mode = selMode.value;
+  if (valueMode) valueMode.textContent = state.mode === 'arch' ? 'arch' : 'chain';
+  placeSupportsForMode();
+  render();
+});
 btnReset.addEventListener('click', () => {
   state.P1 = { x: -1.6, y: 2.7 }; state.P2 = { x: 1.6, y: 2.7 }; state.L = 6.0;
+  state.mode = 'hang'; if (selMode) selMode.value = 'hang'; if (valueMode) valueMode.textContent = 'chain';
   sliderA.value = '2.87'; valueA.textContent = '6.00'; render();
 });
 canvas.addEventListener('pointerdown', (e) => {
@@ -131,29 +159,34 @@ function render() {
       + y2 * ((x - x1) * (x - xm)) / ((x2 - x1) * (x2 - xm))
       + ym * ((x - x1) * (x - x2)) / ((xm - x1) * (xm - x2));
 
-    // Shaded gap between catenary and parabola.
+    // Shaded gap between catenary and parabola (both flipped in arch mode).
     ctx.beginPath();
-    for (let i = 0; i < xs.length; i += 1) { const p = [m.X(xs[i]), m.Y(ys[i])]; i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
-    for (let i = xs.length - 1; i >= 0; i -= 1) { ctx.lineTo(m.X(xs[i]), m.Y(para(xs[i]))); }
+    for (let i = 0; i < xs.length; i += 1) { const p = [m.X(xs[i]), m.Y(vy(xs[i], ys[i], left, right))]; i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
+    for (let i = xs.length - 1; i >= 0; i -= 1) { ctx.lineTo(m.X(xs[i]), m.Y(vy(xs[i], para(xs[i]), left, right))); }
     ctx.closePath(); ctx.fillStyle = 'rgba(127,177,216,0.24)'; ctx.fill();
     for (let i = 0; i < xs.length; i += 1) maxGap = Math.max(maxGap, Math.abs(ys[i] - para(xs[i])));
 
     // Parabola (dashed).
     ctx.strokeStyle = 'rgba(127,177,216,0.85)'; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]);
     ctx.beginPath();
-    for (let i = 0; i < xs.length; i += 1) { const p = [m.X(xs[i]), m.Y(para(xs[i]))]; i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
+    for (let i = 0; i < xs.length; i += 1) { const p = [m.X(xs[i]), m.Y(vy(xs[i], para(xs[i]), left, right))]; i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
     ctx.stroke(); ctx.setLineDash([]);
 
-    // Catenary (gold) with chain-link beads.
-    ctx.strokeStyle = col.accent; ctx.lineWidth = 3;
+    // Catenary (gold), thicker in arch mode to read as masonry; chain-link
+    // beads in hang mode.
+    ctx.strokeStyle = col.accent; ctx.lineWidth = state.mode === 'arch' ? 7 : 3;
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    for (let i = 0; i < xs.length; i += 1) { const p = [m.X(xs[i]), m.Y(ys[i])]; i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
+    for (let i = 0; i < xs.length; i += 1) { const p = [m.X(xs[i]), m.Y(vy(xs[i], ys[i], left, right))]; i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
     ctx.stroke();
-    ctx.fillStyle = col.accent;
-    const nBead = 16;
-    for (let k = 0; k <= nBead; k += 1) {
-      const x = left.x + (right.x - left.x) * k / nBead;
-      ctx.beginPath(); ctx.arc(m.X(x), m.Y(catenary2ptY(sol, x)), 2.6, 0, 6.28); ctx.fill();
+    ctx.lineCap = 'butt';
+    if (state.mode === 'hang') {
+      ctx.fillStyle = col.accent;
+      const nBead = 16;
+      for (let k = 0; k <= nBead; k += 1) {
+        const x = left.x + (right.x - left.x) * k / nBead;
+        ctx.beginPath(); ctx.arc(m.X(x), m.Y(catenary2ptY(sol, x)), 2.6, 0, 6.28); ctx.fill();
+      }
     }
     // Tension extremes (T_0 = mu g a at the bottom; T = mu g a cosh at supports), mu g = 1.
     tMin = aOut;
@@ -174,11 +207,12 @@ function render() {
 
   // Legend (left) + readout (right), kept on separate columns.
   ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillStyle = col.accent; ctx.fillText('chain', S.x + 8, S.y + 7);
-  ctx.fillStyle = col.cool; ctx.fillText('parabola', S.x + 52, S.y + 7);
+  const arch = state.mode === 'arch';
+  ctx.fillStyle = col.accent; ctx.fillText(arch ? 'catenary arch' : 'chain', S.x + 8, S.y + 7);
+  ctx.fillStyle = col.cool; ctx.fillText(arch ? 'parabolic arch' : 'parabola', S.x + (arch ? 116 : 52), S.y + 7);
   ctx.font = fontString(canvas, 'mono', 'mono'); ctx.textAlign = 'right'; ctx.fillStyle = col.fg;
   if (sol) {
-    ctx.fillText(`sag ${sagv.toFixed(2)}   gap ${maxGap.toFixed(2)}`, S.x + S.w - 8, S.y + 7);
+    ctx.fillText(`${arch ? 'rise' : 'sag'} ${sagv.toFixed(2)}   gap ${maxGap.toFixed(2)}`, S.x + S.w - 8, S.y + 7);
   } else {
     ctx.fillStyle = col.red; ctx.fillText('taut: chain too short', S.x + S.w - 8, S.y + 7);
   }
@@ -189,7 +223,7 @@ function render() {
   const T = REG.tension;
   panel(col, T);
   ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText('tension along the chain', T.x + 8, T.y + 7);
+  ctx.fillText(arch ? 'compression along the arch' : 'tension along the chain', T.x + 8, T.y + 7);
   if (sol) {
     const padL = 40, padR = 14, padT = 28, padB = 24;
     const x0 = T.x + padL, x1p = T.x + T.w - padR, pw = x1p - x0;
@@ -221,9 +255,9 @@ function render() {
     ctx.beginPath(); ctx.arc(fx(left.x), fy(aOut * Math.cosh((left.x - sol.x0) / aOut)), 4, 0, 6.28); ctx.fill();
     ctx.beginPath(); ctx.arc(fx(right.x), fy(aOut * Math.cosh((right.x - sol.x0) / aOut)), 4, 0, 6.28); ctx.fill();
     ctx.font = fontString(canvas, 'caption', 'sans'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillStyle = col.cool; ctx.fillText('min (bottom)', fx(sol.x0), fy(tMin) + 6);
+    ctx.fillStyle = col.cool; ctx.fillText(arch ? 'least (apex)' : 'min (bottom)', fx(sol.x0), fy(tMin) + 6);
     ctx.fillStyle = col.red; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-    ctx.fillText('max (supports)', x0 + 4, y0 + 12);
+    ctx.fillText(arch ? 'most (base)' : 'max (supports)', x0 + 4, y0 + 12);
   } else {
     ctx.font = fontString(canvas, 'caption', 'sans'); ctx.fillStyle = col.muted; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('chain is taut: tension set by the pull, not gravity', T.x + T.w / 2, T.y + T.h / 2);
@@ -258,6 +292,9 @@ function bootSync() {
     return;
   }
   valueA.textContent = state.L.toFixed(2);
+  if (selMode) selMode.value = state.mode;
+  if (valueMode) valueMode.textContent = state.mode === 'arch' ? 'arch' : 'chain';
+  placeSupportsForMode();
   render();
 }
 
@@ -276,6 +313,7 @@ window.playground.getState = function () {
       { key: 'cable-length', label: 'Chain length L', value: state.L, format: 'float' },
       { key: 'span', label: 'Support span', value: span, format: 'float' },
       { key: 'taut-ratio', label: 'L / span (taut=1)', value: state.L / Math.max(1e-6, span), format: 'float' },
+      { key: 'mode', label: 'Mode', value: state.mode === 'arch' ? 'arch (compression)' : 'chain (tension)', format: undefined },
       { key: 'config', label: 'Configuration', value: state.L > span ? 'slack' : 'taut', format: undefined },
     ],
   };

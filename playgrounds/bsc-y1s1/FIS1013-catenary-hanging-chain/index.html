@@ -82,6 +82,7 @@
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Catenary controls">
     <div class="row"><span class="label">chain length</span><input aria-label="chain length" type="range" id="slider-a" min="0.3" max="3.0" step="0.02" value="2.87"><span class="value" id="value-a">6.00</span></div>
+    <div class="row"><span class="label">mode</span><select aria-label="mode" id="select-mode"><option value="hang" selected="">hanging chain (tension)</option><option value="arch">inverted arch (compression)</option></select><span class="value" id="value-mode">chain</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
     </div>
@@ -94,6 +95,7 @@
         <li class="t-body">Compare the gold chain (the true catenary) to the dashed parabola through the same endpoints: the shaded gap is how wrong "it's a parabola" is.</li>
         <li class="t-body">Drag a support around. The chain length is fixed, so the shape re-solves; pull too far and it snaps taut to a straight line.</li>
         <li class="t-body">Watch the tension plot below: it is lowest at the bottom of the chain and highest where it attaches, which is why chains and cables fail at the anchors.</li>
+        <li class="t-body">Switch the mode to "inverted arch": the same catenary, flipped, becomes an arch that stands in pure compression with no bending, which is exactly the shape of the Gateway Arch and Gaudi's vaults. A parabolic arch (dashed) would not.</li>
       </ul>
     </section>
 
