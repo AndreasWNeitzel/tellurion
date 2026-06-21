@@ -10,10 +10,10 @@ curriculum_year: bsc-y1s2
 primary_citation: riley-hobson
 primary_chapter: 10
 hook: 'Add up a function over a rectangle column by column, or row by row; Fubini''s theorem promises the same total, and here both orders are computed side by side.'
-one_paragraph: 'A double integral over a rectangle can be done as an iterated integral in either order: integrate over x first then y, or y first then x. Fubini''s theorem guarantees the two agree when the integrand is well behaved. The playground evaluates both orders numerically for f(x, y) = sin x cos y over an adjustable rectangle and shows the running partial sums converging to the same value. Watching the two accumulations fill the region in different directions yet meet at the same answer makes the theorem concrete instead of a line taken on faith. Reference: Riley and Hobson, Mathematical Methods, Ch. 10.'
-tags: [numerics, animation, live-readout]
+one_paragraph: 'A double integral over a rectangle can be done as an iterated integral in either order: integrate over x first then y, or y first then x. Fubini''s theorem guarantees the two agree when the integrand is well behaved. The scene shows f(x, y) = sin x cos y as a colour map over a resizable rectangle (drag the corner), with a slab sweeping across it (vertical strips for dy-then-dx, horizontal for dx-then-dy). The diagnostic accumulates the double integral in both orders at once: two running totals that take different paths but land on precisely the same final value, the theorem made concrete instead of a line taken on faith. Reference: Riley and Hobson, Mathematical Methods, Ch. 6.'
+tags: [numerics, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -35,7 +35,33 @@ references:
   - "Riley, Hobson, Bence, Mathematical Methods for Physics and Engineering, Third ed., Ch. 10."
 ---
 # Fubini's theorem in 2D
-Iterated integrals over a rectangle in two orders match numerically. Demonstrated on $f(x, y) = \sin x \cos y$. Source: Riley-Hobson Ch. 10.
+Iterated integrals over a rectangle in two orders match numerically, demonstrated on $f(x, y) = \sin x \cos y$ with a sweeping-slab colour map and a both-orders accumulation diagnostic; drag the region corner to resize. Source: Riley-Hobson Ch. 6.
+
+## Controls
+
+- slice order: dy then dx (vertical strips) or dx then dy (horizontal),
+  selecting which sweep is animated in the scene.
+- drag the region corner to resize the rectangle [0, X1] x [0, Y1].
+- Reset, Pause.
+
+## Numerical method
+
+The integrand is f(x,y) = sin x cos y. The inner integrals (innerY(x),
+innerX(y)) and the iterated totals use nested Simpson quadrature; the
+running accumulation curves use trapezoidal sums of the inner integrals.
+Rendering is plain Canvas2D: an rdbu colour map of f, the dimmed
+out-of-region area, the sweeping slab, and the two accumulation curves
+converging to the exact total.
+
+## Invariants and acceptance thresholds
+
+| invariant | threshold | location |
+| dx-dy and dy-dx agree (Fubini) | within 1e-6 on the full square | invariants test + live |
+| iterated total matches the exact closed form | within 1e-4 | invariants test |
+| integrating innerX over y recovers the double integral | within 1e-3 | invariants test |
+| integrating innerY over x recovers the double integral | within 1e-3 | invariants test |
+
+All confirmed in `invariants.test.mjs` (7 tests passing).
 
 ## Explainer
 
