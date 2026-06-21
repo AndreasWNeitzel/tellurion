@@ -5,6 +5,7 @@
 // structure. sim.js (solveLaneEmden, KNOWN_XI1) is unchanged.
 
 import { solveLaneEmden, KNOWN_XI1 } from './sim.js';
+import { setupCanvas, stack } from '../../../shared/js/render/vertical-layout.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
@@ -21,7 +22,18 @@ const readoutM    = document.getElementById('readout-m');
 const selectN     = document.getElementById('select-n');
 const valueN      = document.getElementById('value-n');
 
-const W = canvas.width, H = canvas.height;
+let view = { w: 800, h: 1100, dpr: 1 }, REG = null;
+let STAR = { x: 0, y: 0, w: 400, h: 500 };
+let PLOTS = { x: 0, y: 500, w: 800, h: 600 };
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.4 },
+    { name: 'diag', weight: 1.7 },
+  ]);
+  STAR = REG.scene;
+  PLOTS = REG.diag;
+}
 let n = parseFloat(selectN.value);
 
 const NS = [0, 1, 1.5, 3, 5];
@@ -69,12 +81,9 @@ function colors() {
 
 let clock = 0;
 
-// Layout: the star takes the LEFT half of the canvas, the diagnostic
-// plots take the RIGHT half. The previous top-bottom split squashed
-// the star into 2/3 of the height and left the right ~40 % of the
-// canvas mostly empty.
-const STAR = { x: 0, y: 0, w: Math.floor(W * 0.50), h: H };
-const PLOTS = { x: STAR.w, y: 0, w: W - STAR.w, h: H };
+// Layout v2: the density sphere is the scene (top), the theta(xi) and
+// enclosed-mass plots stack in the diagnostic region (bottom). STAR and PLOTS
+// are set from the layout regions in relayout().
 
 function drawStar(c, s) {
   ctx.fillStyle = '#05060a';
@@ -273,10 +282,10 @@ function drawProfile(c, s, probe) {
   let lyy = tp.y0 + 4;
   for (const ni of NS) {
     ctx.fillStyle = COLORS_N[ni];
-    ctx.fillRect(tp.x1 - 70, lyy + 1, 10, 2.2);
-    ctx.fillStyle = c.muted; ctx.font = ni === n ? 'bold 10px ui-monospace, monospace' : '11px ui-monospace, monospace';
+    ctx.fillRect(tp.x1 - 72, lyy + 1, 10, 2.4);
+    ctx.fillStyle = ni === n ? c.fg : c.muted; ctx.font = fontString(canvas, 'tick', 'mono', ni === n ? 700 : 400);
     ctx.fillText(`n = ${ni}`, tp.x1 - 56, lyy + 5);
-    lyy += 12;
+    lyy += 14;
   }
 
   // ===== BOTTOM: enclosed mass m(xi) =====
@@ -331,9 +340,10 @@ function drawProfile(c, s, probe) {
 }
 
 function render() {
+  if (!REG) relayout();
   const c = colors();
   ctx.fillStyle = c.bg;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, view.w, view.h);
   const s = sol(n);
   const probe = drawStar(c, s);
   drawProfile(c, s, probe);
@@ -397,6 +407,9 @@ if (document.readyState === 'loading') {
   if (!CAPTURE_NAME) requestAnimationFrame(loop);
 }
 
+
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};

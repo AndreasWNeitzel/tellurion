@@ -19,18 +19,19 @@ renderer: canvas2d
 estimated_engagement_minutes: 3
 share_state_keys: []
 invariants:
-  - key: runs
-    label: simulation advances each frame
-    tolerance: 1
-  - key: bounded
-    label: state stays finite
-    tolerance: 1
-  - key: deterministic
-    label: fixed seed reproduces the run
-    tolerance: 1
+  - key: bc-initial
+    label: central boundary condition theta(0) = 1
+    tolerance: 1e-10
+  - key: bc-boundary
+    label: theta reaches zero at the surface (finite-radius polytropes)
+    tolerance: 1e-2
+  - key: analytic-match
+    label: xi_1 matches the closed form for n = 0, 1, 3
+    tolerance: 0.01
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Step n from 0 to 5: the star goes from a uniform ball with a sharp edge to a centrally concentrated, diffuse cloud.
+  - Compare the xi_1 markers: n=0 ends at sqrt(6), n=1 at pi, n=3 at 6.897, each checked against its closed form.
+  - Select n=5: theta never reaches zero, so the polytrope has infinite radius and the star reads "diffuse".
 references:
   - "Chandrasekhar, An Introduction to the Study of Stellar Structure."
 

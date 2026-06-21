@@ -78,7 +78,7 @@ M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500" tabindex="0" aria-label="Lane-Emden theta(xi) curves for selected polytropic indices."></canvas>
+      <canvas class="playground-canvas" id="stage" width="800" height="1100" tabindex="0" aria-label="A density-shaded polytrope sphere with a cutaway interior, the Lane-Emden theta(xi) curves, and the enclosed-mass profile."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
@@ -106,8 +106,10 @@ M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Step n from 0 to 5: the star goes from a uniform-density ball with a sharp edge to a centrally concentrated, diffuse cloud. Higher n piles the mass into the core, as the cutaway and the isodensity rings show.</li>
+        <li class="t-body">Compare the xi_1 markers: n=0 ends at sqrt(6), n=1 at pi, n=3 at 6.897. The rail checks each against its closed form.</li>
+        <li class="t-body">Select n=5: theta never reaches zero, so the polytrope has infinite radius (the curve fades to zero only asymptotically and the star reads "diffuse").</li>
+        <li class="t-body">Watch the enclosed-mass plot: for high n almost all the mass sits at small xi, the seismic signature of a centrally condensed star.</li>
       </ul>
     </section>
 
