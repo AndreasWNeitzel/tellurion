@@ -1,20 +1,24 @@
 # Kepler orbit explorer
 
-A top-down view of the inner solar system: the Sun at the centre, the four inner
-planets (Mercury through Mars) at their real semi-major axes and eccentricities,
-plus an adjustable comet. All bodies obey the same inverse-square law in GM = 1
-units, where a = 1 is Earth's orbit (1 year per revolution), and are integrated
-with an energy-conserving symplectic step so the orbits stay closed.
+One orbit you control, showing all three of Kepler's laws at once. Set its size
+(semi-major axis a) and how stretched it is (eccentricity e) and the body traces
+an ellipse with the Sun at a focus, not the centre, which is the first law. The
+line from the Sun to the body sweeps out the shaded wedges, which all have the
+same area for equal slices of time, the second law: the body must race when it
+is close to the Sun (perihelion) and crawl when it is far (aphelion), as the
+speed readout confirms. The motion is the inverse-square law in GM = 1 units
+(a = 1 is Earth's orbit, 1 year per revolution), integrated with an
+energy-conserving symplectic step; the equal-time wedges are placed by solving
+Kepler's equation.
 
-The lower plot is Kepler's third law: period squared against semi-major axis
-cubed. Every body, planet or comet, lands on one straight line through the origin
-(T squared proportional to a cubed), no matter its eccentricity. Slide the comet
-outward and its point climbs the line while its eccentric orbit grows in the
-scene. Watch the inner planets lap the slow outer ones, and each body speed
-through its closest approach (Kepler's second law).
+The lower plot is the third law: period squared against semi-major axis cubed,
+on one straight line through the origin. Slide the semi-major axis and your point
+climbs the line. Toggle the inner planets (Mercury through Mars, real
+eccentricities) on for context and to populate the line, or off to focus on the
+equal-area sweep.
 
-Use the comet semi-major-axis slider and the speed slider. Pause freezes the
-animation and Reset restores the default system.
+Use the semi-major-axis, eccentricity, and speed sliders and the planets toggle.
+Pause freezes the animation and Reset restores the defaults.
 
 ## Reference
 

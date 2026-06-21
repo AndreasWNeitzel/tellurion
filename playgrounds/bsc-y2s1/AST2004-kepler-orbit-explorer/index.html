@@ -42,22 +42,24 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">Watch the inner solar system run. Each planet traces an ellipse with the Sun at one focus, and the further out it orbits, the slower it goes, not a little slower, but on a precise schedule: the orbital period squared is proportional to the orbit size cubed. Mercury laps the Sun four times before Earth completes one circuit; Mars takes nearly two Earth years. This is Kepler's third law, and it falls straight out of Newtonian gravity. Along the way each planet also speeds up at its closest approach and dawdles at its farthest, sweeping equal areas in equal times. The bodies here move under the real inverse-square force, integrated with an energy-conserving symplectic scheme, with the actual eccentricities of the planets. Drop a comet at any distance and watch where it lands on the period-versus-size law. The scene is the orbiting system; the diagnostic is the third law itself, every body falling on one straight line.</p>
+      <p class="t-body">Set up one orbit and watch all three of Kepler's laws at once. Choose its size (semi-major axis) and how stretched it is (eccentricity), and the body traces an ellipse with the Sun at one focus, not the centre, which is the first law. As it goes, the line from the Sun sweeps out equal areas in equal time: the wedges shaded here all have the same area, so the body must race when it is close to the Sun and crawl when it is far, the second law made visible. And the period follows the size on a precise schedule, period squared proportional to size cubed, the third law, plotted below. The motion is the real inverse-square force integrated with an energy-conserving symplectic scheme. Turn the eccentricity up for a comet-like plunge, or switch the inner planets on for context and to populate the third-law line.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A top-down view of the inner solar system, planets orbiting the Sun on real ellipses with a comet you can place. Below, Kepler's third law: period squared versus semi-major axis cubed, all bodies on one line."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A controllable orbit with the Sun at a focus, the radius vector sweeping equal-area wedges in equal time (Kepler's second law), with the inner planets as optional context. Below, Kepler's third law: period squared versus semi-major axis cubed."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Kepler orbit explorer. Top: the inner planets (Mercury to Mars, real eccentricities) and a comet orbiting the Sun under the inverse-square force, integrated symplectically. Bottom: Kepler's third law, period squared against semi-major axis cubed, every body on the same straight line. Method: symplectic Verlet, GM = 1 units; T = 2 pi a^(3/2).</figcaption>
+      Kepler orbit explorer. Top: a controllable orbit (semi-major axis a, eccentricity e) with the Sun at a focus; the radius vector sweeps equal-area wedges in equal time (second law), and the inner planets can be toggled on as context. Bottom: Kepler's third law, period squared against semi-major axis cubed, on one straight line. Method: symplectic Verlet, GM = 1 units; equal-time wedges from Kepler's equation; T = 2 pi a^(3/2).</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Orbit explorer controls">
-    <div class="row"><span class="label">comet a</span><input aria-label="comet semi-major axis" type="range" id="slider-a" min="0.5" max="2.4" step="0.05" value="1.9"><span class="value" id="value-a">1.90</span></div>
+    <div class="row"><span class="label">semi-major a</span><input aria-label="semi-major axis" type="range" id="slider-a" min="0.5" max="2.4" step="0.05" value="1.5"><span class="value" id="value-a">1.50</span></div>
+    <div class="row"><span class="label">eccentricity e</span><input aria-label="eccentricity" type="range" id="slider-e" min="0" max="0.85" step="0.01" value="0.6"><span class="value" id="value-e">0.60</span></div>
+    <div class="row"><span class="label">planets</span><select aria-label="show planets" id="select-planets"><option value="off" selected="">hidden</option><option value="on">show inner planets</option></select><span class="value" id="value-planets">hidden</span></div>
     <div class="row"><span class="label">speed</span><input aria-label="time speed" type="range" id="slider-speed" min="0.3" max="3" step="0.1" value="1"><span class="value" id="value-speed">1.0</span></div>
     <div class="row buttons">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
@@ -70,10 +72,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Watch Mercury whip around several times while Mars barely moves: the outer orbits really are slower.</li>
-        <li class="t-body">Follow one planet near the Sun and far from it: it visibly races at perihelion, crawls at aphelion (equal areas).</li>
-        <li class="t-body">Slide the comet outward and watch its point climb the period-size line in the lower plot, always on it.</li>
-        <li class="t-body">Notice the comet's stretched, eccentric orbit compared with the nearly circular planets.</li>
+        <li class="t-body">Crank the eccentricity up: the wedges near the Sun get short and fat, the ones far away long and thin, yet every wedge has the same area. The body must move fast when close and slow when far.</li>
+        <li class="t-body">Watch the radius vector and the speed readout: it peaks at perihelion (closest) and bottoms out at aphelion (farthest).</li>
+        <li class="t-body">Slide the semi-major axis and watch your point climb the period-size line in the lower plot, always landing on it (third law).</li>
+        <li class="t-body">Toggle the inner planets on for context and to fill in the third-law line; toggle them off to focus on the equal-area sweep.</li>
       </ul>
     </section>
 

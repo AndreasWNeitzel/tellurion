@@ -8,8 +8,8 @@ primary_uc: AST2004
 primary_citation: carroll-ostlie
 supporting_ucs: []
 curriculum_year: bsc-y2s1
-hook: 'Watch the inner planets run: the further out the orbit, the slower it goes, on the precise schedule T squared proportional to a cubed.'
-one_paragraph: 'A top-down view of the inner solar system: Mercury, Venus, Earth and Mars (with their real eccentricities) plus an adjustable comet, all orbiting the Sun under inverse-square gravity and integrated with an energy-conserving symplectic velocity-Verlet step. The further out a body orbits the slower it moves, and the body also speeds through perihelion and dawdles at aphelion (Kepler''s second law). The scene animates the system with orbit ellipses and trails; the diagnostic is Kepler''s third law, period squared against semi-major axis cubed, on which every body, planet or comet, falls on a single straight line. Slide the comet outward and watch its point climb that line. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 2.'
+hook: 'Set an orbit''s size and eccentricity and see all three Kepler laws at once: the ellipse with the Sun at a focus, the equal-area sweep, and T squared proportional to a cubed.'
+one_paragraph: 'One controllable orbit (semi-major axis a, eccentricity e) shows all three of Kepler''s laws. The body traces an ellipse with the Sun at a focus (first law); the radius vector sweeps equal-area wedges in equal time (second law: the shaded wedges all have the same area, so the body races at perihelion and crawls at aphelion); and the period follows T squared proportional to a cubed (third law, in the diagnostic). The motion is inverse-square gravity integrated with an energy-conserving symplectic velocity-Verlet step; the equal-time wedges are placed from Kepler''s equation. The inner planets (Mercury to Mars, real eccentricities) can be toggled on as context and to populate the third-law line. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 2.'
 tags: [stellar, exoplanets, animation, live-readout, interactive]
 difficulty: 3
 tier: hero
@@ -28,8 +28,9 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Raise the eccentricity: the wedges near the Sun get short and fat, those far away long and thin, but all equal in area.
+  - Watch the speed readout peak at perihelion and bottom out at aphelion.
+  - Slide the semi-major axis and your point climbs the third-law line; toggle the planets on for context.
 references:
   - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed."
 ---
