@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Blackbody Radiation: Planck vs Rayleigh-Jeans</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 4ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); }
+    .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Blackbody Radiation: Planck vs Rayleigh-Jeans</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">At the end of the nineteenth century classical physics made a catastrophic prediction. Treating the radiation in a hot cavity as a sum of wave modes, each carrying the same thermal energy $k_B T$, the Rayleigh-Jeans law says the spectral radiance is $2c k_B T/\lambda^4$, which grows without bound as the wavelength shrinks: a hot oven should blaze with infinite ultraviolet light. It does not, and the disagreement was called the ultraviolet catastrophe. Planck's fix in 1900 was to assume the oscillators could only exchange energy in discrete quanta $h\nu$, which gives $B_\lambda = (2hc^2/\lambda^5)/(e^{hc/\lambda k_B T} - 1)$. At long wavelengths the quantum is tiny and Planck reduces exactly to Rayleigh-Jeans, but at short wavelengths the exponential starves the high-frequency modes and the curve turns over and falls to zero, matching every measurement. Slide the temperature and watch the Planck peak shift to shorter wavelengths (Wien's law $\lambda_\text{max}T = $ constant) and the whole curve swell, with the total radiated power climbing as $T^4$ (Stefan-Boltzmann). This single plot launched quantum physics.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1020" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="The blackbody spectral radiance versus wavelength, with the Planck curve peaking and the Rayleigh-Jeans curve diverging at short wavelength, plus a plot of the total radiated power versus temperature."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Blackbody radiation. Top: the spectral radiance at temperature T, with the Planck curve (gold) peaking at Wien's wavelength (green) and falling, and the Rayleigh-Jeans curve (red dashed) diverging at short wavelength (the ultraviolet catastrophe); the visible band is shaded. Bottom: the total radiated power versus temperature on log-log axes, following Stefan-Boltzmann with slope four. Method: closed-form Planck and Rayleigh-Jeans laws with the real physical constants. Source: Eisberg and Resnick, Quantum Physics, Ch. 1.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Blackbody controls">
+    <div class="row"><span class="label">T</span><input aria-label="temperature" type="range" id="slider-T" min="2000" max="9000" step="50" value="5778"><span class="value" id="value-T">5778 K</span></div>
+    <div class="row wide"><button id="btn-axis" type="button">Wavelength / frequency</button><span class="value" id="value-axis">wavelength</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Raise the temperature: the Planck peak slides to shorter wavelengths (a cool star is red, a hot one blue) and the whole curve grows, while the Rayleigh-Jeans curve always shoots off the top.</li>
+        <li class="t-body">Notice that the two curves agree at long wavelengths and only part ways toward the short, ultraviolet end, where the classical law diverges and Planck's turns over.</li>
+        <li class="t-body">Read Wien's law in the green marker: $\lambda_\text{max}T$ stays constant (about 2.9 mm K) as you change T.</li>
+        <li class="t-body">Watch the bottom plot: the total radiated power follows a straight line of slope four on log-log axes, so doubling T multiplies the power by sixteen (Stefan-Boltzmann).</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
