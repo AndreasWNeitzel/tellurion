@@ -1,17 +1,32 @@
-# Magnetic Hysteresis Bh Curve
+# Magnetic hysteresis and the B-H loop
 
-One short paragraph: what this playground shows physically. Name the regime, the equations in plain English, the controls.
+A ferromagnet is divided into domains, each already magnetized but pointing in
+different directions. An applied field H lines them up, but flipping a domain
+takes a shove, so when the field reverses many domains stick where they were:
+the magnetization M lags the field. Cycle H and M traces a closed hysteresis
+loop instead of a single curve, modelled here with the Jiles-Atherton equations.
+The scene shows the domains flipping with the drive field H and the response M
+drawn as arrows so the lag is visible.
 
-One short paragraph: what to look for. Which qualitative feature emerges, at which parameter setting, and why.
+Look for the domains holding against the reversing field near the coercive point,
+then flipping over in an avalanche. The lower plot is the loop itself: the
+magnetization left at zero field is the remanence (why permanent magnets exist),
+the reverse field needed to zero it is the coercivity, and the shaded area inside
+is the energy lost to heat each cycle. Soft iron gives a thin loop (little loss,
+for transformer cores); hard steel gives a fat one (strong permanent magnet).
 
-One short paragraph: which controls do what. Reference any keyboard shortcuts. Note `prefers-reduced-motion` behavior.
+Use the material selector and the drive-amplitude slider; a smaller drive gives a
+minor loop nested inside the saturation loop. Pause freezes the sweep and Reset
+restores hard steel at full drive.
 
 ## Reference
 
-Primary citation: __CITATION__.
+Primary citation: Jiles and Atherton, *J. Magn. Magn. Mater.* 61, 48 (1986);
+Griffiths, *Introduction to Electrodynamics*, 4th ed., Ch. 6.
 
 ## Verification
 
-- Strong invariant: __INVARIANT__ (threshold __THRESHOLD__).
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+- Strong invariants: Langevin odd and saturating; the loop is open (branches
+  differ) with positive remanence and a real coercive field; hard material has a
+  larger loop area than soft; loop area (energy per cycle) strictly positive.
+- Live readout: |M| / M_s, the saturation bound, in the rail.

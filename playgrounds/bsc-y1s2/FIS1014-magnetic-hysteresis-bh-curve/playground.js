@@ -1,227 +1,259 @@
-// Magnetic hysteresis. Primary scene: a lattice of magnetic domains
-// that flip toward the applied field but lag it; secondary: the B-H
-// loop traced live with a glowing pen and the per-cycle energy (loop
-// area). M(H) is integrated with the Jiles-Atherton model from the
-// headless sim.js as H = Hm sin(wt) sweeps.
-// Reference: Jiles and Atherton, JMMM 61, 48 (1986); Griffiths,
-// Introduction to Electrodynamics (4th ed.), Sec. 6.
-
-import { langevin, dLangevinExact, sweepLoop, PRESETS } from './sim.js';
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+// Vertical 4:5 hero for ferromagnetic hysteresis, Canvas2D only. Top
+// region: a lattice of magnetic domains flipping as the driving field H
+// sweeps up and down, with the drive (H) and response (M) shown as
+// arrows so the lag is visible. Bottom region: M versus H tracing the
+// hysteresis loop, with remanence, coercivity, and the enclosed area
+// (energy dissipated per cycle).
+//
+// Reference: Jiles and Atherton, JMMM 61, 48 (1986); Griffiths,
+// Introduction to Electrodynamics, 4th ed., Sec. 6.
+
+import { sweepLoop, PRESETS } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
-const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
-const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d', { alpha: false });
-const readoutEl = document.getElementById('readout');
-const controlsEl = document.getElementById('controls');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-const READOUTS = ['preset', 'H', 'M/Ms', 'Hc', 'loss/cyc'];
-const rEls = {};
-for (const k of READOUTS) {
-  const a = document.createElement('span'); a.className = 'label'; a.textContent = k;
-  const b = document.createElement('span'); b.className = 'value'; b.textContent = '--';
-  readoutEl.appendChild(a); readoutEl.appendChild(b); rEls[k] = b;
+const selMaterial = document.getElementById('select-material');
+const sliderAmp = document.getElementById('slider-amp');
+const valueMaterial = document.getElementById('value-material');
+const valueAmp = document.getElementById('value-amp');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
+
+const STEPS = 1200, COLS = 12, ROWS = 8;
+let running = !DETERMINISTIC;
+let loop = null, idx = 300, p = PRESETS['hard steel'], Hm = 3;
+
+// deterministic per-domain flip threshold in [-1, 1].
+const RANK = [];
+for (let k = 0; k < COLS * ROWS; k++) { const h = ((k * 2654435761) >>> 0) % 10007; RANK.push((h / 10007) * 2 - 1); }
+
+function rebuild() {
+  p = PRESETS[selMaterial.value];
+  Hm = parseFloat(sliderAmp.value);
+  loop = sweepLoop(p, Hm, STEPS);
+  if (idx >= loop.pts.length) idx = 0;
+}
+function syncVals() {
+  valueMaterial.textContent = selMaterial.value;
+  valueAmp.textContent = parseFloat(sliderAmp.value).toFixed(1);
+}
+selMaterial.addEventListener('change', () => { syncVals(); rebuild(); render(); });
+sliderAmp.addEventListener('input', () => { syncVals(); rebuild(); render(); });
+btnReset.addEventListener('click', () => {
+  selMaterial.value = 'hard steel'; sliderAmp.value = '3'; idx = 300;
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); rebuild(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
+
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.8 },
+    { name: 'diagnostic', weight: 1.2 },
+  ]);
 }
 
-const st = { preset: 'hard steel', k: 0.95, Ms: 1.4, Hm: 3.0, t: 0 };
-function par() { const base = PRESETS[st.preset]; return { ...base, k: st.k, Ms: st.Ms }; }
-let P = par(), loop = sweepLoop(P, st.Hm), M = 0, Hprev = 0;
-// The reference loop is the STEADY-STATE B-H cycle; a fresh jaStep
-// starts at M = 0 on the initial-magnetisation curve and would
-// disagree with the reference for the first few cycles (and after
-// every parameter change). Run several cycles of jaStep so M reaches
-// the steady-state loop before the user sees the ball.
-function warmupToSteady() {
-  const W = 1400, dt = 0.02;
-  for (let s = 0; s < W; s += 1) {
-    st.t += dt;
-    jaStep(st.Hm * Math.sin(st.t * 1.1));
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    up: '#ef5466', down: '#5b8def', H: '#ffd166', M: '#ef5466',
+    loop: '#ffce4d', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)',
+  };
+}
+
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
 }
-function rebuild() { P = par(); loop = sweepLoop(P, st.Hm); warmupToSteady(); }
-let running = !prefersReducedMotion();
 
-// Seeded per-domain switching thresholds (a wave of reversal as M grows).
-const GX = 22, GY = 14;
-const rng = makeRng(DEFAULT_SEED);
-const thr = []; for (let i = 0; i < GX * GY; i += 1) thr.push(0.12 + 0.8 * rng());
-
-function selectRow(label, opts, value, onChange) {
-  const row = document.createElement('div'); row.className = 'row';
-  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
-  const s = document.createElement('select'); s.setAttribute('aria-label', label);
-  for (const [v, t] of opts) { const o = document.createElement('option'); o.value = v; o.textContent = t; s.appendChild(o); }
-  s.value = value; s.addEventListener('change', () => onChange(s.value));
-  row.appendChild(lab); row.appendChild(s); const sp = document.createElement('span'); sp.className = 'value'; row.appendChild(sp);
-  controlsEl.appendChild(row); return s;
+function vArrow(cx, cyBase, len, color, label) {
+  // vertical arrow from cyBase, signed length (up = negative screen dy).
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 3;
+  const tipY = cyBase - len;
+  ctx.beginPath(); ctx.moveTo(cx, cyBase); ctx.lineTo(cx, tipY); ctx.stroke();
+  const dir = len >= 0 ? -1 : 1;
+  ctx.beginPath(); ctx.moveTo(cx, tipY); ctx.lineTo(cx - 6, tipY - dir * 9); ctx.lineTo(cx + 6, tipY - dir * 9); ctx.closePath(); ctx.fill();
+  ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(label, cx, cyBase + 14);
 }
-function slider(label, min, max, stp, val, key, fmt = v => v.toFixed(2)) {
-  const row = document.createElement('div'); row.className = 'row';
-  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
-  const inp = document.createElement('input'); inp.type = 'range'; inp.min = String(min); inp.max = String(max); inp.step = String(stp); inp.value = String(val); inp.setAttribute('aria-label', label);
-  const vEl = document.createElement('span'); vEl.className = 'value'; vEl.textContent = fmt(+val);
-  inp.addEventListener('input', () => { st[key] = parseFloat(inp.value); vEl.textContent = fmt(+inp.value); rebuild(); });
-  row.appendChild(lab); row.appendChild(inp); row.appendChild(vEl);
-  controlsEl.appendChild(row); return { inp, vEl };
-}
-const selP = selectRow('material', [['soft iron', 'soft iron'], ['hard steel', 'hard steel'], ['ferrite', 'ferrite']], st.preset, v => { st.preset = v; st.k = PRESETS[v].k; st.Ms = PRESETS[v].Ms; cK.inp.value = String(st.k); cK.vEl.textContent = st.k.toFixed(2); cM.inp.value = String(st.Ms); cM.vEl.textContent = st.Ms.toFixed(2); rebuild(); });
-const cK = slider('coercivity k', 0.02, 1.2, 0.01, st.k, 'k');
-const cM = slider('saturation Ms', 0.5, 2.0, 0.05, st.Ms, 'Ms');
-const cH = slider('drive Hm', 1.0, 5.0, 0.1, st.Hm, 'Hm', v => v.toFixed(1));
-cH.inp.addEventListener('input', () => { rebuild(); });
-const bRow = document.createElement('div'); bRow.className = 'row buttons';
-const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
-const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
-bRow.appendChild(bReset); bRow.appendChild(bPause); controlsEl.appendChild(bRow);
-bReset.addEventListener('click', () => { Object.assign(st, { preset: 'hard steel', k: 0.95, Ms: 1.4, Hm: 3.0, t: 0 }); selP.value = 'hard steel'; cK.inp.value = '0.95'; cK.vEl.textContent = '0.95'; cM.inp.value = '1.4'; cM.vEl.textContent = '1.40'; cH.inp.value = '3'; cH.vEl.textContent = '3.0'; M = 0; Hprev = 0; rebuild(); running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); });
-bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
 
-function jaStep(Hn) {
-  const { Ms, a, alpha, k, c } = P;
-  const dH = Hn - Hprev; const delta = dH >= 0 ? 1 : -1;
-  const He = Hprev + alpha * M;
-  const Man = Ms * langevin(He / a);
-  const dManHe = (Ms / a) * dLangevinExact(He / a);
-  const denom = k * delta - alpha * (Man - M);
-  const dMirr = Math.abs(denom) < 1e-9 ? 0 : (Man - M) / denom;
-  const dMdH = ((1 - c) * dMirr + c * dManHe) / (1 - alpha * c * dManHe || 1);
-  M = Math.max(-Ms * 1.05, Math.min(Ms * 1.05, M + dMdH * dH));
-  Hprev = Hn;
+function drawScene(col, r) {
+  panel(col, r, 'Domains flip as the field drives them (M lags H)');
+  const [H, M] = loop.pts[Math.min(idx, loop.pts.length - 1)];
+  const Ms = p.Ms, mNorm = M / Ms;
+
+  const titleH = 24, stripH = 28;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const gx0 = draw.x + draw.w * 0.16, gx1 = draw.x + draw.w * 0.84;
+  const gw = gx1 - gx0, gh = draw.h * 0.86, gy0 = draw.y + (draw.h - gh) / 2;
+  const cw = gw / COLS, ch = gh / ROWS;
+
+  // domains.
+  for (let j = 0; j < ROWS; j++) for (let i = 0; i < COLS; i++) {
+    const k = j * COLS + i;
+    const up = mNorm > RANK[k];
+    const cx = gx0 + (i + 0.5) * cw, cy = gy0 + (j + 0.5) * ch;
+    const aLen = Math.min(cw, ch) * 0.34;
+    ctx.strokeStyle = up ? col.up : col.down; ctx.fillStyle = up ? col.up : col.down; ctx.lineWidth = 2.2; ctx.globalAlpha = 0.92;
+    const dir = up ? -1 : 1;                 // screen dy of the tip
+    const tip = cy + dir * aLen, tail = cy - dir * aLen;
+    ctx.beginPath(); ctx.moveTo(cx, tail); ctx.lineTo(cx, tip); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, tip); ctx.lineTo(cx - 4.5, tip - dir * 7); ctx.lineTo(cx + 4.5, tip - dir * 7); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  // drive H (left) and response M (right) arrows.
+  const cyBase = gy0 + gh / 2, maxLen = gh * 0.42;
+  vArrow(draw.x + draw.w * 0.07, cyBase, (H / Hm) * maxLen, col.H, 'H');
+  vArrow(draw.x + draw.w * 0.93, cyBase, mNorm * maxLen, col.M, 'M');
+
+  // readout strip.
+  const items = [
+    [selMaterial.value, col.fg],
+    [`M_r ${loop.Mr.toFixed(2)}`, col.up],
+    [`H_c ${loop.Hc.toFixed(2)}`, col.H],
+    [`loss ${loop.area.toFixed(1)}`, col.accent],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - stripH / 2 + 1); });
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, 'The hysteresis loop: magnetization M vs field H');
+
+  const inner = { x: r.x + 44, y: r.y + 28, w: r.w - 44 - 16, h: r.h - 28 - 42 };
+  const Ms = p.Ms;
+  const xOf = (H) => inner.x + (H + Hm) / (2 * Hm) * inner.w;
+  const yOf = (M) => inner.y + inner.h / 2 - (M / (Ms * 1.1)) * (inner.h / 2);
+
+  // axes + saturation lines.
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(inner.x, yOf(0)); ctx.lineTo(inner.x + inner.w, yOf(0)); ctx.moveTo(xOf(0), inner.y); ctx.lineTo(xOf(0), inner.y + inner.h); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(inner.x, yOf(Ms)); ctx.lineTo(inner.x + inner.w, yOf(Ms)); ctx.moveTo(inner.x, yOf(-Ms)); ctx.lineTo(inner.x + inner.w, yOf(-Ms)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('+M_s', inner.x - 5, yOf(Ms)); ctx.fillText('−M_s', inner.x - 5, yOf(-Ms));
+
+  // shaded loop area (energy).
+  ctx.fillStyle = 'rgba(255,206,77,0.12)';
+  ctx.beginPath(); loop.pts.forEach((pt, i) => { const X = xOf(pt[0]), Y = yOf(pt[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.closePath(); ctx.fill();
+  // loop curve.
+  ctx.strokeStyle = col.loop; ctx.lineWidth = 2.4; ctx.beginPath();
+  loop.pts.forEach((pt, i) => { const X = xOf(pt[0]), Y = yOf(pt[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke();
+
+  // remanence and coercivity markers.
+  ctx.fillStyle = col.up; ctx.beginPath(); ctx.arc(xOf(0), yOf(loop.Mr), 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(xOf(0), yOf(-loop.Mr), 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = col.H; ctx.beginPath(); ctx.arc(xOf(-loop.Hc), yOf(0), 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(xOf(loop.Hc), yOf(0), 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'legend', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText('M_r', xOf(0) + 5, yOf(loop.Mr) - 3);
+  ctx.textBaseline = 'top'; ctx.fillText('H_c', xOf(loop.Hc) + 4, yOf(0) + 4);
+
+  // moving pen at the current state.
+  const [H, M] = loop.pts[Math.min(idx, loop.pts.length - 1)];
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xOf(H), yOf(M), 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = col.loop; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(xOf(H), yOf(M), 8, 0, 2 * Math.PI); ctx.stroke();
+
+  // labels.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('applied field H', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 32, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('magnetization M', 0, 0); ctx.restore();
 }
 
 function render() {
-  const W = canvas.width, H = canvas.height;
-  ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  const Happ = st.Hm * Math.sin(st.t * 1.1);
-  const f = Math.max(-1, Math.min(1, M / st.Ms));   // net alignment fraction
-
-  // PRIMARY: domain lattice. Cells flip toward sign(f) once |f| exceeds
-  // their threshold; the rest stay in the prior direction (the lag).
-  const lx = 26, ly = 64, lw = W * 0.46, lh = H - 150;
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'body', 'mono');
-  ctx.fillText('magnetic domains', lx, ly - 14);
-  const cw = lw / GX, ch = lh / GY;
-  for (let j = 0; j < GY; j += 1) for (let i = 0; i < GX; i += 1) {
-    const id = j * GX + i;
-    // Threshold-ordered reversal: a cell flips toward the field only
-    // once the net magnetisation passes its switching threshold, so
-    // the lattice reverses as a wave that lags H (the hysteresis).
-    const d = (f >= 0)
-      ? (f > 1 - thr[id] ? 1 : -1)
-      : (f < -(1 - thr[id]) ? -1 : 1);
-    const cx = lx + i * cw + cw / 2, cy = ly + j * ch + ch / 2;
-    const col = d > 0 ? '#ef5d6f' : '#5b8cff';
-    ctx.fillStyle = d > 0 ? 'rgba(239,93,111,0.16)' : 'rgba(91,140,255,0.16)';
-    ctx.fillRect(lx + i * cw + 1, ly + j * ch + 1, cw - 2, ch - 2);
-    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2;
-    const ar = Math.min(cw, ch) * 0.34;
-    ctx.beginPath(); ctx.moveTo(cx, cy + d * ar); ctx.lineTo(cx, cy - d * ar); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx, cy - d * ar);
-    ctx.lineTo(cx - 4, cy - d * ar + d * 6); ctx.lineTo(cx + 4, cy - d * ar + d * 6);
-    ctx.closePath(); ctx.fill();
-  }
-  // Applied-field indicator above the lattice.
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 3;
-  const hx = lx + lw / 2;
-  ctx.beginPath(); ctx.moveTo(hx, ly - 6); ctx.lineTo(hx + Happ / st.Hm * (lw * 0.4), ly - 6); ctx.stroke();
-  ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`H = ${Happ.toFixed(2)}`, lx + lw - 90, ly - 14);
-
-  // SECONDARY: B-H loop panel.
-  const px0 = W * 0.52, px1 = W - 28, py0 = 132, py1 = H - 70;
-  const cx0 = (px0 + px1) / 2, cy0 = (py0 + py1) / 2;
-  const sx = (px1 - px0) / (2 * st.Hm * 1.05), sy = (py1 - py0) / (2 * st.Ms * 1.15);
-  ctx.strokeStyle = '#2a2a34'; ctx.lineWidth = 1; ctx.beginPath();
-  ctx.moveTo(px0, cy0); ctx.lineTo(px1, cy0); ctx.moveTo(cx0, py0); ctx.lineTo(cx0, py1); ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('B-H loop', px0, py0 - 14); ctx.fillText('H', px1 - 12, cy0 + 16); ctx.fillText('B', cx0 + 6, py0 + 4);
-  // Reference loop (faint), then the live pen.
-  ctx.strokeStyle = 'rgba(120,200,255,0.28)'; ctx.lineWidth = 1.4; ctx.beginPath();
-  loop.pts.forEach(([h, m], i) => { const X = cx0 + h * sx, Y = cy0 - m * sy; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
-  ctx.closePath(); ctx.stroke();
-  // Energy-loss shading (loop interior).
-  ctx.fillStyle = 'rgba(255,160,90,0.10)'; ctx.beginPath();
-  loop.pts.forEach(([h, m], i) => { const X = cx0 + h * sx, Y = cy0 - m * sy; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
-  ctx.closePath(); ctx.fill();
-  // Glowing pen at the current operating point.
-  const px = cx0 + Happ * sx, py = cy0 - M * sy;
-  const g = ctx.createRadialGradient(px, py, 0, px, py, 12);
-  g.addColorStop(0, '#fff2c0'); g.addColorStop(1, 'rgba(255,209,102,0)');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px, py, 12, 0, 6.28); ctx.fill();
-  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(px, py, 4, 0, 6.28); ctx.fill();
-
-  rEls.preset.textContent = st.preset;
-  rEls.H.textContent = Happ.toFixed(2);
-  rEls['M/Ms'].textContent = f.toFixed(3);
-  rEls.Hc.textContent = loop.Hc.toFixed(3);
-  rEls['loss/cyc'].textContent = loop.area.toFixed(3);
+  if (!REG) relayout();
+  if (!loop) rebuild();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
-function tick() {
-  if (running) {
-    st.t += 0.02;
-    const Hn = st.Hm * Math.sin(st.t * 1.1);
-    jaStep(Hn);
-  }
+const CYCLE_S = 6;
+let last = performance.now();
+let acc = 0;
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (running) { acc += (loop.pts.length / CYCLE_S) * dt; while (acc >= 1) { idx = (idx + 1) % loop.pts.length; acc -= 1; } }
   render();
   requestAnimationFrame(tick);
 }
-function bootSync() {
-  if (CAPTURE_NAME) { st.t = CAPTURE_FRAC * 6; let hp = 0; M = 0; Hprev = 0; for (let s = 1; s <= 400; s += 1) { const tt = (s / 400) * st.t; jaStep(st.Hm * Math.sin(tt * 1.1)); } st.t = CAPTURE_FRAC * 6; }
-  else { warmupToSteady(); }                            // start the ball on the steady loop
-  render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+
+function bootSync() { syncVals(); rebuild(); idx = 300; relayout(); render(); }
+
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 }
 
-window.__physicsCheck = async () => {
-  const soft = sweepLoop(PRESETS['soft iron'], 3, 1400);
-  const hard = sweepLoop(PRESETS['hard steel'], 3, 1400);
-  if (!(hard.area > soft.area) || !(hard.Hc > soft.Hc)) return { name: 'hard vs soft', pass: false, msg: `area ${hard.area.toFixed(2)} vs ${soft.area.toFixed(2)}` };
-  if (!(hard.Mr > 0.1)) return { name: 'remanence', pass: false, msg: `Mr=${hard.Mr.toFixed(3)}` };
-  return { name: 'Jiles-Atherton: hard>soft loop, real remanence', pass: true, msg: `Hc hard ${hard.Hc.toFixed(2)} > soft ${soft.Hc.toFixed(2)}` };
-};
-
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
-
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const refLoop = loop;
-  const Mr = refLoop && refLoop.Mr ? refLoop.Mr : 0;
-  const Hc = refLoop && refLoop.Hc ? refLoop.Hc : 0;
+  const [H, M] = loop.pts[Math.min(idx, loop.pts.length - 1)];
   return {
     fields: [
-      { key: 'material', label: 'material', value: st.preset, format: undefined },
-      { key: 'k', label: 'coercivity k', value: st.k, format: 'float' },
-      { key: 'Ms', label: 'saturation Ms', value: st.Ms, format: 'float' },
-      { key: 'M', label: 'magnetization M', value: M, format: 'float' }
-    ]
+      { key: 'material', label: 'material', value: selMaterial.value, format: 'text' },
+      { key: 'Mr', label: 'remanence $M_r$', value: loop.Mr, format: 'float' },
+      { key: 'Hc', label: 'coercivity $H_c$', value: loop.Hc, format: 'float' },
+      { key: 'loss', label: 'energy/cycle (loop area)', value: loop.area, format: 'float' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
-  const refLoop = loop;
-  if (!refLoop) {
-    return [{ key: 'init', label: 'loop computing', value: 'pending', status: 'pending' }];
+  try {
+    // The magnetization saturates: |M| never exceeds the saturation
+    // magnetization M_s, the physical ceiling of an aligned ferromagnet.
+    let mx = 0; for (const pt of loop.pts) mx = Math.max(mx, Math.abs(pt[1]));
+    const ratio = mx / p.Ms;
+    return [{
+      key: 'saturation',
+      label: '|M| / M_s (saturation bound)',
+      value: ratio.toFixed(3),
+      status: ratio <= 1.06 ? 'pass' : (ratio <= 1.2 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
   }
-  const Mr = refLoop.Mr || 0;
-  const Hc = refLoop.Hc || 0;
-  const area = refLoop.area || 0;
-  const hasHyst = Math.abs(Mr) > 0.01 && Math.abs(Hc) > 0.01;
-  const energyDiss = area > 0.001;
-  const status = (hasHyst && energyDiss) ? 'pass' : 'drift';
-  return [
-    {
-      key: 'hysteresis',
-      label: 'loop has remanence and coercivity',
-      value: `Mr=${Mr.toFixed(2)}, Hc=${Hc.toFixed(2)}`,
-      status: status
-    }
-  ];
 };

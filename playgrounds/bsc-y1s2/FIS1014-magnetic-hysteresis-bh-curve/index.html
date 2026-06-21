@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Magnetic Hysteresis: Domains and the B-H Loop</title>
+<title>Magnetic hysteresis: why a magnet remembers</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,18 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-  body { padding: var(--space-4); }
-  .pg-figure { max-width: 860px; position: relative; }
-  .pg-figure canvas { width: 100%; height: auto; background: #07080c; display: block; }
-  .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 12ch 10ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
-  figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -44,32 +38,42 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Magnetic Hysteresis: Domains and the B-H Loop</h1>
+      <h1 class="t-title playground-title">Why a magnet remembers</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A ferromagnet driven by an oscillating applied field H, modelled with the Jiles-Atherton description of domain-wall motion. Because the magnetic domains flip toward the field but lag it (domain walls pin and unpin irreversibly), the magnetization B is not a single-valued function of H but traces a closed hysteresis loop. The scene shows a lattice of domains reorienting while the side panel draws the B-H loop and shades its enclosed area, which equals the energy dissipated as heat per cycle. Soft iron gives a thin lossy-but-easily-switched loop, hard steel a wide loop with large remanence and coercivity (a permanent magnet), and ferrite an intermediate case; sliders set coercivity, saturation and drive amplitude.</p>
+      <p class="t-body">A piece of iron is carved into tiny regions called domains, each already magnetized, but pointing every which way so they cancel out. Turn on an external field and they start to line up; turn it off and they do not all snap back, because flipping a domain takes a shove and many stay where the field left them. So the magnetization lags the field, and the iron remembers where it has been. That memory is hysteresis. Cycle the field and the magnetization traces a loop instead of a line: it keeps some magnetization at zero field (remanence, the whole reason permanent magnets exist), it takes a reverse field to wipe it out (coercivity), and the area inside the loop is energy lost to heat every cycle, which is why transformer cores are made of soft, skinny-loop iron. The scene shows the domains flipping as the field drives them; the diagnostic traces the magnetization against the field, the hysteresis loop itself.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="560"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A grid of magnetic domains flipping as a driving field sweeps, with a field gauge. Below, the magnetization plotted against the field, tracing the hysteresis loop with its remanence, coercivity, and enclosed area."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Domain reversal and the live B-H hysteresis loop.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Ferromagnetic hysteresis (Jiles-Atherton model). Top: magnetic domains flipping as the driving field H sweeps up and down, with the net magnetization. Bottom: M versus H tracing the hysteresis loop, marking the remanence (M at H = 0), the coercivity (H at M = 0), and the loop area (energy dissipated per cycle). Method: Jiles-Atherton ODE with the anhysteretic Langevin curve.</figcaption>
 
     <section class="playground-controls">
-      <div id="controls" class="pg-controls"></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Hysteresis controls">
+    <div class="row"><span class="label">material</span><select aria-label="material" id="select-material"><option value="hard steel" selected="">hard steel</option><option value="soft iron">soft iron</option><option value="ferrite">ferrite</option></select><span class="value" id="value-material">hard steel</span></div>
+    <div class="row"><span class="label">drive</span><input aria-label="drive amplitude" type="range" id="slider-amp" min="1" max="4" step="0.2" value="3"><span class="value" id="value-amp">3.0</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
       <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the domains near the coercive field: they hold against the reversing field, then avalanche over all at once.</li>
+        <li class="t-body">Switch to soft iron: the loop collapses to a thin sliver, almost no memory and very little energy lost, ideal for transformer cores.</li>
+        <li class="t-body">Switch to hard steel: a fat loop with strong remanence, the stuff of permanent magnets and fridge magnets.</li>
+        <li class="t-body">Lower the drive below saturation and the loop shrinks into a minor loop nested inside the full one.</li>
       </ul>
     </section>
 

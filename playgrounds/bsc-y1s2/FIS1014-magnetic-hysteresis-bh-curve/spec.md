@@ -5,16 +5,16 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'The domains do not just follow the field, they remember where they have been. That memory is the area inside the loop.'
-one_paragraph: 'A ferromagnet driven by an oscillating applied field H, modelled with the Jiles-Atherton description of domain-wall motion. Because the magnetic domains flip toward the field but lag it (domain walls pin and unpin irreversibly), the magnetization B is not a single-valued function of H but traces a closed hysteresis loop. The scene shows a lattice of domains reorienting while the side panel draws the B-H loop and shades its enclosed area, which equals the energy dissipated as heat per cycle. Soft iron gives a thin lossy-but-easily-switched loop, hard steel a wide loop with large remanence and coercivity (a permanent magnet), and ferrite an intermediate case; sliders set coercivity, saturation and drive amplitude. Reference: Jiles, Introduction to Magnetism and Magnetic Materials, Chapters 7 to 8.'
-tags: [electromagnetism, animation, live-readout]
+one_paragraph: 'A ferromagnet driven by a sweeping applied field H, modelled with the Jiles-Atherton description of domain-wall motion. Because the magnetic domains flip toward the field but lag it (domain walls pin and unpin irreversibly), the magnetization M is not a single-valued function of H but traces a closed hysteresis loop. The scene shows a lattice of domains reorienting, with the drive H and the response M as arrows so the lag is visible; the diagnostic draws the M-H loop and shades its enclosed area, which equals the energy dissipated as heat per cycle, and marks the remanence (M at H=0) and the coercivity (H at M=0). Soft iron gives a thin lossy-but-easily-switched loop, hard steel a wide loop with large remanence and coercivity (a permanent magnet), and ferrite an intermediate case; a drive-amplitude slider sets sub-saturation minor loops. Reference: Jiles and Atherton 1986.'
+tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
-tier: medium
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 4
 curriculum_year: 'L:F-1Y-2S'
 primary_uc: FIS1004
-primary_citation: marion-thornton
+primary_citation: jiles-atherton
 share_state_keys: []
 invariants:
   - key: runs
@@ -30,7 +30,7 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Marion, Thornton, Classical Dynamics of Particles and Systems, Fifth ed."
+  - "Jiles and Atherton, J. Magn. Magn. Mater. 61, 48 (1986); Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 6."
 ---
 
 # Magnetic Hysteresis: Domains and the B-H Loop
@@ -120,14 +120,19 @@ Jiles-Atherton: anhysteretic `M_an = Ms[coth(He/a) - a/He]`,
 
 ## Numerical method
 
-Explicit integration of the J-A ODE as `H = Hm sin(wt)` sweeps; the
-full loop is precomputed for the reference curve and the live point
-is integrated each frame.
+Explicit integration of the Jiles-Atherton ODE as H sweeps one symmetric
+cycle [+Hm to -Hm to +Hm]; the full loop is precomputed by `sweepLoop`
+and a pen animates around it. Rendering is plain Canvas2D: the domain
+lattice (each domain flips when M/Ms crosses its pinning threshold), the
+H and M arrows, and the M-H loop with shaded area and remanence /
+coercivity markers.
 
 ## Controls
 
-- material selector (soft iron, hard steel, ferrite).
-- coercivity `k`, saturation `Ms`, drive `Hm` sliders; Reset, Pause.
+- material selector (soft iron, hard steel, ferrite), which sets the
+  Jiles-Atherton parameters.
+- drive amplitude Hm slider (sub-saturation gives nested minor loops).
+- Reset, Pause.
 
 ## Expected qualitative features
 
