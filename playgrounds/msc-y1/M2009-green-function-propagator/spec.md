@@ -9,7 +9,7 @@ supporting_ucs: []
 curriculum_year: msc-y1
 primary_citation: arfken-weber
 hook: 'Solve -u'''' = f the smart way: first solve it for a single spike, which gives a tent-shaped Green''s function that is zero at both walls with a kink where the spike sits. Any source is a pile of spikes, so the answer is the same pile of tents, each scaled by the source strength: u(x) = integral G(x, x'') f(x'') dx''.'
-one_paragraph: 'A Green''s-function playground for the 1D problem -u'''' = f on [0, 1] with the ends pinned at zero. The response to a single point spike is the tent G(x, x''): zero at both walls, peaked at the spike, with a unit downward kink there. Because the equation is linear, the response to any source is the superposition of tents weighted by the source value, u = integral G f. Panel A shows the source and the solution it produces (each on its own scale, since the solution is usually far smaller); Panel B is the draggable tent and the faint stack of weighted tents that build u; Panel C shows that the recovered u really does satisfy -u'''' = f and lists the defining facts. The Green function is symmetric, vanishes at both pinned ends, has a unit downward slope kink at the source point, and the weighted superposition of tents reproduces the exact solution and the analytic sine series. Reference: Arfken, Weber and Harris, Mathematical Methods for Physicists, Chapter 10; Stakgold, Green's Functions and Boundary Value Problems.'
+one_paragraph: 'A Green''s-function playground for the 1D problem -u'''' = f on [0, 1] with the ends pinned at zero. The response to a single point spike is the tent G(x, x''): zero at both walls, peaked at the spike, with a unit downward kink there. Because the equation is linear, the response to any source is the superposition of tents weighted by the source value, u = integral G f. The top panel is the draggable tent and the faint stack of weighted tents that build u; the middle panel shows the source and the solution it produces (each on its own scale, since the solution is usually far smaller); the bottom panel shows that the recovered u really does satisfy -u'''' = f and lists the defining facts. The Green function is symmetric, vanishes at both pinned ends, has a unit downward slope kink at the source point, and the weighted superposition of tents reproduces the exact solution and the analytic sine series. Reference: Arfken, Weber and Harris, Mathematical Methods for Physicists, Chapter 10; Stakgold, Green's Functions and Boundary Value Problems.'
 tags: [math-methods, greens-function, bvp, superposition, live-readout]
 difficulty: 4
 tier: standard
@@ -18,18 +18,19 @@ renderer: canvas2d
 estimated_engagement_minutes: 4
 share_state_keys: [src, p, xp]
 invariants:
-  - key: runs
-    label: simulation advances each frame
-    tolerance: 1
-  - key: bounded
-    label: state stays finite
-    tolerance: 1
-  - key: deterministic
-    label: fixed seed reproduces the run
-    tolerance: 1
+  - key: residual-norm
+    label: the Green superposition solves -u'' = f to machine precision for smooth sources
+    tolerance: 1e-6
+  - key: boundary
+    label: the recovered solution vanishes at both Dirichlet ends
+    tolerance: 1e-9
+  - key: direct-match
+    label: the Green solution matches the direct tridiagonal solve
+    tolerance: 1e-9
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Click on the source plot to drop a point source; its Green tent appears in the solution. Right-click for a negative source, shift-click to clear.
+  - Drag x' and watch the gold tent slide, always pinned at both walls with its kink at the source point.
+  - Switch the source shape: the solution is the weighted superposition of all the tents, and the direct-solve check lands on top of it.
 references:
   - "Arfken, Weber, Harris, Mathematical Methods for Physicists: A Comprehensive Guide, Seventh ed."
 ---

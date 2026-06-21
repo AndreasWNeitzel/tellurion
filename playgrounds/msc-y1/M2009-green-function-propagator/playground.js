@@ -7,6 +7,7 @@
 import {
   L, grid, greenG, source, applyGreen, solveViaGreen, solveDirect, odeResidual,
 } from './sim.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
@@ -18,7 +19,15 @@ const CAPTURE_FRAC = parseFloat(qp.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const W = canvas.width, H = canvas.height;
+let view = { w: 800, h: 1040, dpr: 1 }, REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'tent', weight: 1.25 },
+    { name: 'solution', weight: 1.05 },
+    { name: 'residual', weight: 1.0 },
+  ]);
+}
 const rSrc = document.getElementById('readout-src');
 const rXp = document.getElementById('readout-xp');
 const rRes = document.getElementById('readout-res');
@@ -156,11 +165,16 @@ function drawResidual(x, y, w, h) {
   const dx = cache.x[1] - cache.x[0];
   const r = new Float64Array(N);
   for (let i = 1; i < N - 1; i += 1) r[i] = -((cache.u[i + 1] - 2 * cache.u[i] + cache.u[i - 1]) / (dx * dx)) - cache.f[i];
-  let mx = 1e-12; for (const v of r) mx = Math.max(mx, Math.abs(v));
+  let mx = 1e-12, fmax = 1e-12;
+  for (const v of r) mx = Math.max(mx, Math.abs(v));
+  for (const v of cache.f) fmax = Math.max(fmax, Math.abs(v));
+  // normalise against the source scale, not the residual's own max, so a
+  // machine-zero residual reads as a flat line rather than amplified noise.
+  const scale = Math.max(fmax, mx);
   ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.moveTo(fr.px, fr.py + fr.ph / 2); ctx.lineTo(fr.px + fr.pw, fr.py + fr.ph / 2); ctx.stroke();
   ctx.strokeStyle = '#9be8b0'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i < N; i += 1) {
-    const xx = fr.px + fr.pw * i / (N - 1), yy = fr.py + fr.ph * (0.5 - 0.45 * r[i] / mx);
+    const xx = fr.px + fr.pw * i / (N - 1), yy = fr.py + fr.ph * (0.5 - 0.45 * r[i] / scale);
     if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.stroke();
@@ -177,11 +191,11 @@ function drawResidual(x, y, w, h) {
 }
 
 function draw() {
-  ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  const half = (W - 52) / 2;
-  drawSolution(20, 20, half, H - 34);
-  drawTent(20 + half + 12, 20, half, (H - 46) / 2);
-  drawResidual(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
+  if (!REG) relayout();
+  ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, view.w, view.h);
+  drawTent(REG.tent.x, REG.tent.y, REG.tent.w, REG.tent.h);
+  drawSolution(REG.solution.x, REG.solution.y, REG.solution.w, REG.solution.h);
+  drawResidual(REG.residual.x, REG.residual.y, REG.residual.w, REG.residual.h);
   rSrc.textContent = st.src;
   rXp.textContent = xpVal().toFixed(2);
   rRes.textContent = cache.res.toExponential(2);
@@ -209,14 +223,15 @@ slX.addEventListener('input', () => { st.running = false; bP.textContent = 'Play
 // Shift+click clears all user tents.
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 canvas.addEventListener('pointerdown', (e) => {
+  if (!REG) return;
   const r = canvas.getBoundingClientRect();
-  const cx = (e.clientX - r.left) * (W / r.width);
-  const cy = (e.clientY - r.top) * (H / r.height);
-  const half = (W - 52) / 2;
-  if (cx < 20 || cx > 20 + half) return;
+  const cx = (e.clientX - r.left) * (view.w / r.width);
+  const cy = (e.clientY - r.top) * (view.h / r.height);
+  const sol = REG.solution;
+  if (cx < sol.x || cx > sol.x + sol.w || cy < sol.y || cy > sol.y + sol.h) return;
   if (e.shiftKey) { st.userTents.length = 0; rebuild(); draw(); return; }
-  // Map cx in [20 + 30, 20 + half - 14] to xFrac in [0, 1].
-  const px = 20 + 30, pw = half - 44;
+  // Map cx within the source/solution plot to a fractional source position.
+  const px = sol.x + 30, pw = sol.w - 44;
   const xFrac = Math.max(0, Math.min(1, (cx - px) / pw));
   const weight = (e.button === 2 ? -1 : 1) * 0.5;
   st.userTents.push({ x: xFrac, w: weight });
@@ -268,6 +283,9 @@ if (document.readyState === 'loading') {
 }
 
 
+window.addEventListener('resize', () => { relayout(); draw(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); draw(); }).observe(canvas);
+
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
@@ -282,16 +300,15 @@ window.playground.getState = function () {
   };
 };
 window.playground.getInvariants = function () {
-  const c = cache;
-  const res = c.res || [];
-  let maxRes = 0;
-  for (let i = 0; i < res.length; i++) maxRes = Math.max(maxRes, Math.abs(res[i]));
+  // Validate the core claim on the smooth source (no user clicks): the Green
+  // superposition solves -u'' = f to machine precision with exact Dirichlet
+  // ends. The displayed residual panel includes clicked delta sources, whose
+  // grid approximation legitimately raises the residual.
+  const g = solveViaGreen(st.src, N, st.p);
+  const res = odeResidual(g.x, g.u, g.f);
+  const uMax = Math.max(Math.abs(g.u[0]), Math.abs(g.u[g.u.length - 1]));
   return [
-    {
-      key: 'residual-norm',
-      label: 'ODE residual (max)',
-      value: maxRes.toExponential(2),
-      status: maxRes < 0.01 ? 'pass' : maxRes < 0.1 ? 'pending' : 'drift'
-    }
+    { key: 'residual-norm', label: 'ODE residual max | -u\'\' - f |', value: res.toExponential(2), status: res < 1e-6 ? 'pass' : res < 1e-3 ? 'pending' : 'drift' },
+    { key: 'boundary', label: 'Dirichlet ends u(0)=u(L)=0', value: uMax.toExponential(1), status: uMax < 1e-9 ? 'pass' : 'drift' },
   ];
 };
