@@ -42,23 +42,24 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A double integral is the signed volume trapped between a surface and a patch of the plane. You can never add up a whole volume at once, so you slice it: cut the patch into thin vertical strips, find the area under the surface along each strip, then add the strips up; or cut it into horizontal strips and add those. These are the two iterated integrals, integrate over y first then x, or over x first then y. Fubini's theorem says that for a well-behaved surface it does not matter which way you slice: both orders give exactly the same number. That sounds obvious, but it is the permission slip behind half of multivariable calculus, letting you swap the order whenever one is easier. The scene shows the integrand as a colour map with a slab sweeping across a region you can resize; the diagnostic accumulates the volume for both slicing orders at once, two different running totals that land on precisely the same final value.</p>
+      <p class="t-body">A double integral is the volume of the solid trapped between a surface and a patch of the plane. You cannot add up a whole volume at once, so you slice the solid into thin slabs and add the slabs. Cut perpendicular to x and each slab is the area under the surface along a strip, the inner integral over y; stack those slabs along x and you have the volume. Cut perpendicular to y instead and you get a different set of slabs, stacked the other way. These are the two iterated integrals. Fubini's theorem says that for a well-behaved surface it does not matter which way you slice the loaf: both stacks fill the same solid, so both orders give exactly the same number. That is the permission slip behind half of multivariable calculus, letting you swap the order whenever one inner integral is easier. The scene shows the solid in 3D, sliced in the order you pick, with a sweep that fills the slabs in one at a time. The diagnostic accumulates the volume for both orders at once: two running totals that take different routes and land on precisely the same value.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="The integrand sin(x)cos(y) as a colour map over a resizable region, with a slab sweeping across it. Below, the accumulated double integral for both slicing orders converging to the same total."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A 3D solid under the surface z = f(x,y) over a resizable region, sliced into slabs in the chosen order with a sweep filling them in. Below, the accumulated volume for both slicing orders converging to the same total."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Fubini's theorem on f(x,y) = sin x cos y. Top: the integrand as a colour map over a resizable rectangle, with a slab sweeping across (vertical for dy-then-dx, horizontal for dx-then-dy). Bottom: the running double integral accumulated in both orders, taking different paths but ending at the same total. Method: nested Simpson quadrature of the iterated integrals.</figcaption>
+      Fubini's theorem as a sliceable volume. Top: the solid under z = f(x,y) over a resizable region, cut into slabs along x (dy then dx) or along y (dx then dy), with a sweep filling the slabs in. Bottom: the volume accumulated in both orders, taking different paths but ending at the same total. Method: nested Simpson quadrature of the iterated integrals; oblique Canvas2D projection of the solid.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Fubini controls">
-    <div class="row"><span class="label">slice</span><select aria-label="slice order" id="select-order"><option value="dydx" selected="">dy then dx</option><option value="dxdy">dx then dy</option></select><span class="value" id="value-order">dy dx</span></div>
-    <div class="row"><span class="label">region</span><span class="value" id="value-region" style="grid-column: 2 / span 2; text-align:left;">drag the corner</span></div>
+    <div class="row"><span class="label">integrand</span><select aria-label="integrand" id="select-fn"><option value="dome" selected="">sin x · sin y (dome)</option><option value="slant">x · sin y / 2 (slant)</option><option value="wave">½(1 + sin(x+y)) (wave)</option></select><span class="value" id="value-fn">sin x · sin y</span></div>
+    <div class="row"><span class="label">slice</span><select aria-label="slice order" id="select-order"><option value="dydx" selected="">slice along x (dy dx)</option><option value="dxdy">slice along y (dx dy)</option></select><span class="value" id="value-order">dy dx</span></div>
+    <div class="row"><span class="label">region</span><span class="value" id="value-region" style="grid-column: 2 / span 2; text-align:left;">drag the back corner</span></div>
     <div class="row buttons">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
       <button id="btn-reset" type="button">Reset</button>
@@ -70,10 +71,11 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Watch the slab sweep across and the running total climb; the two orders take different routes but land on the same number.</li>
-        <li class="t-body">Switch the slice order and see the scene sweep the other way, yet the final total is unchanged.</li>
-        <li class="t-body">Drag the region corner to resize it; both running totals re-converge to the new exact value.</li>
-        <li class="t-body">Pull the top edge down to y = pi/2: you capture only the positive hump and the total is maximal; extend to y = pi and the negative half cancels it back toward zero.</li>
+        <li class="t-body">Watch the slabs fill in as the sweep advances and the running volume climbs to V.</li>
+        <li class="t-body">Switch the slice order: the solid is now cut the other way (walls front-to-back instead of fins left-to-right), yet the final volume is identical. That is Fubini.</li>
+        <li class="t-body">Pick the slant integrand: now the two accumulation curves take visibly different routes (one climbs like x², the other like a sine) before meeting at the same V. The dome is symmetric, so its two routes coincide.</li>
+        <li class="t-body">The wave is not separable (it cannot be split into a function of x times a function of y), so the freedom to swap the order is genuine, not a trivial factoring.</li>
+        <li class="t-body">Drag the back corner to resize the region; both running totals re-converge to the new exact volume.</li>
       </ul>
     </section>
 

@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y1s2
 primary_citation: riley-hobson
 primary_chapter: 10
-hook: 'Add up a function over a rectangle column by column, or row by row; Fubini''s theorem promises the same total, and here both orders are computed side by side.'
-one_paragraph: 'A double integral over a rectangle can be done as an iterated integral in either order: integrate over x first then y, or y first then x. Fubini''s theorem guarantees the two agree when the integrand is well behaved. The scene shows f(x, y) = sin x cos y as a colour map over a resizable rectangle (drag the corner), with a slab sweeping across it (vertical strips for dy-then-dx, horizontal for dx-then-dy). The diagnostic accumulates the double integral in both orders at once: two running totals that take different paths but land on precisely the same final value, the theorem made concrete instead of a line taken on faith. Reference: Riley and Hobson, Mathematical Methods, Ch. 6.'
+hook: 'Slice the solid under a surface one way or the other; Fubini''s theorem promises both stacks of slabs fill the same volume, and here both orders are computed side by side.'
+one_paragraph: 'A double integral over a rectangle is the volume of the solid under z = f(x, y), and it can be built by slicing the solid in either order: cut perpendicular to x (each slab is the inner integral over y) and stack along x, or cut perpendicular to y and stack along x first. Fubini''s theorem guarantees the two agree when the integrand is well behaved. The scene draws the solid in an oblique 3D projection over a resizable region (drag the back corner), cut into slabs in the chosen order, with a sweep that fills the slabs in one at a time: fins receding into depth for dy-then-dx, walls stacked front-to-back for dx-then-dy. The diagnostic accumulates the volume in both orders at once: two running totals that take different paths but land on precisely the same final value, the theorem made concrete instead of a line taken on faith. Three non-negative integrands (a symmetric dome, an asymmetric slant, a non-separable wave) cover the cases. Reference: Riley and Hobson, Mathematical Methods, Ch. 10.'
 tags: [numerics, animation, live-readout, interactive]
 difficulty: 3
 tier: hero
@@ -35,44 +35,59 @@ references:
   - "Riley, Hobson, Bence, Mathematical Methods for Physics and Engineering, Third ed., Ch. 10."
 ---
 # Fubini's theorem in 2D
-Iterated integrals over a rectangle in two orders match numerically, demonstrated on $f(x, y) = \sin x \cos y$ with a sweeping-slab colour map and a both-orders accumulation diagnostic; drag the region corner to resize. Source: Riley-Hobson Ch. 6.
+The double integral over a rectangle is the volume under the surface, built by
+slicing the solid into slabs in either order; both orders match numerically and
+fill the same solid. Shown on three non-negative integrands with an oblique 3D
+solid you can slice two ways and a both-orders accumulation diagnostic; drag the
+back corner to resize the region. Source: Riley-Hobson Ch. 10.
 
 ## Controls
 
-- slice order: dy then dx (vertical strips) or dx then dy (horizontal),
-  selecting which sweep is animated in the scene.
-- drag the region corner to resize the rectangle [0, X1] x [0, Y1].
+- integrand: dome (sin x sin y, symmetric), slant (x sin y / 2, asymmetric so
+  the two accumulation routes visibly differ), wave (1/2(1 + sin(x+y)),
+  non-separable). All are non-negative on [0, pi]^2 so the integral is a
+  genuine volume.
+- slice order: dy then dx (slice along x, fins receding into depth) or dx then
+  dy (slice along y, walls stacked front-to-back), selecting which cut and
+  sweep is shown in the scene.
+- drag the back corner to resize the region [0, X1] x [0, Y1].
 - Reset, Pause.
 
 ## Numerical method
 
-The integrand is f(x,y) = sin x cos y. The inner integrals (innerY(x),
-innerX(y)) and the iterated totals use nested Simpson quadrature; the
-running accumulation curves use trapezoidal sums of the inner integrals.
-Rendering is plain Canvas2D: an rdbu colour map of f, the dimmed
-out-of-region area, the sweeping slab, and the two accumulation curves
-converging to the exact total.
+The cross-section areas (areaAtX, areaAtY = the inner integrals) and the
+iterated totals use nested Simpson quadrature; the running accumulation curves
+use trapezoidal sums of the cross-sections. The reference value is the closed
+form where available (dome, slant) and fine quadrature otherwise (wave).
+Rendering is plain Canvas2D: an oblique projection of the solid under z=f over
+the region, the slabs filled in sweep order (painter's algorithm: fins drawn
+near-to-far in x, walls drawn far-to-near in y), and the two accumulation
+curves converging to the exact total.
 
 ## Invariants and acceptance thresholds
 
 | invariant | threshold | location |
-| dx-dy and dy-dx agree (Fubini) | within 1e-6 on the full square | invariants test + live |
-| iterated total matches the exact closed form | within 1e-4 | invariants test |
-| integrating innerX over y recovers the double integral | within 1e-3 | invariants test |
-| integrating innerY over x recovers the double integral | within 1e-3 | invariants test |
+| dx-dy and dy-dx agree (Fubini), every integrand | within 1e-6 on the square and a sub-rectangle | invariants test + live |
+| iterated total matches the exact closed form (dome, slant) | within 1e-5 | invariants test |
+| stacking cross-sections A(x) over x recovers the volume | within 1e-3 | invariants test |
+| stacking cross-sections A(y) over y recovers the volume | within 1e-3 | invariants test |
+| every integrand is non-negative on the domain | >= 0 | invariants test |
 
-All confirmed in `invariants.test.mjs` (7 tests passing).
+All confirmed in `invariants.test.mjs` (17 tests passing).
 
 ## Explainer
 
 ### What you are looking at
 
-To integrate a function of two variables over a rectangle you can sweep
-in $x$ first then $y$, or in $y$ first then $x$. Fubini's theorem says
-you get the same number either way. The playground computes both orders
-on $f(x,y) = \sin x\cos y$ and shows the running totals converging to
-the same value, so a 2D integral is just two ordinary 1D integrals
-done in sequence.
+The double integral of $f$ over a rectangle is the volume of the solid
+under the surface $z=f(x,y)$. You cannot add a volume up all at once, so
+you slice it into thin slabs and add the slabs. Cut perpendicular to $x$
+and each slab's face is the inner integral over $y$; cut perpendicular to
+$y$ and each slab is the inner integral over $x$. Fubini's theorem says
+both stacks fill the same solid, so the two iterated integrals are equal.
+The scene draws the solid in 3D and cuts it in the order you choose; the
+diagnostic accumulates the volume in both orders and they land on the
+same value.
 
 ### The statement
 
@@ -86,20 +101,23 @@ The double integral is the volume under the surface; each iterated
 form builds that volume out of slices, one taking $y$-slices, the other
 $x$-slices. They have to agree because they measure the same volume.
 
-### The worked example
+### The worked examples
 
-With $f = \sin x\cos y$ the inner and outer integrals separate cleanly.
-Integrating $\cos y$ over $[c,d]$ gives $\sin d - \sin c$; integrating
-$\sin x$ over $[a,b]$ gives $\cos a - \cos b$; the double integral is
-their product. Doing it in the other order multiplies the same two
-factors in the opposite sequence, which is the same number. The
-playground evaluates both numerically and the two running sums land on
-the same value, the theorem made concrete.
+The dome $f=\sin x\sin y$ separates cleanly: the volume over
+$[a,b]\times[c,d]$ is $(\cos a-\cos b)(\cos c-\cos d)$, so over the full
+square it is $2\times 2=4$. The dome is symmetric in $x$ and $y$, so its
+two accumulation routes coincide. The slant $f=x\sin y/2$ is asymmetric:
+slicing along $x$ accumulates like $x^2$, slicing along $y$ like
+$1-\cos y$, two visibly different routes that still meet at
+$\pi^2/2\approx4.93$. The wave $\tfrac12(1+\sin(x+y))$ does not factor
+into a function of $x$ times a function of $y$ at all, yet the two orders
+still agree; this is where Fubini earns its keep, since there is no
+trivial factoring to fall back on.
 
 ### When it can fail
 
 Fubini needs the function to be well behaved (absolutely integrable).
-For a continuous function on a bounded rectangle, like this one, it
+For a continuous function on a bounded rectangle, like all three here, it
 always holds; the order is purely a matter of convenience, and you pick
 whichever inner integral is easier.
 
