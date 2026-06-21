@@ -101,3 +101,53 @@ export function sampleCycloid(N = 200) {
   }
   return pts;
 }
+
+// Height above the bottom for a cycloid bead released at arc length s0.
+export function cycloidHeight(s0) {
+  return cycloidXY(thetaFromS(s0)).y;
+}
+
+// === Comparison bowl: a circular arc (the classic pendulum) ===
+// Radius chosen so that, for tiny swings, the circle's period equals the
+// cycloid's exactly (R_C = 4R gives omega_circle = sqrt(g/R_C) = OMEGA). For
+// larger releases the circle is NOT isochronous: the descent time grows with
+// amplitude (the finite-amplitude pendulum), so beads dropped from different
+// heights arrive at different times, unlike the cycloid.
+export const R_CIRCLE = 4 * R;
+
+// Circle bowl point at swing angle phi from the bottom (bottom at origin,
+// matching the cycloid bottom; opens upward).
+export function circleXY(phi) {
+  return { x: R_CIRCLE * Math.sin(phi), y: R_CIRCLE * (1 - Math.cos(phi)) };
+}
+// Release angle for a bead dropped from height h on the circle bowl.
+export function circlePhi0FromHeight(h) {
+  return Math.acos(Math.max(-1, Math.min(1, 1 - h / R_CIRCLE)));
+}
+// Complete elliptic integral of the first kind via the arithmetic-geometric
+// mean (modulus k).
+function ellipticK(k) {
+  let a = 1, b = Math.sqrt(Math.max(0, 1 - k * k));
+  for (let i = 0; i < 16; i += 1) { const a1 = 0.5 * (a + b); b = Math.sqrt(a * b); a = a1; }
+  return Math.PI / (2 * a);
+}
+// Exact quarter-period (release-to-bottom time) of the circular pendulum at
+// release angle phi0: t = sqrt(R_C/g) * K(sin(phi0/2)). Reduces to the cycloid
+// quarter-period as phi0 -> 0.
+export function circleQuarter(phi0) {
+  return Math.sqrt(R_CIRCLE / G) * ellipticK(Math.sin(phi0 / 2));
+}
+// Pendulum acceleration phi'' = -(g/R_C) sin(phi). One RK4 step in place.
+export function stepCircleBead(b, dt) {
+  if (b.arrived) return;
+  const k = (phi) => -(G / R_CIRCLE) * Math.sin(phi);
+  const a1 = k(b.phi);
+  const a2 = k(b.phi + 0.5 * dt * b.w);
+  const a3 = k(b.phi + 0.5 * dt * b.w);
+  const a4 = k(b.phi + dt * b.w);
+  const prevPhi = b.phi;
+  b.phi += dt * (b.w + (dt / 6) * (a1 + a2 + a3));
+  b.w += (dt / 6) * (a1 + 2 * a2 + 2 * a3 + a4);
+  // First crossing of the bottom (phi = 0): park it there.
+  if ((prevPhi < 0 && b.phi >= 0) || (prevPhi > 0 && b.phi <= 0)) { b.phi = 0; b.arrived = true; }
+}
