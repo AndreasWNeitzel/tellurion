@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>The Hall Effect and the Sign of the Carriers</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 7ch; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; }
+    .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The Hall Effect and the Sign of the Carriers</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Push a current down a conducting bar and put it in a magnetic field across the flow, and the moving charges feel the Lorentz force $q\mathbf{v}\times\mathbf{B}$, which shoves them sideways. They pile up against one edge until the electric field of the accumulated charge grows strong enough to cancel the magnetic push; from then on the carriers drift straight again, but the bar is left holding a transverse voltage, the Hall voltage $V_H = IB/(nqt)$. Its size measures the carrier density $n$, and crucially its sign reveals the sign of the carriers. That is the subtle part: positive carriers drifting one way and negative carriers drifting the other are deflected to the very same edge (flipping the charge also flips the velocity), so you cannot tell them apart by where they go. What differs is the charge they deposit, so the polarity of the Hall voltage flips. Toggle between holes and electrons and watch the edge charges and the voltmeter reverse while the deflection stays put; the panel below plots $V_H$ against $B$, the slope $1/nq$ carrying the carrier sign.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A conducting bar carrying current in a magnetic field, with carriers deflecting to one edge, charge building up, a voltmeter showing the Hall voltage, and a plot of Hall voltage against magnetic field for holes and electrons."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      The Hall effect. Top: a current-carrying bar in a transverse field; carriers (coloured by sign) deflect to one edge, charge accumulates (red positive, blue negative), and the voltmeter reads the Hall voltage. Bottom: V_H vs B for both carrier signs, the active one solid, with the operating point marked. Method: V_H = I B / (n q t) with an overdamped transient relaxing the Hall field to v_d B. Source: Ashcroft and Mermin, Solid State Physics, Ch. 1.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Hall effect controls">
+    <div class="row wide"><button id="btn-carrier" type="button">Toggle carrier</button><span class="value" id="value-carrier">electrons (negative)</span></div>
+    <div class="row"><label for="s-B">B</label><input type="range" id="s-B" min="-1" max="1" step="0.02" value="0.4"><span class="value" id="v-B">+0.40 T</span></div>
+    <div class="row"><label for="s-I">I</label><input type="range" id="s-I" min="1" max="10" step="0.1" value="5"><span class="value" id="v-I">5.0 mA</span></div>
+    <div class="row wide"><label for="s-n">n</label><input type="range" id="s-n" min="1" max="20" step="1" value="4"><span class="value" id="v-n">4 x10^21 /m^3</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Toggle between holes and electrons: the carriers deflect to the same edge, but the edge charges and the voltmeter sign reverse. That sign is how the Hall effect tells the carriers apart.</li>
+        <li class="t-body">Sweep the field $B$ through zero: the deflection, the edge charge, and $V_H$ all flip with it, and $V_H$ rides up and down the straight line in the panel below.</li>
+        <li class="t-body">Raise the current $I$ to deflect harder and grow $V_H$; raise the carrier density $n$ and $V_H$ shrinks (more carriers share the load).</li>
+        <li class="t-body">Watch the buildup after a change: the carriers swing toward the edge, then straighten out once the Hall field has grown to cancel the magnetic force.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
