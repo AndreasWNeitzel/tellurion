@@ -58,12 +58,9 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Series controls">
-    <div class="row buttons">
-      <button id="btn-geom_half" type="button">1/2ⁿ → 1</button>
-      <button id="btn-pseries_2" type="button">1/n² → π²/6</button>
-      <button id="btn-pseries_1" type="button">harmonic 1/n</button>
-      <button id="btn-alt_log2" type="button">(-1)ⁿ⁺¹/n → ln2</button>
-    </div>
+    <div class="row"><span class="label">series</span><select aria-label="series family" id="select-type"><option value="pseries" selected="">p-series 1/nᵖ</option><option value="geometric">geometric rⁿ</option><option value="alternating">alternating (-1)ⁿ⁺¹/nᵖ</option></select><span class="value" id="value-type"></span></div>
+    <div class="row"><span class="label" id="label-param">exponent p</span><input aria-label="series parameter" type="range" id="slider-param" min="0.3" max="3.0" step="0.05" value="0.7"><span class="value" id="value-param">0.70</span></div>
+    <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
     <div class="row buttons two">
       <button id="btn-reset" type="button">Reset</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
@@ -75,10 +72,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Watch the geometric series fill toward 1: each term is half the last, and infinitely many of them still add to a finite total.</li>
-        <li class="t-body">Switch to the harmonic series: the partial sum climbs past the top of the plot and never levels off, even though its terms shrink to zero.</li>
-        <li class="t-body">The alternating series overshoots then undershoots its limit, the partial sums bracketing ln 2 more and more tightly.</li>
-        <li class="t-body">Compare the term-size plot: geometric terms fall on a straight line (exponential), the power-law series fall off far more slowly.</li>
+        <li class="t-body">Take the p-series and drag the exponent across p = 1: below it the sum climbs forever (diverges), above it the sum settles onto a limit. The verdict flips exactly at the boundary the p-test predicts.</li>
+        <li class="t-body">Switch to geometric and slide the ratio r toward ±1: the sum stays finite while |r| &lt; 1 and blows up at the edge, the ratio test live.</li>
+        <li class="t-body">Switch to the alternating series and drop p below 1: it still converges (conditionally), the partial sums bracketing the limit ever more tightly even though the same terms summed in absolute value would diverge.</li>
+        <li class="t-body">Watch the term-size plot: geometric terms fall on a straight line (exponential decay), power-law terms fall off far more slowly, which is why the boundary sits where it does.</li>
       </ul>
     </section>
 

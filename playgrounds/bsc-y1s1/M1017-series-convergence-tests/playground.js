@@ -7,7 +7,7 @@ import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-l
 //
 // Reference: Spivak, Calculus, Ch. 23; Abbott, Understanding Analysis, Ch. 2.
 
-import { SERIES } from './sim.js';
+import { makeSeries } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -17,45 +17,69 @@ const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-const KEYS = ['geom_half', 'pseries_2', 'pseries_1', 'alt_log2'];
-const btns = {};
-for (const k of KEYS) btns[k] = document.getElementById('btn-' + k);
+const selType = document.getElementById('select-type');
+const sliderParam = document.getElementById('slider-param');
+const valueParam = document.getElementById('value-param');
+const labelParam = document.getElementById('label-param');
+const sliderSpeed = document.getElementById('slider-speed');
+const valueSpeed = document.getElementById('value-speed');
 const btnReset = document.getElementById('btn-reset');
 const btnPlay = document.getElementById('btn-playpause');
 
 const NMAX = 80;
-const SWEEP = 6.5;            // seconds to sweep N from 1 to NMAX
-const DEF = 'geom_half';
-let name = DEF;
+const SWEEP_BASE = 13;        // seconds to sweep N from 1 to NMAX at speed 1
 let running = !DETERMINISTIC;
-let acc = 0, holding = false, holdT = 0;
+let tNow = 0, holding = false, holdT = 0;
 let data = null;
 
+function paramRange() {
+  return selType.value === 'geometric'
+    ? { min: -0.95, max: 0.95, step: 0.01, label: 'ratio r', def: 0.5 }
+    : { min: 0.3, max: 3.0, step: 0.05, label: 'exponent p', def: 0.7 };
+}
+function curParam() { return parseFloat(sliderParam.value); }
+function applyRange(setDefault) {
+  const pr = paramRange();
+  sliderParam.min = String(pr.min); sliderParam.max = String(pr.max); sliderParam.step = String(pr.step);
+  if (setDefault) sliderParam.value = String(pr.def);
+  if (labelParam) labelParam.textContent = pr.label;
+  valueParam.textContent = curParam().toFixed(2);
+}
+
 function rebuild() {
-  const t = SERIES[name].terms;
-  const S = [0];
-  const a = [0];
+  const ser = makeSeries(selType.value, curParam());
+  const t = ser.terms;
+  const S = [0], a = [0];
   for (let n = 1; n <= NMAX; n++) { a[n] = t(n); S[n] = S[n - 1] + a[n]; }
-  const finite = Number.isFinite(SERIES[name].limit);
+  // Limit when convergent: closed form if known, else a numerical estimate.
+  let limit = ser.closedLimit;
+  if (ser.converges && (limit === null || !Number.isFinite(limit))) {
+    if (selType.value === 'alternating') limit = 0.5 * (S[NMAX] + S[NMAX - 1]);
+    else { const p = curParam(); limit = S[NMAX] + Math.pow(NMAX + 0.5, 1 - p) / (p - 1); }
+  }
+  const finite = ser.converges && Number.isFinite(limit);
   let yLo = 0, yHi = 0;
   for (let n = 1; n <= NMAX; n++) { yLo = Math.min(yLo, S[n]); yHi = Math.max(yHi, S[n]); }
-  if (finite) yHi = Math.max(yHi, SERIES[name].limit);
-  const pad = (yHi - yLo) * 0.08 || 0.1;
-  // term magnitudes for the log diagnostic.
+  if (finite) { yLo = Math.min(yLo, limit); yHi = Math.max(yHi, limit); }
+  const pad = (yHi - yLo) * 0.1 || 0.1;
   let aMin = Infinity;
   for (let n = 1; n <= NMAX; n++) aMin = Math.min(aMin, Math.abs(a[n]) || 1e-300);
   const logLo = Math.max(-9, Math.log10(Math.max(1e-300, aMin))) - 0.3;
-  data = { S, a, finite, limit: SERIES[name].limit, yLo: yLo - pad, yHi: yHi + pad, logLo, logHi: 0.3 };
+  data = { S, a, finite, limit, ser, yLo: yLo - pad, yHi: yHi + pad, logLo, logHi: 0.3 };
 }
 
-function setPressed() { for (const k of KEYS) btns[k].setAttribute('aria-pressed', String(k === name)); }
-function curN() { return Math.max(1, Math.min(NMAX, Math.floor(1 + acc * (NMAX / SWEEP)))); }
+// Continuous leading edge, so the trace grows smoothly at the frame rate
+// instead of jumping one integer term at a time.
+function curNf() { return Math.max(1, Math.min(NMAX, 1 + tNow * (NMAX / SWEEP_BASE) * parseInt(sliderSpeed.value, 10))); }
 
-for (const k of KEYS) btns[k].addEventListener('click', () => { name = k; acc = 0; holding = false; setPressed(); rebuild(); render(); });
+selType.addEventListener('change', () => { applyRange(true); tNow = 0; holding = false; rebuild(); render(); });
+sliderParam.addEventListener('input', () => { valueParam.textContent = curParam().toFixed(2); rebuild(); render(); });
+sliderSpeed.addEventListener('input', () => { valueSpeed.textContent = String(parseInt(sliderSpeed.value, 10)); });
 btnReset.addEventListener('click', () => {
-  name = DEF; acc = 0; holding = false; running = true;
-  btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
-  setPressed(); rebuild(); render();
+  selType.value = 'pseries'; applyRange(true);
+  sliderSpeed.value = '2'; valueSpeed.textContent = '2';
+  tNow = 0; holding = false; running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  rebuild(); render();
 });
 btnPlay.addEventListener('click', () => {
   running = !running;
@@ -116,8 +140,9 @@ function drawScene(col, r) {
 
   const titleH = 22, stripH = 28;
   const inner = { x: r.x + 50, y: r.y + titleH + 8, w: r.w - 50 - 16, h: r.h - titleH - 8 - stripH - 24 };
-  const { S, finite, limit, yLo, yHi } = data;
-  const N = curN();
+  const { S, finite, limit, yLo, yHi, ser } = data;
+  const Nf = curNf(), Ni = Math.floor(Nf), frac = Nf - Ni;
+  const Send = (Ni < NMAX) ? S[Ni] + frac * (S[Ni + 1] - S[Ni]) : S[NMAX];
   const xOf = (n) => inner.x + (n / NMAX) * inner.w;
   const yOf = (y) => inner.y + inner.h - (y - yLo) / (yHi - yLo) * inner.h;
 
@@ -141,18 +166,27 @@ function drawScene(col, r) {
     ctx.fillText('limit', inner.x + inner.w - 4, yOf(limit) - 2);
   }
 
-  // Partial-sum trace up to current N.
+  // Partial-sum trace, with a smooth fractional leading edge.
   ctx.save();
   clipTo(ctx, inner);
   ctx.strokeStyle = col.sum; ctx.lineWidth = 2.4;
   ctx.beginPath();
-  for (let n = 1; n <= N; n++) { const X = xOf(n), Y = yOf(S[n]); if (n === 1) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
+  for (let n = 1; n <= Ni; n++) { const X = xOf(n), Y = yOf(S[n]); if (n === 1) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
+  if (Ni < NMAX && frac > 0) ctx.lineTo(xOf(Nf), yOf(Send));
   ctx.stroke();
   ctx.restore();
 
-  // Moving marker at current (N, S_N).
+  // Moving marker at the leading edge.
   ctx.fillStyle = col.sum;
-  ctx.beginPath(); ctx.arc(xOf(N), yOf(S[N]), 4.5, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(xOf(Nf), yOf(Send), 4.5, 0, 2 * Math.PI); ctx.fill();
+
+  // Verdict banner (top-right): the test result for the current parameter.
+  const vcol = ser.converges ? (ser.conditional ? col.accent : col.limit) : col.bad;
+  const vtxt = ser.converges ? (ser.conditional ? 'CONVERGES (conditionally)' : 'CONVERGES') : 'DIVERGES';
+  ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  ctx.fillStyle = vcol; ctx.fillText(vtxt, r.x + r.w - 8, r.y + 7);
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = col.muted;
+  ctx.fillText(`${ser.test}: ${ser.reason}`, r.x + r.w - 8, r.y + 22);
 
   // Axis labels.
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono');
@@ -164,10 +198,10 @@ function drawScene(col, r) {
   // Readout strip.
   const ry = r.y + r.h - stripH / 2 + 1;
   const items = [
-    [SERIES[name].label.replace('sum_{n>=1} ', '').replace('sum ', ''), col.term],
-    [`N = ${N}`, col.fg],
-    [`S = ${S[N].toFixed(2)}`, col.sum],
-    [finite ? `→ ${limit.toFixed(2)}` : 'diverges', finite ? col.limit : col.bad],
+    [ser.label, col.term],
+    [`N = ${Ni}`, col.fg],
+    [`S = ${Send.toFixed(3)}`, col.sum],
+    [finite ? `→ ${limit.toFixed(3)}` : 'diverges', finite ? col.limit : col.bad],
   ];
   ctx.font = fontString(canvas, 'caption', 'mono', 700);
   ctx.textBaseline = 'middle';
@@ -180,7 +214,7 @@ function drawDiagnostic(col, r) {
 
   const inner = { x: r.x + 50, y: r.y + 28, w: r.w - 50 - 16, h: r.h - 28 - 40 };
   const { a, logLo, logHi } = data;
-  const N = curN();
+  const N = Math.floor(curNf());
   const xOf = (n) => inner.x + (n / NMAX) * inner.w;
   const yOf = (lg) => inner.y + inner.h - (lg - logLo) / (logHi - logLo) * inner.h;
 
@@ -240,11 +274,11 @@ function tick(now) {
   last = now;
   if (running) {
     if (!holding) {
-      acc += dt;
-      if (curN() >= NMAX) { holding = true; holdT = 0; }
+      tNow += dt;
+      if (curNf() >= NMAX) { holding = true; holdT = 0; }
     } else {
       holdT += dt;
-      if (holdT > 2.5) { acc = 0; holding = false; }
+      if (holdT > 2.5) { tNow = 0; holding = false; }
     }
   }
   render();
@@ -252,14 +286,16 @@ function tick(now) {
 }
 
 function bootSync() {
+  applyRange(false);
+  valueSpeed.textContent = String(parseInt(sliderSpeed.value, 10));
+  const sweep = SWEEP_BASE / parseInt(sliderSpeed.value, 10);
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    acc = f * SWEEP;
+    tNow = f * sweep;
   } else {
-    acc = SWEEP;          // show the fully-swept curve on load
+    tNow = sweep;          // show the fully-swept curve on load
     holding = true; holdT = 0;
   }
-  setPressed();
   rebuild();
   relayout();
   render();
@@ -284,12 +320,14 @@ if (document.readyState === 'loading') {
 window.playground = window.playground || {};
 window.playground.getState = function () {
   if (!data) rebuild();
-  const N = curN();
+  const Ni = Math.floor(curNf());
+  const ser = data.ser;
   return {
     fields: [
-      { key: 'series', label: 'series', value: SERIES[name].label, format: 'text' },
-      { key: 'N', label: 'terms $N$', value: N, format: 'int' },
-      { key: 'sum', label: 'partial sum $S_N$', value: data.S[N], format: 'float' },
+      { key: 'series', label: 'series', value: ser.label, format: 'text' },
+      { key: 'verdict', label: 'verdict', value: ser.converges ? (ser.conditional ? 'conditional' : 'converges') : 'diverges', format: 'text' },
+      { key: 'N', label: 'terms $N$', value: Ni, format: 'int' },
+      { key: 'sum', label: 'partial sum $S_N$', value: data.S[Ni], format: 'float' },
       { key: 'limit', label: 'limit', value: data.finite ? data.limit : Infinity, format: 'float' },
     ],
   };
