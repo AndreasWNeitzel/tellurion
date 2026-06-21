@@ -32,7 +32,14 @@ const selM = document.getElementById('select-m');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const NU0 = 100;
-const DRIFT = 0.6;   // visual scale: azimuthal phase rate per unit m(1-C)Omega
+// The surface oscillates at the mode frequency omega_m = omega_base + m(1-C)Omega:
+// omega_base stands in for the (much faster) intrinsic mode frequency so the
+// pulsation is visible, and the m(1-C)Omega term is the rotational splitting that
+// makes prograde (m>0) and retrograde (m<0) components oscillate and drift at
+// different rates while m=0 (zonal) stays unshifted.
+const OMEGA_BASE = 2.1;   // visible base oscillation rate (rad/s)
+const SPLIT_VIS = 1.25;   // visual scale of the rotational frequency shift
+const LIMB_AMP = 0.05;    // radial surface deformation (fraction of the disc radius)
 const st = { Omega: 0.5, l: 2, m: 2, isG: false, t: 0 };
 let running = true, last = performance.now();
 
@@ -70,40 +77,56 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 
 const TILT = 0.5, cT = Math.cos(TILT), sT = Math.sin(TILT);
 
+// Surface radial-displacement amplitude of the (l, m) mode at a point on the
+// sphere whose unit normal projects to (nx, ny, nz), at time t. The temporal
+// factor cos(m*phi - omega_m*t) makes a fixed point oscillate at omega_m: the
+// surface visibly moves out (red) and in (blue), and the m pattern travels in
+// azimuth, prograde or retrograde according to the rotational splitting.
+function modeAmp(l, m, omega_m, nx, ny, nz, t) {
+  const cterm = clamp(ny * cT + nz * sT, -1, 1);                 // cos(colatitude) about tilted axis
+  const phi = Math.atan2(ny * sT - nz * cT, nx);                 // longitude about tilted axis
+  return (plm(l, m, cterm) / plmNorm) * Math.cos(m * phi - omega_m * t);
+}
+
 function drawMode(cx, cy, RST, t) {
   const l = st.l, m = st.m, C = ledoux(l, st.isG);
-  // Azimuthal phase rate: the pattern is advected at (1-C)Omega, so a fixed
-  // observer sees frequency m(1-C)Omega. drift = m(1-C)Omega (scaled).
-  const drift = DRIFT * m * (1 - C) * st.Omega;
-  const breath = 0.84 + 0.16 * Math.cos(2 * Math.PI * 0.11 * t);   // gentle oscillation cue
+  const omega_m = OMEGA_BASE + m * (1 - C) * st.Omega * SPLIT_VIS;   // mode frequency incl. rotational shift
   const step = Math.max(3, Math.round(RST / 64));
   for (let py = -RST; py <= RST; py += step) {
     for (let px = -RST; px <= RST; px += step) {
       const nx = px / RST, ny = -py / RST, rr = nx * nx + ny * ny;   // ny up
       if (rr > 1) continue;
       const nz = Math.sqrt(1 - rr);
-      // colatitude/longitude about the tilted rotation axis a=(0,cT,sT).
-      const cterm = clamp(ny * cT + nz * sT, -1, 1);
-      const phi = Math.atan2(ny * sT - nz * cT, nx);
-      const A = (plm(l, m, cterm) / plmNorm) * Math.cos(m * phi - drift * t);   // -1..1
+      const A = modeAmp(l, m, omega_m, nx, ny, nz, t);              // -1..1, oscillating in time
       const limb = 0.30 + 0.70 * nz;
-      const inten = limb * breath;
       const a = clamp(A, -1, 1);
       let r, g, b;
-      if (a >= 0) { r = (40 + 215 * a) * inten; g = (44 + 110 * a) * inten; b = (52 + 18 * a) * inten; }
-      else { const mm = -a; r = (40 + 20 * mm) * inten; g = (44 + 120 * mm) * inten; b = (52 + 200 * mm) * inten; }
+      if (a >= 0) { r = (40 + 215 * a) * limb; g = (44 + 110 * a) * limb; b = (52 + 18 * a) * limb; }
+      else { const mm = -a; r = (40 + 20 * mm) * limb; g = (44 + 120 * mm) * limb; b = (52 + 200 * mm) * limb; }
       ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
       ctx.fillRect(cx + px, cy + py, step, step);
     }
   }
+  // Oscillating deformed limb: the surface bulges out and in by the mode, so the
+  // non-radial pulsation is visible on the outline (radius perturbed by LIMB_AMP).
+  ctx.strokeStyle = 'rgba(255,210,150,0.85)'; ctx.lineWidth = 1.6; ctx.beginPath();
+  for (let k = 0; k <= 96; k += 1) {
+    const psi = k / 96 * 2 * Math.PI, nx = Math.cos(psi), ny = Math.sin(psi);
+    const amp = modeAmp(l, m, omega_m, nx, ny, 0, t);            // limb point (nz ~ 0)
+    const rr = RST * (1 + LIMB_AMP * amp);
+    const X = cx + rr * nx, Y = cy - rr * ny;
+    k === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+  }
+  ctx.closePath(); ctx.stroke();
   // rotation axis (tilted) + spin sense.
   ctx.strokeStyle = 'rgba(220,225,235,0.6)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(cx - sT * (RST + 16), cy - cT * (RST + 16)); ctx.lineTo(cx + sT * (RST + 16), cy + cT * (RST + 16)); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`ℓ=${l}, m=${m > 0 ? '+' + m : m}, ${st.isG ? 'g' : 'p'}-mode`, cx, cy + RST + 26);
-  const sense = m > 0 ? 'prograde drift' : m < 0 ? 'retrograde drift' : 'no drift (m=0)';
+  const sense = m === 0 ? 'm=0 zonal: pulsates in place, unshifted by rotation'
+    : (m > 0 ? 'prograde wave' : 'retrograde wave') + (st.Omega > 0 ? ', advected by rotation' : '');
   ctx.fillStyle = m > 0 ? '#ff9f43' : m < 0 ? '#4cc9f0' : '#9aa0a6';
-  ctx.fillText(st.Omega > 0 ? sense : 'Ω = 0: degenerate (stationary)', cx, cy + RST + 44);
+  ctx.fillText(st.Omega > 0 ? sense : 'Ω = 0: 2ℓ+1 components degenerate (one frequency)', cx, cy + RST + 44);
   ctx.textAlign = 'left';
 }
 
