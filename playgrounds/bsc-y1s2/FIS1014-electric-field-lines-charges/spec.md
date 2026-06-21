@@ -5,14 +5,14 @@ status: verified
 audience: portfolio
 created: 2026-05-13
 primary_uc: FIS1014
-primary_citation: taylor-mech
+primary_citation: griffiths-em
 supporting_ucs: []
 curriculum_year: bsc-y1s2
 hook: "Electric field lines make the invisible field visible: each line is everywhere tangent to E, and where the lines crowd together the field is strong. Watch the classic patterns appear, a dipole's bridge, two like charges pushing apart, the four-lobed quadrupole, a lone charge's starburst."
-one_paragraph: "The field of a set of point charges is the vector sum E = sum_i q_i (r - r_i) / |r - r_i|^3. This draws its field lines as the curves everywhere tangent to E, seeded around each charge: they stream out of positive charges and into negative ones, and by Gauss's law their local density tracks the field strength. Step through four canonical layouts (dipole, two like charges, quadrupole, a single monopole) or drag any charge and the lines retrace live. Shoot a test charge from the left and it follows F = qE, accelerating toward unlike charges and recoiling from like ones. The invariants pin the physics: one charge's far field falls as 1/r^2, the dipole midpoint field is purely axial, two equal like charges give a zero-field point at their midpoint, and higher multipoles fall off faster."
-tags: [electromagnetism, animation, live-readout]
+one_paragraph: "The field of a set of point charges is the vector sum E = sum_i q_i (r - r_i) / |r - r_i|^3. This draws its field lines as the curves everywhere tangent to E, seeded around each charge: they stream out of positive charges and into negative ones, and by Gauss's law their local density tracks the field strength. The lines flow with marching arrowheads over a field-magnitude map, and any charge can be dragged so the whole pattern retraces live. Step through four canonical layouts (dipole, two like charges, quadrupole, a single monopole). The diagnostic plots the field magnitude along the horizontal axis, spiking at the charges and dipping to zero at the null points (such as the midpoint of two equal like charges)."
+tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -31,7 +31,7 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Taylor, Classical Mechanics."
+  - "Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 2."
 ---
 
 # Electric field lines from point charges
@@ -115,27 +115,31 @@ is proportional to |E| (Gauss in 2D).
 
 ## Numerical method
 
-For each positive charge, emit 16 field lines uniformly in angle from a
-small sphere of radius 0.08. Trace each line in the +E direction (or -E
-from negative charges) with arc-length step 0.04 until either the line
-enters a 0.1-neighborhood of any charge (sink) or leaves the bounding box.
-
-Test charge motion (when shot) integrates dv/dt = q E with mass 1 by
-explicit Euler with dt = 0.005.
+For each positive charge (or each negative charge when no positive ones
+exist), emit `density` field lines (slider, 8 to 28; default 16) uniformly
+in angle from a small circle of radius 0.09. Trace each line in the +E
+direction (or -E from negative emitters) with RK4-equivalent normalized
+arc-length steps of 0.045 until it enters a small neighborhood of any
+charge (sink) or leaves the bounding box. Rendering is plain Canvas2D: a
+field-magnitude map (computed on a coarse grid, drawn as a smoothed
+offscreen image), the traced lines, marching arrowheads animated along
+the lines, and the draggable charge discs.
 
 ## Controls
 
-- 4 preset buttons: dipole, two +, quadrupole, monopole.
-- shoot test charge: launches a test charge from the left edge.
+- layout: dipole / two + / quadrupole / single + (preset selector).
+- line density: 8 to 28 lines per unit charge.
+- drag any charge with the pointer to reshape the field live.
 - Reset / Pause / Play.
 
 ## Expected qualitative features
 
 1. Dipole: lines bridge from + to -, equal in number, symmetric.
-2. Two +: lines repel each other; midpoint (0, 0) has zero field.
+2. Two +: lines repel each other; midpoint (0, 0) has zero field (a
+   clean zero in the diagnostic).
 3. Quadrupole: four lobes with alternating circulation patterns.
 4. Monopole: radial lines decaying as 1 / r^2.
-5. Test charge curves toward negative charges, away from positive ones.
+5. Dragging a charge retraces every line and the magnitude map live.
 
 ## Invariants and acceptance thresholds
 
@@ -157,9 +161,10 @@ All confirmed in `invariants.test.mjs`.
 
 ## Visual fallback
 
-Canvas2D only. Field lines in muted gold, arrowheads at 60 percent along
-each line. Charges color-coded (warm orange = +, cool blue = -). Optional
-test charge with white trail.
+Canvas2D only. Field lines in light grey over a viridis field-magnitude
+map, with marching white arrowheads. Charges color-coded (warm red = +,
+cool blue = -) and draggable. The caption names the field law and the
+line-density-tracks-strength rule so the figure reads without Canvas2D.
 
 ## Citations
 

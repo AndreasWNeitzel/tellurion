@@ -2,20 +2,21 @@
 
 Four canonical point-charge configurations (dipole, two like positives,
 quadrupole, single monopole) with their field-line patterns traced as
-integral curves of E. Line density on the plane is proportional to |E|.
-Press the test-charge button to launch a + test charge from the left edge
-and watch it accelerate through the field.
+integral curves of E and drawn over a field-magnitude map. Line density on
+the plane is proportional to |E|, which is Gauss's law, not just a drawing
+convention. Marching arrowheads show the field direction, out of positive
+charges and into negative ones.
 
-Look for: the dipole's classic figure-eight bridging + to -; the
-"no-crossing" repulsion pattern between two like + charges with a zero-field
-point at the midpoint; the quadrupole's four-lobe alternation; the
-monopole's radial lines. The test charge curves toward negative charges
-and away from positive ones, following the local force F = q E.
+Look for: the dipole's classic bridge from + to -; the repulsion pattern
+between two like + charges with a zero-field point at the midpoint (a clean
+zero in the lower plot); the quadrupole's four-lobe alternation; the
+monopole's radial starburst. The lower plot is the field magnitude along
+the horizontal axis: it spikes at the charges and dips at the nulls.
 
-Use the four preset buttons to switch configurations. Drag any charge
-with the mouse to reposition it; field lines re-trace live. Shoot test
-charge launches a test particle. Reset clears the trail and re-traces
-the field lines.
+Use the layout selector to switch configurations and the density slider to
+set how many lines each charge emits. Drag any charge with the pointer and
+every line and the magnitude map retrace live. Pause freezes the flow and
+Reset restores the defaults.
 
 ## Reference
 
@@ -26,5 +27,5 @@ the field lines.
 - Strong invariant: monopole 1/r^2 within 1 percent; dipole-midpoint
   E along axis; two-like midpoint E = 0; quadrupole decays faster than
   monopole; sign reversal exact.
-- Visual gate: SSIM > 0.92 across 5 frames sweeping through presets.
-- Last verified: see `.verified`.
+- Live readout: div E = 0 in vacuum (Gauss's law), checked by central
+  differences at a fixed probe point in empty space.

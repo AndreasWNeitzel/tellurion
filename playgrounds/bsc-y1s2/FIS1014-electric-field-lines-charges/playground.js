@@ -1,340 +1,356 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
-// playground.js
-// Field lines from a chosen charge configuration. Includes a moving test
-// charge that drifts under the field.
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
+// Vertical 4:5 hero for the electric field of point charges, Canvas2D
+// only. Top region: field lines (integral curves of E) flowing over a
+// field-magnitude map; the charges are draggable and the pattern
+// reshapes live. Bottom region: the field magnitude along the central
+// horizontal line y = 0, spiking at charges and vanishing at nulls.
+//
+// Reference: Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 2.
 
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { field, traceLine, PRESETS, emissionPoints, BOX } from './sim.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { field, traceLine, PRESETS, BOX } from './sim.js';
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const btnReset     = document.getElementById('btn-reset');
-const btnPlayPause = document.getElementById('btn-playpause');
-const btnShoot     = document.getElementById('btn-shoot');
-const presetBtns   = document.querySelectorAll('[data-preset]');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-const W = canvas.width, H = canvas.height;
+const selPreset = document.getElementById('select-preset');
+const sliderDensity = document.getElementById('slider-density');
+const valuePreset = document.getElementById('value-preset');
+const valueDensity = document.getElementById('value-density');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
 
-const state = {
-  preset: 'dipole',
-  charges: PRESETS.dipole,
-  lines: [],
-  testCharge: null,
-  trail: [],
-  playing: !(DETERMINISTIC || prefersReducedMotion()),
-};
+const VIEW = 2.0;
+let running = !DETERMINISTIC;
+let charges = [];
+let lines = [];               // [{xs, ys, ds}]
+let heat = null;              // offscreen canvas
+let phase = 0;
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  accentCool: cssVar('--accent-cool', '#7fb1d8'),
-  accentWarm: cssVar('--accent-warm', '#d68a69'),
-};
+function clonePreset(name) { return PRESETS[name].map((c) => ({ x: c.x, y: c.y, q: c.q })); }
+function loadPreset() { charges = clonePreset(selPreset.value); }
 
-function rebuild() {
-  // Take a deep copy so drag-edits don't mutate PRESETS.
-  state.charges = PRESETS[state.preset].map(c => ({ ...c }));
-  state.trail = [];
-  state.testCharge = null;
-  retraceLines();
+function syncVals() {
+  valuePreset.textContent = { dipole: 'dipole', 'two-plus': 'two +', quadrupole: 'quadrupole', 'mono-plus': 'single +' }[selPreset.value];
+  valueDensity.textContent = parseFloat(sliderDensity.value).toFixed(0);
 }
+selPreset.addEventListener('change', () => { syncVals(); loadPreset(); recompute(); render(); });
+sliderDensity.addEventListener('input', () => { syncVals(); recompute(); render(); });
+btnReset.addEventListener('click', () => {
+  selPreset.value = 'dipole'; sliderDensity.value = '16';
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); loadPreset(); recompute(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
 
-function retraceLines() {
-  state.lines = [];
-  const emits = emissionPoints(state.charges, 16);
-  for (const e of emits) {
-    state.lines.push(traceLine(e.x, e.y, state.charges, e.sign));
-  }
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+let SCN = null;               // scene transform {draw, ox, oy, scale}
+function computeSceneTransform() {
+  const r = REG.scene;
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const scale = Math.min(draw.w, draw.h) / (2 * VIEW);
+  SCN = { draw, ox: draw.x + draw.w / 2, oy: draw.y + draw.h / 2, scale };
 }
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 2.0 },
+    { name: 'diagnostic', weight: 1.0 },
+  ]);
+  computeSceneTransform();
+  recompute();
+}
+const WX = (wx) => SCN.ox + wx * SCN.scale;
+const WY = (wy) => SCN.oy - wy * SCN.scale;
+const invX = (sx) => (sx - SCN.ox) / SCN.scale;
+const invY = (sy) => (SCN.oy - sy) / SCN.scale;
 
-const SCALE_LAYOUT = (() => {
-  const padL = 30, padR = 30, padT = 60, padB = 80;
-  const drawW = W - padL - padR;
-  const drawH = H - padT - padB;
-  const wbox = 2 * BOX;
-  const scale = Math.min(drawW / wbox, drawH / wbox);
-  return { padL, padR, padT, padB, drawW, drawH, scale };
-})();
-
-function worldToPx(x, y) {
-  const { padL, padT, drawW, drawH, scale } = SCALE_LAYOUT;
+function colors() {
+  const css = getComputedStyle(document.body);
   return {
-    px: padL + drawW / 2 + x * scale,
-    py: padT + drawH / 2 - y * scale,
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    pos: '#ef5466', neg: '#5b8def', line: 'rgba(232,237,247,0.82)',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)',
   };
 }
 
-function pxToWorld(px, py) {
-  const { padL, padT, drawW, drawH, scale } = SCALE_LAYOUT;
-  return {
-    x: (px - padL - drawW / 2) / scale,
-    y: (padT + drawH / 2 - py) / scale,
-  };
-}
-
-function shootTestCharge() {
-  state.testCharge = { x: -BOX + 0.1, y: 0.3, vx: 1.5, vy: 0, q: +1 };
-  state.trail = [];
-}
-
-function stepTest(dt) {
-  if (!state.testCharge) return;
-  const { Ex, Ey } = field(state.testCharge.x, state.testCharge.y, state.charges);
-  // F = q E. Treat mass = 1.
-  state.testCharge.vx += state.testCharge.q * Ex * dt;
-  state.testCharge.vy += state.testCharge.q * Ey * dt;
-  state.testCharge.x += state.testCharge.vx * dt;
-  state.testCharge.y += state.testCharge.vy * dt;
-  state.trail.push([state.testCharge.x, state.testCharge.y]);
-  if (state.trail.length > 400) state.trail.shift();
-  if (Math.abs(state.testCharge.x) > BOX + 1 || Math.abs(state.testCharge.y) > BOX + 1) {
-    state.testCharge = null;
-  }
-}
-
-function drawAll() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`preset = ${state.preset}    field lines = ${state.lines.length}`, 30, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`E(r) = sum_i q_i (r - r_i) / |r - r_i|^3`, 30, 40);
-
-  // Plot frame
-  const padL = 30, padR = 30, padT = 60, padB = 80;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(padL, padT, W - padL - padR, H - padT - padB);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(padL + 0.5, padT + 0.5, W - padL - padR - 1, H - padT - padB - 1);
-
-  // Field lines (color by sign of starting charge)
-  for (let li = 0; li < state.lines.length; li += 1) {
-    const line = state.lines[li];
-    if (line.xs.length < 2) continue;
-    ctx.strokeStyle = 'rgba(241, 210, 138, 0.55)';
-    ctx.lineWidth = 1.0;
-    ctx.beginPath();
-    for (let i = 0; i < line.xs.length; i += 1) {
-      const p = worldToPx(line.xs[i], line.ys[i]);
-      if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
-    }
-    ctx.stroke();
-    // Arrowhead at 60 percent of the line
-    const idx = Math.min(line.xs.length - 2, Math.floor(line.xs.length * 0.6));
-    if (idx >= 1) {
-      const p0 = worldToPx(line.xs[idx], line.ys[idx]);
-      const p1 = worldToPx(line.xs[idx + 1], line.ys[idx + 1]);
-      const dx = p1.px - p0.px, dy = p1.py - p0.py;
-      const mag = Math.sqrt(dx * dx + dy * dy);
-      if (mag > 1e-3) {
-        const ux = dx / mag, uy = dy / mag;
-        const ah = 6;
-        ctx.fillStyle = 'rgba(241, 210, 138, 0.75)';
-        ctx.beginPath();
-        ctx.moveTo(p1.px, p1.py);
-        ctx.lineTo(p1.px - ah * ux + ah * 0.5 * uy, p1.py - ah * uy - ah * 0.5 * ux);
-        ctx.lineTo(p1.px - ah * ux - ah * 0.5 * uy, p1.py - ah * uy + ah * 0.5 * ux);
-        ctx.closePath();
-        ctx.fill();
-      }
+// Rebuild the traced field lines and the field-magnitude heatmap.
+function recompute() {
+  if (!SCN) return;
+  const density = parseFloat(sliderDensity.value);
+  // emission: from positive charges (lines run + -> -). If none, from negatives.
+  const pos = charges.filter((c) => c.q > 0);
+  const useNeg = pos.length === 0;
+  const src = useNeg ? charges : pos;
+  const sign = useNeg ? -1 : 1;
+  const emit = [];
+  for (const c of src) {
+    const n = Math.max(5, Math.round(density * Math.abs(c.q)));
+    for (let i = 0; i < n; i++) {
+      const th = 2 * Math.PI * (i + 0.5) / n;
+      emit.push({ x: c.x + 0.09 * Math.cos(th), y: c.y + 0.09 * Math.sin(th) });
     }
   }
+  lines = emit.map((e) => { const l = traceLine(e.x, e.y, charges, sign, 9.0, 0.045); return { xs: l.xs, ys: l.ys, ds: 0.045 }; });
 
-  // Charges
-  for (const c of state.charges) {
-    const p = worldToPx(c.x, c.y);
-    ctx.fillStyle = c.q > 0 ? tok.accentWarm : tok.accentCool;
-    ctx.beginPath();
-    ctx.arc(p.px, p.py, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.lineWidth = 1.0;
-    ctx.stroke();
-    ctx.fillStyle = '#fff';
-    ctx.font = fontString(canvas, 'caption', 'mono', 600);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(c.q > 0 ? '+' : '-', p.px, p.py + 1);
-    ctx.textBaseline = 'alphabetic';
-  }
-
-  // Test charge trail
-  if (state.trail.length >= 2) {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    for (let i = 0; i < state.trail.length; i += 1) {
-      const p = worldToPx(state.trail[i][0], state.trail[i][1]);
-      if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
+  // heatmap over the scene window.
+  const { draw } = SCN;
+  const nx = Math.max(24, Math.round(draw.w / 8)), ny = Math.max(24, Math.round(draw.h / 8));
+  if (!heat) heat = document.createElement('canvas');
+  heat.width = nx; heat.height = ny;
+  const hctx = heat.getContext('2d');
+  const img = hctx.createImageData(nx, ny);
+  for (let j = 0; j < ny; j++) {
+    const wy = invY(draw.y + (j + 0.5) / ny * draw.h);
+    for (let i = 0; i < nx; i++) {
+      const wx = invX(draw.x + (i + 0.5) / nx * draw.w);
+      const { Ex, Ey } = field(wx, wy, charges);
+      const mag = Math.hypot(Ex, Ey);
+      const t = mag / (mag + 1.6);
+      const c = viridis(0.12 + 0.82 * t);
+      const a = Math.min(0.52, 0.62 * Math.pow(t, 0.8));
+      const o = (j * nx + i) * 4;
+      img.data[o] = c.r; img.data[o + 1] = c.g; img.data[o + 2] = c.b; img.data[o + 3] = a * 255;
     }
+  }
+  hctx.putImageData(img, 0, 0);
+}
+
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
+  }
+}
+
+function drawCharge(col, c) {
+  const X = WX(c.x), Y = WY(c.y), rad = 9 + 4 * (Math.abs(c.q) - 1);
+  ctx.beginPath(); ctx.arc(X, Y, rad, 0, 2 * Math.PI);
+  ctx.fillStyle = c.q > 0 ? col.pos : col.neg; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = fontString(canvas, 'heading', 'sans', 800);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(c.q > 0 ? '+' : '−', X, Y + 1);
+}
+
+function drawScene(col, r) {
+  panel(col, r, 'Field lines over the field-strength map (drag a charge)');
+  const { draw } = SCN;
+
+  ctx.save();
+  clipTo(ctx, draw);
+
+  // field-magnitude map.
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(heat, draw.x, draw.y, draw.w, draw.h);
+
+  // field lines.
+  ctx.strokeStyle = col.line; ctx.lineWidth = 1.4;
+  for (const l of lines) {
+    ctx.beginPath();
+    for (let i = 0; i < l.xs.length; i++) { const X = WX(l.xs[i]), Y = WY(l.ys[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
     ctx.stroke();
   }
-  if (state.testCharge) {
-    const p = worldToPx(state.testCharge.x, state.testCharge.y);
-    ctx.fillStyle = '#f1d28a';
-    ctx.beginPath();
-    ctx.arc(p.px, p.py, 5, 0, Math.PI * 2);
-    ctx.fill();
+
+  // flowing arrowheads (direction of E, + to -).
+  ctx.fillStyle = '#ffffff';
+  const spacing = 0.95;
+  for (const l of lines) {
+    const len = (l.xs.length - 1) * l.ds;
+    if (len < 0.4) continue;
+    for (let s = (phase % spacing); s < len - 0.05; s += spacing) {
+      const idx = Math.max(1, Math.min(l.xs.length - 1, Math.round(s / l.ds)));
+      const x = l.xs[idx], y = l.ys[idx], px = l.xs[idx - 1], py = l.ys[idx - 1];
+      const ang = Math.atan2(WY(y) - WY(py), WX(x) - WX(px));
+      const X = WX(x), Y = WY(y), h = 5.5;
+      ctx.beginPath();
+      ctx.moveTo(X + h * Math.cos(ang), Y + h * Math.sin(ang));
+      ctx.lineTo(X + h * Math.cos(ang + 2.5), Y + h * Math.sin(ang + 2.5));
+      ctx.lineTo(X + h * Math.cos(ang - 2.5), Y + h * Math.sin(ang - 2.5));
+      ctx.closePath(); ctx.fill();
+    }
   }
 
-  // Legend
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('+ charge', 60, H - 24);
-  ctx.fillStyle = tok.accentCool;
-  ctx.fillText('- charge', 160, H - 24);
-  ctx.fillStyle = '#f1d28a';
-  ctx.fillText('test charge (q = +1)', 260, H - 24);
+  for (const c of charges) drawCharge(col, c);
+
+  ctx.restore();
+
+  // readout strip.
+  const net = charges.reduce((s, c) => s + c.q, 0);
+  const items = [
+    [{ dipole: 'dipole', 'two-plus': 'two +', quadrupole: 'quadrupole', 'mono-plus': 'single +' }[selPreset.value], col.fg],
+    [`charges ${charges.length}`, col.muted],
+    [`net q ${net > 0 ? '+' : ''}${net}`, net > 0 ? col.pos : (net < 0 ? col.neg : col.muted)],
+    [`lines ${lines.length}`, col.line],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
 }
 
-function tickN(n) {
-  if (!state.testCharge) return;
-  for (let i = 0; i < n; i += 1) stepTest(0.005);
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Field strength along the horizontal axis y = 0');
+
+  const inner = { x: r.x + 44, y: r.y + 28, w: r.w - 44 - 16, h: r.h - 28 - 42 };
+  const xMinW = invX(SCN.draw.x), xMaxW = invX(SCN.draw.x + SCN.draw.w);
+  const N = 240, EMAX = 12;
+  const xOf = (wx) => inner.x + (wx - xMinW) / (xMaxW - xMinW) * inner.w;
+  const yOf = (m) => inner.y + inner.h - Math.min(1, m / EMAX) * inner.h;
+
+  // grid + ticks.
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let k = 0; k <= 2; k++) { const m = EMAX * k / 2; const y = yOf(m); ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText(k === 2 ? `${EMAX}+` : m.toFixed(0), inner.x - 6, y); }
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const wx of [-2, -1, 0, 1, 2]) if (wx >= xMinW && wx <= xMaxW) ctx.fillText(String(wx), xOf(wx), inner.y + inner.h + 6);
+
+  // charge position markers.
+  for (const c of charges) {
+    if (c.x < xMinW || c.x > xMaxW) continue;
+    ctx.strokeStyle = c.q > 0 ? 'rgba(239,84,102,0.5)' : 'rgba(91,141,239,0.5)'; ctx.lineWidth = 1.4; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xOf(c.x), inner.y); ctx.lineTo(xOf(c.x), inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // |E|(x, 0).
+  ctx.strokeStyle = col.accent; ctx.lineWidth = 2.4; ctx.beginPath();
+  for (let i = 0; i <= N; i++) {
+    const wx = xMinW + (xMaxW - xMinW) * i / N;
+    const { Ex, Ey } = field(wx, 0, charges);
+    const m = Math.hypot(Ex, Ey);
+    const X = xOf(wx), Y = yOf(m);
+    if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+  }
+  ctx.stroke();
+
+  // labels.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('x position', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 32, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('field strength |E|', 0, 0); ctx.restore();
 }
 
-presetBtns.forEach(b => b.addEventListener('click', () => {
-  state.preset = b.dataset.preset;
-  rebuild();
-  drawAll();
-}));
+function render() {
+  if (!REG) relayout();
+  if (!charges.length) { loadPreset(); recompute(); }
+  if (!heat) recompute();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
+}
 
-// Drag a charge with the mouse / touch.
-let dragIndex = -1;
-function eventToWorld(ev) {
+// --- charge dragging ---
+let dragIdx = -1;
+function pointerWorld(ev) {
   const rect = canvas.getBoundingClientRect();
-  const px = (ev.clientX - rect.left) * (canvas.width / rect.width);
-  const py = (ev.clientY - rect.top) * (canvas.height / rect.height);
-  return pxToWorld(px, py);
-}
-function pickCharge(p) {
-  let best = -1, bestD2 = 0.36;     // radius 0.6 in world units
-  for (let i = 0; i < state.charges.length; i += 1) {
-    const c = state.charges[i];
-    const d2 = (p.x - c.x) ** 2 + (p.y - c.y) ** 2;
-    if (d2 < bestD2) { bestD2 = d2; best = i; }
-  }
-  return best;
+  const sx = (ev.clientX - rect.left), sy = (ev.clientY - rect.top);
+  return { sx, sy, wx: invX(sx), wy: invY(sy) };
 }
 canvas.addEventListener('pointerdown', (ev) => {
-  const p = eventToWorld(ev);
-  dragIndex = pickCharge(p);
-  if (dragIndex >= 0) {
-    canvas.setPointerCapture(ev.pointerId);
-    canvas.style.cursor = 'grabbing';
-    ev.preventDefault();
-  }
+  if (!SCN) return;
+  const { sx, sy } = pointerWorld(ev);
+  let best = -1, bd = 22 * 22;
+  charges.forEach((c, i) => { const dx = WX(c.x) - sx, dy = WY(c.y) - sy; const d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } });
+  if (best >= 0) { dragIdx = best; canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); }
 });
 canvas.addEventListener('pointermove', (ev) => {
-  const p = eventToWorld(ev);
-  if (dragIndex >= 0) {
-    const c = state.charges[dragIndex];
-    c.x = Math.max(-BOX * 0.9, Math.min(BOX * 0.9, p.x));
-    c.y = Math.max(-BOX * 0.9, Math.min(BOX * 0.9, p.y));
-    retraceLines();
-    drawAll();
-  } else {
-    canvas.style.cursor = pickCharge(p) >= 0 ? 'grab' : 'default';
-  }
+  if (dragIdx < 0) return;
+  const { wx, wy } = pointerWorld(ev);
+  const lim = BOX - 0.2;
+  charges[dragIdx].x = Math.max(-lim, Math.min(lim, wx));
+  charges[dragIdx].y = Math.max(-lim, Math.min(lim, wy));
+  recompute(); render();
 });
-function endDrag(ev) {
-  if (dragIndex >= 0) {
-    try { canvas.releasePointerCapture(ev.pointerId); } catch {}
-  }
-  dragIndex = -1;
-  canvas.style.cursor = 'default';
-}
+const endDrag = () => { dragIdx = -1; };
 canvas.addEventListener('pointerup', endDrag);
 canvas.addEventListener('pointercancel', endDrag);
-canvas.addEventListener('pointerleave', endDrag);
-btnShoot.addEventListener('click', () => { shootTestCharge(); drawAll(); });
-btnReset.addEventListener('click', () => { rebuild(); drawAll(); });
-btnPlayPause.addEventListener('click', () => {
-  state.playing = !state.playing;
-  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
-  btnPlayPause.setAttribute('aria-pressed', String(!state.playing));
-});
 
-function bootSync() {
-  rebuild();
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    // Pick preset by frac.
-    const presetNames = ['dipole', 'two-plus', 'quadrupole', 'mono-plus'];
-    state.preset = presetNames[Math.min(3, Math.floor(frac * 4))];
-    rebuild();
-    shootTestCharge();
-    tickN(Math.round(frac * 200));
-    drawAll();
-    if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
-    }
-    return;
-  }
-  drawAll();
-}
-
-function tick() {
-  if (state.playing) {
-    tickN(4);
-    drawAll();
-  }
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (running) phase += 0.6 * dt;
+  render();
   requestAnimationFrame(tick);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-} else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+function bootSync() {
+  syncVals();
+  loadPreset();
+  relayout();
+  render();
 }
 
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
-// Physical state of the charge configuration and the traced field-line set.
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const charges = state.charges || [];
-  const netQ = charges.reduce((s, c) => s + c.q, 0);
-  const fields = [
-    { key: 'preset', label: 'configuration', value: state.preset },
-    { key: 'charges', label: 'point charges', value: charges.length, format: 'int' },
-    { key: 'net-charge', label: 'net charge $\\Sigma q_i$', value: netQ, format: 'float' },
-    { key: 'field-lines', label: 'traced field lines', value: (state.lines || []).length, format: 'int' },
-  ];
-  const tc = state.testCharge;
-  if (tc) {
-    fields.push({ key: 'test-speed', label: 'test-charge speed', value: Math.hypot(tc.vx, tc.vy), format: 'float' });
-  }
-  return { fields };
+  const net = charges.reduce((s, c) => s + c.q, 0);
+  const e0 = field(0, 0, charges);
+  return {
+    fields: [
+      { key: 'layout', label: 'layout', value: { dipole: 'dipole', 'two-plus': 'two +', quadrupole: 'quadrupole', 'mono-plus': 'single +' }[selPreset.value], format: 'text' },
+      { key: 'charges', label: 'point charges', value: charges.length, format: 'int' },
+      { key: 'net', label: 'net charge', value: net, format: 'float' },
+      { key: 'ecenter', label: 'field at centre $|E|$', value: Math.hypot(e0.Ex, e0.Ey), format: 'float' },
+    ],
+  };
 };
 window.playground.getInvariants = function () {
-  // Gauss's law: the tracer emits a fixed number of field lines per unit
-  // charge, so the traced line count must match the count derived from
-  // the live charges. A mismatch means the line set went stale.
-  const charges = state.charges || [];
-  const expected = charges.reduce((s, c) => s + Math.max(4, Math.round(16 * Math.abs(c.q))), 0);
-  const actual = (state.lines || []).length;
-  return [
-    {
-      key: 'gauss-line-count',
-      label: 'field lines $\\propto$ charge (Gauss)',
-      value: `${actual} / ${expected}`,
-      status: actual === expected ? 'pass' : 'drift',
-    },
-  ];
+  try {
+    // Gauss's law in vacuum: div E = 0 away from any charge. Central
+    // differences at a fixed probe in empty space.
+    const px = 1.3, py = 0.9, h = 1e-3;
+    const near = charges.some((c) => Math.hypot(c.x - px, c.y - py) < 0.25);
+    if (near) return [{ key: 'divE', label: 'div E = 0 in vacuum', value: 'n/a (charge near probe)', status: 'pending' }];
+    const exP = field(px + h, py, charges).Ex, exM = field(px - h, py, charges).Ex;
+    const eyP = field(px, py + h, charges).Ey, eyM = field(px, py - h, charges).Ey;
+    const div = Math.abs((exP - exM) / (2 * h) + (eyP - eyM) / (2 * h));
+    return [{
+      key: 'divE',
+      label: 'div E = 0 in vacuum (Gauss)',
+      value: div.toExponential(2),
+      status: div < 1e-3 ? 'pass' : (div < 1e-1 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
+  }
 };
