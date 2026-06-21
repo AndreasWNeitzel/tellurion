@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Critical Points and the Hessian Test</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row.wide .value { font-family: var(--font-mono); text-align: left; color: var(--text-primary); }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Critical Points and the Hessian Test</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A function of two variables has a critical point wherever its gradient vanishes, $\nabla f = 0$, but that is only the first step: the point could be a peak, a valley, or a saddle. The second-derivative test settles it with the Hessian, the matrix of second partials $H = \begin{pmatrix} f_{xx} & f_{xy} \\ f_{xy} & f_{yy}\end{pmatrix}$. Its determinant and its eigenvalues do the classifying: two positive eigenvalues mean the surface curves up in every direction (a local minimum), two negative mean it curves down everywhere (a local maximum), and one of each sign is a saddle, curving up one way and down the other. When the determinant is zero the test gives up. Drag the probe across the landscape: the gradient arrow points uphill and vanishes at the critical points, the two coloured lines are the Hessian eigenvector axes, and the panel below shows the function curving up or down along each, which is the test in a picture.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A heatmap of f(x,y) with contours and its critical points classified as minima, maxima, and saddles, a draggable probe with the gradient and Hessian axes, and a plot of f along the two principal directions."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Critical points and the Hessian. Top: f(x,y) as a heatmap with contours, the critical points coloured by type (minimum blue, maximum red, saddle gold), and a draggable probe with the gradient (orange) and the Hessian eigenvector axes (blue up-curving, red down-curving). Bottom: f along the two principal axes through the probe, curving up along a positive eigenvalue and down along a negative one, the second-derivative test. Method: analytic gradients and Hessians, eigenvalue classification. Source: Stewart, Calculus, 8th ed., Sec. 14.7.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Critical points controls">
+    <div class="row wide"><button id="btn-func" type="button">Next function</button><span class="value" id="value-func">f = x^3 - 3x + y^3 - 3y</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">On the four-critical-point function, drag the probe onto each marked point: the gradient arrow vanishes and the bottom panel shows a valley (both axes up), a peak (both down), or a saddle (one up, one down).</li>
+        <li class="t-body">Watch the readout: $\det H \gt 0$ with both eigenvalues the same sign is a min or max, $\det H \lt 0$ is a saddle.</li>
+        <li class="t-body">Drag the probe away from a critical point and the gradient arrow reappears, pointing uphill across the contours.</li>
+        <li class="t-body">Switch to the monkey saddle: the determinant is zero at the origin, so the Hessian test is inconclusive (three valleys and three ridges meet there).</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
