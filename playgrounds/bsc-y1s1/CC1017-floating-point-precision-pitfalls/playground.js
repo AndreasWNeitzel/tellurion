@@ -29,27 +29,40 @@ const toggleFix = document.getElementById('toggle-fix');
 const btnPlay = document.getElementById('btn-playpause');
 const btnReset = document.getElementById('btn-reset');
 
-const GATE_M = 250;            // gate catch radius (m)
+const GATE_M = 250;            // radar range-gate half-width (m): beyond this the track is lost
+const LETHAL_M = 60;          // interceptor warhead lethal radius (m)
 const PXM = 0.14;             // pixels per metre for the offset
+const HOURS_MAX = 105;        // auto-age sweep top (just past the 99 h Dhahran point)
+const AGE_RATE = 6.0;         // hours of uptime per real second while playing
 let running = !DETERMINISTIC;
-let p = 0;                    // descent fraction
-let holdT = 0, holding = false;
+let p = 0;                    // engagement progress 0..1 (loops)
+let upH = 18;                 // continuously-aged uptime (hours)
 
-const hours = () => parseFloat(sliderHours.value);
+const hours = () => upH;
 const speed = () => parseFloat(sliderSpeed.value);
 const patched = () => toggleFix.checked;
 const disp = () => Math.abs(rangeGateErrorMeters(hours(), speed(), patched()));
-const tracked = () => disp() <= GATE_M;
+// Graded outcome (not a single binary flip): a clean kill within the warhead
+// lethal radius, a near miss while the gate still holds the track, then a lost
+// track once the drift exceeds the gate. Intercept confidence falls smoothly.
+const confidence = () => Math.exp(-((disp() / GATE_M) ** 2));
+function outcome() {
+  const d = disp();
+  if (d <= LETHAL_M) return 'kill';
+  if (d <= GATE_M) return 'nearmiss';
+  return 'lost';
+}
 
 function syncVals() {
-  valueHours.textContent = hours().toFixed(0);
+  valueHours.textContent = upH.toFixed(0);
   valueSpeed.textContent = speed().toFixed(0);
 }
-[sliderHours, sliderSpeed].forEach((s) => s.addEventListener('input', () => { syncVals(); p = 0; holding = false; render(); }));
-toggleFix.addEventListener('change', () => { p = 0; holding = false; render(); });
+sliderHours.addEventListener('input', () => { upH = parseFloat(sliderHours.value); p = 0; syncVals(); render(); });
+sliderSpeed.addEventListener('input', () => { syncVals(); p = 0; render(); });
+toggleFix.addEventListener('change', () => { p = 0; render(); });
 btnReset.addEventListener('click', () => {
   sliderHours.value = '18'; sliderSpeed.value = '1676'; toggleFix.checked = false;
-  p = 0; holding = false; running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  upH = 18; p = 0; running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
   syncVals(); render();
 });
 btnPlay.addEventListener('click', () => {
@@ -100,100 +113,128 @@ function panel(col, r, title) {
 }
 
 function drawScene(col, r) {
-  panel(col, r, 'The gate the radar opens vs where the Scud is');
+  panel(col, r, 'Where the radar aims vs where the Scud actually is');
 
   const titleH = 22, stripH = 28;
   const draw = { x: r.x + 8, y: r.y + titleH + 6, w: r.w - 16, h: r.h - titleH - 6 - stripH - 6 };
-  const isTracked = tracked();
   const d = disp();
   const dPx = d * PXM;
   const gateHalfPx = GATE_M * PXM;
+  const lethalPx = LETHAL_M * PXM;
+  const out = outcome();
 
-  // Trajectory: from upper-right toward the protected site at bottom-centre.
-  const start = { x: draw.x + draw.w * 0.74, y: draw.y + 18 };
-  const site = { x: draw.x + draw.w * 0.42, y: draw.y + draw.h - 30 };
+  // Track: from upper-right toward the protected site at bottom-centre.
+  const start = { x: draw.x + draw.w * 0.80, y: draw.y + 16 };
+  const site = { x: draw.x + draw.w * 0.40, y: draw.y + draw.h - 28 };
   const dx = site.x - start.x, dy = site.y - start.y;
-  const L = Math.hypot(dx, dy);
-  const ux = dx / L, uy = dy / L;
+  const L = Math.hypot(dx, dy); const ux = dx / L, uy = dy / L;
+  const along = (frac) => ({ x: start.x + dx * frac, y: start.y + dy * frac });
 
-  ctx.save();
-  clipTo(ctx, draw);
+  const P_INT = 0.62, P_LAUNCH = 0.30;
+  const killed = (out === 'kill') && p >= P_INT;     // Scud removed after intercept
+  const scud = along(killed ? P_INT : p);
+  const intTrue = along(P_INT);
+  // The predicted point (gate centre): the Scud's true intercept position, but
+  // shifted back along the track by the accumulated clock drift, because the
+  // radar believes the Scud is `d` metres behind where it really is.
+  const gate = { x: intTrue.x - ux * dPx, y: intTrue.y - uy * dPx };
+
+  ctx.save(); clipTo(ctx, draw);
 
   // Ground + protected site.
   ctx.strokeStyle = col.muted; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(draw.x + 4, site.y + 10); ctx.lineTo(draw.x + draw.w - 4, site.y + 10); ctx.stroke();
-  ctx.fillStyle = '#2a3340';
-  ctx.fillRect(site.x - 16, site.y - 4, 32, 14);
+  ctx.fillStyle = '#2a3340'; ctx.fillRect(site.x - 16, site.y - 4, 32, 14);
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'sans');
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   ctx.fillText('protected site', site.x, site.y + 13);
 
   // Faint full trajectory.
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.setLineDash([4, 5]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(site.x, site.y); ctx.stroke();
-  ctx.setLineDash([]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.setLineDash([4, 5]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(site.x, site.y); ctx.stroke(); ctx.setLineDash([]);
 
-  // Scud true position and the gate (offset back along the track by the drift).
-  const sx = start.x + ux * p * L, sy = start.y + uy * p * L;
-  const gx = sx - ux * dPx, gy = sy - uy * dPx;
-
-  // Gate box (catch window), green if it still holds the Scud.
-  const gcol = isTracked ? col.ok : col.gate;
-  ctx.strokeStyle = gcol; ctx.lineWidth = 1.8;
-  ctx.save(); ctx.setLineDash([5, 4]);
-  ctx.strokeRect(gx - gateHalfPx, gy - gateHalfPx, 2 * gateHalfPx, 2 * gateHalfPx);
-  ctx.restore();
-  ctx.fillStyle = isTracked ? 'rgba(103,217,140,0.10)' : 'rgba(91,192,235,0.08)';
-  ctx.fillRect(gx - gateHalfPx, gy - gateHalfPx, 2 * gateHalfPx, 2 * gateHalfPx);
+  // Range gate, centred on the predicted point. Colour grades with the outcome.
+  const gcol = out === 'lost' ? col.scud : (out === 'kill' ? col.ok : col.accent);
+  ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = gcol; ctx.lineWidth = 1.6;
+  ctx.strokeRect(gate.x - gateHalfPx, gate.y - gateHalfPx, 2 * gateHalfPx, 2 * gateHalfPx); ctx.restore();
+  ctx.fillStyle = gcol; ctx.globalAlpha = 0.06; ctx.fillRect(gate.x - gateHalfPx, gate.y - gateHalfPx, 2 * gateHalfPx, 2 * gateHalfPx); ctx.globalAlpha = 1;
   ctx.fillStyle = gcol; ctx.font = fontString(canvas, 'tick', 'mono', 600);
   ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-  ctx.fillText('range gate', gx, gy - gateHalfPx - 3);
+  ctx.fillText('range gate', gate.x, gate.y - gateHalfPx - 3);
 
-  // Offset arrow between gate centre and the Scud.
-  if (dPx > 3) {
-    ctx.strokeStyle = col.accent; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(sx, sy); ctx.stroke();
+  // Drift offset arrow from the predicted point to the true Scud.
+  if (dPx > 3 && !killed) {
+    ctx.strokeStyle = col.accent; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(gate.x, gate.y); ctx.lineTo(scud.x, scud.y); ctx.stroke();
     ctx.fillStyle = col.accent; ctx.font = fontString(canvas, 'tick', 'mono', 700);
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(`${d.toFixed(0)} m`, (gx + sx) / 2 + 6, (gy + sy) / 2 - 6);
+    ctx.fillText(`${d.toFixed(0)} m off`, (gate.x + scud.x) / 2 + 6, (gate.y + scud.y) / 2 - 6);
   }
 
-  // The Scud.
-  ctx.fillStyle = col.scud;
-  ctx.beginPath();
-  ctx.arc(sx, sy, 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1; ctx.stroke();
-
-  // Outcome marker.
-  if (holding) {
-    if (isTracked) {
-      ctx.fillStyle = col.ok; ctx.font = fontString(canvas, 'caption', 'mono', 700);
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('INTERCEPTED', gx, gy + gateHalfPx + 16);
+  // Interceptor: fires from the site toward the predicted point, but only while
+  // the gate still holds the track. Past the gate the track is lost and the
+  // launcher never fires (the actual Dhahran failure).
+  if (out !== 'lost' && p >= P_LAUNCH) {
+    const fly = Math.min(1, (p - P_LAUNCH) / (P_INT - P_LAUNCH));
+    const ix = site.x + (gate.x - site.x) * fly, iy = site.y + (gate.y - site.y) * fly;
+    if (p < P_INT) {
+      const back = Math.max(0, fly - 0.14);
+      const tx = site.x + (gate.x - site.x) * back, ty = site.y + (gate.y - site.y) * back;
+      ctx.strokeStyle = '#cfe9ff'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(ix, iy); ctx.stroke(); ctx.lineCap = 'butt';
+      ctx.fillStyle = '#eaf4ff'; ctx.beginPath(); ctx.arc(ix, iy, 3, 0, 2 * Math.PI); ctx.fill();
     } else {
-      ctx.fillStyle = col.scud;
-      ctx.beginPath(); ctx.arc(site.x, site.y, 12, 0, 2 * Math.PI); ctx.fill();
-      ctx.font = fontString(canvas, 'caption', 'mono', 700);
-      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-      ctx.fillText('IMPACT', site.x, site.y - 16);
+      const bt = (p - P_INT) / (1 - P_INT);
+      const br = lethalPx * (0.5 + 1.7 * bt);
+      ctx.strokeStyle = `rgba(255,209,102,${(0.9 * (1 - bt)).toFixed(2)})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(gate.x, gate.y, br, 0, 2 * Math.PI); ctx.stroke();
+      ctx.fillStyle = `rgba(255,209,102,${(0.18 * (1 - bt)).toFixed(2)})`;
+      ctx.beginPath(); ctx.arc(gate.x, gate.y, br, 0, 2 * Math.PI); ctx.fill();
     }
   }
+
+  // The Scud, unless intercepted.
+  if (!killed) {
+    ctx.fillStyle = col.scud; ctx.beginPath(); ctx.arc(scud.x, scud.y, 6, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  // Outcome markers.
+  if (out === 'kill' && killed) {
+    ctx.fillStyle = col.ok; ctx.font = fontString(canvas, 'caption', 'mono', 700);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('INTERCEPT', gate.x, gate.y + gateHalfPx + 16);
+  } else if (out !== 'kill' && p > 0.985) {
+    ctx.fillStyle = col.scud; ctx.beginPath(); ctx.arc(site.x, site.y, 13, 0, 2 * Math.PI); ctx.fill();
+    ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText('IMPACT', site.x, site.y - 16);
+  }
+
+  // Continuous intercept-confidence bar (top-left), so the slider's effect is a
+  // smooth slide, not a binary flip.
+  const conf = confidence();
+  const bx = draw.x + 6, by = draw.y + 18, bw = 132, bh = 8;
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(bx, by, bw, bh);
+  ctx.fillStyle = conf > 0.5 ? col.ok : (conf > 0.15 ? col.accent : col.scud);
+  ctx.fillRect(bx, by, bw * conf, bh);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText(`intercept confidence ${(conf * 100).toFixed(0)}%`, bx, by - 2);
 
   ctx.restore();
 
   // Readout strip.
   const tErr = patriotTimeError(hours(), patched());
   const ry = r.y + r.h - stripH / 2 + 1;
+  const label = out === 'kill' ? 'INTERCEPTED' : (out === 'nearmiss' ? 'NEAR MISS' : 'TRACK LOST');
+  const lcol = out === 'kill' ? col.ok : (out === 'nearmiss' ? col.accent : col.scud);
   const items = [
     [`uptime ${hours().toFixed(0)} h`, col.fg],
-    [`clock ${(tErr * 1000).toFixed(0)} ms`, col.accent],
-    [`offset ${d.toFixed(0)} m`, col.accent],
-    [isTracked ? 'TRACKING' : 'TRACK LOST', isTracked ? col.ok : col.scud],
+    [`clock +${(tErr * 1000).toFixed(0)} ms`, col.accent],
+    [`miss ${d.toFixed(0)} m`, col.accent],
+    [label, lcol],
   ];
   ctx.font = fontString(canvas, 'caption', 'mono', 700);
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
   items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry); });
 }
 
@@ -206,9 +247,12 @@ function drawDiagnostic(col, r) {
   const xOf = (h) => inner.x + (h / hMax) * inner.w;
   const yOf = (m) => inner.y + inner.h - (m / dMax) * inner.h;
 
-  // miss region shading (above the catch radius).
-  ctx.fillStyle = 'rgba(239,71,111,0.08)';
-  ctx.fillRect(inner.x, inner.y, inner.w, yOf(GATE_M) - inner.y);
+  // Outcome bands: below the lethal radius is a clean kill, lethal..gate is a
+  // near miss, above the gate the track is lost. The drift climbs through all
+  // three as uptime grows.
+  ctx.fillStyle = 'rgba(103,217,140,0.07)'; ctx.fillRect(inner.x, yOf(LETHAL_M), inner.w, inner.y + inner.h - yOf(LETHAL_M));
+  ctx.fillStyle = 'rgba(255,209,102,0.07)'; ctx.fillRect(inner.x, yOf(GATE_M), inner.w, yOf(LETHAL_M) - yOf(GATE_M));
+  ctx.fillStyle = 'rgba(239,71,111,0.10)'; ctx.fillRect(inner.x, inner.y, inner.w, yOf(GATE_M) - inner.y);
 
   // grid + ticks.
   ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
@@ -223,7 +267,11 @@ function drawDiagnostic(col, r) {
   ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = col.gate; ctx.lineWidth = 1.6;
   ctx.beginPath(); ctx.moveTo(inner.x, yOf(GATE_M)); ctx.lineTo(inner.x + inner.w, yOf(GATE_M)); ctx.stroke(); ctx.restore();
   ctx.fillStyle = col.gate; ctx.font = fontString(canvas, 'tick', 'mono', 700);
-  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('gate radius', inner.x + 4, yOf(GATE_M) - 2);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('gate radius (track lost above)', inner.x + 4, yOf(GATE_M) - 2);
+  // lethal radius line.
+  ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = col.ok; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(inner.x, yOf(LETHAL_M)); ctx.lineTo(inner.x + inner.w, yOf(LETHAL_M)); ctx.stroke(); ctx.restore();
+  ctx.fillStyle = col.ok; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('lethal radius', inner.x + 4, yOf(LETHAL_M) - 2);
 
   // displacement line (linear in uptime). Flat at 0 if patched.
   ctx.strokeStyle = col.accent; ctx.lineWidth = 2.6;
@@ -272,13 +320,16 @@ function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05);
   last = now;
   if (running) {
-    if (!holding) {
-      const stopP = tracked() ? 0.55 : 1.0;   // intercept mid-air, or reach the site
-      p += dt / 3;
-      if (p >= stopP) { p = stopP; holding = true; holdT = 0; }
-    } else {
-      holdT += dt;
-      if (holdT > 1.2) { p = 0; holding = false; }
+    p += dt / 4.0;                 // ~4 s per engagement, looping
+    if (p >= 1) p = 0;
+    // Age the system clock continuously: the whole point is watching the drift
+    // creep up across engagements until interception fails, then it wraps and
+    // replays from a fresh boot. The fix toggle freezes time at zero error.
+    if (!patched()) {
+      upH += dt * AGE_RATE;
+      if (upH > HOURS_MAX) upH = 0;
+      sliderHours.value = String(Math.round(upH));
+      syncVals();
     }
   }
   render();
@@ -286,9 +337,9 @@ function tick(now) {
 }
 
 function bootSync() {
+  upH = parseFloat(sliderHours.value);
   syncVals();
-  if (CAPTURE_NAME) { p = (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 0.55; }
-  else { p = 0.5; }
+  p = CAPTURE_NAME ? (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) : 0.72;
   relayout();
   render();
 }
@@ -315,8 +366,8 @@ window.playground.getState = function () {
     fields: [
       { key: 'uptime', label: 'uptime (h)', value: hours(), format: 'float' },
       { key: 'clock', label: 'clock error (s)', value: patriotTimeError(hours(), patched()), format: 'float' },
-      { key: 'offset', label: 'gate offset (m)', value: disp(), format: 'float' },
-      { key: 'tracked', label: 'within gate', value: tracked() ? 1 : 0, format: 'int' },
+      { key: 'offset', label: 'miss distance (m)', value: disp(), format: 'float' },
+      { key: 'conf', label: 'intercept confidence', value: confidence(), format: 'float' },
     ],
   };
 };
