@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Kepler Orbit Elements</title>
+<title>Kepler orbital elements: the six numbers that fix an orbit</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,12 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
-  .pg-controls input[type="range"] { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -38,40 +38,44 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Keplerian orbit elements</h1>
+      <h1 class="t-title playground-title">The six numbers that fix an orbit</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> the six classical orbital elements parameterize a Kepler orbit. Semi-major axis $a$ and eccentricity $e$ set the shape; inclination $i$, longitude of ascending node $\Omega$, and argument of periapsis $\omega$ orient the orbit in 3D.</p>
+      <p class="t-body">Every orbit in the solar system, every satellite, every exoplanet, is catalogued by the same six numbers. Two of them set the ellipse itself: the semi-major axis a is its size and the eccentricity e is how stretched it is. Three more orient that ellipse in space against a reference plane: the inclination i tilts the orbit out of the plane, the longitude of the ascending node Omega swings the tilt around, and the argument of periapsis omega rotates the closest point within the orbital plane. The sixth, the true anomaly nu, just says where the body is right now, and it sweeps faster near the star and slower far away, Kepler's second law. The scene renders the orbit in 3D as you turn each element, with the body moving on real Keplerian timing; the diagnostic is the distance and speed around the orbit, peaking and plunging as the body swings through periapsis.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="880" height="560" aria-label="Simulation canvas"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A Keplerian orbit rendered in 3D against a reference plane, oriented by the inclination, node and periapsis angles, with the body moving on real Keplerian timing. Below, the orbital distance and speed versus true anomaly."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">
-      <span class="figure-number">Figure 1.</span> Orbit drawn from elements; reference plane (ecliptic) shaded. Method: closed-form conic from the six elements with Kepler-equation time stepping.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Keplerian orbital elements. Top: the orbit (a, e shape; i, Omega, omega orientation) against the reference plane, with the ascending node, periapsis, and the orbiting body on real timing. Bottom: the orbital distance r and speed v versus true anomaly, peaking and plunging through periapsis (Kepler's second law). Method: perifocal-to-reference rotation; Kepler's equation for the timing.</figcaption>
 
     <section class="playground-controls">
-      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
-        <div class="row"><span class="label">a (AU)</span><input aria-label="a (AU)" type="range" id="slider-a" min="0.5" max="3" step="0.05" value="1.5"><span class="value" id="value-a">1.50</span></div>
-        <div class="row"><span class="label">e</span><input aria-label="e" type="range" id="slider-e" min="0" max="0.9" step="0.01" value="0.3"><span class="value" id="value-e">0.30</span></div>
-        <div class="row"><span class="label">i (deg)</span><input aria-label="i (deg)" type="range" id="slider-i" min="0" max="180" step="1" value="30"><span class="value" id="value-i">30</span></div>
-        <div class="row"><span class="label">&#937; (deg)</span><input aria-label="Omega (deg)" type="range" id="slider-O" min="0" max="360" step="1" value="60"><span class="value" id="value-O">60</span></div>
-        <div class="row"><span class="label">&#969; (deg)</span><input aria-label="omega (deg)" type="range" id="slider-w" min="0" max="360" step="1" value="45"><span class="value" id="value-w">45</span></div>
-        <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
-      </div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Orbit element controls">
+    <div class="row"><span class="label">eccentr. e</span><input aria-label="eccentricity" type="range" id="slider-e" min="0" max="0.9" step="0.02" value="0.5"><span class="value" id="value-e">0.50</span></div>
+    <div class="row"><span class="label">inclin. i</span><input aria-label="inclination" type="range" id="slider-i" min="0" max="90" step="1" value="35"><span class="value" id="value-i">35°</span></div>
+    <div class="row"><span class="label">node Ω</span><input aria-label="ascending node" type="range" id="slider-Om" min="0" max="360" step="2" value="40"><span class="value" id="value-Om">40°</span></div>
+    <div class="row"><span class="label">periaps. ω</span><input aria-label="argument of periapsis" type="range" id="slider-w" min="0" max="360" step="2" value="60"><span class="value" id="value-w">60°</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Raise eccentricity $e$ toward 0.9 and watch the ellipse flatten and the body speed up near perihelion.</li>
-        <li class="t-body">Set inclination $i$ to 90 degrees to view the orbit plane edge-on.</li>
-        <li class="t-body">Sweep the node $\Omega$ and the argument of periapsis $\omega$ to see the orbit swing and spin in place.</li>
+        <li class="t-body">Raise the eccentricity and watch the ellipse stretch and the body race through periapsis, slow at apoapsis.</li>
+        <li class="t-body">Turn the inclination: the whole orbital plane tilts out of the reference plane, pivoting on the line of nodes.</li>
+        <li class="t-body">Turn the node Ω to swing that tilt around; turn the periapsis ω to rotate the closest point within the plane.</li>
+        <li class="t-body">Watch the lower plot: distance and speed are mirror images, the body fastest where it is closest.</li>
       </ul>
     </section>
 

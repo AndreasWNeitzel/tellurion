@@ -10,10 +10,10 @@ curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 2
 hook: 'Six numbers fix an orbit completely: its size, its shape, and three angles that tilt and spin its plane in space. Turn each dial and watch which part of the ellipse moves.'
-one_paragraph: 'Any Keplerian orbit is pinned down by six classical elements. The semi-major axis a sets the size and the eccentricity e the shape of the ellipse; the inclination i, longitude of ascending node Omega, argument of periapsis omega, and true anomaly nu orient and place the body on it. The playground draws the 3D orbit and redraws it as you vary each element, so you see exactly what each one controls: e flattens the ellipse, i tips the plane, Omega swings the line where the plane crosses the reference plane, omega rotates periapsis within the plane, and nu walks the body around. This is the element language every ephemeris and mission plan is written in. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 2.'
-tags: [stellar, exoplanets, animation, live-readout]
+one_paragraph: 'Any Keplerian orbit is pinned down by six classical elements. The semi-major axis a sets the size and the eccentricity e the shape of the ellipse; the inclination i, longitude of ascending node Omega, argument of periapsis omega, and true anomaly nu orient and place the body on it. The scene renders the orbit in pseudo-3D against a reference plane and redraws it as you turn each element (e flattens the ellipse, i tips the plane, Omega swings the line of nodes, omega rotates periapsis in-plane), with the body moving on real Keplerian timing from Kepler''s equation. The diagnostic plots the orbital distance and speed versus true anomaly, anti-correlated, the body fastest at periapsis (Kepler''s second law). This is the element language every ephemeris and mission plan is written in. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 2.'
+tags: [stellar, exoplanets, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -95,3 +95,34 @@ The classical orbital elements and the two-body ellipse follow
 Carroll and Ostlie, *An Introduction to Modern Astrophysics*,
 Chapter 2, and Murray and Dermott, *Solar System Dynamics*,
 Chapter 2.
+
+## Controls
+
+- eccentricity e (0 to 0.9): the shape of the ellipse.
+- inclination i (0 to 90 deg): tilt of the orbital plane.
+- ascending node Omega (0 to 360 deg) and argument of periapsis omega
+  (0 to 360 deg): the in-plane and out-of-plane orientation angles.
+- Reset, Pause. The semi-major axis a is fixed; the true anomaly nu is
+  the animated time variable.
+
+## Numerical method
+
+Closed-form orbit (perifocal-to-reference rotation, elementsToPos). The
+body's true anomaly is driven by Kepler's equation each frame (mean
+anomaly M = n t, Newton solve for the eccentric anomaly E, then nu), so
+it moves at the correct varying speed. Rendering is plain Canvas2D: an
+orthographic camera draws the reference-plane grid, the depth-shaded
+orbit, the line of nodes, periapsis and ascending-node markers, the star
+at the focus, and the orbiting body; the diagnostic plots r(nu) and the
+vis-viva speed v(nu).
+
+## Invariants and acceptance thresholds
+
+| invariant | threshold | location |
+| Kepler's equation converges | residual < 1e-9 | invariants test |
+| circular orbit r = a | < 1e-12 | invariants test |
+| inclination 0 gives z = 0 | < 1e-12 | invariants test |
+| perihelion r = a(1-e) | < 1e-12 | invariants test |
+| vis-viva: timed speed matches sqrt(2/r - 1/a) | rel < 2e-2 | live readout |
+
+All confirmed in `invariants.test.mjs` (5 tests passing).
