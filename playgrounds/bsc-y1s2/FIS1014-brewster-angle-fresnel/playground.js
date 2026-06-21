@@ -12,6 +12,8 @@ import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-l
 
 import { fresnelR, fresnelAmplitudes, brewsterAngle, criticalAngle, snellRefract } from './sim.js';
 
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -99,33 +101,82 @@ function panel(col, r, title) {
 
 function selReflect(R) { return selPol.value === 's' ? R.Rs : selPol.value === 'u' ? 0.5 * (R.Rs + R.Rp) : R.Rp; }
 
-// Draw a ray from (ax,ay) to (bx,by); photons flow start -> end, so the
-// light propagates in the physical direction of travel.
-function drawRay(ax, ay, bx, by, intensity, color, label) {
-  const len = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / len, uy = (by - ay) / len;
-  const a = Math.max(0.06, intensity);
-  ctx.strokeStyle = color; ctx.globalAlpha = Math.min(1, 0.25 + 0.75 * a); ctx.lineWidth = 1 + 4 * a;
+// Thin guide line marking a ray direction, with an arrowhead and label, drawn
+// faint over the wavefront field so the geometry (the angles) stays legible.
+function drawGuide(ax, ay, bx, by, color, label) {
+  const len = Math.hypot(bx - ax, by - ay) || 1, ux = (bx - ax) / len, uy = (by - ay) / len;
+  ctx.strokeStyle = color; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2; ctx.setLineDash([6, 5]);
   ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+  ctx.setLineDash([]); ctx.globalAlpha = 0.85;
+  const ang = Math.atan2(uy, ux);
+  ctx.fillStyle = color; ctx.beginPath();
+  ctx.moveTo(bx, by);
+  ctx.lineTo(bx - 8 * Math.cos(ang - 0.4), by - 8 * Math.sin(ang - 0.4));
+  ctx.lineTo(bx - 8 * Math.cos(ang + 0.4), by - 8 * Math.sin(ang + 0.4));
+  ctx.closePath(); ctx.fill();
   ctx.globalAlpha = 1;
-  if (intensity > 0.03) {
-    const spacing = 26, n = Math.floor(len / spacing);
-    ctx.fillStyle = color;
-    for (let k = 0; k < n; k++) {
-      const t = ((phase * 60 + k * spacing) % len);
-      ctx.globalAlpha = Math.min(1, 0.3 + 0.7 * intensity);
-      ctx.beginPath(); ctx.arc(ax + ux * t, ay + uy * t, 2.4, 0, 2 * Math.PI); ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  }
   if (label) {
     ctx.fillStyle = color; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(label, bx + ux * 16, by + uy * 16);
   }
 }
 
+// --- wavefront field --------------------------------------------------------
+// The real plane-wave field: incident + reflected interference above the
+// interface, the refracted wave (shifted angle, shorter/longer wavelength)
+// below, or an evanescent skin under total internal reflection. Rendered to a
+// small offscreen ImageData and scaled up. Cached by a key so a paused or
+// captured frame is not recomputed every animation frame.
+let fieldCv = null, fieldCtx = null, fieldImg = null, fieldKey = '';
+function drawWavefronts(draw, P, iy, th, n1, n2) {
+  const cell = 5;
+  const FW = Math.max(2, Math.round(draw.w / cell)), FH = Math.max(2, Math.round(draw.h / cell));
+  if (!fieldCv) fieldCv = document.createElement('canvas');
+  if (fieldCv.width !== FW || fieldCv.height !== FH) { fieldCv.width = FW; fieldCv.height = FH; fieldCtx = fieldCv.getContext('2d'); fieldImg = fieldCtx.createImageData(FW, FH); }
+  const key = `${selInterface.value}|${selPol.value}|${thetaDeg().toFixed(1)}|${phase.toFixed(3)}|${FW}x${FH}`;
+  if (key !== fieldKey) {
+    fieldKey = key;
+    const a = fresnelAmplitudes(th, n1, n2), tt = a.theta_t;
+    const isS = selPol.value !== 'p';
+    const r = isS ? a.rs : a.rp, t = isS ? a.ts : a.tp;
+    const lambda1 = Math.min(draw.w, draw.h) * 0.13;
+    const k1 = 2 * Math.PI / lambda1, k2 = k1 * n2 / n1;
+    const sinI = Math.sin(th), cosI = Math.cos(th);
+    const sinT = tt !== null ? Math.sin(tt) : 0, cosT = tt !== null ? Math.cos(tt) : 1;
+    const kappa = tt === null ? k1 * Math.sqrt(Math.max(0, sinI * sinI - (n2 / n1) * (n2 / n1))) : 0;
+    const wt = phase, Emax = 1.9, d = fieldImg.data;
+    for (let j = 0; j < FH; j += 1) {
+      const sy = draw.y + (j + 0.5) / FH * draw.h, y = sy - iy;
+      const above = sy < iy;
+      for (let i = 0; i < FW; i += 1) {
+        const sx = draw.x + (i + 0.5) / FW * draw.w, x = sx - P.x;
+        let E;
+        if (above) {
+          E = Math.cos(k1 * (x * sinI + y * cosI) - wt) + r * Math.cos(k1 * (x * sinI - y * cosI) - wt);
+        } else if (tt !== null) {
+          E = t * Math.cos(k2 * (x * sinT + y * cosT) - wt);
+        } else {
+          E = 2 * Math.exp(-kappa * y) * Math.cos(k1 * x * sinI - wt);   // evanescent skin
+        }
+        const e = clamp(E / Emax, -1, 1);
+        const idx = (j * FW + i) * 4;
+        const b0 = above ? 10 : 14, g0 = above ? 12 : 16, bb0 = above ? 18 : 30;  // medium-2 base slightly bluer
+        let R, G, B;
+        if (e >= 0) { R = b0 + e * 225; G = g0 + e * 158; B = bb0 + e * 70; }
+        else { const m = -e; R = b0 + m * 55; G = g0 + m * 120; B = bb0 + m * 215; }
+        d[idx] = R; d[idx + 1] = G; d[idx + 2] = B; d[idx + 3] = 255;
+      }
+    }
+    fieldCtx.putImageData(fieldImg, 0, 0);
+  }
+  const sm = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(fieldCv, draw.x, draw.y, draw.w, draw.h);
+  ctx.imageSmoothingEnabled = sm;
+}
+
 function drawScene(col, r) {
   const { n1, n2 } = media();
-  panel(col, r, 'A beam splits at the interface (brightness = intensity)');
+  panel(col, r, 'Wavefronts striking the interface (reflected + refracted)');
 
   const titleH = 22, stripH = 28;
   const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
@@ -135,33 +186,36 @@ function drawScene(col, r) {
   const th = thetaRad();
   const R = fresnelR(th, n1, n2);
   const tt = R.theta_t;
-  const Rsel = selReflect(R), Tsel = tt === null ? 0 : 1 - Rsel;
+  const Rsel = selReflect(R);
   const polColor = selPol.value === 's' ? col.s : selPol.value === 'u' ? col.accent : col.p;
 
   ctx.save();
   clipTo(ctx, draw);
 
-  // media tints.
-  ctx.fillStyle = `rgba(120,160,220,${(n1 - 1) * 0.10 + 0.015})`; ctx.fillRect(draw.x, draw.y, draw.w, iy - draw.y);
-  ctx.fillStyle = `rgba(120,160,220,${(n2 - 1) * 0.10 + 0.015})`; ctx.fillRect(draw.x, iy, draw.w, draw.y + draw.h - iy);
-  ctx.strokeStyle = 'rgba(220,228,240,0.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(draw.x, iy); ctx.lineTo(draw.x + draw.w, iy); ctx.stroke();
-  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  // the live wave field: incident + reflected above, refracted (or evanescent) below.
+  drawWavefronts(draw, P, iy, th, n1, n2);
+
+  // interface line + medium labels.
+  ctx.strokeStyle = 'rgba(220,228,240,0.85)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(draw.x, iy); ctx.lineTo(draw.x + draw.w, iy); ctx.stroke();
+  ctx.fillStyle = col.fg; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
   ctx.fillText(`n₁ = ${n1.toFixed(2)}`, draw.x + 8, iy - 5);
   ctx.textBaseline = 'top'; ctx.fillText(`n₂ = ${n2.toFixed(2)}`, draw.x + 8, iy + 5);
 
   // normal (dashed vertical).
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1.2; ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1.2; ctx.setLineDash([5, 5]);
   ctx.beginPath(); ctx.moveTo(P.x, draw.y); ctx.lineTo(P.x, draw.y + draw.h); ctx.stroke(); ctx.setLineDash([]);
 
-  // rays (light flows: incident into P, reflected and refracted out of P).
+  // thin direction guides over the field: incident, reflected (faded by R), refracted.
   const Ax = P.x - Math.sin(th) * L, Ay = P.y - Math.cos(th) * L;
-  drawRay(Ax, Ay, P.x, P.y, 1, col.beam, '');                                       // incident, into P
-  drawRay(P.x, P.y, P.x + Math.sin(th) * L, P.y - Math.cos(th) * L, Rsel, polColor, 'reflected');
-  if (tt !== null) drawRay(P.x, P.y, P.x + Math.sin(tt) * L, P.y + Math.cos(tt) * L, Tsel, col.beam, 'refracted');
+  drawGuide(Ax, Ay, P.x, P.y, col.beam, '');                                            // incident, into P
   ctx.fillStyle = col.beam; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('incident', Ax + Math.sin(th) * 4, Ay - 12);
+  ctx.globalAlpha = Math.min(1, 0.3 + 0.7 * Rsel);
+  drawGuide(P.x, P.y, P.x + Math.sin(th) * L, P.y - Math.cos(th) * L, polColor, 'reflected');
+  ctx.globalAlpha = 1;
+  if (tt !== null) drawGuide(P.x, P.y, P.x + Math.sin(tt) * L, P.y + Math.cos(tt) * L, col.beam, 'refracted');
 
-  // Brewster right-angle marker.
+  // Brewster right-angle marker (reflected and refracted at 90 deg).
   const tB = brewsterAngle(n1, n2);
   if (tt !== null && Math.abs(th - tB) < 0.035) {
     const m = 16;
@@ -177,10 +231,13 @@ function drawScene(col, r) {
   // incidence-point glow.
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(P.x, P.y, 3.5, 0, 2 * Math.PI); ctx.fill();
 
-  // TIR label.
+  // TIR / Brewster annotations.
   if (tt === null) {
     ctx.fillStyle = col.accent; ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('total internal reflection', P.x, draw.y + draw.h - 24);
+    ctx.fillText('total internal reflection (evanescent skin below)', P.x, draw.y + draw.h - 24);
+  } else if (selPol.value !== 's' && Math.abs(th - tB) < 0.02) {
+    ctx.fillStyle = col.accent; ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Brewster angle: p reflection vanishes', P.x, draw.y + 18);
   }
 
   ctx.restore();
@@ -264,12 +321,17 @@ function render() {
 let last = performance.now();
 function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
-  if (running) phase += 0.18 * dt;
+  if (running) phase += 4.2 * dt;   // omega t: wavefronts travel at a readable pace
   render();
   requestAnimationFrame(tick);
 }
 
-function bootSync() { syncVals(); relayout(); render(); }
+function bootSync() {
+  if (MEDIA[params.get('interface')]) selInterface.value = params.get('interface');
+  if (['s', 'p', 'u'].includes(params.get('pol'))) selPol.value = params.get('pol');
+  if (Number.isFinite(parseFloat(params.get('angle')))) sliderAngle.value = params.get('angle');
+  syncVals(); relayout(); render();
+}
 
 window.addEventListener('load', bootSync);
 if (document.readyState !== 'loading') bootSync();

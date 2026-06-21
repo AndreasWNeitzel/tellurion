@@ -9,7 +9,7 @@ primary_citation: hecht2017
 supporting_ucs: [FIS3019]
 curriculum_year: bsc-y1s2
 hook: "Light hitting glass at one special angle reflects only one polarization; the other passes straight through. That is Brewster's angle, why polarized sunglasses kill glare and why laser windows are cut at a slant."
-one_paragraph: "When light crosses a boundary between two media the Fresnel equations give how much reflects for each polarization. The s-polarization (perpendicular to the plane of incidence) always reflects something, but the p-polarization (in the plane) has a reflectance that drops exactly to zero at the Brewster angle, theta_B = arctan(n2/n1), where the reflected and refracted rays are 90 degrees apart. The top scene fires a beam at the interface and brightens the reflected and refracted rays with their Fresnel intensity (with flowing photons); at Brewster the p-reflection vanishes and the right-angle marker appears. The bottom diagnostic plots R_s and R_p versus incidence angle, with the Brewster zero and the total-internal-reflection cliff (for the dense-to-rare case). Pick the interface, the polarization, and the angle. This is the physics of glare-killing polarized sunglasses, Brewster-window lasers and the polarization of skylight."
+one_paragraph: "When light crosses a boundary between two media the Fresnel equations give how much reflects for each polarization. The s-polarization (perpendicular to the plane of incidence) always reflects something, but the p-polarization (in the plane) has a reflectance that drops exactly to zero at the Brewster angle, theta_B = arctan(n2/n1), where the reflected and refracted directions are 90 degrees apart. The top scene renders the real plane-wave field: incident and reflected waves interfere above the interface, the refracted wave bends below with a shifted wavelength, and past the critical angle the transmitted wave becomes an evanescent skin decaying into the second medium. At Brewster the reflected p-wave switches off and the interference above disappears. The bottom diagnostic plots R_s and R_p versus incidence angle, with the Brewster zero and the total-internal-reflection cliff (for the dense-to-rare case). Pick the interface, the polarization, and the angle. This is the physics of glare-killing polarized sunglasses, Brewster-window lasers and the polarization of skylight."
 tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
 tier: hero
@@ -28,8 +28,9 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Sweep p-polarization to Brewster: the reflected wave and the interference above it vanish.
+  - Watch the refracted wavefronts bend and change wavelength in the denser medium (Snell's law).
+  - Pick glass to air past the critical angle to see the evanescent skin below the interface.
 references:
   - "Hecht, Optics."
 

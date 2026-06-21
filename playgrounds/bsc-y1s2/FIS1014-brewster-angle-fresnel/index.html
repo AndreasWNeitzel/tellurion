@@ -42,18 +42,18 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">When light hits glass or water it splits: part reflects, part bends through and keeps going. How much reflects depends on the angle and on the polarization, and the Fresnel equations give the exact split. The striking case is light polarized in the plane of incidence (p-polarized): at one special angle, Brewster's angle, its reflection drops to exactly zero. None of it bounces; it all goes through. At that angle the reflected and refracted rays come off at a perfect right angle to each other, which is the geometric reason it happens. It also means glare reflected off a road or a lake is strongly polarized, which is exactly what polarized sunglasses are built to block. The scene fires a beam at the interface and shows the reflected and refracted rays brightening and dimming as you change the angle; the diagnostic plots the reflectance for both polarizations, with the Brewster zero and, for the dense-to-rare case, the total-internal-reflection cliff.</p>
+      <p class="t-body">When light hits glass or water it splits: part reflects, part bends through and keeps going. How much reflects depends on the angle and on the polarization, and the Fresnel equations give the exact split. The striking case is light polarized in the plane of incidence (p-polarized): at one special angle, Brewster's angle, its reflection drops to exactly zero. None of it bounces; it all goes through. At that angle the reflected and refracted rays come off at a perfect right angle to each other, which is the geometric reason it happens. It also means glare reflected off a road or a lake is strongly polarized, which is exactly what polarized sunglasses are built to block. The scene shows the actual wavefronts: an incident plane wave striking the interface, the reflected wave interfering with it above the surface, and the refracted wave below, bent to a new angle with a shorter or longer wavelength set by the index ratio. At Brewster's angle the reflected wave switches off and the interference above goes away; past the critical angle the transmitted wave becomes an evanescent skin that clings to the surface and decays with depth. The diagnostic plots the reflectance for both polarizations, with the Brewster zero and, for the dense-to-rare case, the total-internal-reflection cliff.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A light beam striking a dielectric interface, splitting into a reflected and a refracted ray whose brightness tracks the Fresnel reflectance. Below, the reflectance versus incidence angle for both polarizations, with the Brewster zero."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="Animated plane wavefronts striking a dielectric interface: incident and reflected waves interfering above, the refracted wave bent below with a shifted wavelength, and an evanescent skin under total internal reflection. Below, the reflectance versus incidence angle for both polarizations, with the Brewster zero."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Fresnel reflection and Brewster's angle. Top: a beam hits the interface; the reflected and refracted rays brighten with their Fresnel intensity, and at Brewster's angle the p-polarized reflection vanishes (reflected and refracted rays at a right angle). Bottom: reflectance R versus incidence angle for s and p polarization, with the Brewster zero and the critical angle. Method: Fresnel equations with Snell's law, theta_B = atan(n2/n1).</figcaption>
+      Fresnel reflection and Brewster's angle. Top: plane wavefronts hit the interface; the incident and reflected waves interfere above, the refracted wave is bent below with a shifted wavelength, and at Brewster's angle the p-polarized reflection vanishes (reflected and refracted directions at a right angle). Bottom: reflectance R versus incidence angle for s and p polarization, with the Brewster zero and the critical angle. Method: real plane-wave field cos(k·r − ωt) per region, with Fresnel amplitudes and Snell's law, theta_B = atan(n2/n1).</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Fresnel controls">
@@ -71,10 +71,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Keep p-polarization and sweep the angle to Brewster: the reflected ray fades to nothing, all the light goes through.</li>
-        <li class="t-body">At Brewster, notice the reflected and refracted rays sit at a perfect right angle, the geometric cause of the zero.</li>
-        <li class="t-body">Switch to s-polarization: now the reflection never vanishes, which is why reflected glare is polarized.</li>
-        <li class="t-body">Pick glass to air and push past the critical angle: the refracted ray disappears and everything reflects (total internal reflection).</li>
+        <li class="t-body">Keep p-polarization and sweep the angle to Brewster: the reflected wave fades out and the interference above the surface disappears, leaving a clean travelling wave.</li>
+        <li class="t-body">Watch the refracted wavefronts below: they bend toward or away from the normal and their wavelength shrinks in the denser medium, the visual statement of Snell's law.</li>
+        <li class="t-body">Switch to s-polarization: the reflection never vanishes, so the interference fringes above the surface stay, which is why reflected glare is polarized.</li>
+        <li class="t-body">Pick glass to air and push past the critical angle: the transmitted wave stops propagating and becomes an evanescent skin that decays into the second medium.</li>
       </ul>
     </section>
 
