@@ -1,392 +1,316 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
-// playground.js
-// CR3BP in the synodic frame. Renders the two primaries, the five Lagrange
-// points, and a set of test-particle trails. Click to drop a particle at a
-// chosen location with zero rotating-frame velocity.
-
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import {
-  createCR3BP, stepCR3BP, diagnosticsCR3BP, lagrangePoints,
-  effectivePotential,
-  DEFAULT_DT, DEFAULT_MU, SQRT3_HALF, MU_ROUTH,
-} from './sim.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+// Vertical 4:5 hero for the Lagrange points of the CR3BP, Canvas2D only.
+// Top region: the rotating-frame effective potential with zero-velocity
+// contours, the two primaries, the five Lagrange points (green stable,
+// red unstable), and a draggable test body that librates or escapes.
+// Bottom region: the effective potential along the line of the masses,
+// with L1, L2, L3 at its crests.
+//
+// Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics,
+// 2nd ed.; Murray and Dermott, Solar System Dynamics, Ch. 3.
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+import { createCR3BP, stepCR3BP, diagnosticsCR3BP, lagrangePoints, effectivePotential, DEFAULT_DT, MU_ROUTH } from './sim.js';
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const sliderMu     = document.getElementById('slider-mu');
-const sliderSpeed  = document.getElementById('slider-speed');
-const valueMu      = document.getElementById('value-mu');
-const valueSpeed   = document.getElementById('value-speed');
-const btnL4        = document.getElementById('btn-L4');
-const btnL5        = document.getElementById('btn-L5');
-const btnClear     = document.getElementById('btn-clear');
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
 
-const W = canvas.width, H = canvas.height;
-const VIEW_R = 1.6;
-const CX = W / 2, CY = H / 2;
-const PX_PER_UNIT = Math.min(W, H) / (2 * VIEW_R);
-const STEPS_PER_FRAME_BASE = 80;
-const TRAIL_MAX = 4000;
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-const state = {
-  mu: DEFAULT_MU,
-  speed: 1.0,
-  particles: [],
-  lagrange: null,
-  playing: !(DETERMINISTIC || prefersReducedMotion()),
-};
+const sliderMu = document.getElementById('slider-mu');
+const selStart = document.getElementById('select-start');
+const valueMu = document.getElementById('value-mu');
+const valueStart = document.getElementById('value-start');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
 
-function cssVar(n, f) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || f; }
-const tok = {
-  fg: cssVar('--fg', '#1A1B1C'),
-  fgMuted: cssVar('--fg-muted', '#5C5E61'),
-  accent: cssVar('--accent', '#1B6CA8'),
-  accentWarm: cssVar('--accent-warm', '#C13B27'),
-};
+const VIEW = 1.7;
+let running = !DETERMINISTIC;
+let muVal = 0.0122;
+let sim = null, trail = [], LP = null, heat = null, contours = [];
 
-function toPx(x, y) {
-  return { px: CX + x * PX_PER_UNIT - 0.5 * PX_PER_UNIT, py: CY - y * PX_PER_UNIT };
+function mu() { return parseFloat(sliderMu.value); }
+function startIC() {
+  const L = LP[selStart.value];
+  return { q: [L[0] + 0.012, L[1] + (selStart.value === 'L4' ? 0.018 : 0.0)], v: [0, 0] };
+}
+function spawn() { sim = createCR3BP({ mu: mu(), ic: startIC() }); trail = []; }
+
+function syncVals() { valueMu.textContent = mu().toFixed(3); valueStart.textContent = selStart.value; }
+sliderMu.addEventListener('input', () => { muVal = mu(); syncVals(); LP = lagrangePoints(muVal); buildLandscape(); spawn(); render(); });
+selStart.addEventListener('change', () => { syncVals(); spawn(); render(); });
+btnReset.addEventListener('click', () => {
+  sliderMu.value = '0.0122'; selStart.value = 'L4'; muVal = 0.0122;
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); LP = lagrangePoints(muVal); buildLandscape(); spawn(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
+
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null, SCN = null;
+function computeSceneTransform() {
+  const r = REG.scene;
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const size = Math.min(draw.w, draw.h);
+  SCN = { draw, ox: draw.x + draw.w / 2, oy: draw.y + draw.h / 2, scale: size / (2 * VIEW) };
+}
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.85 },
+    { name: 'diagnostic', weight: 1.15 },
+  ]);
+  computeSceneTransform();
+  LP = lagrangePoints(muVal); buildLandscape();
+}
+const WX = (x) => SCN.ox + x * SCN.scale;
+const WY = (y) => SCN.oy - y * SCN.scale;
+const invX = (sx) => (sx - SCN.ox) / SCN.scale;
+const invY = (sy) => (SCN.oy - sy) / SCN.scale;
+
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    stable: '#67d98c', unstable: '#ef5466', saddle: '#ffb454', test: '#ffd166',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)',
+  };
 }
 
-// Cached effective-potential (pseudo-potential / zero-velocity) field.
-// Rebuilt only when mu changes.
-let fieldCanvas = null, fieldMu = -1;
-let fieldGrid = null, fieldFW = 0, fieldFH = 0, fieldLevels = [];
-const FSTEP = 3;                                  // downsample factor
+// clamp window from the Lagrange-point potential values.
+function uWindow() {
+  const us = ['L1', 'L2', 'L3', 'L4'].map((k) => effectivePotential(LP[k][0], LP[k][1], muVal));
+  const hi = Math.max(...us) + 0.05, lo = Math.min(...us) - 0.9;
+  return { hi, lo };
+}
+function buildLandscape() {
+  if (!SCN) return;
+  const { draw } = SCN; const { hi, lo } = uWindow();
+  const nx = 84, ny = 84;
+  const xs = [], ys = [], grid = new Float64Array(nx * ny);
+  for (let i = 0; i < nx; i++) xs.push(invX(WX(-VIEW) + (i + 0.5) / nx * 2 * VIEW * SCN.scale));
+  for (let j = 0; j < ny; j++) ys.push(invY(WY(VIEW) + (j + 0.5) / ny * 2 * VIEW * SCN.scale));
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) grid[j * nx + i] = effectivePotential(xs[i], ys[j], muVal);
 
-// sim.effectivePotential returns -Omega. Work with Omega directly:
-//   Omega(x,y) = (x^2 + y^2)/2 + (1-mu)/r1 + mu/r2.
-function omegaAt(x, y, mu) { return -effectivePotential(x, y, mu); }
+  if (!heat) heat = document.createElement('canvas');
+  heat.width = nx; heat.height = ny;
+  const hctx = heat.getContext('2d'); const img = hctx.createImageData(nx, ny);
+  for (let k = 0; k < nx * ny; k++) {
+    const t = Math.max(0, Math.min(1, (grid[k] - lo) / (hi - lo)));
+    const c = viridis(0.05 + 0.9 * t);
+    img.data[k * 4] = c.r; img.data[k * 4 + 1] = c.g; img.data[k * 4 + 2] = c.b; img.data[k * 4 + 3] = 235;
+  }
+  hctx.putImageData(img, 0, 0);
 
-function buildField() {
-  const fw = Math.ceil(W / FSTEP), fh = Math.ceil(H / FSTEP);
-  const img = new ImageData(fw, fh);
-  const vals = new Float64Array(fw * fh);
-  for (let j = 0; j < fh; j += 1) {
-    for (let i = 0; i < fw; i += 1) {
-      const px = i * FSTEP, py = j * FSTEP;
-      const x = (px - CX + 0.5 * PX_PER_UNIT) / PX_PER_UNIT;
-      const y = (CY - py) / PX_PER_UNIT;
-      const w = omegaAt(x, y, state.mu);
-      vals[j * fw + i] = Number.isFinite(w) ? w : 1e9;
+  // contour levels = the Lagrange-point potentials + a few extra.
+  const lev = new Set(['L1', 'L2', 'L3', 'L4'].map((k) => effectivePotential(LP[k][0], LP[k][1], muVal)));
+  for (let s = 1; s <= 3; s++) lev.add(lo + (hi - lo) * s / 4);
+  contours = [];
+  const at = (i, j) => grid[j * nx + i];
+  for (const L of lev) {
+    for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {
+      const a = at(i, j), b = at(i + 1, j), c = at(i + 1, j + 1), d = at(i, j + 1);
+      const pts = [];
+      const cr = (va, vb, x1, y1, x2, y2) => { if ((va > L) !== (vb > L)) { const tt = (L - va) / (vb - va); pts.push([x1 + tt * (x2 - x1), y1 + tt * (y2 - y1)]); } };
+      cr(a, b, xs[i], ys[j], xs[i + 1], ys[j]); cr(b, c, xs[i + 1], ys[j], xs[i + 1], ys[j + 1]); cr(c, d, xs[i + 1], ys[j + 1], xs[i], ys[j + 1]); cr(d, a, xs[i], ys[j + 1], xs[i], ys[j]);
+      if (pts.length >= 2) contours.push([pts[0], pts[1]]);
+      if (pts.length === 4) contours.push([pts[2], pts[3]]);
     }
   }
-  // Anchor the colormap to the physically meaningful band. Omega has its
-  // global minimum at L4/L5 and diverges (+inf) at the primaries and far
-  // out, so a raw or percentile map drowns the saddle topology in the
-  // rotational bowl. Clip to [Omega(L4) .. Omega(L1)+margin]: that is the
-  // exact range that contains the five critical points, so the curved
-  // ridge through L4/L5 and the L1/L2/L3 necks fill the colormap.
-  const Lp = state.lagrange ?? lagrangePoints(state.mu);
-  const wOf = (p) => omegaAt(p[0], p[1], state.mu);
-  const wL4 = wOf(Lp.L4);
-  const wL1 = wOf(Lp.L1), wL2 = wOf(Lp.L2), wL3 = wOf(Lp.L3);
-  const lo = wL4;
-  const hi = Math.max(wL1, wL2, wL3) + 0.08 * (Math.max(wL1, wL2, wL3) - wL4 || 1);
-  const span = (hi - lo) || 1;
-  for (let k = 0; k < vals.length; k += 1) {
-    // Bright (yellow) at the L4/L5 minimum, dark at the diverging walls.
-    const t = 1 - Math.max(0, Math.min(1, (vals[k] - lo) / span));
-    const c = viridis(t);
-    const o = k * 4;
-    img.data[o] = c.r; img.data[o + 1] = c.g; img.data[o + 2] = c.b; img.data[o + 3] = 175;
-  }
-  const off = new OffscreenCanvas(fw, fh);
-  off.getContext('2d').putImageData(img, 0, 0);
-  fieldCanvas = off; fieldMu = state.mu;
-  fieldGrid = vals; fieldFW = fw; fieldFH = fh;
-  // Zero-velocity curves at the Jacobi energies of the collinear points:
-  // these are the recognizable necks that open at L1, then L2, then L3.
-  fieldLevels = [wL3, wL2, wL1];
 }
 
-// Marching squares over the downsampled Omega grid: stroke the
-// zero-velocity (Hill-region boundary) contour at each collinear level.
-function drawZVC() {
-  if (!fieldGrid) return;
-  const fw = fieldFW, fh = fieldFH;
-  ctx.lineWidth = 1.1;
-  for (let li = 0; li < fieldLevels.length; li += 1) {
-    const lev = fieldLevels[li];
-    ctx.strokeStyle = `rgba(255,255,255,${0.22 + 0.16 * li})`;
-    ctx.beginPath();
-    for (let j = 0; j < fh - 1; j += 1) {
-      for (let i = 0; i < fw - 1; i += 1) {
-        const a = fieldGrid[j * fw + i];
-        const b = fieldGrid[j * fw + i + 1];
-        const cc = fieldGrid[(j + 1) * fw + i + 1];
-        const d = fieldGrid[(j + 1) * fw + i];
-        if (a > 1e8 || b > 1e8 || cc > 1e8 || d > 1e8) continue;
-        const x0 = i * FSTEP, y0 = j * FSTEP, x1 = (i + 1) * FSTEP, y1 = (j + 1) * FSTEP;
-        const pts = [];
-        const ip = (va, vb, xa, ya, xb, yb) => {
-          const t = (lev - va) / (vb - va);
-          pts.push([xa + t * (xb - xa), ya + t * (yb - ya)]);
-        };
-        if ((a < lev) !== (b < lev)) ip(a, b, x0, y0, x1, y0);
-        if ((b < lev) !== (cc < lev)) ip(b, cc, x1, y0, x1, y1);
-        if ((cc < lev) !== (d < lev)) ip(cc, d, x1, y1, x0, y1);
-        if ((d < lev) !== (a < lev)) ip(d, a, x0, y1, x0, y0);
-        if (pts.length === 2) {
-          ctx.moveTo(pts[0][0], pts[0][1]);
-          ctx.lineTo(pts[1][0], pts[1][1]);
-        }
-      }
-    }
-    ctx.stroke();
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
 }
 
-function rebuildLagrange() {
-  state.lagrange = lagrangePoints(state.mu);
-  fieldMu = -1;                                   // invalidate field cache
-}
+function drawScene(col, r) {
+  panel(col, r, 'Effective potential in the rotating frame');
+  const { draw } = SCN;
+  const stable = muVal < MU_ROUTH;
 
-function addParticle(q, v) {
-  state.particles.push({
-    sim: createCR3BP({ mu: state.mu, ic: { q, v } }),
-    trail: [],
-    color: '#f1d28a',
-  });
-  if (state.particles.length > 5) state.particles.shift();
-}
-
-function drawAll() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-
-  // Effective-potential field (the "field itself" requested in review):
-  // bright ridges at L4/L5, saddles at L1/L2/L3, wells at the primaries.
-  if (fieldMu !== state.mu || !fieldCanvas) buildField();
+  ctx.save();
+  clipTo(ctx, draw);
   ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(fieldCanvas, 0, 0, W, H);
-  drawZVC();
+  ctx.drawImage(heat, WX(-VIEW), WY(VIEW), 2 * VIEW * SCN.scale, 2 * VIEW * SCN.scale);
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  ctx.moveTo(0, CY); ctx.lineTo(W, CY);
-  ctx.moveTo(CX - 0.5 * PX_PER_UNIT, 0); ctx.lineTo(CX - 0.5 * PX_PER_UNIT, H);
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1; ctx.beginPath();
+  for (const s of contours) { ctx.moveTo(WX(s[0][0]), WY(s[0][1])); ctx.lineTo(WX(s[1][0]), WY(s[1][1])); }
   ctx.stroke();
 
-  for (const p of state.particles) {
-    if (p.trail.length < 2) continue;
-    ctx.strokeStyle = p.color;
-    ctx.lineWidth = 0.9;
-    ctx.globalAlpha = 0.7;
-    ctx.beginPath();
-    const f = toPx(p.trail[0].x, p.trail[0].y);
-    ctx.moveTo(f.px, f.py);
-    for (let i = 1; i < p.trail.length; i += 1) {
-      const pp = toPx(p.trail[i].x, p.trail[i].y);
-      ctx.lineTo(pp.px, pp.py);
-    }
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    const last = p.trail[p.trail.length - 1];
-    const lp = toPx(last.x, last.y);
-    ctx.fillStyle = '#ff8060';
-    ctx.beginPath();
-    ctx.arc(lp.px, lp.py, 2.5, 0, 2 * Math.PI);
-    ctx.fill();
+  // primaries.
+  const m1 = [-muVal, 0], m2 = [1 - muVal, 0];
+  ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(WX(m1[0]), WY(m1[1]), 9, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#bcc4d0'; ctx.beginPath(); ctx.arc(WX(m2[0]), WY(m2[1]), 5, 0, 2 * Math.PI); ctx.fill();
+
+  // Lagrange points.
+  for (const k of ['L1', 'L2', 'L3', 'L4', 'L5']) {
+    const p = LP[k]; const tri = (k === 'L4' || k === 'L5');
+    const c = tri ? (stable ? col.stable : col.unstable) : col.saddle;
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(WX(p[0]), WY(p[1]), 4, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = c; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(k, WX(p[0]) + 5, WY(p[1]) - 1);
   }
 
-  // primaries: heavy yellow at (-mu, 0), small blue at (1 - mu, 0)
-  const m1 = toPx(-state.mu, 0);
-  ctx.fillStyle = '#ffd96a';
-  ctx.beginPath();
-  ctx.arc(m1.px, m1.py, 8, 0, 2 * Math.PI);
-  ctx.fill();
-  const m2 = toPx(1 - state.mu, 0);
-  ctx.fillStyle = tok.accent;
-  ctx.beginPath();
-  ctx.arc(m2.px, m2.py, 4 + 12 * state.mu, 0, 2 * Math.PI);
-  ctx.fill();
+  // test body trail + dot.
+  if (trail.length > 1) { ctx.strokeStyle = 'rgba(255,209,102,0.7)'; ctx.lineWidth = 1.6; ctx.beginPath(); trail.forEach((p, k) => { if (k) ctx.lineTo(WX(p[0]), WY(p[1])); else ctx.moveTo(WX(p[0]), WY(p[1])); }); ctx.stroke(); }
+  const tx = sim.inst.q[0], ty = sim.inst.q[1];
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(WX(tx), WY(ty), 4.5, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = col.test; ctx.lineWidth = 1.6; ctx.stroke();
 
-  // Lagrange points
-  const L = state.lagrange;
-  const labels = ['L1', 'L2', 'L3', 'L4', 'L5'];
-  const pts = [L.L1, L.L2, L.L3, L.L4, L.L5];
-  ctx.font = fontString(canvas, 'tick', 'mono');
-  for (let i = 0; i < 5; i += 1) {
-    const pp = toPx(pts[i][0], pts[i][1]);
-    ctx.fillStyle = '#dcdcdc';
-    ctx.beginPath();
-    ctx.arc(pp.px, pp.py, 3, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.fillStyle = '#dcdcdc';
-    ctx.textAlign = 'left';
-    ctx.fillText(labels[i], pp.px + 5, pp.py + 3);
-  }
+  ctx.restore();
 
-  drawReadout();
-}
-
-function drawReadout() {
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  const stable = state.mu < MU_ROUTH;
-  const rows = [
-    ['mu',         state.mu.toFixed(5)],
-    ['mu_Routh',   MU_ROUTH.toFixed(5)],
-    ['L4 stable',  stable ? 'yes' : 'no'],
-    ['n particles', String(state.particles.length)],
+  // readout strip.
+  const drift = Math.abs(diagnosticsCR3BP(sim).energyDrift || 0);
+  const items = [
+    [`μ ${muVal.toFixed(3)}`, col.fg],
+    [stable ? 'L4/L5 stable' : 'L4/L5 unstable', stable ? col.stable : col.unstable],
+    [`start ${selStart.value}`, col.test],
+    [`Jacobi Δ ${drift.toExponential(0)}`, col.muted],
   ];
-  let y = 22;
-  for (const [k, v] of rows) {
-    ctx.textAlign = 'left';
-    ctx.fillText(k, 14, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(v, 230, y);
-    y += 14;
-  }
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
 }
 
-function tickN(nSteps) {
-  const trailStride = Math.max(1, Math.floor(nSteps / 200));
-  for (const p of state.particles) {
-    for (let s = 0; s < nSteps; s += 1) {
-      stepCR3BP(p.sim, DEFAULT_DT);
-      if ((s % trailStride) === 0) {
-        p.trail.push({ x: p.sim.inst.q[0], y: p.sim.inst.q[1] });
-        if (p.trail.length > TRAIL_MAX) p.trail.shift();
-      }
-    }
-  }
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Effective potential along the line of the masses');
+
+  const inner = { x: r.x + 30, y: r.y + 28, w: r.w - 30 - 16, h: r.h - 28 - 42 };
+  const X0 = -1.8, X1 = 1.8;
+  const { hi, lo } = uWindow(); const yLo = lo - 0.4, yHi = hi + 0.15;
+  const xOf = (x) => inner.x + (x - X0) / (X1 - X0) * inner.w;
+  const yOf = (u) => inner.y + inner.h - (Math.max(yLo, Math.min(yHi, u)) - yLo) / (yHi - yLo) * inner.h;
+
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const x of [-1, 0, 1]) ctx.fillText(`${x}`, xOf(x), inner.y + inner.h + 6);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+
+  // primaries (vertical dashed).
+  for (const px of [-muVal, 1 - muVal]) { ctx.strokeStyle = 'rgba(255,210,74,0.4)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(xOf(px), inner.y); ctx.lineTo(xOf(px), inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]); }
+
+  // U(x, 0).
+  ctx.strokeStyle = col.accent; ctx.lineWidth = 2.4; ctx.beginPath();
+  const N = 400; let pen = false;
+  for (let i = 0; i <= N; i++) { const x = X0 + (X1 - X0) * i / N; const u = effectivePotential(x, 0, muVal); const X = xOf(x), Y = yOf(u); if (Math.abs(x + muVal) < 0.02 || Math.abs(x - 1 + muVal) < 0.02) { pen = false; continue; } if (pen) ctx.lineTo(X, Y); else { ctx.moveTo(X, Y); pen = true; } }
+  ctx.stroke();
+
+  // L1, L2, L3 markers (crests on this cut).
+  for (const k of ['L1', 'L2', 'L3']) { const p = LP[k]; const u = effectivePotential(p[0], 0, muVal); ctx.fillStyle = col.saddle; ctx.beginPath(); ctx.arc(xOf(p[0]), yOf(u), 4, 0, 2 * Math.PI); ctx.fill(); ctx.font = fontString(canvas, 'legend', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(k, xOf(p[0]), yOf(u) - 4); }
+
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('position x along the line of masses', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 22, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('effective potential', 0, 0); ctx.restore();
 }
 
-canvas.addEventListener('click', (ev) => {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = W / rect.width;
-  const scaleY = H / rect.height;
-  const cx = (ev.clientX - rect.left) * scaleX;
-  const cy = (ev.clientY - rect.top) * scaleY;
-  const x = (cx - CX + 0.5 * PX_PER_UNIT) / PX_PER_UNIT;
-  const y = (CY - cy) / PX_PER_UNIT;
-  addParticle([x, y], [0, 0]);
-});
-
-sliderMu.addEventListener('input', () => {
-  state.mu = parseFloat(sliderMu.value);
-  valueMu.textContent = state.mu.toFixed(5);
-  rebuildLagrange();
-  // Rebuild existing particles to use the new mu while preserving position
-  for (const p of state.particles) {
-    const x = p.sim.inst.q[0], y = p.sim.inst.q[1];
-    const vx = p.sim.inst.qdot[0], vy = p.sim.inst.qdot[1];
-    p.sim = createCR3BP({ mu: state.mu, ic: { q: [x, y], v: [vx, vy] } });
-  }
-  drawAll();
-});
-sliderSpeed.addEventListener('input', () => {
-  state.speed = parseFloat(sliderSpeed.value);
-  valueSpeed.textContent = state.speed.toFixed(1);
-});
-
-btnL4.addEventListener('click', () => {
-  addParticle([0.5 - state.mu + 1e-3, SQRT3_HALF + 1e-3], [0, 0]);
-});
-btnL5.addEventListener('click', () => {
-  addParticle([0.5 - state.mu + 1e-3, -SQRT3_HALF - 1e-3], [0, 0]);
-});
-btnClear.addEventListener('click', () => {
-  state.particles = [];
-  drawAll();
-});
-const btnPlayPause = document.getElementById('btn-playpause');
-if (btnPlayPause) {
-  btnPlayPause.addEventListener('click', () => {
-    state.playing = !state.playing;
-    btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
-  });
+function render() {
+  if (!REG) relayout();
+  if (!sim) { LP = lagrangePoints(muVal); buildLandscape(); spawn(); }
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
-function bootSync() {
-  rebuildLagrange();
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    addParticle([0.5 - state.mu + 1e-3, SQRT3_HALF + 1e-3], [0, 0]);
-    addParticle([0.5 - state.mu + 1e-3, -SQRT3_HALF - 1e-3], [0, 0]);
-    const target = Math.round(frac * 40_000);
-    tickN(target);
-    drawAll();
-    if (DETERMINISTIC) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED } }));
-          window.__simulationReady = true;
-          window.__simulationReadyDetail = { capture: CAPTURE_NAME, seed: SEED };
-        });
-      });
-    }
-    return;
-  }
-  // Seed two L4/L5 particles by default so the page is interesting on first load.
-  addParticle([0.5 - state.mu + 1e-3, SQRT3_HALF + 1e-3], [0, 0]);
-  addParticle([0.5 - state.mu + 1e-3, -SQRT3_HALF - 1e-3], [0, 0]);
-  drawAll();
+function advance() {
+  for (let s = 0; s < 7; s++) stepCR3BP(sim, DEFAULT_DT);
+  const x = sim.inst.q[0], y = sim.inst.q[1];
+  trail.push([x, y]); if (trail.length > 280) trail.shift();
+  if (Math.hypot(x, y) > 3 || !Number.isFinite(x)) spawn();   // escaped: relaunch
 }
 
-function tick() {
-  if (state.playing) {
-    const stepsThisFrame = Math.max(1, Math.round(STEPS_PER_FRAME_BASE * state.speed));
-    tickN(stepsThisFrame);
-    drawAll();
-  }
+// --- drag the test body ---
+let dragging = false;
+function pScreen(ev) { const rect = canvas.getBoundingClientRect(); return { sx: ev.clientX - rect.left, sy: ev.clientY - rect.top }; }
+canvas.addEventListener('pointerdown', (ev) => {
+  if (!SCN) return; const { sx, sy } = pScreen(ev);
+  if ((WX(sim.inst.q[0]) - sx) ** 2 + (WY(sim.inst.q[1]) - sy) ** 2 < 30 * 30) { dragging = true; canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); }
+});
+canvas.addEventListener('pointermove', (ev) => {
+  if (!dragging) return; const { sx, sy } = pScreen(ev);
+  const wx = Math.max(-VIEW, Math.min(VIEW, invX(sx))), wy = Math.max(-VIEW, Math.min(VIEW, invY(sy)));
+  sim = createCR3BP({ mu: muVal, ic: { q: [wx, wy], v: [0, 0] } }); trail = [];
+  render();
+});
+const endDrag = () => { dragging = false; };
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+
+let last = performance.now();
+function tick(now) {
+  last = now;
+  if (running && !dragging) advance();
+  render();
   requestAnimationFrame(tick);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-} else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+function bootSync() {
+  muVal = mu(); syncVals(); relayout();
+  LP = lagrangePoints(muVal); buildLandscape(); spawn();
+  for (let i = 0; i < 120; i++) advance();
+  render();
 }
 
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const mu_val = parseFloat(sliderMu.value);
-  const speed_val = parseFloat(sliderSpeed.value);
-  const nParticles = state.particles.length;
   return {
     fields: [
-      { key: 'mass-ratio', label: 'μ (mass ratio)', value: mu_val, format: 'float' },
-      { key: 'speed', label: 'integration speed', value: speed_val, format: 'float' },
-      { key: 'particles', label: 'particles in view', value: nParticles, format: 'int' }
-    ]
+      { key: 'mu', label: 'mass ratio μ', value: muVal, format: 'float' },
+      { key: 'routh', label: 'Routh limit μ', value: MU_ROUTH, format: 'float' },
+      { key: 'l45', label: 'L4 / L5', value: muVal < MU_ROUTH ? 'stable' : 'unstable', format: 'text' },
+      { key: 'start', label: 'test body start', value: selStart.value, format: 'text' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
-  const mu_val = parseFloat(sliderMu.value);
-  const stable = mu_val < MU_ROUTH;
-  let jacobiOk = true;
-  for (const p of state.particles) {
-    if (p.sim && p.sim.inst && typeof p.sim.inst.energyDrift === 'number') {
-      const drift = Math.abs(p.sim.inst.energyDrift);
-      if (drift > 0.05) { jacobiOk = false; break; }
-    }
+  try {
+    // The Jacobi integral is conserved in the rotating frame (the only
+    // constant of motion of the CR3BP).
+    const drift = Math.abs(diagnosticsCR3BP(sim).energyDrift || 0);
+    return [{
+      key: 'jacobi',
+      label: 'Jacobi constant conserved (rel.)',
+      value: drift.toExponential(2),
+      status: drift < 5e-3 ? 'pass' : (drift < 5e-2 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
   }
-  return [
-    {
-      key: 'jacobi-integral',
-      label: 'Jacobi integral drift $< 5\\%$',
-      value: jacobiOk ? 'good' : 'drift detected',
-      status: jacobiOk ? 'pass' : 'drift'
-    },
-    {
-      key: 'l4-stability',
-      label: '$\\mu < \\mu_{\\mathrm{Routh}} = 0.0385$',
-      value: stable ? 'stable' : 'unstable',
-      status: stable ? 'pass' : 'pending'
-    }
-  ];
 };
