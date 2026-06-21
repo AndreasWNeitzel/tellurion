@@ -13,13 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 760px; }
-    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 11ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-    .pg-controls input[type="range"] { width: 100%; }
-    .pg-controls select { width: 100%; }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: 9ch 1fr; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -40,52 +39,49 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Cauchy-sequence convergence monitor</h1>
+      <h1 class="t-title playground-title">Cauchy sequences: convergence without a limit</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-    <strong>What you are seeing:</strong> partial sums of a chosen series with the
-    Cauchy width <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false">(</mo><msub><mi>N</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo>=</mo><msub><mrow><mi>max</mi><mo>⁡</mo></mrow><mrow><mi>n</mi><mo separator="true">,</mo><mi>m</mi><mo>≥</mo><msub><mi>N</mi><mn>0</mn></msub></mrow></msub><mi mathvariant="normal">∣</mi><msub><mi>a</mi><mi>n</mi></msub><mo>−</mo><msub><mi>a</mi><mi>m</mi></msub><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">w(N_0) = \max_{n,m \ge N_0} |a_n - a_m|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0269em;">w</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: -0.109em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.0361em; vertical-align: -0.2861em;"></span><span class="mop"><span class="mop">max</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span class="" style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">m</span><span class="mrel mtight">≥</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right: 0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3173em;"><span class="" style="top: -2.357em; margin-left: -0.109em; margin-right: 0.0714em;"><span class="pstrut" style="height: 2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.143em;"><span class=""></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span class="" style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mord">∣</span></span></span></span></span> as the
-    convergence diagnostic. A sequence is convergent iff <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false">(</mo><msub><mi>N</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">w(N_0) \to 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0269em;">w</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: -0.109em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
-    as <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">N_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8333em; vertical-align: -0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span class="" style="top: -2.55em; margin-left: -0.109em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span class=""></span></span></span></span></span></span></span></span></span></span> grows. Geometric and <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ζ</mi><mo stretchy="false">(</mo><mn>2</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\zeta(2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.0738em;">ζ</span><span class="mopen">(</span><span class="mord">2</span><span class="mclose">)</span></span></span></span></span> series shrink fast; the
-    harmonic series fails to be Cauchy and its width grows logarithmically.
-  </p>
+      <p class="t-body">How can you tell a sequence converges without knowing what it converges to? Cauchy's answer: look at how tightly the terms bunch up far out. A sequence is Cauchy if, for every tolerance $\varepsilon$, there is a point $N_0$ beyond which every pair of terms is within $\varepsilon$ of each other, $|a_n - a_m| \lt \varepsilon$. The scene plots the sequence and a sliding tail window starting at $N_0$; the shaded strip is its width, the largest gap between any two terms past $N_0$. Slide $N_0$ out and watch the strip collapse toward zero, that is the Cauchy condition, and on the real line it is the same thing as converging. The harmonic sum is the cautionary case: its terms shrink, yet the tail width never falls below about $\ln 10$, so it is not Cauchy and does not converge.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A sequence with a sliding tail window whose width is the largest gap between terms past N0; below, that tail width versus N0 against the tolerance."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Partial sums and the Cauchy tail width.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Cauchy convergence monitor. Top: the sequence on a log index axis with the tail window from N₀ and its width (the largest gap between terms beyond N₀) against the ε tolerance. Bottom: the tail width versus N₀, falling to zero for a Cauchy sequence and flattening for the harmonic. Method: tail max minus min over a multiplicative window.</figcaption>
+
 
     <section class="playground-controls">
-      <div class="controls pg-controls" id="controls">
-    <div class="row"><span class="label">sequence</span><select aria-label="sequence" id="select-seq">
-        <option value="geom">1 / 2^n (convergent)</option>
-        <option value="harm">harmonic (divergent)</option>
-        <option value="arctan" selected="">arctan series (Leibniz)</option>
-        <option value="zeta2">zeta(2) partial sums</option>
-      </select>
-      <span class="value" id="value-seq">arctan</span>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Sequence controls">
+    <div class="row wide"><span class="label">sequence</span><select aria-label="sequence" id="select-seq">
+        <option value="geom">1 / 2ⁿ (converges)</option>
+        <option value="harm">harmonic (diverges)</option>
+        <option value="arctan" selected="">Leibniz → π/4</option>
+        <option value="zeta2">Σ 1/k² → π²/6</option>
+      </select></div>
+    <div class="row"><span class="label">tail N₀</span><input aria-label="tail start N0" type="range" id="slider-n" min="1" max="200" step="1" value="10"><span class="value" id="value-n">10</span></div>
+    <div class="row"><span class="label">ε</span><input aria-label="tolerance epsilon (log10)" type="range" id="slider-eps" min="-5" max="-0.3" step="0.05" value="-1.5"><span class="value" id="value-eps">3.2e-2</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
     </div>
-    <div class="row"><span class="label">N_0</span><input aria-label="N_0" type="range" id="slider-n" min="1" max="200" step="1" value="10"><span class="value" id="value-n">10</span></div>
-    <div class="row"><span class="label">log10 epsilon</span><input aria-label="log10 epsilon" type="range" id="slider-eps" min="-5" max="-0.3" step="0.05" value="-1.5"><span class="value" id="value-eps">3.2e-2</span></div>
   </div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">a_N:</span><span class="value" id="readout-an">0</span>
-      <span class="label">w(N_0):</span><span class="value" id="readout-w">0</span>
-    </div></div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Slide the tail start N₀ outward: for a convergent sequence the width strip collapses toward zero, the terms bunch arbitrarily tightly.</li>
+        <li class="t-body">Demand a smaller ε: you need a larger N₀ before the tail fits inside it, the response to the challenge that defines Cauchy.</li>
+        <li class="t-body">Switch to the harmonic sum: the tail width never drops below about ln 10, so no N₀ ever satisfies a small ε. It is not Cauchy.</li>
+        <li class="t-body">The Leibniz and zeta sequences converge slowly; their strips shrink, just more gradually than the geometric one.</li>
       </ul>
     </section>
 
