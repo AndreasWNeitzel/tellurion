@@ -9,10 +9,10 @@ primary_citation: hecht2017
 supporting_ucs: [FIS3019]
 curriculum_year: bsc-y1s2
 hook: "Light hitting glass at one special angle reflects only one polarization; the other passes straight through. That is Brewster's angle, why polarized sunglasses kill glare and why laser windows are cut at a slant."
-one_paragraph: "When light crosses a boundary between two media the Fresnel equations give how much reflects for each polarization. The s-polarization (perpendicular to the plane of incidence) always reflects something, but the p-polarization (in the plane) has a reflectance that drops exactly to zero at the Brewster angle, theta_B = arctan(n2/n1), where the reflected and refracted rays are 90 degrees apart. The playground sweeps the incidence angle: the left panel shows the incident, reflected and refracted rays with line widths scaled to reflectance, the right panel plots R_s and R_p versus angle with the Brewster dip marked. The readout gives theta_B, the refraction angle and the live reflectances. This is the physics of glare-killing polarized sunglasses, Brewster-window lasers and the polarization of skylight."
-tags: [electromagnetism, animation, live-readout]
+one_paragraph: "When light crosses a boundary between two media the Fresnel equations give how much reflects for each polarization. The s-polarization (perpendicular to the plane of incidence) always reflects something, but the p-polarization (in the plane) has a reflectance that drops exactly to zero at the Brewster angle, theta_B = arctan(n2/n1), where the reflected and refracted rays are 90 degrees apart. The top scene fires a beam at the interface and brightens the reflected and refracted rays with their Fresnel intensity (with flowing photons); at Brewster the p-reflection vanishes and the right-angle marker appears. The bottom diagnostic plots R_s and R_p versus incidence angle, with the Brewster zero and the total-internal-reflection cliff (for the dense-to-rare case). Pick the interface, the polarization, and the angle. This is the physics of glare-killing polarized sunglasses, Brewster-window lasers and the polarization of skylight."
+tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -118,13 +118,17 @@ Critical angle (if n_1 > n_2): theta_c = arcsin(n_2 / n_1).
 
 ## Numerical method
 
-None. Closed-form evaluation.
+Closed-form Fresnel evaluation. Rendering is plain Canvas2D: the ray
+diagram (incident, reflected, refracted) with brightness and flowing
+photons scaled by the Fresnel intensity, the Brewster right-angle marker,
+and the R(theta) diagnostic with Brewster and critical-angle markers.
 
 ## Controls
 
+- interface: air to glass, air to water, glass to air, water to air
+  (the last two showing total internal reflection).
+- polarization: p (in-plane), s (out-of-plane), or unpolarized.
 - theta_i: incidence angle, 0 to 89 degrees.
-- n_2 / n_1: index ratio, 0.6 to 2.5.
-- speed: angle sweep rate.
 - Reset / Pause / Play.
 
 ## Expected qualitative features
@@ -153,10 +157,12 @@ All confirmed in `invariants.test.mjs`.
 
 ## Visual fallback
 
-Canvas2D only. Left: ray sketch with incident (cyan), reflected (s and p
-beam widths proportional to R_s and R_p), transmitted (yellow). Right:
-R_s(theta) and R_p(theta) curves with Brewster marker and current-angle
-cursor.
+Canvas2D only. Top: ray sketch with incident (yellow), reflected (its
+brightness scaled by the selected reflectance, so it vanishes at
+Brewster for p), and transmitted (yellow). Bottom: R_s(theta) and
+R_p(theta) curves with Brewster and critical-angle markers and a
+current-angle cursor. The caption names the Brewster condition so the
+figure reads without Canvas2D.
 
 ## Citations
 
