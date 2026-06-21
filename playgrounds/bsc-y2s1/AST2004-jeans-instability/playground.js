@@ -15,6 +15,7 @@ import { jeansLengthM, jeansMassKg, omegaSquared, nToRho, isothermalCs, G_SI, PC
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
@@ -28,9 +29,34 @@ const valueLam = document.getElementById('value-lam');
 const btnPlay = document.getElementById('btn-playpause');
 const btnReset = document.getElementById('btn-reset');
 
-const SEC_PER_MYR = 3.156e13, A0 = 0.12, AMAX = 0.92;
+const SEC_PER_MYR = 3.156e13;
+const BOX_PC = 8;            // the rendered region is 8 pc across
+const NSIDE = 44;            // particle grid (NSIDE^2 gas tracers)
+const DMAX_U = 3.4;          // collapse displacement cap (clumps fully formed)
 let running = !DETERMINISTIC;
 let phi = 0, hold = 0;
+
+// Gas tracer particles on a jittered grid in box-fraction coords [0,1]^2.
+// Zel'dovich-style: position = grid + D(t) * displacement toward the density
+// maxima of the chosen mode, so the cloud fragments into cores when unstable.
+let qx = null, qy = null;
+function initParticles() {
+  const N = NSIDE * NSIDE;
+  qx = new Float64Array(N); qy = new Float64Array(N);
+  let s = 0x9e3779b9 >>> 0;
+  const rnd = () => { s = (s + 0x6d2b79f5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  let i = 0;
+  for (let a = 0; a < NSIDE; a += 1) for (let b = 0; b < NSIDE; b += 1) {
+    qx[i] = (a + 0.5 + 0.6 * (rnd() - 0.5)) / NSIDE;
+    qy[i] = (b + 0.5 + 0.6 * (rnd() - 0.5)) / NSIDE;
+    i += 1;
+  }
+}
+// Growth/oscillation factor D(t): grows (collapse) for omega^2<0, oscillates
+// (sound wave) for omega^2>0. phi is the dimensionless evolved time.
+function currentD(unstable) {
+  return unstable ? Math.min(DMAX_U, 0.16 * (Math.cosh(phi) - 1)) : 0.85 * Math.sin(phi);
+}
 
 function tempK() { return parseFloat(sliderTemp.value); }
 function nCm3() { return Math.pow(10, parseFloat(sliderN.value)); }
@@ -80,15 +106,6 @@ function colors() {
   };
 }
 
-// warm "gas" colour for normalized density d in [0, 2]; brighter = denser.
-function gasColor(d) {
-  const t = Math.max(0, Math.min(1, d / 2));
-  const r = Math.round(255 * Math.min(1, t * 1.7));
-  const g = Math.round(255 * Math.max(0, (t - 0.32) * 1.5));
-  const b = Math.round(255 * Math.max(0, (t - 0.72) * 3.2));
-  return `rgb(${r},${g},${b})`;
-}
-
 function panel(col, r, title) {
   ctx.fillStyle = col.panel;
   ctx.fillRect(r.x, r.y, r.w, r.h);
@@ -104,54 +121,45 @@ function panel(col, r, title) {
   }
 }
 
-function amplitude(unstable) {
-  return unstable ? Math.min(AMAX, A0 * Math.cosh(phi)) : A0 * 3.2 * Math.cos(phi);
-}
-
 function drawScene(col, r) {
   const unstable = w2() < 0;
-  panel(col, r, unstable ? 'A density ripple running away: gravity wins' : 'A density ripple sloshing: a sound wave');
+  panel(col, r, unstable ? 'Gas cloud collapsing: gravity beats pressure' : 'Gas cloud pressure-supported: it only sloshes');
 
   const titleH = 22, stripH = 28;
   const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
-  const A = amplitude(unstable);
-  const cyc = 2.5;                       // wavelengths shown
-  const slabY = draw.y + draw.h * 0.36, slabH = draw.h * 0.54;
+  const S = Math.min(draw.w, draw.h) - 14;
+  const bx = draw.x + (draw.w - S) / 2, by = draw.y + (draw.h - S) / 2;
+  const D = currentD(unstable);
+  const nClump = Math.max(0.5, BOX_PC / lamPc());
+  const kf = 2 * Math.PI * nClump;
+  const wrap = (u) => u - Math.floor(u);
 
   ctx.save();
-  clipTo(ctx, draw);
+  clipTo(ctx, { x: bx, y: by, w: S, h: S });
+  ctx.fillStyle = '#04050a'; ctx.fillRect(bx, by, S, S);
 
-  // density bands.
-  const NB = 200;
-  for (let i = 0; i < NB; i++) {
-    const xf = i / NB, kx = xf * cyc * 2 * Math.PI;
-    const d = 1 + A * Math.cos(kx);
-    ctx.fillStyle = gasColor(d);
-    ctx.fillRect(draw.x + xf * draw.w, slabY, draw.w / NB + 1, slabH);
+  // gas tracers: grid + Zel'dovich displacement toward the mode's density
+  // maxima. Drawn additively so pile-ups glow as collapsing cores.
+  const rad = Math.max(1.6, S / 220);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.fillStyle = unstable ? 'rgba(255,168,84,0.42)' : 'rgba(110,170,255,0.36)';
+  for (let i = 0; i < qx.length; i += 1) {
+    const px = wrap(qx[i] + (D / kf) * Math.sin(kf * qx[i]));
+    const py = wrap(qy[i] + (D / kf) * Math.sin(kf * qy[i]));
+    ctx.beginPath(); ctx.arc(bx + px * S, by + py * S, rad, 0, 2 * Math.PI); ctx.fill();
   }
-  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(draw.x, slabY, draw.w, slabH);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.restore();
 
-  // density profile curve above the slab.
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath();
-  for (let i = 0; i <= NB; i++) { const xf = i / NB, kx = xf * cyc * 2 * Math.PI; const d = 1 + A * Math.cos(kx); const X = draw.x + xf * draw.w, Y = slabY - 14 - (d - 1) / Math.max(0.3, A + 0.05) * (draw.h * 0.13); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
-  ctx.stroke();
-  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-  ctx.fillText('density ρ(x)', draw.x + 6, slabY - 16 - draw.h * 0.13 - 2);
+  // box border + scale, coloured by regime.
+  ctx.strokeStyle = unstable ? col.collapse : col.stable; ctx.lineWidth = 2; ctx.strokeRect(bx, by, S, S);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+  ctx.fillText(`${BOX_PC} pc`, bx + S - 4, by + S - 4);
 
-  // clump markers when collapsing hard.
-  if (unstable && A > 0.45) {
-    for (let m = 0; m < cyc; m++) {
-      const xf = (m + 0.0) / cyc; const X = draw.x + xf * draw.w;
-      ctx.fillStyle = 'rgba(255,240,200,0.9)'; ctx.beginPath(); ctx.arc(X, slabY + slabH / 2, 3 + 7 * A, 0, 2 * Math.PI); ctx.fill();
-    }
-  }
-
-  // regime label.
+  // regime banner.
   ctx.fillStyle = unstable ? col.collapse : col.stable; ctx.font = fontString(canvas, 'heading', 'sans', 800);
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText(unstable ? 'COLLAPSING' : 'STABLE (sound wave)', draw.x + draw.w / 2, draw.y + draw.h * 0.04);
-
-  ctx.restore();
+  ctx.fillText(unstable ? 'COLLAPSE → cores form' : 'STABLE → sound wave', draw.x + draw.w / 2, draw.y + 4);
 
   // readout strip.
   const lj = lamJpc(), ratio = lamPc() / lj;
@@ -162,9 +170,10 @@ function drawScene(col, r) {
     [`λ_J ${lj.toFixed(2)}pc`, col.muted],
     [`M_J ${Mj.toFixed(0)}M⊙`, col.muted],
   ];
-  ctx.font = fontString(canvas, 'caption', 'mono', 700);
-  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
-  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - stripH / 2 + 1); });
+  ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textBaseline = 'middle';
+  let need = 0; for (const [t] of items) need += ctx.measureText(t).width + 18;
+  if (need <= r.w) { ctx.textAlign = 'center'; items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - stripH / 2 + 1); }); }
+  else { ctx.textAlign = 'center'; items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * ((i % 2) + 0.5) / 2, r.y + r.h - (i < 2 ? stripH - 6 : 8)); }); }
 }
 
 const LAM_MIN = 0.1, LAM_MAX = 30;
@@ -238,15 +247,23 @@ function tick(now) {
     const rateRef = Math.sqrt(4 * Math.PI * G_SI * rho());
     const vr = Math.min(1.4, Math.sqrt(Math.abs(ww)) / rateRef);
     if (unstable) {
-      if (amplitude(true) >= AMAX - 1e-6) { hold += 1; if (hold > 45) { phi = 0; hold = 0; } }
-      else phi += vr * 1.4 * dt;
-    } else { phi += vr * 2.2 * dt; }
+      if (currentD(true) >= DMAX_U - 1e-6) { hold += 1; if (hold > 50) { phi = 0; hold = 0; } }
+      else phi += vr * 1.5 * dt;
+    } else { phi += vr * 2.4 * dt; }
   }
   render();
   requestAnimationFrame(tick);
 }
 
-function bootSync() { syncVals(); relayout(); phi = 1.2; render(); }
+function bootSync() {
+  if (Number.isFinite(parseFloat(params.get('temp')))) sliderTemp.value = params.get('temp');
+  if (Number.isFinite(parseFloat(params.get('n')))) sliderN.value = params.get('n');
+  if (Number.isFinite(parseFloat(params.get('lam')))) sliderLam.value = params.get('lam');
+  initParticles(); syncVals(); relayout();
+  phi = CAPTURE_NAME ? (w2() < 0 ? 0.4 + (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 3.4 : (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 6.0) : 1.2;
+  render();
+  if (CAPTURE_NAME && DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } })); }));
+}
 
 window.addEventListener('load', bootSync);
 if (document.readyState !== 'loading') bootSync();

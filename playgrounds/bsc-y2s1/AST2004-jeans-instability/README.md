@@ -7,15 +7,19 @@ G rho. Long-wavelength ripples (small k) have omega^2 < 0 and grow exponentially
 the gravitational collapse that seeds star formation; short ones oscillate as
 sound waves. The crossover is the Jeans length lambda_J = sqrt(pi c_s^2 / G rho).
 
-Look for the scene: set a wavelength above the Jeans length and the density ripple
-runs away into bright clumps; set it below and the ripple just sloshes back and
-forth. The lower plot is the growth rate against wavelength, negative (oscillation)
-on the short side, rising to a free-fall plateau on the long side, and crossing
-zero exactly at the Jeans length. A colder or denser cloud shrinks the Jeans
-length, so smaller ripples collapse (for T = 10 K, n = 1e3 cm^-3 the readout shows
-lambda_J ~ 1.5 pc, M_J ~ 50 solar masses).
+The scene is a 2D patch of the gas cloud, drawn as glowing gas tracers that
+follow a Zel'dovich displacement set by the mode's growth rate. Set a wavelength
+above the Jeans length and the cloud fragments and drains into dense orange
+cores (collapse, the start of star formation); set it below and the perturbation
+just sloshes and the cloud stays diffuse and blue. A banner and the scene colour
+make the regime unmistakable. The lower plot is the growth rate against
+wavelength, negative (oscillation) on the short side, rising to a free-fall
+plateau on the long side, and crossing zero exactly at the Jeans length. A
+colder or denser cloud shrinks the Jeans length, so smaller patches collapse
+(for T = 10 K, n = 1e3 cm^-3 the readout shows lambda_J ~ 1.5 pc, M_J ~ 50 solar
+masses).
 
-Use the temperature, density, and wavelength sliders. Pause freezes the ripple
+Use the temperature, density, and wavelength sliders. Pause freezes the scene
 and Reset restores the cold-cloud collapse.
 
 ## Reference

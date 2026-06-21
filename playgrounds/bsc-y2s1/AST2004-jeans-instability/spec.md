@@ -10,7 +10,7 @@ curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 12
 hook: 'Gravity wants a gas cloud to collapse; pressure pushes back. Above the Jeans length gravity wins and the cloud runs away into a star.'
-one_paragraph: 'Small perturbations of a uniform self-gravitating gas obey the dispersion relation omega^2 = c_s^2 k^2 - 4 pi G rho. Short-wavelength modes (large k) keep omega^2 > 0 and merely oscillate as sound waves; long-wavelength modes flip omega^2 < 0 and grow exponentially, the runaway that starts star formation. The crossover is the Jeans length lambda_J = sqrt(pi c_s^2 / (G rho)). The scene animates a density ripple of the chosen wavelength: below the Jeans length it sloshes as a sound wave, above it it runs away and fragments into clumps. The diagnostic plots the growth rate against wavelength, negative (oscillation) on the short side and rising to a free-fall plateau on the long side, crossing zero exactly at the Jeans length. Temperature and density set the Jeans length and the Jeans mass (tens of solar masses for a cold dense core). Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 12.'
+one_paragraph: 'Small perturbations of a uniform self-gravitating gas obey the dispersion relation omega^2 = c_s^2 k^2 - 4 pi G rho. Short-wavelength modes (large k) keep omega^2 > 0 and merely oscillate as sound waves; long-wavelength modes flip omega^2 < 0 and grow exponentially, the runaway that starts star formation. The crossover is the Jeans length lambda_J = sqrt(pi c_s^2 / (G rho)). The scene is a 2D patch of the gas cloud drawn as glowing gas tracers: below the Jeans length the perturbation sloshes and the cloud stays diffuse (blue, stable); above it the gas fragments and drains into dense collapsing cores (orange, the start of star formation), with a banner and colour making the regime obvious. The tracers follow a Zel'dovich displacement driven by the mode growth rate. The diagnostic plots the growth rate against wavelength, negative (oscillation) on the short side and rising to a free-fall plateau on the long side, crossing zero exactly at the Jeans length. Temperature and density set the Jeans length and the Jeans mass (tens of solar masses for a cold dense core). Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 12.'
 tags: [stellar, exoplanets, animation, live-readout, interactive]
 difficulty: 3
 tier: hero
@@ -29,8 +29,9 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Long wavelength (above the Jeans length): the cloud fragments and collapses into dense cores (orange).
+  - Short wavelength (below it): the perturbation just sloshes and the cloud stays diffuse (blue).
+  - Lower T or raise the density: the Jeans length shrinks, so smaller patches now collapse.
 references:
   - "Carroll, Ostlie, An Introduction to Modern Astrophysics, Second ed., Ch. 12."
 ---
