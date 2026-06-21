@@ -80,6 +80,8 @@
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Brachistochrone controls">
     <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+    <div class="row"><span class="label">handles</span><input aria-label="number of handles" type="range" id="slider-handles" min="2" max="5" step="1" value="2"><span class="value" id="value-handles">2</span></div>
+    <div class="row"><span class="label">curve</span><select aria-label="curve type" id="select-curve"><option value="spline" selected="">smooth spline</option><option value="segments">straight segments</option><option value="catmull">Catmull-Rom</option><option value="bezier">Bezier</option></select><span class="value" id="value-curve">smooth spline</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
@@ -91,7 +93,8 @@
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
         <li class="t-body">Watch the race: the straight line is the shortest path but finishes last, because it builds speed too slowly at the start.</li>
-        <li class="t-body">Drag the two handles to shape your own ramp and try to beat the cycloid. The descent-time bars show how far behind you land.</li>
+        <li class="t-body">Drag the handles to shape your own ramp and try to beat the cycloid. The descent-time bars show how far behind you land.</li>
+        <li class="t-body">Add handles (up to five) and switch the curve type, straight segments, smooth spline, Catmull-Rom, or Bezier: more freedom to chase the cycloid, but none of them beats it.</li>
         <li class="t-body">Make your curve dive steeply at first, like the cycloid: that early speed is what wins, even though the path is longer.</li>
       </ul>
     </section>

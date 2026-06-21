@@ -12,7 +12,7 @@ import { prefersReducedMotion } from '../../../shared/js/controls/motion-prefere
 import {
   positionOnCycloid, positionOnLine,
   cycloidCurve, lineCurve, concaveCurve,
-  descentTime, userCurve,
+  descentTime, buildCurve,
   T_CYCLOID, T_LINE, X_B, Y_B, G,
 } from './sim.js';
 
@@ -26,8 +26,23 @@ const canvas       = document.getElementById('stage');
 const ctx          = canvas.getContext('2d', { alpha: false });
 const sliderSpeed  = document.getElementById('slider-speed');
 const valueSpeed   = document.getElementById('value-speed');
+const sliderHandles = document.getElementById('slider-handles');
+const valueHandles  = document.getElementById('value-handles');
+const selCurve      = document.getElementById('select-curve');
+const valueCurve    = document.getElementById('value-curve');
 const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
+
+const CURVE_LABEL = { spline: 'smooth spline', segments: 'straight segments', catmull: 'Catmull-Rom', bezier: 'Bezier' };
+// Spread n interior handles along x, dipping toward the cycloid-ish default.
+function defaultHandles(n) {
+  const pts = [];
+  for (let i = 1; i <= n; i += 1) {
+    const fx = i / (n + 1);
+    pts.push([X_B * fx, -Y_B * Math.sqrt(fx) * 0.9]);
+  }
+  return pts;
+}
 
 let view = { w: 760, h: 950, dpr: 1 };
 let REG = null;
@@ -47,6 +62,7 @@ const state = {
   playing: !(DETERMINISTIC || prefersReducedMotion()),
   // User control points (interior), world coords. Default: a gentle arc.
   userPts: [[X_B * 0.33, -Y_B * 0.30], [X_B * 0.66, -Y_B * 0.62]],
+  curveType: 'spline',
   dragIdx: -1,
 };
 
@@ -63,7 +79,7 @@ function reset() { state.tNow = 0; }
 // ds / v along the sampled polyline.
 let userTable = null;
 function rebuildUserTable() {
-  const pts = userCurve(state.userPts, 140);
+  const pts = buildCurve(state.userPts, state.curveType, 140);
   const ts = [0];
   let T = 0;
   for (let i = 1; i < pts.length; i += 1) {
@@ -275,8 +291,23 @@ canvas.addEventListener('pointermove', (e) => {
 window.addEventListener('pointerup', () => { state.dragIdx = -1; });
 
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
+if (sliderHandles) sliderHandles.addEventListener('input', () => {
+  const n = parseInt(sliderHandles.value, 10);
+  valueHandles.textContent = String(n);
+  state.userPts = defaultHandles(n);
+  rebuildUserTable(); reset(); drawAll();
+});
+if (selCurve) selCurve.addEventListener('change', () => {
+  state.curveType = selCurve.value;
+  if (valueCurve) valueCurve.textContent = CURVE_LABEL[state.curveType] || state.curveType;
+  rebuildUserTable(); reset(); drawAll();
+});
 btnReset.addEventListener('click', () => {
   state.userPts = [[X_B * 0.33, -Y_B * 0.30], [X_B * 0.66, -Y_B * 0.62]];
+  state.curveType = 'spline';
+  if (selCurve) selCurve.value = 'spline';
+  if (valueCurve) valueCurve.textContent = CURVE_LABEL.spline;
+  if (sliderHandles) { sliderHandles.value = '2'; valueHandles.textContent = '2'; }
   rebuildUserTable();
   reset(); drawAll();
 });

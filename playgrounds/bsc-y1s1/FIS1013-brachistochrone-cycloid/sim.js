@@ -250,3 +250,73 @@ export function userCurve(controlPts, N = 120) {
   }
   return pts;
 }
+
+// Anchors = release point A, the sorted interior control points, endpoint B.
+function anchorsOf(controlPts) {
+  const mid = controlPts.slice().sort((a, b) => a[0] - b[0]);
+  return [[0, 0], ...mid, [X_B, -Y_B]];
+}
+
+// Straight segments through the anchors (a piecewise-linear ramp).
+function segmentsCurve(controlPts, N) {
+  const a = anchorsOf(controlPts);
+  const perSeg = Math.max(2, Math.floor(N / (a.length - 1)));
+  const pts = [];
+  for (let s = 0; s < a.length - 1; s += 1) {
+    for (let k = 0; k < perSeg; k += 1) {
+      const t = k / perSeg;
+      pts.push([a[s][0] + (a[s + 1][0] - a[s][0]) * t, a[s][1] + (a[s + 1][1] - a[s][1]) * t]);
+    }
+  }
+  pts.push(a[a.length - 1]);
+  return pts;
+}
+
+// Catmull-Rom spline interpolating the anchors (smooth, can overshoot; the
+// depth is clamped at the release height so a dropped bead can still run it).
+function catmullCurve(controlPts, N) {
+  const a = anchorsOf(controlPts);
+  const P = [a[0], ...a, a[a.length - 1]];   // phantom endpoints
+  const perSeg = Math.max(2, Math.floor(N / (a.length - 1)));
+  const pts = [];
+  for (let s = 1; s < P.length - 2; s += 1) {
+    const p0 = P[s - 1], p1 = P[s], p2 = P[s + 1], p3 = P[s + 2];
+    for (let k = 0; k < perSeg; k += 1) {
+      const t = k / perSeg, t2 = t * t, t3 = t2 * t;
+      const x = 0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3);
+      const y = 0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3);
+      pts.push([x, Math.min(0, y)]);
+    }
+  }
+  pts.push(a[a.length - 1]);
+  return pts;
+}
+
+// Bezier curve with the anchors as control points: it interpolates A and B and
+// is pulled (not passed through) by the interior handles (convex-hull bound, so
+// it stays at or below the release height).
+function bezierCurve(controlPts, N) {
+  const P = anchorsOf(controlPts);
+  const n = P.length - 1;
+  const pts = [];
+  for (let i = 0; i <= N; i += 1) {
+    const t = i / N;
+    const xs = P.map((p) => p[0]); const ys = P.map((p) => p[1]);
+    for (let r = 1; r <= n; r += 1) {
+      for (let j = 0; j <= n - r; j += 1) {
+        xs[j] = xs[j] * (1 - t) + xs[j + 1] * t;
+        ys[j] = ys[j] * (1 - t) + ys[j + 1] * t;
+      }
+    }
+    pts.push([xs[0], Math.min(0, ys[0])]);
+  }
+  return pts;
+}
+
+// Dispatch on the connector type chosen in the UI.
+export function buildCurve(controlPts, type = 'spline', N = 140) {
+  if (type === 'segments') return segmentsCurve(controlPts, N);
+  if (type === 'catmull') return catmullCurve(controlPts, N);
+  if (type === 'bezier') return bezierCurve(controlPts, N);
+  return userCurve(controlPts, N);   // 'spline': monotone cubic (PCHIP)
+}
