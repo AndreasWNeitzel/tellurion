@@ -37,7 +37,16 @@ let running = !DETERMINISTIC;
 let s = null;
 let faces = [];          // body-frame geometry
 let hist = [];           // {t, w:[..]}
-let flips = 0, lastSign = 0;
+let flips = 0, lastSign = 0, flipTimes = [];
+
+// Full Dzhanibekov flip period (two sign reversals of the spin-axis rate),
+// measured live from the simulation; it differs per object because each shape
+// has its own principal moments.
+function flipPeriod() {
+  if (flipTimes.length < 2) return null;
+  let sum = 0; for (let i = 1; i < flipTimes.length; i += 1) sum += flipTimes[i] - flipTimes[i - 1];
+  return 2 * sum / (flipTimes.length - 1);
+}
 
 // --- object geometry: lists of boxes -> faces ---
 function boxFaces(c, h, color, sticker) {
@@ -109,7 +118,7 @@ function rebuild() {
   I = objectInertia(boxes);
   s = createRacket({ I, spin: parseFloat(sliderSpin.value), axis: parseInt(selAxis.value, 10), perturb: parseFloat(sliderPerturb.value) });
   faces = buildFaces(boxes);
-  hist = []; flips = 0; lastSign = Math.sign(s.w[parseInt(selAxis.value, 10)]) || 1;
+  hist = []; flips = 0; flipTimes = []; lastSign = Math.sign(s.w[parseInt(selAxis.value, 10)]) || 1;
 }
 function syncVals() {
   valueObject.textContent = selObject.options[selObject.selectedIndex].text;
@@ -247,21 +256,38 @@ function drawScene(col, r) {
   }
   ctx.globalAlpha = 1;
 
+  // principal-moment bars (top-right): I1, I2, I3 computed from THIS object's
+  // 3D shape, so the chart visibly changes when you switch objects. The spin
+  // axis is highlighted.
+  const bw = 16, bgap = 9, bh = 44;
+  const bx0 = draw.x + draw.w - (3 * bw + 2 * bgap) - 16, by0 = draw.y + 24;
+  const Imax = Math.max(I[0], I[1], I[2]) || 1;
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('moments', bx0 + (3 * bw + 2 * bgap) / 2, by0 - 3);
+  for (let k = 0; k < 3; k += 1) {
+    const x = bx0 + k * (bw + bgap), h = bh * I[k] / Imax;
+    ctx.fillStyle = axCols[k]; ctx.globalAlpha = (k === spinAxis) ? 1 : 0.55;
+    ctx.fillRect(x, by0 + bh - h, bw, h); ctx.globalAlpha = 1;
+    ctx.fillStyle = axCols[k]; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(I[k].toFixed(1), x + bw / 2, by0 + bh + 2);
+  }
+
   ctx.restore();
 
-  // Readout strip.
-  const d = diagnostics(s);
+  // Readout strip: the object's moments and its measured flip period, both of
+  // which change per object, plus the running flip count.
+  const fp = flipPeriod();
   const ry = r.y + r.h - stripH / 2 + 1;
   const items = [
-    [['major', 'middle', 'minor'][spinAxis], spinAxis === 1 ? col.ax1 : col.muted],
-    [`ω ${parseFloat(sliderSpin.value).toFixed(1)}`, col.fg],
-    [`flips ${flips}`, spinAxis === 1 ? col.accent : col.muted],
-    [`|L| ${Math.abs(d.LDrift).toExponential(0)}`, col.muted],
+    [selObject.options[selObject.selectedIndex].text, col.fg],
+    [`I ${I[0].toFixed(1)}:${I[1].toFixed(1)}:${I[2].toFixed(1)}`, col.muted],
+    [fp ? `flip ${fp.toFixed(1)}s` : 'flip —', spinAxis === 1 ? col.accent : col.muted],
+    [`flips ${flips}`, spinAxis === 1 ? col.ax1 : col.muted],
   ];
-  ctx.font = fontString(canvas, 'caption', 'mono', 700);
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry); });
+  ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textBaseline = 'middle';
+  let need = 0; for (const [t] of items) need += ctx.measureText(t).width + 18;
+  if (need <= r.w) { ctx.textAlign = 'center'; items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry); }); }
+  else { ctx.textAlign = 'center'; items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * ((i % 2) + 0.5) / 2, r.y + r.h - (i < 2 ? 22 : 8)); }); }
 }
 
 function drawDiagnostic(col, r) {
@@ -321,7 +347,7 @@ function recordW() {
   while (hist.length && hist[0].t < s.t - 11) hist.shift();
   const a = parseInt(selAxis.value, 10);
   const sg = Math.sign(s.w[a]);
-  if (sg !== 0 && sg !== lastSign) { flips += 1; lastSign = sg; }
+  if (sg !== 0 && sg !== lastSign) { flips += 1; lastSign = sg; flipTimes.push(s.t); if (flipTimes.length > 9) flipTimes.shift(); }
 }
 
 let last = performance.now();
@@ -373,7 +399,8 @@ window.playground.getState = function () {
   return {
     fields: [
       { key: 'axis', label: 'spin axis', value: ['major', 'middle', 'minor'][a], format: 'text' },
-      { key: 'inertia', label: 'moments $I_1:I_2:I_3$', value: `${I[0].toFixed(2)} : ${I[1].toFixed(2)} : ${I[2].toFixed(2)}`, format: 'text' },
+      { key: 'inertia', label: 'moments $I_1:I_2:I_3$ (from 3D shape)', value: `${I[0].toFixed(2)} : ${I[1].toFixed(2)} : ${I[2].toFixed(2)}`, format: 'text' },
+      { key: 'flipPeriod', label: 'flip period (s)', value: flipPeriod() ?? 0, format: 'float' },
       { key: 'flips', label: 'flips so far', value: flips, format: 'int' },
       { key: 'w', label: 'spin |ω|', value: Math.hypot(s.w[0], s.w[1], s.w[2]), format: 'float' },
       { key: 'L', label: 'angular momentum |L|', value: angularMomentumMag(s), format: 'float' },
