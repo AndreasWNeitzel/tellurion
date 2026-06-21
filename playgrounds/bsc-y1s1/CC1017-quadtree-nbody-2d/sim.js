@@ -23,7 +23,7 @@ export function rng32(seed) {
 // N equal disks of radius r placed without trying to avoid overlap (a couple of
 // frames of relaxation clears it), each with a random velocity of fixed speed.
 export function createBoxState(N, opts = {}) {
-  const { seed = 0xC0FFEE, radius = 0.012, speed = 0.16 } = opts;
+  const { seed = 0xC0FFEE, radius = 0.0072, speed = 0.16 } = opts;
   const rng = rng32(seed);
   const x = new Float64Array(2 * N);
   const v = new Float64Array(2 * N);
