@@ -10,10 +10,10 @@ curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 5
 hook: 'One quantization rule turns the smear of hydrogen light into a few clean ladders of lines: Lyman in the UV, Balmer in the visible, Paschen in the infrared.'
-one_paragraph: 'Bohr''s single rule, that the electron''s angular momentum comes in integer units of hbar, forces it onto discrete orbits with energies E_n = -13.6 eV / n^2. Every downward jump from a higher level n_h to a lower n_l emits a photon whose wavelength follows the Rydberg formula. The playground lets you pick the transition and places the emitted line on a spectrum, grouped into the named series (Lyman to n=1, Balmer to n=2, Paschen to n=3, and on), each crowding toward its series limit. It connects one postulate directly to the bright lines a prism would actually show. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 5.'
+one_paragraph: 'Bohr''s single rule, that the electron''s angular momentum comes in integer units of hbar, forces it onto discrete orbits with energies E_n = -13.6 eV / n^2. Every downward jump from a higher level n_h to a lower n_l emits a photon whose wavelength follows the Rydberg formula. The scene draws the energy ladder with an electron dropping from a chosen level and emitting a photon; the diagnostic places every transition as a coloured line on a log-wavelength spectrum, true colours in the visible band, grouped into the named series (Lyman to n=1 in the UV, Balmer to n=2 in the visible, Paschen and higher in the IR), each crowding toward its series limit. It connects one postulate directly to the bright lines a prism would show, the same fingerprint we read in starlight. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 5.'
 tags: [stellar, exoplanets, animation, live-readout]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -105,13 +105,15 @@ Series names: Lyman ($n_\ell = 1$, UV), Balmer ($n_\ell = 2$, visible), Paschen 
 
 ## Numerical method
 
-Closed-form evaluation. The left panel shows the energy ladder with all $n \le n_{max}$ levels and the filtered set of transition arrows; the right panel shows the emission lines on a logarithmic wavelength axis from 50 nm to 50000 nm, with each series colored. Series limits are shown as dashed lines.
+Closed-form evaluation. Rendering is plain Canvas2D: the top scene draws the true-energy ladder (n = 1 to 9) with an electron animating the chosen transition and an emitted photon, the big ground-state gap annotated as the Lyman jump; the bottom diagnostic places the emission lines on a logarithmic wavelength axis (90 to 2500 nm) with a visible-band rainbow strip, true colours in the visible, and the series limit as a dashed tick.
 
 ## Controls
 
-- Series selector: Lyman, Balmer, Paschen, Brackett, Pfund, or all.
-- Maximum quantum number $n_{max}$ (3 to 14): how many upper levels to include.
-- Line slider: highlight one transition in the current filter set.
+- series selector: Lyman, Balmer, Paschen, Brackett, Pfund (sets n_low
+  and which series is highlighted in the scene and spectrum).
+- upper level n_high slider: the level the animated electron drops from,
+  setting the active transition and its highlighted spectral line.
+- Reset, Pause.
 
 ## Expected qualitative features
 
