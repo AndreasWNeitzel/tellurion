@@ -9,7 +9,7 @@ supporting_ucs: []
 curriculum_year: bsc-y1s1
 primary_citation: tritton
 primary_chapter: 11
-hook: 'A light ball hangs in a tilted air jet and self-centres: tip the nozzle, cut the power, or grab the ball and watch it ride back.'
+hook: 'A light ball hangs in a tilted air jet and self-centres: tip the nozzle and the ball leans with it, weaken the blower and it drops.'
 one_paragraph: 'A table-tennis-mass ball is suspended in a turbulent free jet. Vertical balance sets the levitation height where quadratic sphere drag equals gravity; the ball is also laterally stable because a finite sphere sampling the jet sees a higher speed (lower static pressure) on the side toward the fast core, giving a net restoring force, the everyday Bernoulli/entrainment effect. The nozzle tilts, the power varies, the blower can be switched off, and the ball is draggable; release it and it rides back into the jet.'
 tags: [mechanics, fluids, animation, live-readout, interactive]
 difficulty: 3
@@ -151,7 +151,8 @@ found by bisection of the on-axis vertical drag against $mg$.
 ## Controls
 - `blower power` $U_0$ (9..30 m/s).
 - `tilt` of the nozzle (-25..25 deg).
-- Blower on/off; Reset ball. The ball is draggable.
+- `ball mass` (1..6 g).
+- Blower on/off; Reset; Pause.
 
 ## Expected qualitative features
 1. Released above the jet, the ball settles to a stable hover height.

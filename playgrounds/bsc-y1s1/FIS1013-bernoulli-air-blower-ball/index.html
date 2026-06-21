@@ -13,15 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 760px; }
-    .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; }
-    .pg-figure canvas.dragging { cursor: grabbing; }
-    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 11ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
     .pg-controls input[type="range"] { width: 100%; }
-    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-    .pg-controls .row.buttons button { font: inherit; padding: 6px 14px; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
+    .pg-controls button[aria-pressed="true"] { border-color: var(--accent); color: var(--fg); }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -42,52 +39,45 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Bernoulli air-blower ball</h1>
+      <h1 class="t-title playground-title">Ball floating in an air jet</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-    <strong>What you are seeing:</strong> a light ball held up by a
-    turbulent air jet. The ball settles where the upward quadratic drag
-    balances gravity. It also self-centres: nudge it sideways and the
-    side nearer the fast jet core gets more drag and pushes it back, the
-    everyday Bernoulli / entrainment effect. Drag the ball and let go,
-    tilt the blower, or cut the power.
-  </p>
+      <p class="t-body">The hair-dryer trick: a light ball hangs in a jet of air and refuses to fall out, even when you tilt the stream sideways. Two things hold it. Vertically, the jet's drag pushes up; the jet slows with height, so there is exactly one height where drag equals the ball's weight, and it is stable, drift up and drag weakens so the ball sinks back. Sideways, the restoring force is the everyday Bernoulli effect: if the ball wanders toward the edge, the side facing the fast core meets faster air and lower pressure, and the pressure difference pushes it back to the middle. The scene shows the jet, colored by speed, cradling the ball; the diagnostic plots the upward drag against height and marks where it balances gravity.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="520" tabindex="0" aria-label="A ball levitating in a tilted turbulent air jet."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A ball levitating in a tilted air jet colored by speed; below, the upward drag versus height crossing the weight line."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      A sphere levitated in a turbulent free jet. Method: quadratic
-      sphere drag in a Gaussian-spreading jet with centreline decay.</figcaption>
+      A ball levitated in a turbulent air jet. Top: the jet, colored by speed, holds the ball; tilting the nozzle carries the ball with it. Bottom: the upward drag on a still ball versus height, crossing the weight line at the stable levitation height. Method: quadratic drag in a Gaussian free-jet, with a Bernoulli cross-jet restoring force.</figcaption>
+
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Blower controls">
-    <div class="row"><span class="label">blower power</span><input aria-label="blower power (m/s)" type="range" id="slider-power" min="9" max="30" step="0.5" value="18"><span class="value" id="value-power">18</span></div>
+    <div class="row"><span class="label">blower</span><input aria-label="blower power (m/s)" type="range" id="slider-power" min="9" max="30" step="0.5" value="18"><span class="value" id="value-power">18</span></div>
     <div class="row"><span class="label">tilt (deg)</span><input aria-label="nozzle tilt" type="range" id="slider-tilt" min="-25" max="25" step="1" value="0"><span class="value" id="value-tilt">0</span></div>
+    <div class="row"><span class="label">ball (g)</span><input aria-label="ball mass (g)" type="range" id="slider-mass" min="1.0" max="6.0" step="0.1" value="2.7"><span class="value" id="value-mass">2.7</span></div>
     <div class="row buttons">
       <button id="btn-blower" type="button" aria-pressed="true">Blower: on</button>
-      <button id="btn-reset" type="button">Reset ball</button>
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
     </div>
   </div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
-      <span class="label">height:</span><span class="value" id="readout-h">0 cm</span>
-      <span class="label">off-axis:</span><span class="value" id="readout-x">0 cm</span>
-      <span class="label">state:</span><span class="value" id="readout-state">levitating</span>
-    </div></div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Tilt the nozzle: the ball leans with the jet instead of falling out, the Bernoulli restoring force keeping it on the axis.</li>
+        <li class="t-body">Lower the blower power: the drag curve drops, the balance height falls, and below a threshold the curve no longer reaches the weight line, so the ball drops.</li>
+        <li class="t-body">Make the ball heavier: it needs more drag, so it sits lower in the faster part of the jet, until the jet cannot hold it at all.</li>
+        <li class="t-body">Turn the blower off and watch it fall; turn it back on and the jet recaptures it.</li>
       </ul>
     </section>
 
