@@ -5,10 +5,10 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Put sidespin on the ball and it does not just fall short, it swerves out of the plane entirely.'
-one_paragraph: 'A whole volley of balls is launched almost together (a few degrees of azimuthal fan) under gravity, quadratic drag and the spin-dependent Magnus force, integrated with RK4. Each ball carries a different sidespin, swept continuously from strong one way, through zero, to strong the other way (a colour gradient). Because the Magnus force is perpendicular to both velocity and spin, each ball curves out of the launch plane by a different amount, so the volley splays into a three-dimensional ribbon over the ground with per-ball shadows. That lateral spread is intrinsically 3D and cannot be read off a flat plot. The camera is a fixed perspective (constant scale, no auto-zoom); azimuth and height sliders rotate it.'
-tags: [mechanics, animation, live-readout]
+one_paragraph: 'A ball is launched under gravity, quadratic drag and the spin-dependent Magnus force, integrated with RK4, and flown along its real trajectory over a ground grid in orthographic pseudo-3D. A faint reference path (the same launch with no spin) shows where it would otherwise land, so the bend you see is the spin alone, and ground-shadow tracks make the lateral curve unambiguous. Because the Magnus force is perpendicular to both velocity and spin, sidespin curves the ball out of the launch plane, backspin lifts it and lengthens the range, and topspin presses it down and shortens it. The diagnostic sweeps the spin rate and plots the range and the lateral deflection at landing, with the live operating point.'
+tags: [mechanics, animation, live-readout, 3d]
 difficulty: 2
-tier: medium
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -40,10 +40,11 @@ references:
 ### What you are looking at
 
 The clean parabola of school physics is a vacuum fiction. The
-playground fires three identical balls at once, in vacuum, with air
-drag, and with drag plus spin, over a 3D ground grid, so you see
-exactly how much air and spin bend a real trajectory and why a
-sideways-spinning ball curves out of its launch plane.
+playground flies one ball along its real trajectory, with air drag and
+spin, over a 3D ground grid, alongside a faint reference path showing
+where the same ball would land with no spin. The gap between the two,
+made plain by the ground-shadow tracks, is the Magnus bend: drag sets
+how far it reaches, spin sets how it curves.
 
 ### The three forces
 
@@ -73,18 +74,18 @@ $$m\frac{d\mathbf v}{dt}
 This is the physics of every curved free kick, slider, and topspin
 lob: drag sets the reach, the Magnus force sets the curve, and the
 spin-axis orientation chooses which way (lift, dip, or sideways
-bend). The 3D view makes the out-of-plane Magnus deflection obvious,
-which a 2D plot hides. The playground sweeps speed, angle, drag and
-spin and shows all three balls diverge from the vacuum parabola.
+bend). The 3D view plus the ground-shadow track makes the out-of-plane
+Magnus deflection obvious, which a flat plot hides. The diagnostic then
+sweeps the spin rate so the dependence is quantitative, not just visual.
 
 ### Things to try
 
-- Compare the vacuum vs drag balls: the drag one falls short with an
-  asymmetric, steeper descent.
-- Add sidespin and watch the third ball curve out of the launch
-  plane (the 3D Magnus deflection).
-- Flip the spin axis to backspin/topspin and watch the ball float or
-  dip instead of curving sideways.
+- Keep sidespin and raise the spin rate: the path peels off the
+  straight reference and the shadow track curves across the grid.
+- Switch to backspin and topspin: the ball lifts past the reference or
+  drops short of it, range instead of lateral bend.
+- Set spin to none: the path collapses onto the reference, just gravity
+  and drag, no Magnus push.
 
 ### Where this comes from
 
@@ -94,11 +95,12 @@ and 6, and Adair, *The Physics of Baseball*.
 
 ## Physical setup
 
-A unit-mass ball is launched from the origin. Three copies fly
-simultaneously over an oblique-projected ground grid: vacuum (grey
-dashed), quadratic drag (amber) and drag plus Magnus (cyan). A
-spinning ball with a spin-axis arrow rides the Magnus path; landing
-markers show where each lands.
+A unit-mass ball is launched from the origin and flies over an
+oblique-projected ground grid. Its real trajectory (drag plus the
+chosen spin) is drawn bright; a faint dashed reference shows the same
+launch with no spin. Ground-shadow tracks (both paths projected onto
+z = 0) and landing markers make the lateral deflection legible. A short
+spin-axis glyph rides the ball.
 
 ## Governing equations
 
@@ -115,19 +117,19 @@ RK4 on `(p, v)` with `dt = 0.002`, terminating at the ground crossing
 
 ## Controls
 
-- launch speed, elevation sliders; max |spin| (the gradient extent);
-  number of balls in the volley.
-- camera azimuth and height sliders (fixed perspective, no auto-zoom);
-  Reset, Pause.
+- spin axis: sidespin / backspin / topspin / none.
+- spin rate (0 to 80 rad/s).
+- launch speed (15 to 45 m/s) and angle (10 to 70 deg).
+- Reset, Pause.
 
 ## Expected qualitative features
 
-- The volley leaves almost together then fans into a 3D ribbon: balls
-  with opposite spin curve to opposite sides, the zero-spin ball stays
-  in the launch plane.
-- The lateral spread grows with |spin| and is visibly out-of-plane
-  (the case for showing this in 3D, not a 2D plot).
-- Rotating the camera does not rescale the scene (constant scale).
+- Sidespin curves the path off the straight no-spin reference; the
+  shadow track sweeps sideways across the grid.
+- Backspin lengthens the range (lift) and topspin shortens it
+  (down-force); neither produces lateral bend.
+- The diagnostic shows the lateral deflection growing with spin rate
+  for sidespin, and the range moving up or down for back/topspin.
 
 ## Invariants and acceptance thresholds
 
