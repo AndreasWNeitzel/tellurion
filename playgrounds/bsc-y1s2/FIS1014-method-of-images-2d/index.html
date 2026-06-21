@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Method of Images</title>
+<title>Method of images: how a metal plane mirrors a charge</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -12,7 +12,13 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 760px; position: relative; } #readout { pointer-events: none; } .pg-figure canvas { width: 100%; height: auto; background: #060608; cursor: grab; } .pg-figure canvas.dragging { cursor: grabbing; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }</style>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -32,39 +38,42 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Method of images: charge above a grounded plane</h1>
+      <h1 class="t-title playground-title">How a metal plane mirrors a charge</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> a real point charge <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi></mrow><annotation encoding="application/x-tex">q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">q</span></span></span></span></span> at height <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span></span> above a grounded conducting plane induces a surface charge on the conductor. The field above the plane is identical to that of the real charge plus an image charge <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">-q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.1944em;"></span><span class="mord">−</span><span class="mord mathnormal" style="margin-right: 0.0359em;">q</span></span></span></span></span> at depth <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span></span> below the plane. Drag the real charge; the image charge follows by mirror reflection.</p>
+      <p class="t-body">Hold a charge above a grounded sheet of metal and something has to give: a conductor cannot have any field along its surface, so the charges inside it rearrange until the field meets the metal at a perfect right angle everywhere. Working out that rearrangement looks hard, until you notice a trick. The field above the plane is exactly the field you would get by throwing away the metal and putting an equal and opposite charge at the mirror position below. That fictitious image charge reproduces the real induced surface charge perfectly, and it pulls the real charge toward the plane with a genuine, measurable force. The scene shows the charge above the conductor, its field lines bending in to strike the surface head-on, and the negative charge it induces pooling underneath; flip on the image and watch the conductor vanish into a clean dipole. The diagnostic plots the induced surface charge along the plane, a sharp bell whose total is exactly minus the real charge.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A point charge above a grounded conducting plane, its field lines striking the surface perpendicular, the induced surface charge pooling beneath it, and an optional image charge below the plane. Below, the induced surface charge density along the plane."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Equipotentials and induced surface charge for a point charge near a grounded plane.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Method of images for a charge above a grounded plane. Top: the real charge, its field lines meeting the conductor perpendicular, the induced surface charge beneath it, and (optionally) the image charge that reproduces the same field above the plane. Bottom: the induced surface charge density sigma(x) along the plane, a bell whose integral is minus the real charge. Method: V = q/r1 - q/r2 with the image at the mirror point; sigma = -q b / (2 pi (x^2 + b^2)^{3/2}).</figcaption>
 
     <section class="playground-controls">
-      <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">configuration</span><select aria-label="configuration" id="select-cfg" style="grid-column: span 2;"><option value="plane">charge + grounded plane</option><option value="sphere">charge + grounded sphere</option><option value="wedge">charge in 90 deg wedge</option><option value="slab">charge between two planes</option></select></div>
-<div class="row"><span class="label">q (real charge)</span><input aria-label="q (real charge)" type="range" id="slider-q" min="-2" max="2" step="0.1" value="1"><span class="value" id="value-q">1.0</span></div>
-<div class="row"><span class="label">show image</span><input aria-label="show image" type="checkbox" id="toggle-img" checked="" style="grid-column: span 2; justify-self: start;"></div>
-<div class="row"><span class="label">show field</span><input aria-label="show field" type="checkbox" id="toggle-field" checked="" style="grid-column: span 2; justify-self: start;"></div>
-<div class="row"><span class="label">show equipot.</span><input aria-label="show equipot." type="checkbox" id="toggle-equi" checked="" style="grid-column: span 2; justify-self: start;"></div>
-<div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
-</div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">total induced:</span><span class="value" id="readout-q">-1.00</span></div></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Method of images controls">
+    <div class="row"><span class="label">view</span><select aria-label="view mode" id="select-view"><option value="conductor" selected="">conductor</option><option value="image">reveal image</option></select><span class="value" id="value-view">conductor</span></div>
+    <div class="row"><span class="label">charge</span><select aria-label="charge sign" id="select-sign"><option value="pos" selected="">+ charge</option><option value="neg">- charge</option></select><span class="value" id="value-sign">+</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Drag the charge around above the plane: the field lines always meet the metal at a right angle, never at a slant.</li>
+        <li class="t-body">Lower the charge toward the surface: the induced charge sharpens into a tighter, taller spike, and the attraction grows.</li>
+        <li class="t-body">Switch to reveal image: the conductor disappears and a clean dipole appears, identical above the plane.</li>
+        <li class="t-body">Read the lower plot: however you move the charge, the induced charge always integrates to exactly minus the real charge.</li>
       </ul>
     </section>
 

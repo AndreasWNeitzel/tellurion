@@ -1,295 +1,349 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
-// playground.js
-// Method of images, a zoo of the canonical constructions: a charge
-// near a grounded plane, a grounded sphere, a 90 deg conducting wedge,
-// and between two grounded planes. The real charge is draggable; its
-// image set is recomputed from its position, and the field lines of
-// the images are drawn too (on the conductor side, where the image is
-// the mathematical fiction that enforces V = 0). sim.js (plane
-// potential/field/inducedSigma used by the invariant suite) is
-// unchanged.
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+// Vertical 4:5 hero for the method of images, Canvas2D only. Top region:
+// a point charge above a grounded conducting plane, its field lines
+// bending in to strike the surface perpendicular, the induced surface
+// charge pooling beneath it, and an optional image charge that
+// reproduces the same field above the plane. Bottom region: the induced
+// surface charge density along the plane, a bell whose integral is minus
+// the real charge.
+//
+// Reference: Griffiths, Introduction to Electrodynamics, 4th ed., Sec. 3.2.
+
+import { inducedSigma, totalInducedCharge } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
-const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const readQ = document.getElementById('readout-q');
-const selCfg = document.getElementById('select-cfg');
-const sq = document.getElementById('slider-q'), vq = document.getElementById('value-q');
-const tImg = document.getElementById('toggle-img'), tF = document.getElementById('toggle-field'), tE = document.getElementById('toggle-equi');
-const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
-const W = canvas.width, H = canvas.height;
-const SPHERE_R = 1.6, SLAB_H = 4.0;
-// default real-charge position per configuration
-const DEFAULTS = { plane: [0, 2.2], sphere: [3.4, 0], wedge: [2.0, 2.4], slab: [0, 1.4] };
-const st = { cfg: 'plane', q: 1, rx: 0, ry: 2.2, showImg: true, showField: true, showEqui: true };
-const VIEW = 6;                                   // world half-extent
-const SC = Math.min(W, H) / (2 * VIEW);
-const CXp = W / 2, CYp = H / 2;
-const toPx = (x, y) => ({ px: CXp + x * SC, py: CYp - y * SC });
-const toWorld = (px, py) => ({ x: (px - CXp) / SC, y: -(py - CYp) / SC });
+const selView = document.getElementById('select-view');
+const selSign = document.getElementById('select-sign');
+const valueView = document.getElementById('value-view');
+const valueSign = document.getElementById('value-sign');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
 
-// Keep the real charge in the physical region for the configuration.
-function clampReal(cfg, x, y) {
-  if (cfg === 'plane') return [Math.max(-VIEW + 0.3, Math.min(VIEW - 0.3, x)), Math.max(0.35, Math.min(VIEW - 0.3, y))];
-  if (cfg === 'sphere') {
-    let r = Math.hypot(x, y); if (r < 1e-6) { x = SPHERE_R + 0.6; y = 0; r = x; }
-    if (r < SPHERE_R + 0.3) { const s = (SPHERE_R + 0.3) / r; x *= s; y *= s; }
-    return [Math.max(-VIEW + 0.3, Math.min(VIEW - 0.3, x)), Math.max(-VIEW + 0.3, Math.min(VIEW - 0.3, y))];
-  }
-  if (cfg === 'wedge') return [Math.max(0.3, Math.min(VIEW - 0.3, x)), Math.max(0.3, Math.min(VIEW - 0.3, y))];
-  // slab: between y = 0 and y = SLAB_H
-  return [Math.max(-VIEW + 0.3, Math.min(VIEW - 0.3, x)), Math.max(0.3, Math.min(SLAB_H - 0.3, y))];
+const W = 2.6, PLANE_FRAC = 0.72;
+let running = !DETERMINISTIC;
+let chg = { a: 0.0, b: 1.4 };       // real charge position (b > 0 above plane)
+let q = 1;                          // sign
+let lines = [];
+let phase = 0;
+
+function syncVals() {
+  valueView.textContent = selView.value === 'image' ? 'image' : 'conductor';
+  valueSign.textContent = selSign.value === 'neg' ? '−' : '+';
+  q = selSign.value === 'neg' ? -1 : 1;
 }
+selView.addEventListener('change', () => { syncVals(); retrace(); render(); });
+selSign.addEventListener('change', () => { syncVals(); retrace(); render(); });
+btnReset.addEventListener('click', () => {
+  selView.value = 'conductor'; selSign.value = 'pos'; chg = { a: 0.0, b: 1.4 };
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); retrace(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
 
-// Real charge + image set, recomputed from the dragged position.
-function build(cfg, q, rx, ry) {
-  if (cfg === 'sphere') {
-    const R = SPHERE_R, d = Math.hypot(rx, ry) || 1e-6;
-    const qp = -q * R / d, k = (R * R) / (d * d);
-    const xp = k * rx, yp = k * ry;
-    return {
-      charges: [{ x: rx, y: ry, q }, { x: xp, y: yp, q: qp }],
-      real: { x: rx, y: ry }, images: [{ x: xp, y: yp, q: qp }],
-      inside: (x, y) => Math.hypot(x, y) < R,
-      drawCond: () => {
-        const c = toPx(0, 0);
-        ctx.fillStyle = 'rgba(150,156,168,0.35)';
-        ctx.beginPath(); ctx.arc(c.px, c.py, R * SC, 0, 2 * Math.PI); ctx.fill();
-        ctx.strokeStyle = '#9aa6b8'; ctx.lineWidth = 2; ctx.stroke();
-      },
-      induced: `q' = -qR/d = ${qp.toFixed(3)}`,
-    };
-  }
-  if (cfg === 'wedge') {
-    return {
-      charges: [
-        { x: rx, y: ry, q }, { x: rx, y: -ry, q: -q },
-        { x: -rx, y: ry, q: -q }, { x: -rx, y: -ry, q },
-      ],
-      real: { x: rx, y: ry },
-      images: [{ x: rx, y: -ry, q: -q }, { x: -rx, y: ry, q: -q }, { x: -rx, y: -ry, q }],
-      inside: (x, y) => x < 0 || y < 0,
-      drawCond: () => {
-        ctx.fillStyle = 'rgba(150,156,168,0.30)';
-        const o = toPx(0, 0);
-        ctx.fillRect(0, o.py, W, H - o.py);
-        ctx.fillRect(0, 0, o.px, H);
-        ctx.strokeStyle = '#9aa6b8'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(o.px, 0); ctx.lineTo(o.px, o.py); ctx.lineTo(W, o.py); ctx.stroke();
-      },
-      induced: '3 images, alternating sign',
-    };
-  }
-  if (cfg === 'slab') {
-    const Hsep = SLAB_H, ch = [], img = [];
-    ch.push({ x: rx, y: ry, q });
-    for (let n = -3; n <= 3; n += 1) {
-      if (n !== 0) { const yy = 2 * n * Hsep + ry; ch.push({ x: rx, y: yy, q }); img.push({ x: rx, y: yy, q }); }
-      const yi = 2 * n * Hsep - ry;
-      ch.push({ x: rx, y: yi, q: -q }); img.push({ x: rx, y: yi, q: -q });
-    }
-    return {
-      charges: ch, real: { x: rx, y: ry }, images: img,
-      inside: (x, y) => y < 0 || y > Hsep,
-      drawCond: () => {
-        const a0 = toPx(0, 0), a1 = toPx(0, Hsep);
-        ctx.fillStyle = 'rgba(150,156,168,0.30)';
-        ctx.fillRect(0, a0.py, W, H - a0.py);
-        ctx.fillRect(0, 0, W, a1.py);
-        ctx.strokeStyle = '#9aa6b8'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(0, a0.py); ctx.lineTo(W, a0.py);
-        ctx.moveTo(0, a1.py); ctx.lineTo(W, a1.py); ctx.stroke();
-      },
-      induced: 'infinite image series (truncated +/-3)',
-    };
-  }
-  // plane (default): grounded plane at y = 0, image mirrored in y
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null, SCN = null;
+function computeSceneTransform() {
+  const r = REG.scene;
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const scale = draw.w / (2 * W);
+  SCN = { draw, ox: draw.x + draw.w / 2, planeY: draw.y + draw.h * PLANE_FRAC, scale };
+}
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 2.0 },
+    { name: 'diagnostic', weight: 1.0 },
+  ]);
+  computeSceneTransform();
+  retrace();
+}
+const WX = (x) => SCN.ox + x * SCN.scale;
+const WY = (y) => SCN.planeY - y * SCN.scale;
+const invX = (sx) => (sx - SCN.ox) / SCN.scale;
+const invY = (sy) => (SCN.planeY - sy) / SCN.scale;
+
+function colors() {
+  const css = getComputedStyle(document.body);
   return {
-    charges: [{ x: rx, y: ry, q }, { x: rx, y: -ry, q: -q }],
-    real: { x: rx, y: ry }, images: [{ x: rx, y: -ry, q: -q }],
-    inside: (x, y) => y < 0,
-    drawCond: () => {
-      const o = toPx(0, 0);
-      ctx.fillStyle = 'rgba(150,156,168,0.30)'; ctx.fillRect(0, o.py, W, H - o.py);
-      ctx.strokeStyle = '#9aa6b8'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(0, o.py); ctx.lineTo(W, o.py); ctx.stroke();
-    },
-    induced: 'total induced = -q',
-    plane: ry,
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    pos: '#ef5466', neg: '#5b8def', line: 'rgba(232,237,247,0.8)',
+    metal: '#3a4150', sigma: '#5b8def',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)',
   };
 }
 
-function fieldAt(model, x, y) {
-  let ex = 0, ey = 0;
-  for (const c of model.charges) {
-    const dx = x - c.x, dy = y - c.y;
-    const r = Math.hypot(dx, dy) + 1e-6, r3 = r * r * r;
-    ex += c.q * dx / r3; ey += c.q * dy / r3;
+// Full field of the real charge q at (a,b) and image -q at (a,-b).
+function dipField(x, y) {
+  const a = chg.a, b = chg.b;
+  const dx1 = x - a, dy1 = y - b, r1 = Math.hypot(dx1, dy1) + 1e-6, r13 = r1 * r1 * r1;
+  const dx2 = x - a, dy2 = y + b, r2 = Math.hypot(dx2, dy2) + 1e-6, r23 = r2 * r2 * r2;
+  return { ex: q * dx1 / r13 - q * dx2 / r23, ey: q * dy1 / r13 - q * dy2 / r23 };
+}
+function retrace() {
+  const NL = 24, ds = 0.04, maxSteps = 600;
+  const conductor = selView.value !== 'image';
+  lines = [];
+  for (let i = 0; i < NL; i++) {
+    const th = 2 * Math.PI * (i + 0.5) / NL;
+    let x = chg.a + 0.12 * Math.cos(th), y = chg.b + 0.12 * Math.sin(th);
+    const pts = [[x, y]];
+    for (let s = 0; s < maxSteps; s++) {
+      const f = dipField(x, y); const m = Math.hypot(f.ex, f.ey); if (m < 1e-7) break;
+      x += q * f.ex / m * ds; y += q * f.ey / m * ds;
+      if (conductor && y <= 0.0) { // clip to the plane crossing
+        const yp = pts[pts.length - 1][1]; const t = yp / (yp - y);
+        pts.push([pts[pts.length - 1][0] + t * (x - pts[pts.length - 1][0]), 0]); break;
+      }
+      pts.push([x, y]);
+      // terminate near the image (opposite-sign sink) in reveal mode.
+      if (!conductor && Math.hypot(x - chg.a, y + chg.b) < 0.06) break;
+      if (Math.abs(x) > W * 1.4 || Math.abs(y) > 3.6) break;
+    }
+    lines.push(pts);
   }
-  return { ex, ey };
 }
 
-// Trace 2N streamlines seeded around a charge. `physical` lines stop
-// at the conductor; image lines are allowed onto the conductor side
-// (that is the whole point of the fiction) and drawn dimmer.
-function streamFrom(model, cx, cy, qval, color, lw, stopAtCond) {
-  // Gauss's law: the number of field lines is proportional to the
-  // enclosed charge, so a 2q charge gets twice the lines as q.
-  const N = Math.max(6, Math.min(40, Math.round(11 * Math.abs(qval))));
-  const sgn = qval >= 0 ? 1 : -1;
-  for (let k = 0; k < N; k += 1) {
-    const a0 = (k + 0.5) / N * 2 * Math.PI;
-    let x = cx + 0.12 * Math.cos(a0), y = cy + 0.12 * Math.sin(a0);
-    const pts = [toPx(x, y)];
-    for (let s = 0; s < 460; s += 1) {
-      const f = fieldAt(model, x, y);
-      const m = Math.hypot(f.ex, f.ey); if (m < 1e-6) break;
-      x += 0.05 * sgn * f.ex / m; y += 0.05 * sgn * f.ey / m;
-      pts.push(toPx(x, y));
-      if (Math.abs(x) > VIEW + 1 || Math.abs(y) > VIEW + 1) break;
-      if (stopAtCond && model.inside(x, y)) break;
-      let hit = false;
-      for (const c of model.charges) if (c.q * qval < 0 && Math.hypot(x - c.x, y - c.y) < 0.12) hit = true;
-      if (hit) break;
-    }
-    ctx.strokeStyle = color; ctx.lineWidth = lw;
-    ctx.beginPath(); ctx.moveTo(pts[0].px, pts[0].py);
-    for (let i = 1; i < pts.length; i += 1) ctx.lineTo(pts[i].px, pts[i].py);
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
+  }
+}
+
+function drawDisc(col, x, y, sgn, ghost) {
+  const X = WX(x), Y = WY(y);
+  ctx.globalAlpha = ghost ? 0.5 : 1;
+  ctx.beginPath(); ctx.arc(X, Y, 12, 0, 2 * Math.PI);
+  ctx.fillStyle = sgn > 0 ? col.pos : col.neg; ctx.fill();
+  ctx.strokeStyle = ghost ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2;
+  if (ghost) ctx.setLineDash([4, 3]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#fff'; ctx.font = fontString(canvas, 'heading', 'sans', 800);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(sgn > 0 ? '+' : '−', X, Y + 1);
+  ctx.globalAlpha = 1;
+}
+
+function drawScene(col, r) {
+  const conductor = selView.value !== 'image';
+  panel(col, r, conductor ? 'A charge above a grounded conductor' : 'The image: conductor replaced by a mirror charge');
+  const { draw } = SCN;
+
+  ctx.save();
+  clipTo(ctx, draw);
+
+  // conductor body (below the plane) in conductor mode.
+  if (conductor) {
+    ctx.fillStyle = col.metal; ctx.fillRect(draw.x, SCN.planeY, draw.w, draw.y + draw.h - SCN.planeY);
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+    for (let hx = draw.x - draw.h; hx < draw.x + draw.w; hx += 12) { ctx.beginPath(); ctx.moveTo(hx, draw.y + draw.h); ctx.lineTo(hx + (draw.y + draw.h - SCN.planeY), SCN.planeY); ctx.stroke(); }
+  }
+  // the plane line / mirror.
+  ctx.strokeStyle = conductor ? 'rgba(220,228,240,0.9)' : 'rgba(150,160,175,0.5)';
+  ctx.lineWidth = conductor ? 3 : 1.5; if (!conductor) ctx.setLineDash([6, 5]);
+  ctx.beginPath(); ctx.moveTo(draw.x, SCN.planeY); ctx.lineTo(draw.x + draw.w, SCN.planeY); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText(conductor ? 'grounded plane  V = 0' : 'mirror plane', draw.x + 6, SCN.planeY - 4);
+
+  // field lines.
+  ctx.strokeStyle = col.line; ctx.lineWidth = 1.4;
+  for (const pts of lines) {
+    ctx.beginPath();
+    pts.forEach((p, i) => { const X = WX(p[0]), Y = WY(p[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
     ctx.stroke();
-    // Arrowheads point along the true field E (out of +, into -), not
-    // along the integration direction, so the sign of q visibly
-    // reverses every arrow when the charge flips sign.
-    ctx.fillStyle = color;
-    for (let i = 16; i < pts.length - 1; i += 24) {
-      const w = toWorld(pts[i].px, pts[i].py);
-      const fe = fieldAt(model, w.x, w.y);
-      const an = Math.atan2(-fe.ey, fe.ex);
-      const a = pts[i];
-      ctx.beginPath();
-      ctx.moveTo(a.px + 5 * Math.cos(an), a.py + 5 * Math.sin(an));
-      ctx.lineTo(a.px - 5 * Math.cos(an - 0.45), a.py - 5 * Math.sin(an - 0.45));
-      ctx.lineTo(a.px - 5 * Math.cos(an + 0.45), a.py - 5 * Math.sin(an + 0.45));
+  }
+  // marching arrowheads.
+  ctx.fillStyle = '#fff'; const spacing = 0.85;
+  for (const pts of lines) {
+    const len = (pts.length - 1) * 0.04;
+    for (let sdist = (phase % spacing); sdist < len - 0.05; sdist += spacing) {
+      const idx = Math.max(1, Math.min(pts.length - 1, Math.round(sdist / 0.04)));
+      const x = pts[idx][0], y = pts[idx][1], px = pts[idx - 1][0], py = pts[idx - 1][1];
+      const ang = Math.atan2(WY(y) - WY(py), WX(x) - WX(px)); const X = WX(x), Y = WY(y), h = 5;
+      ctx.beginPath(); ctx.moveTo(X + h * Math.cos(ang), Y + h * Math.sin(ang));
+      ctx.lineTo(X + h * Math.cos(ang + 2.5), Y + h * Math.sin(ang + 2.5));
+      ctx.lineTo(X + h * Math.cos(ang - 2.5), Y + h * Math.sin(ang - 2.5));
       ctx.closePath(); ctx.fill();
     }
   }
+
+  // induced surface charge sigma(x) drawn on the plane.
+  const sigPeak = Math.abs(inducedSigma(0, q, chg.b)) || 1e-6;
+  const kSig = 0.5 / sigPeak;
+  ctx.fillStyle = q > 0 ? 'rgba(91,141,239,0.55)' : 'rgba(239,84,102,0.55)';
+  ctx.beginPath(); ctx.moveTo(WX(-W), SCN.planeY);
+  for (let i = 0; i <= 120; i++) { const x = -W + 2 * W * i / 120; const sig = inducedSigma(x - chg.a, q, chg.b); ctx.lineTo(WX(x), WY(sig * kSig)); }
+  ctx.lineTo(WX(W), SCN.planeY); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(q > 0 ? 'induced − charge' : 'induced + charge', WX(chg.a), SCN.planeY + 6);
+
+  // image charge (reveal mode).
+  if (!conductor) drawDisc(col, chg.a, -chg.b, -q, true);
+
+  // attraction (image force) on the real charge, toward the plane.
+  const Fmag = 1 / (4 * chg.b * chg.b);
+  const L = Math.min(0.7, 0.2 + 0.5 * Math.tanh(Fmag));
+  const tX = WX(chg.a), tY = WY(chg.b), eY = WY(chg.b - L);
+  ctx.strokeStyle = col.accent; ctx.fillStyle = col.accent; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(tX, tY); ctx.lineTo(tX, eY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(tX, eY); ctx.lineTo(tX - 5, eY - 8); ctx.lineTo(tX + 5, eY - 8); ctx.closePath(); ctx.fill();
+
+  // real charge.
+  drawDisc(col, chg.a, chg.b, q, false);
+
+  ctx.restore();
+
+  // readout strip.
+  const items = [
+    [conductor ? 'conductor' : 'image', col.fg],
+    [`height ${chg.b.toFixed(2)}`, col.accent],
+    [`pull ${Fmag.toFixed(2)}`, col.accent],
+    [`induced ${q > 0 ? '−' : '+'}q`, col.sigma],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
 }
 
-function streamlines(model) {
-  // image field lines first (dim cyan), on the conductor side
-  if (st.showImg) for (const im of model.images) {
-    streamFrom(model, im.x, im.y, im.q, 'rgba(91,192,235,0.32)', 0.9, false);
-  }
-  // the real charge's physical lines (gold), terminating on the V=0 wall
-  streamFrom(model, model.real.x, model.real.y, st.q, 'rgba(255,209,102,0.6)', 1.2, true);
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Induced surface charge σ(x) along the plane');
+
+  const inner = { x: r.x + 48, y: r.y + 28, w: r.w - 48 - 16, h: r.h - 28 - 42 };
+  const N = 220;
+  const sig = [];
+  let mx = 1e-9;
+  for (let i = 0; i <= N; i++) { const x = -W + 2 * W * i / N; const s = inducedSigma(x - chg.a, q, chg.b); sig.push([x, s]); mx = Math.max(mx, Math.abs(s)); }
+  const cy = inner.y + inner.h / 2;
+  const xOf = (x) => inner.x + (x + W) / (2 * W) * inner.w;
+  const yOf = (s) => cy - (s / mx) * (inner.h / 2) * 0.88;
+
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(inner.x, cy); ctx.lineTo(inner.x + inner.w, cy); ctx.stroke();
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const x of [-2, -1, 0, 1, 2]) ctx.fillText(String(x), xOf(x), inner.y + inner.h + 6);
+
+  // filled curve.
+  ctx.fillStyle = q > 0 ? 'rgba(91,141,239,0.30)' : 'rgba(239,84,102,0.30)';
+  ctx.beginPath(); ctx.moveTo(xOf(-W), cy);
+  for (const [x, s] of sig) ctx.lineTo(xOf(x), yOf(s));
+  ctx.lineTo(xOf(W), cy); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = q > 0 ? col.sigma : col.pos; ctx.lineWidth = 2.4; ctx.beginPath();
+  sig.forEach(([x, s], i) => { const X = xOf(x), Y = yOf(s); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+  ctx.stroke();
+
+  // marker under the charge.
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(xOf(chg.a), inner.y); ctx.lineTo(xOf(chg.a), inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]);
+
+  // labels + total.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('position along the plane  x', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 34, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('charge density σ', 0, 0); ctx.restore();
+  const tot = totalInducedCharge(q, chg.b);
+  ctx.fillStyle = col.fg; ctx.font = fontString(canvas, 'legend', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`total induced charge = ${tot.toFixed(2)}  =  ${q > 0 ? '−' : '+'}q`, inner.x + 6, inner.y + 6);
 }
 
-function drawCharge(c, real) {
-  const p = toPx(c.x, c.y);
-  ctx.fillStyle = c.q >= 0 ? '#ef476f' : '#5bc0eb';
-  ctx.globalAlpha = real ? 1 : 0.4;
-  ctx.beginPath(); ctx.arc(p.px, p.py, real ? 9 : 7, 0, 2 * Math.PI); ctx.fill();
-  ctx.globalAlpha = 1;
-  ctx.strokeStyle = real ? '#fff' : 'rgba(255,255,255,0.5)';
-  ctx.lineWidth = real ? 2 : 1; ctx.setLineDash(real ? [] : [3, 3]);
-  ctx.beginPath(); ctx.arc(p.px, p.py, real ? 9 : 7, 0, 2 * Math.PI); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText(c.q >= 0 ? `+${Math.abs(c.q).toFixed(1)}` : `-${Math.abs(c.q).toFixed(1)}`, p.px, p.py - (real ? 14 : 11));
-}
-
-let dragging = false;
 function render() {
-  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
-  const model = build(st.cfg, st.q, st.rx, st.ry);
-  model.drawCond();
-  if (st.showField) streamlines(model);
-  for (const im of model.images) if (st.showImg) drawCharge(im, false);
-  drawCharge({ x: model.real.x, y: model.real.y, q: st.q }, true);
-  // grab handle hint
-  const rp = toPx(model.real.x, model.real.y);
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
-  ctx.beginPath(); ctx.arc(rp.px, rp.py, 16, 0, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText(`config = ${st.cfg}   q = ${st.q.toFixed(1)}   images = ${model.images.length}   (drag the bright charge)`, 14, 22);
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText(`conductor is V = 0; gold lines end normal to it, cyan lines are the images' field. ${model.induced}`, 14, 40);
-  const indVal = st.cfg === 'plane' ? -st.q
-    : st.cfg === 'sphere' ? -st.q * SPHERE_R / (Math.hypot(st.rx, st.ry) || 1) : NaN;
-  readQ.textContent = Number.isFinite(indVal) ? indVal.toFixed(2) : model.images.length + ' images';
+  if (!REG) relayout();
+  if (!lines.length) retrace();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
-// drag the real charge
-function evWorld(e) {
-  const r = canvas.getBoundingClientRect();
-  return toWorld((e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height);
-}
-canvas.addEventListener('pointerdown', (e) => { dragging = true; const w = evWorld(e); [st.rx, st.ry] = clampReal(st.cfg, w.x, w.y); render(); });
-canvas.addEventListener('pointermove', (e) => { if (!dragging) return; const w = evWorld(e); [st.rx, st.ry] = clampReal(st.cfg, w.x, w.y); render(); });
-window.addEventListener('pointerup', () => { dragging = false; });
-canvas.addEventListener('mouseleave', () => { dragging = false; });
+// --- drag the real charge ---
+let dragging = false;
+function pScreen(ev) { const rect = canvas.getBoundingClientRect(); return { sx: ev.clientX - rect.left, sy: ev.clientY - rect.top }; }
+canvas.addEventListener('pointerdown', (ev) => {
+  if (!SCN) return; const { sx, sy } = pScreen(ev);
+  if ((WX(chg.a) - sx) ** 2 + (WY(chg.b) - sy) ** 2 < 26 * 26) { dragging = true; canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); }
+});
+canvas.addEventListener('pointermove', (ev) => {
+  if (!dragging) return; const { sx, sy } = pScreen(ev);
+  chg.a = Math.max(-W + 0.2, Math.min(W - 0.2, invX(sx)));
+  chg.b = Math.max(0.3, Math.min(2.7, invY(sy)));
+  retrace(); render();
+});
+const endDrag = () => { dragging = false; };
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
 
-function setCfg(cfg) {
-  st.cfg = cfg;
-  [st.rx, st.ry] = clampReal(cfg, DEFAULTS[cfg][0], DEFAULTS[cfg][1]);
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (running) phase += 0.55 * dt;
   render();
+  requestAnimationFrame(tick);
 }
-selCfg.addEventListener('change', () => setCfg(selCfg.value));
-sq.addEventListener('input', () => { st.q = parseFloat(sq.value); vq.textContent = st.q.toFixed(1); render(); });
-tImg.addEventListener('change', () => { st.showImg = tImg.checked; render(); });
-tF.addEventListener('change', () => { st.showField = tF.checked; render(); });
-tE.addEventListener('change', () => { st.showEqui = tE.checked; render(); });
-btnR.addEventListener('click', () => { st.q = 1; sq.value = '1'; vq.textContent = '1.0'; selCfg.value = 'plane'; setCfg('plane'); });
-btnP.addEventListener('click', () => { btnP.textContent = btnP.textContent === 'Pause' ? 'Play' : 'Pause'; });
 
 function bootSync() {
-  vq.textContent = st.q.toFixed(1);
-  if (CAPTURE_NAME) {
-    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const order = ['plane', 'sphere', 'wedge', 'slab', 'plane'];
-    setCfg(order[Math.min(order.length - 1, Math.round(f * (order.length - 1)))]);
-    selCfg.value = st.cfg;
-    if (DETERMINISTIC) {
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        window.__simulationReady = true;
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
-      }));
-    }
-    return;
-  }
-  setCfg('plane');
+  syncVals(); relayout(); render();
 }
 
-bootSync();
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
 
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'configuration', label: 'Configuration', value: st.cfg, format: undefined },
-      { key: 'charge-magnitude', label: 'Charge q', value: st.q, format: 'float' },
-      { key: 'real-x', label: 'Real charge x', value: st.rx, format: 'float' },
-      { key: 'real-y', label: 'Real charge y', value: st.ry, format: 'float' }
-    ]
+      { key: 'height', label: 'charge height $b$', value: chg.b, format: 'float' },
+      { key: 'x', label: 'charge position $a$', value: chg.a, format: 'float' },
+      { key: 'force', label: 'image force (attractive)', value: 1 / (4 * chg.b * chg.b), format: 'float' },
+      { key: 'induced', label: 'total induced charge', value: totalInducedCharge(q, chg.b), format: 'float' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
-  const clamped = clampReal(st.cfg, st.rx, st.ry);
-  const in_bounds = Math.abs(st.rx - clamped[0]) < 1e-6 && Math.abs(st.ry - clamped[1]) < 1e-6;
-  const status = in_bounds ? 'pass' : 'drift';
-  return [
-    {
-      key: 'charge-in-domain',
-      label: 'Charge in physical domain',
-      value: in_bounds ? 'pass' : 'out-of-bounds',
-      status: status
-    }
-  ];
+  try {
+    // The induced surface charge integrates to exactly minus the real charge.
+    const tot = totalInducedCharge(q, chg.b);
+    const rel = Math.abs(tot + q) / Math.abs(q);
+    return [{
+      key: 'induced',
+      label: 'total induced charge = −q (rel.)',
+      value: rel.toExponential(2),
+      status: rel < 5e-2 ? 'pass' : (rel < 1.5e-1 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
+  }
 };

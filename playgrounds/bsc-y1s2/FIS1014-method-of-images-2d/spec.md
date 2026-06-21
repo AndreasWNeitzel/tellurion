@@ -10,10 +10,10 @@ curriculum_year: bsc-y1s2
 primary_citation: griffiths-em
 primary_chapter: 3
 hook: 'A charge above a grounded metal sheet feels a pull, exactly as if a mirror-image charge of opposite sign sat the same distance below the surface.'
-one_paragraph: 'Finding the field of a charge near a grounded conductor looks hard: the induced surface charge rearranges itself until the metal is an equipotential. The method of images replaces that entire induced distribution with one fictitious charge, equal and opposite, mirrored below the plane. The two-charge field is trivial to write down and, above the plane, is identical to the real one. The playground draws the field lines and equipotentials, marks the dashed image charge, and integrates the induced surface charge along the conductor; it always sums to exactly minus the real charge, the check that the trick is exact rather than an approximation. Drag the charge and watch the image track it while the attractive force grows like q^2 / (2d)^2 as it nears the plane.'
-tags: [electromagnetism, animation, live-readout]
+one_paragraph: 'Finding the field of a charge near a grounded conductor looks hard: the induced surface charge rearranges itself until the metal is an equipotential. The method of images replaces that entire induced distribution with one fictitious charge, equal and opposite, mirrored below the plane. The two-charge field is trivial to write down and, above the plane, is identical to the real one. The playground draws the field lines bending in to strike the conductor perpendicular, the induced surface charge pooling beneath the charge, and (with a toggle) the dashed image charge that reproduces the same field; it integrates the induced charge along the conductor, which always sums to exactly minus the real charge, the check that the trick is exact rather than an approximation. Drag the charge and watch the field, the induced charge, and the image track it, while the attractive force grows like q^2 / (2d)^2 as it nears the plane.'
+tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -35,7 +35,37 @@ references:
   - "Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 3."
 ---
 # Method of images, 2D
-A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Source: Griffiths E&M Ch. 3.2.
+A point charge above a grounded conducting plane: the field is built by adding the image charge below the plane. The induced surface charge on the conductor integrates to negative the real charge. Drag the charge; toggle "reveal image" to replace the conductor with the mirror charge; flip the charge sign. Source: Griffiths E&M Ch. 3.2.
+
+## Controls
+
+- view: conductor / reveal image (show the mirror charge and full dipole).
+- charge sign: + or -.
+- drag the charge anywhere above the plane with the pointer.
+- Reset / Pause / Play.
+
+## Numerical method
+
+Field lines are streamline-integrated (normalized arc-length steps of
+0.04) in the two-charge dipole field of the real charge and its image;
+in conductor view a line stops at the plane crossing (y = 0). The
+induced density sigma(x) = -q b / (2 pi (x^2 + b^2)^{3/2}) is evaluated
+analytically along the plane, and the total induced charge is integrated
+numerically (the 3D radial integral) and checked against -q. Rendering
+is plain Canvas2D: the conductor body with hatching, the field lines
+with marching arrowheads, the induced-charge lobe on the plane, the
+image charge (reveal view), and the attractive image force.
+
+## Invariants and acceptance thresholds
+
+| invariant | threshold | location |
+| potential is zero on the conducting plane | < 1e-6 | invariants test |
+| potential below the plane is zero | exact | invariants test |
+| tangential field vanishes on the plane | < 1e-3 | invariants test |
+| total induced charge equals -q | within 0.05 | invariants test + live |
+| induced sigma decays as |x|^{-3} far out | within 0.05 | invariants test |
+
+All confirmed in `invariants.test.mjs` (6 tests passing).
 
 ## Explainer
 
