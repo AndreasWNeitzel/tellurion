@@ -13,15 +13,13 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 760px; }
-    .pg-figure canvas { width: 100%; height: auto; background: #060608; }
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 16ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row { display: grid; grid-template-columns: 13ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
     .pg-controls input[type="range"] { width: 100%; }
-    .pg-controls .btns { grid-column: 1 / -1; display: flex; gap: var(--space-3); align-items: center; }
-    .pg-controls .btns button { font: inherit; padding: 6px 14px; }
-    .pg-controls .btns label { font-size: 13px; color: var(--fg-muted); display: flex; gap: 6px; align-items: center; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto; color: var(--fg-muted); }
+    .pg-controls .row.wide label { display: flex; gap: 8px; align-items: center; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -42,66 +40,47 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Floating-point pitfalls: the Patriot missile failure</h1>
+      <h1 class="t-title playground-title">Floating point that killed: the Patriot failure</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-    <strong>What you are seeing:</strong> Dhahran, 25 February 1991. A
-    Patriot battery counts time in 0.1 s ticks and multiplies by a
-    24-bit fixed-point copy of <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.1</mn></mrow><annotation encoding="application/x-tex">0.1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.1</span></span></span></span></span>. Since <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.1</mn></mrow><annotation encoding="application/x-tex">0.1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.1</span></span></span></span></span> is not exact in binary,
-    chopping it to 24 bits gives <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>209715</mn><mi mathvariant="normal">/</mi><mn>2097152</mn><mo>=</mo><mn>0.0999999046</mn><mo>…</mo></mrow><annotation encoding="application/x-tex">209715/2097152 = 0.0999999046\ldots</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">209715/2097152</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.0999999046</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="minner">…</span></span></span></span></span>,
-    so every tick is short by <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>9.5</mn><mo>×</mo><mn>1</mn><msup><mn>0</mn><mrow><mo>−</mo><mn>8</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\approx 9.5\times10^{-8}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4831em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">9.5</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">8</span></span></span></span></span></span></span></span></span></span></span></span></span> s. The error is
-    never reset while the battery is powered, so it accumulates
-    linearly. After about 100 hours of uptime the clock is off by
-    <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>0.34</mn></mrow><annotation encoding="application/x-tex">\approx 0.34</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4831em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.34</span></span></span></span></span> s.
-  </p>
-      <p class="t-body">
-    The radar places its <em>range gate</em> (where it expects the
-    tracked target on the next sweep) using that clock. Multiply the
-    time error by the Scud closing speed (<span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>1676</mn></mrow><annotation encoding="application/x-tex">\approx 1676</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4831em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1676</span></span></span></span></span> m/s, Mach 5)
-    and the gate is displaced by roughly half a kilometre. The incoming
-    Scud falls outside the gate, the track is dropped, no interceptor
-    is fired. Drag <em>uptime</em> up and watch the gate walk off the
-    target; toggle the patched software to see the drift vanish.
-  </p>
+      <p class="t-body">Dhahran, 25 February 1991. A Patriot battery counts time in tenth-of-a-second ticks and multiplies by a 24-bit copy of $0.1$. But $0.1$ has no exact binary form, and chopped to 24 bits it becomes $209715/2097152 = 0.0999999046\ldots$, so every tick is short by about $9.5\times10^{-8}$ s. The error is never reset while the battery stays powered, so it grows in proportion to uptime. The radar places its range gate, the window where it expects the tracked target next, using that clock; multiply the time error by the Scud's closing speed of about 1676 m/s and the gate is displaced. After roughly 100 hours the clock is off by 0.34 s and the gate is half a kilometre off target: the incoming Scud falls outside it, the track is dropped, and no interceptor fires. The scene shows the gate walking off the target as uptime grows; the diagnostic plots the displacement against uptime and the gate's catch radius. 28 people died from one truncated constant.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500" tabindex="0" aria-label="Patriot range gate displaced by accumulated floating-point clock error versus uptime."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="The Patriot range gate displaced from the incoming Scud by accumulated clock error; below, displacement versus uptime against the gate radius."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Accumulated 24-bit fixed-point clock error displacing the Patriot
-      range gate. Method: exact IEEE chop error per 0.1 s tick times
-      uptime times closing speed.</figcaption>
+      The Patriot range gate displaced by accumulated 24-bit clock error. Top: the incoming Scud and the gate the radar opens for it, offset by the clock drift; when the offset exceeds the gate radius the track is lost. Bottom: gate displacement versus uptime against the catch radius, with the Dhahran point marked. Method: exact IEEE chop error per tick times uptime times closing speed.</figcaption>
 
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Scenario controls">
-    <div class="row"><span class="label">uptime (hours)</span><input aria-label="uptime in hours" type="range" id="slider-hours" min="0" max="100" step="1" value="18"><span class="value" id="value-hours">18</span></div>
-    <div class="row"><span class="label">Scud speed (m/s)</span><input aria-label="Scud closing speed" type="range" id="slider-speed" min="800" max="2000" step="4" value="1676"><span class="value" id="value-speed">1676</span></div>
-    <div class="btns">
-      <button id="btn-playpause" aria-pressed="false">Pause</button>
-      <button id="btn-reset">Reset</button>
-      <label><input type="checkbox" id="toggle-fix"> patched software (exact time)</label>
+    <div class="row"><span class="label">uptime (h)</span><input aria-label="uptime in hours" type="range" id="slider-hours" min="0" max="100" step="1" value="18"><span class="value" id="value-hours">18</span></div>
+    <div class="row"><span class="label">Scud (m/s)</span><input aria-label="Scud closing speed" type="range" id="slider-speed" min="800" max="2000" step="4" value="1676"><span class="value" id="value-speed">1676</span></div>
+    <div class="row wide"><label><input type="checkbox" id="toggle-fix"> patched software (exact time, no drift)</label></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
     </div>
   </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">clock error:</span><span class="value" id="readout-time">0 ms</span>
       <span class="label">range error:</span><span class="value" id="readout-range">0 m</span>
-      <span class="label">track:</span><span class="value" id="readout-status">TRACKING</span>
     </div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Drag uptime up from a fresh boot: the gate (the radar's catch window) slides off the Scud, and past the catch radius the track is lost.</li>
+        <li class="t-body">Find the uptime where the offset first exceeds the gate radius: that is when an otherwise-working system silently starts missing.</li>
+        <li class="t-body">Set uptime near 100 hours, the real Dhahran value: the gate is about half a kilometre off, far outside its radius.</li>
+        <li class="t-body">Tick patched software: the drift vanishes, the gate sits on the target at any uptime. One corrected constant fixes it.</li>
       </ul>
     </section>
 

@@ -10,7 +10,7 @@ curriculum_year: bsc-y1s1
 primary_citation: newman2013
 primary_chapter: 4
 hook: 'A 24-bit copy of 0.1 makes a Patriot battery clock drift 0.34 s in 100 h; the range gate walks off the Scud and 28 people die.'
-one_paragraph: 'The Patriot missile failure at Dhahran (25 Feb 1991) as a floating-point pitfall you can drive. The fire-control computer counted 0.1 s ticks and multiplied by a 24-bit fixed-point approximation of 0.1; since 0.1 is not exact in binary the clock lost about 9.5e-8 s per tick, never reset, accumulating linearly with uptime. After ~100 h the 0.34 s error times the Scud closing speed displaced the radar range gate by roughly half a kilometre, the track was dropped, no interceptor fired. Drag the uptime and watch the gate walk off the target; toggle the patched software to see the drift vanish. A lower panel shows the exact 24-bit chop and the linear error accumulation.'
+one_paragraph: 'The Patriot missile failure at Dhahran (25 Feb 1991) as a floating-point pitfall you can drive. The fire-control computer counted 0.1 s ticks and multiplied by a 24-bit fixed-point approximation of 0.1; since 0.1 is not exact in binary the clock lost about 9.5e-8 s per tick, never reset, accumulating linearly with uptime. After ~100 h the 0.34 s error times the Scud closing speed displaced the radar range gate by roughly half a kilometre, the track was dropped, no interceptor fired. Drag the uptime and watch the gate walk off the target; toggle the patched software to see the drift vanish. The diagnostic plots the gate displacement against uptime, the linearly accumulating error crossing the gate catch radius, with the real Dhahran point marked.'
 tags: [numerics, animation, live-readout, case-study]
 difficulty: 3
 tier: simple
