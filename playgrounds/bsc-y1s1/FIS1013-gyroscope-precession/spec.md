@@ -9,10 +9,10 @@ primary_citation: taylor-mech
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
 hook: "A spinning top should fall over, but it does not: gravity's torque, instead of toppling it, swings its axis sideways in a slow circle. Spin it faster and it precesses slower. That is angular momentum refusing to point where the force pushes."
-one_paragraph: "A fast-spinning gyroscope tilted from the vertical has a large spin angular momentum L along its axis. Gravity applies a torque tau = r x W (weight times the lever arm to the pivot) that points perpendicular to L, so instead of changing L's length it swings its direction: the axis sweeps a cone at the precession rate Omega_p = M g r / (I_s omega_s). Counter-intuitively, a faster spin gives a slower precession (the 1/omega_s curve in the side panel). The scene draws the spinning disc, the spin axis (L, gold), the weight (W, red), the gravitational torque (tau, green) and the cone the axis traces; the readout gives omega_s, the tilt, Omega_p and the precession period. This steady-precession picture (valid when the spin is fast compared with the precession) is why a bicycle stays up, how a gyrocompass finds north, and why bullets and footballs are spun."
-tags: [mechanics, animation, live-readout]
+one_paragraph: "A fast-spinning flywheel tilted from the vertical has a large spin angular momentum L along its axis. Gravity applies a torque tau = r x W (weight times the lever arm to the pivot) that points perpendicular to L, so instead of changing L's length it swings its direction: the axis sweeps a cone at the precession rate Omega_p = M g r / (I_s omega_s). Counter-intuitively, a faster spin gives a slower precession (the 1/omega_s hyperbola in the diagnostic). The Canvas2D scene draws the spinning flywheel in orthographic pseudo-3D, the spin axis L (gold), the weight Mg (red, straight down), the sideways precession drift (blue) and the cone the axis sweeps; the diagnostic plots Omega_p against omega_s with the live operating point. This steady-precession picture (valid when the spin is fast compared with the precession) is why a bicycle stays up, how a gyrocompass finds north, and why bullets and footballs are spun."
+tags: [mechanics, animation, live-readout, 3d]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -106,13 +106,17 @@ advances at omega_s.
 ## Numerical method
 
 Direct kinematic update of (theta, phi, psi) by dt times the analytic
-rate.
+rate (fixed dt = 1/240 s, accumulator pattern). Rendering is plain
+Canvas2D: an orthographic camera (azimuth + elevation tilt) projects
+the pivot, axle, flywheel rim (an ellipse with rotating spokes), the
+swept cone, the L / Mg / precession arrows and the vertical reference.
+The visual spin rate is compressed (decoupled from the fast true spin)
+to avoid strobing; the true spin rate drives all physics and readouts.
 
 ## Controls
 
-- omega_s: spin rate, 10 to 200.
-- theta: tilt from vertical, 0.1 to 1.2 rad.
-- speed: integrator steps per render frame.
+- spin rate omega_s: 20 to 120 rad/s.
+- tilt theta: 0.2 to 1.2 rad (shown in degrees).
 - Reset / Pause / Play.
 
 ## Expected qualitative features
@@ -138,9 +142,11 @@ All confirmed in `invariants.test.mjs`.
 
 ## Visual fallback
 
-Canvas2D only. Left: pseudo-3D scene with vertical axis (dashed),
-ground circle, cone of precession (faint), and body axis (bold) with
-trail. Right: Omega_p vs omega_s curve.
+Canvas2D only. Top: pseudo-3D scene with vertical axis (dashed), the
+precession circle and swept cone (faint), the tilted flywheel, and the
+L / Mg / precession arrows. Bottom: the Omega_p vs omega_s hyperbola
+with the live operating point. The caption names the precession law and
+the conservation argument so the figure reads without Canvas2D.
 
 ## Citations
 
