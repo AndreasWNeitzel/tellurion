@@ -130,29 +130,26 @@ function drawScene(col, r) {
   const L = sim.L;
   const amp = Math.abs(Math.sin(theta0));
   const bobAmpX = (sim.M / (sim.M + sim.m)) * L * amp;
-  const worldHalfW = Math.max(bobAmpX, 0.15) + 0.28;
-  const scaleX = Math.min((draw.w * 0.5 - 14) / worldHalfW, (draw.h * 0.66) / L);
+  const cartAmpX = (sim.m / (sim.M + sim.m)) * L * amp;
+  const A = Math.max(bobAmpX, cartAmpX);
+  const bobStart = L * Math.sin(theta0);
+  // Ground-fixed frame anchored on the mass-independent geometric midpoint of
+  // the cart start (x = 0) and the bob start (L sin theta0). Because the motion
+  // is symmetric about the COM, fitting the frame to the motion would always
+  // re-centre on the COM and hide its dependence on mass; anchoring on the
+  // fixed midpoint instead lets the COM line slide toward the heavier body as
+  // the masses change, while the world-fixed ground hatches show the recoil.
+  const xMid = bobStart / 2;
+  const wLo = Math.min(0, bobStart, comX - A) - 0.14;
+  const wHi = Math.max(0, bobStart, comX + A) + 0.14;
+  const half = Math.max(xMid - wLo, wHi - xMid) || 1;
+  const scaleX = Math.min((draw.w / 2 - 16) / half, (draw.h * 0.66) / L);
   const centerX = draw.x + draw.w / 2;
   const railY = draw.y + draw.h * 0.30;
-  const sx = (wx) => centerX + (wx - comX) * scaleX;
+  const sx = (wx) => centerX + (wx - xMid) * scaleX;
 
-  // Center-of-mass marker (fixed vertical line).
-  ctx.save();
-  ctx.setLineDash([5, 5]);
-  ctx.strokeStyle = col.com;
-  ctx.lineWidth = 1.4;
-  ctx.beginPath();
-  ctx.moveTo(centerX, draw.y);
-  ctx.lineTo(centerX, draw.y + draw.h);
-  ctx.stroke();
-  ctx.restore();
-  ctx.fillStyle = col.com;
-  ctx.font = fontString(canvas, 'tick', 'sans', 600);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText('center of mass', centerX, draw.y + 1);
-
-  // Rail.
+  // Rail with ground-fixed hatch marks (world-anchored), so the cart visibly
+  // slides over the ground as it recoils.
   ctx.strokeStyle = col.muted;
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -162,11 +159,32 @@ function drawScene(col, r) {
   ctx.strokeStyle = 'rgba(255,255,255,0.18)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  for (let hx = draw.x + 10; hx < draw.x + draw.w - 6; hx += 14) {
+  for (let wx = Math.ceil(wLo / 0.12) * 0.12; wx <= wHi; wx += 0.12) {
+    const hx = sx(wx);
+    if (hx < draw.x + 8 || hx > draw.x + draw.w - 6) continue;
     ctx.moveTo(hx, railY);
     ctx.lineTo(hx - 7, railY + 8);
   }
   ctx.stroke();
+
+  // Center-of-mass marker: a fixed vertical line at the true COM, sitting
+  // between the cart and the bob and closer to the heavier one.
+  const comScreenX = sx(comX);
+  ctx.save();
+  ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = col.com;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(comScreenX, draw.y + 16);
+  ctx.lineTo(comScreenX, draw.y + draw.h);
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = col.com;
+  ctx.beginPath(); ctx.arc(comScreenX, railY, 4.5, 0, 2 * Math.PI); ctx.fill();
+  ctx.font = fontString(canvas, 'tick', 'sans', 600);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('center of mass', comScreenX, draw.y + 1);
 
   // Positions.
   const pivotX = sx(sim.x);
@@ -261,7 +279,13 @@ function drawDiagnostic(col, r) {
   const L = sim.L;
   const amp = Math.abs(Math.sin(theta0));
   const bobAmpX = (sim.M / (sim.M + sim.m)) * L * amp;
-  const yHalf = Math.max(bobAmpX, 0.12) * 1.15;
+  const cartAmpX = (sim.m / (sim.M + sim.m)) * L * amp;
+  // Size to whichever body swings wider (a heavy bob makes the cart recoil
+  // farther than the bob moves), and widen to the largest recorded excursion,
+  // so neither trace leaks past the frame.
+  let yHalf = Math.max(bobAmpX, cartAmpX, 0.12);
+  for (const h of hist) { const a = Math.abs(h.xc - comX), b = Math.abs(h.xb - comX); if (a > yHalf) yHalf = a; if (b > yHalf) yHalf = b; }
+  yHalf *= 1.12;
   const yMin = comX - yHalf, yMax = comX + yHalf;
   const tNow = sim.t;
   const t0 = Math.max(0, tNow - WINDOW);
@@ -313,6 +337,8 @@ function drawDiagnostic(col, r) {
     }
     ctx.stroke();
   };
+  ctx.save();
+  ctx.beginPath(); ctx.rect(inner.x, inner.y, inner.w, inner.h); ctx.clip();
   plot('xc', col.cart);
   plot('xb', col.bob);
 
@@ -323,6 +349,7 @@ function drawDiagnostic(col, r) {
     dot(yOf(cur.xc), col.cart);
     dot(yOf(cur.xb), col.bob);
   }
+  ctx.restore();
 
   // Axis labels.
   ctx.fillStyle = col.muted;
