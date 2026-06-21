@@ -19,8 +19,8 @@ renderer: canvas2d
 estimated_engagement_minutes: 5
 share_state_keys: [n_bodies, theta, use_tree, show_tree]
 invariants:
-  - key: energy
-    label: total energy conserved
+  - key: bherr
+    label: tree force error vs exact (rel. L2)
     tolerance: 0.05
   - key: bh_bound
     label: evals per step <= direct N(N-1)
@@ -44,7 +44,7 @@ references:
 ### What you are looking at
 
 A two-dimensional disk of particles attracting each other under gravity.
-The brown lines drawn over them are the live quadtree: the algorithm
+The amber boxes drawn over them are the live quadtree: the algorithm
 subdivides the bounding square into four child squares whenever a cell
 contains more than one body, and stops subdividing where space is
 already sparse. The tree adapts to the moving distribution every

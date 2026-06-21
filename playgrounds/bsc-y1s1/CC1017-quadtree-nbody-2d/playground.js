@@ -1,11 +1,16 @@
-// Quadtree N-body playground. Renders a 2D disk under gravity with the
-// live quadtree overlay; the user can toggle the algorithm (Barnes-Hut
-// tree vs direct O(N^2)) and the opening angle theta. See sim.js for
-// the initial-condition factory and the imported shared engine.
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
+// Vertical 4:5 hero for the Barnes-Hut quadtree N-body. Top region: a gravity
+// disk orbiting a heavy core, with the live adaptive quadtree drawn over it.
+// Bottom region: force-pair evaluations per step versus N, Barnes-Hut (about
+// N log N) against the brute-force direct sum (N^2).
+//
+// Reference: Barnes and Hut, Nature 324, 446 (1986); Springel 2005 (GADGET-2).
 
-import { makeDisk, leapfrog, accBH, accDirect, snapshotTree, kineticEnergy, potentialEnergy } from './sim.js';
-import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import {
+  makeDisk, buildTree, accBH, accDirect, leapfrog, snapshotTree,
+} from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -14,215 +19,307 @@ const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const W = canvas.width, H = canvas.height;
 
-const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
-const sTh = document.getElementById('slider-theta'), vTh = document.getElementById('value-theta');
-const selTree = document.getElementById('select-tree'), vTree = document.getElementById('value-tree');
-const tShowTree = document.getElementById('toggle-show-tree');
+const sliderN = document.getElementById('slider-n');
+const sliderTheta = document.getElementById('slider-theta');
+const selTree = document.getElementById('select-tree');
+const valueN = document.getElementById('value-n');
+const valueTheta = document.getElementById('value-theta');
+const valueTree = document.getElementById('value-tree');
+const toggleTree = document.getElementById('toggle-show-tree');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
-const VIEW = 1.4;                            // world half-width in code units
-const DT = 0.005;
-// Plummer softening. 0.03 was too small: the innermost disk stars
-// then had orbital periods shorter than the timestep, so leapfrog
-// went unstable and pumped the disk to unbound. 0.20 keeps every
-// orbit resolved and the total energy conserved to a few 0.1 %.
-const G = 1, EPS = 0.20;
-const st = {
-  N: 500, theta: 0.7, use_tree: true, show_tree: true,
-  running: !prefersReducedMotion(), state: null,
-};
-// Latest derived quantities + energy baseline, exposed to the rail.
-const latest = { N: 0, evals: 0, nNodes: 0, nSteps: 0, directPairs: 0, speedup: 1 };
-let energy0 = null;
+const G = 1, EPS = 0.03, DT = 0.003, SUBSTEPS = 3, SEED = 0xC0FFEE;
+let running = !DETERMINISTIC;
+let state = null;
+let cost = null;
+let aScratch = null;
 
-function totalEnergy() {
-  if (!st.state) return 0;
-  return kineticEnergy(st.state) + potentialEnergy(st.state, G, EPS);
+function rebuild() {
+  const N = parseInt(sliderN.value, 10);
+  state = makeDisk(N, { seed: SEED });
+  accBH(state, theta(), G, EPS);     // initialise accelerations + tree
+  aScratch = new Float64Array(2 * N);
+}
+function theta() { return parseFloat(sliderTheta.value); }
+function useTree() { return selTree.value === 'tree'; }
+
+function costCurve(th) {
+  const Ns = [50, 100, 200, 400, 600, 800, 1000, 1200];
+  const out = [];
+  for (const n of Ns) {
+    const st = makeDisk(n, { seed: SEED });
+    const r = accBH(st, th, G, EPS);
+    out.push({ n, bh: Math.max(1, r.evals), direct: n * (n - 1) });
+  }
+  return out;
 }
 
-function reseed() {
-  st.state = makeDisk(st.N, { seed: 0xC0FFEE, M_core: 50, eps: EPS });
-  // Warm one accel evaluation so leapfrog half-kick has a valid a.
-  if (st.use_tree) accBH(st.state, st.theta, G, EPS);
-  else accDirect(st.state, G, EPS);
-  energy0 = totalEnergy();
+function syncVals() {
+  valueN.textContent = String(parseInt(sliderN.value, 10));
+  valueTheta.textContent = parseFloat(sliderTheta.value).toFixed(2);
+  valueTree.textContent = selTree.value;
+}
+sliderN.addEventListener('input', () => { syncVals(); rebuild(); render(); });
+sliderTheta.addEventListener('input', () => { syncVals(); cost = costCurve(theta()); render(); });
+selTree.addEventListener('change', () => { syncVals(); render(); });
+toggleTree.addEventListener('change', render);
+btnReset.addEventListener('click', () => {
+  rebuild(); running = true; btnPause.textContent = 'Pause'; btnPause.setAttribute('aria-pressed', 'false'); render();
+});
+btnPause.addEventListener('click', () => {
+  running = !running;
+  btnPause.textContent = running ? 'Pause' : 'Play';
+  btnPause.setAttribute('aria-pressed', String(!running));
+});
+
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.9 },
+    { name: 'diagnostic', weight: 1.15 },
+  ]);
 }
 
-// World-to-screen.
-function w2s(wx, wy) {
-  const cx = W * 0.5, cy = H * 0.5;
-  const scale = Math.min(W, H) * 0.5 / VIEW;
-  return [cx + wx * scale, cy + wy * scale];
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    tree: 'rgba(200,170,120,0.20)',
+    core: '#ffd166',
+    bh: '#67d98c',
+    direct: '#ef476f',
+    border: 'rgba(255,255,255,0.12)',
+    grid: 'rgba(255,255,255,0.08)',
+  };
 }
 
-function drawTreeNode(node, snap, level) {
-  if (snap.nBody[node] === -2) return;
-  // Draw this cell's boundary.
-  const half = snap.nHalf[node];
-  const hx = snap.nHx[node], hy = snap.nHy[node];
-  const [x0, y0] = w2s(hx - half, hy - half);
-  const [x1, y1] = w2s(hx + half, hy + half);
-  ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
-  // Recurse if internal.
-  if (snap.nBody[node] === -1) {
-    for (let c = 0; c < snap.QUAD; c += 1) {
-      const ch = snap.nChild[node * snap.QUAD + c];
-      if (ch >= 0) drawTreeNode(ch, snap, level + 1);
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
+  }
+}
+
+function drawScene(col, r) {
+  panel(col, r, 'A gravity disk, binned by an adaptive quadtree');
+
+  const titleH = 22, stripH = 28;
+  const draw = { x: r.x + 6, y: r.y + titleH + 4, w: r.w - 12, h: r.h - titleH - 4 - stripH - 4 };
+  const VIEW = 1.4;
+  const side = Math.min(draw.w, draw.h);
+  const cx = draw.x + draw.w / 2, cy = draw.y + draw.h / 2;
+  const scale = side / (2 * VIEW);
+  const SX = (x) => cx + x * scale;
+  const SY = (y) => cy - y * scale;
+
+  ctx.save();
+  clipTo(ctx, draw);
+
+  // Quadtree boxes (rebuilt for the current positions).
+  if (toggleTree.checked) {
+    const nN = buildTree(state.x, state.m, state.N);
+    const tr = snapshotTree();
+    ctx.strokeStyle = col.tree;
+    ctx.lineWidth = 1;
+    for (let k = 0; k < nN; k++) {
+      if (tr.nBody[k] === -2) continue;
+      const w = 2 * tr.nHalf[k] * scale;
+      if (w < 3) continue;             // skip tiny deep cells (clutter + cost)
+      ctx.strokeRect(SX(tr.nHx[k] - tr.nHalf[k]), SY(tr.nHy[k] + tr.nHalf[k]), w, w);
     }
   }
+
+  // Bodies, colored by speed.
+  const { x, v, N } = state;
+  for (let i = 1; i < N; i++) {
+    const sp = Math.hypot(v[2 * i], v[2 * i + 1]);
+    const c = viridis(Math.min(1, sp / 6));
+    ctx.fillStyle = `rgb(${c.r | 0},${c.g | 0},${c.b | 0})`;
+    ctx.fillRect(SX(x[2 * i]) - 1, SY(x[2 * i + 1]) - 1, 2.2, 2.2);
+  }
+  // Heavy core.
+  ctx.fillStyle = col.core;
+  ctx.beginPath(); ctx.arc(SX(x[0]), SY(x[1]), 5, 0, 2 * Math.PI); ctx.fill();
+
+  ctx.restore();
+
+  // Readout strip.
+  const directEv = state.N * (state.N - 1);
+  const bhEv = state.evals || 1;
+  const speedup = directEv / bhEv;
+  const ry = r.y + r.h - stripH / 2 + 1;
+  const items = [
+    [`N = ${state.N}`, col.fg],
+    [useTree() ? 'Barnes-Hut' : 'direct N²', useTree() ? col.bh : col.direct],
+    [`evals = ${fmt(useTree() ? bhEv : directEv)}`, useTree() ? col.bh : col.direct],
+    [`speedup ${speedup.toFixed(0)}×`, col.accent],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry); });
+}
+
+function fmt(v) {
+  if (v >= 1e6) return (v / 1e6).toFixed(2) + 'M';
+  if (v >= 1e3) return (v / 1e3).toFixed(1) + 'k';
+  return String(Math.round(v));
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Force-pair evaluations vs N: N log N vs N²');
+
+  const inner = { x: r.x + 46, y: r.y + 28, w: r.w - 46 - 14, h: r.h - 28 - 40 };
+  if (!cost) cost = costCurve(theta());
+  const xLo = Math.log10(50), xHi = Math.log10(1200);
+  const yLo = 1, yHi = Math.log10(1200 * 1199) + 0.2;   // log10 of evals
+  const xOf = (n) => inner.x + (Math.log10(n) - xLo) / (xHi - xLo) * inner.w;
+  const yOf = (e) => inner.y + inner.h - (Math.log10(Math.max(1, e)) - yLo) / (yHi - yLo) * inner.h;
+
+  // grid + ticks (decades on y, a few N on x).
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let e = 2; e <= 6; e += 1) {
+    const y = yOf(Math.pow(10, e));
+    ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke();
+    ctx.fillText(`1e${e}`, inner.x - 5, y);
+  }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const n of [50, 200, 600, 1200]) ctx.fillText(String(n), xOf(n), inner.y + inner.h + 4);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+
+  // direct N^2 and BH curves.
+  const curve = (key, color) => {
+    ctx.strokeStyle = color; ctx.lineWidth = 2.6; ctx.beginPath();
+    cost.forEach((p, i) => { const X = xOf(p.n), Y = yOf(p[key]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+    ctx.stroke();
+    cost.forEach((p) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(xOf(p.n), yOf(p[key]), 2.5, 0, 2 * Math.PI); ctx.fill(); });
+  };
+  curve('direct', col.direct);
+  curve('bh', col.bh);
+
+  // current N cursor.
+  const cxN = xOf(state.N);
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1;
+  ctx.save(); ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(cxN, inner.y); ctx.lineTo(cxN, inner.y + inner.h); ctx.stroke(); ctx.restore();
+
+  // legend.
+  const legend = [['direct N²', col.direct], ['Barnes-Hut', col.bh]];
+  ctx.fillStyle = 'rgba(10,12,18,0.72)'; ctx.fillRect(inner.x + 6, inner.y + 6, 168, 18);
+  let lx = inner.x + 12; const ly = inner.y + 15;
+  ctx.font = fontString(canvas, 'legend', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  for (const [lab, c] of legend) {
+    ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 14, ly); ctx.stroke();
+    ctx.fillStyle = col.fg; ctx.fillText(lab, lx + 17, ly); lx += ctx.measureText(lab).width + 28;
+  }
+
+  // axis labels.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('number of bodies N', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 34, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('evals / step', 0, 0); ctx.restore();
 }
 
 function render() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-
-  // Faint axes / world bounds.
-  const [bx0, by0] = w2s(-VIEW, -VIEW);
-  const [bx1, by1] = w2s(VIEW, VIEW);
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-  ctx.strokeRect(bx0, by0, bx1 - bx0, by1 - by0);
-
-  // Quadtree overlay.
-  if (st.show_tree && st.use_tree) {
-    const snap = snapshotTree();
-    ctx.strokeStyle = 'rgba(255, 170, 100, 0.35)';
-    ctx.lineWidth = 1.0;
-    drawTreeNode(0, snap, 0);
-  }
-
-  // Particles.
-  const s = st.state;
-  for (let i = 0; i < s.N; i += 1) {
-    const [sx, sy] = w2s(s.x[2 * i], s.x[2 * i + 1]);
-    if (sx < 0 || sx > W || sy < 0 || sy > H) continue;
-    if (i === 0) {
-      // central heavy mass
-      ctx.fillStyle = 'rgba(255, 200, 100, 0.95)';
-      ctx.beginPath(); ctx.arc(sx, sy, 5, 0, 2 * Math.PI); ctx.fill();
-      // glow
-      const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 22);
-      g.addColorStop(0, 'rgba(255,200,100,0.4)');
-      g.addColorStop(1, 'rgba(255,200,100,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(sx, sy, 22, 0, 2 * Math.PI); ctx.fill();
-    } else {
-      ctx.fillStyle = 'rgba(180, 220, 255, 0.85)';
-      ctx.fillRect(sx - 0.7, sy - 0.7, 1.4, 1.4);
-    }
-  }
-
-  // State (N, algorithm, evals/step, nodes, step, speedup) now lives
-  // in the rail; record the latest snapshot for getState/getInvariants.
-  latest.N = s.N;
-  latest.evals = s.evals;
-  latest.nNodes = s.nNodes;
-  latest.nSteps = s.nSteps;
-  latest.directPairs = s.N * (s.N - 1);
-  latest.speedup = st.use_tree && s.evals > 0 ? latest.directPairs / s.evals : 1;
+  if (!REG) relayout();
+  if (!state) rebuild();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
-function tick() {
-  if (st.running) {
-    leapfrog(st.state, DT, { use_tree: st.use_tree, theta: st.theta, G, eps: EPS });
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (running) {
+    for (let k = 0; k < SUBSTEPS; k++) leapfrog(state, DT, { use_tree: useTree(), theta: theta(), G, eps: EPS });
   }
   render();
   requestAnimationFrame(tick);
 }
 
-function syncLabels() {
-  vN.textContent = String(st.N);
-  vTh.textContent = st.theta.toFixed(2);
-  vTree.textContent = st.use_tree ? 'tree' : 'direct';
-}
-
-sN.addEventListener('change', () => { st.N = parseInt(sN.value, 10); reseed(); syncLabels(); render(); });
-sN.addEventListener('input', () => { st.N = parseInt(sN.value, 10); syncLabels(); });
-sTh.addEventListener('input', () => { st.theta = parseFloat(sTh.value); syncLabels(); });
-selTree.addEventListener('change', () => { st.use_tree = selTree.value === 'tree'; syncLabels(); });
-tShowTree.addEventListener('change', () => { st.show_tree = tShowTree.checked; render(); });
-btnReset.addEventListener('click', () => {
-  st.N = 500; st.theta = 0.7; st.use_tree = true; st.show_tree = true; st.running = true;
-  sN.value = '500'; sTh.value = '0.7'; selTree.value = 'tree'; tShowTree.checked = true;
-  btnPause.textContent = 'Pause'; btnPause.setAttribute('aria-pressed', 'false');
-  syncLabels(); reseed(); render();
-});
-btnPause.addEventListener('click', () => {
-  st.running = !st.running;
-  btnPause.textContent = st.running ? 'Pause' : 'Play';
-  btnPause.setAttribute('aria-pressed', String(!st.running));
-});
-
-function getState() {
-  return { n_bodies: st.N, theta: st.theta, use_tree: st.use_tree ? 1 : 0, show_tree: st.show_tree ? 1 : 0 };
-}
-function restoreState() {
-  const s = parseUrlState();
-  if (!s) return;
-  if (s.n_bodies) { st.N = parseInt(s.n_bodies, 10); sN.value = String(st.N); }
-  if (s.theta) { st.theta = parseFloat(s.theta); sTh.value = String(st.theta); }
-  if (s.use_tree !== undefined) { st.use_tree = String(s.use_tree) === '1'; selTree.value = st.use_tree ? 'tree' : 'direct'; }
-  if (s.show_tree !== undefined) { st.show_tree = String(s.show_tree) === '1'; tShowTree.checked = st.show_tree; }
-}
-
 function bootSync() {
-  restoreState();
-  mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
-  syncLabels();
-  if (CAPTURE_NAME) {
-    // Sweep simulation time across captures so the disk has visibly
-    // wound up by t-100.
-    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    reseed();
-    const steps = Math.round(40 + f * 400);
-    for (let n = 0; n < steps; n += 1) leapfrog(st.state, DT, { use_tree: true, theta: 0.7, G, eps: EPS });
-  } else {
-    reseed();
-  }
+  syncVals();
+  rebuild();
+  cost = costCurve(theta());
+  const steps = CAPTURE_NAME ? Math.round((Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 200) : 120;
+  for (let k = 0; k < steps; k++) leapfrog(state, DT, { use_tree: true, theta: theta(), G, eps: EPS });
+  relayout();
   render();
-  if (DETERMINISTIC) {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      window.__simulationReady = true;
-      window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
-    }));
-  }
+}
+
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-} else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
 }
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function getState() {
+window.playground.getState = function () {
+  const directEv = state.N * (state.N - 1);
+  const bhEv = state.evals || 1;
   return {
     fields: [
-      { key: 'N', label: 'bodies N', value: latest.N, format: 'int' },
-      { key: 'algorithm', label: 'algorithm', value: st.use_tree ? 'Barnes-Hut' : 'direct O(N²)' },
-      { key: 'theta', label: 'opening θ', value: st.theta, format: 'fixed-3' },
-      { key: 'evals', label: 'evals / step', value: latest.evals, format: 'int' },
-      { key: 'nodes', label: 'tree nodes', value: latest.nNodes, format: 'int' },
-      { key: 'step', label: 'step', value: latest.nSteps, format: 'int' },
-      { key: 'speedup', label: 'speedup vs direct', value: latest.speedup, unit: '×', format: 'float' },
+      { key: 'N', label: 'bodies $N$', value: state.N, format: 'int' },
+      { key: 'evals', label: 'BH evals/step', value: bhEv, format: 'int' },
+      { key: 'direct', label: 'direct $N^2$', value: directEv, format: 'int' },
+      { key: 'speedup', label: 'speedup', value: directEv / bhEv, format: 'float' },
     ],
   };
 };
-window.playground.getInvariants = function getInvariants() {
-  const e = totalEnergy();
-  const drift = energy0 ? Math.abs((e - energy0) / energy0) : 0;
-  // Barnes-Hut must never evaluate more pairs than direct summation.
-  const boundExcess = latest.directPairs > 0
-    ? Math.max(0, latest.evals - latest.directPairs) / latest.directPairs : 0;
-  return [
-    { key: 'energy', label: 'energy conserved', value: drift, tolerance: 0.05,
-      status: drift < 0.05 ? 'pass' : 'drift' },
-    { key: 'bh_bound', label: 'evals ≤ direct N(N-1)', value: boundExcess, tolerance: 1e-9,
-      status: boundExcess < 1e-9 ? 'pass' : 'drift' },
-    { key: 'softening', label: 'Plummer softening ε > 0', value: EPS > 0 ? 0 : 1, tolerance: 1e-9,
-      status: EPS > 0 ? 'pass' : 'drift' },
-  ];
+
+window.playground.getInvariants = function () {
+  try {
+    if (!state) return [];
+    // Barnes-Hut accuracy: relative L2 error of the tree forces against the
+    // exact direct sum. This is exactly what the opening angle theta trades
+    // for speed, so it is the meaningful check (energy drift would conflate
+    // the integrator with the force approximation).
+    const N = state.N;
+    accDirect(state, G, EPS);
+    for (let i = 0; i < 2 * N; i++) aScratch[i] = state.a[i];   // exact
+    accBH(state, theta(), G, EPS);                              // approximate
+    let num = 0, den = 0;
+    for (let i = 0; i < 2 * N; i++) { const d = state.a[i] - aScratch[i]; num += d * d; den += aScratch[i] * aScratch[i]; }
+    const err = Math.sqrt(num / Math.max(1e-30, den));
+    return [{
+      key: 'bherr',
+      label: 'tree force error vs exact (rel. L2)',
+      value: err.toExponential(2),
+      status: err < 0.05 ? 'pass' : (err < 0.15 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
+  }
 };

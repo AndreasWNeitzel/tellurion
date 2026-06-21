@@ -13,12 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
-  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
-</style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 11ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -38,39 +38,40 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Quadtree N-body and the Barnes-Hut approximation</h1>
+      <h1 class="t-title playground-title">Barnes-Hut: gravity in N log N</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> a 2D gravity-bound disk of N test particles around a heavy central mass. The brown squares are the live quadtree partitioning that adapts to the moving distribution every step. The opening angle $\theta$ controls when a distant cluster of bodies is approximated as a single point at its centre of mass. Toggle the tree off to see direct $O(N^2)$ summation, and watch the per-step evaluation count in the rail.</p>
+      <p class="t-body">A galaxy of N stars pulls on itself by gravity. Doing it honestly costs $N^2$ force pairs every step, which is hopeless for a real galaxy. Barnes-Hut cheats brilliantly: it bins the stars into an adaptive quadtree and, for any clump that is far enough away, replaces the whole clump with a single point at its center of mass. A cell of width $s$ seen from distance $d$ is lumped when $s/d \lt \theta$. The result is $O(N\log N)$, the algorithm that makes galaxy and cosmology simulations possible. The scene shows the disk orbiting a heavy core with the live quadtree drawn over it; the diagnostic plots the force-pair count against N, Barnes-Hut against the brute-force $N^2$.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="880" height="540" aria-label="Simulation canvas"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" aria-label="An N-body disk with the live Barnes-Hut quadtree, and the force-pair count versus N."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption">
-      <span class="figure-number">Figure 1.</span> Disk N-body system with live quadtree overlay. <em>Method:</em> kick-drift-kick leapfrog, Plummer-softened gravity, recursive quadtree with opening-angle criterion $s/d &lt; \theta$. </figcaption>
+      <span class="figure-number">Figure 1.</span> Disk N-body with a live Barnes-Hut quadtree. Top: the disk orbiting a heavy core, with the adaptive cells overlaid. Bottom: force-pair evaluations per step versus N, Barnes-Hut against direct $N^2$. Method: kick-drift-kick leapfrog, Plummer-softened gravity, opening criterion $s/d \lt \theta$.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
         <div class="row"><span class="label">N bodies</span><input aria-label="N bodies" type="range" id="slider-n" min="50" max="1200" step="50" value="500"><span class="value" id="value-n">500</span></div>
-        <div class="row"><span class="label">opening &#952;</span><input aria-label="opening angle theta" type="range" id="slider-theta" min="0.2" max="1.2" step="0.05" value="0.7"><span class="value" id="value-theta">0.70</span></div>
-        <div class="row"><span class="label">algorithm</span><select aria-label="algorithm" id="select-tree"><option value="tree" selected>Barnes-Hut quadtree</option><option value="direct">direct O(N&#178;)</option></select><span class="value" id="value-tree">tree</span></div>
+        <div class="row"><span class="label">opening θ</span><input aria-label="opening angle theta" type="range" id="slider-theta" min="0.2" max="1.2" step="0.05" value="0.7"><span class="value" id="value-theta">0.70</span></div>
+        <div class="row"><span class="label">algorithm</span><select aria-label="algorithm" id="select-tree"><option value="tree" selected>Barnes-Hut</option><option value="direct">direct N²</option></select><span class="value" id="value-tree">tree</span></div>
         <div class="row"><span class="label">show tree</span><input aria-label="show tree" type="checkbox" id="toggle-show-tree" checked style="grid-column: span 2; justify-self: start;"></div>
-        <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
+        <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
       </div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Switch the algorithm to direct $O(N^2)$ and watch evals/step jump in the rail.</li>
-        <li class="t-body">Raise the opening angle $\theta$: the tree approximates more aggressively and evals/step drops.</li>
-        <li class="t-body">Push N toward 1200 and compare the speedup of Barnes-Hut against direct summation.</li>
+        <li class="t-body">Watch the quadtree subdivide finely where stars crowd together and stay coarse in the empty gaps; it follows the matter every step.</li>
+        <li class="t-body">Switch to direct N²: the force-pair count jumps to the brute-force curve, far above Barnes-Hut, especially at large N.</li>
+        <li class="t-body">Raise the opening angle θ: the tree lumps clumps more aggressively, fewer evaluations and a coarser (faster, less accurate) force.</li>
+        <li class="t-body">Push N up and read the gap on the lower plot: Barnes-Hut grows like N log N while direct grows like N².</li>
       </ul>
     </section>
 
