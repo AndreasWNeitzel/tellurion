@@ -35,9 +35,19 @@ const SCAT_N = [8, 16, 32, 64, 128, 256];
 const BASE_SEED = 0xC0FFEE;
 let running = !DETERMINISTIC;
 let runCount = 0;
-let run = null;            // {events, comparisons, disp, idx, comps, hi, hj, perFrame, done}
+let run = null;            // {events, comparisons, disp, idx, comps, hi, hj, elapsed, done}
 let holdT = 0;
+let evAccum = 0;           // fractional events carried between frames
 let scatter = null;       // { bubble:[{n,c}], insertion:[...], merge:[...] }
+
+// Events replayed per second at each speed setting. The rate is fixed per
+// step, not per whole sort, so an N^2 sort visibly takes far longer than an
+// N log N sort on the same array: that contrast is the entire lesson. Speed 1
+// crawls (a few comparisons a second, watchable one by one); speed 8 clears a
+// large quadratic sort in a few seconds.
+function eventsPerSec() {
+  return 4 * Math.pow(2.34, parseInt(sliderSpeed.value, 10) - 1);
+}
 
 function kind() { return selAlgo.value; }
 function N() { return parseInt(sliderN.value, 10); }
@@ -46,13 +56,13 @@ function startRun() {
   const n = N();
   const arr = shuffledArray(n, BASE_SEED + runCount);
   const rec = recordSort(kind(), arr);
-  const target = 380;       // frames to finish at speed 1
   run = {
     events: rec.events, comparisons: rec.comparisons,
     disp: Array.from(arr), idx: 0, comps: 0, hi: -1, hj: -1, done: false,
-    perFrame: Math.max(1, Math.round(rec.events.length / target)),
+    elapsed: 0,
   };
   holdT = 0;
+  evAccum = 0;
 }
 function buildScatter() {
   scatter = {};
@@ -142,16 +152,25 @@ function drawScene(col, r) {
   }
   ctx.restore();
 
-  // Big live comparison counter.
-  ctx.fillStyle = col.accent;
+  // Live cost: comparison count and elapsed time, side by side, so the
+  // viewer sees both the operation count climb and the wall-clock cost of
+  // those operations grow. A faint backing keeps them legible over the bars.
+  const label = `${run.comps.toLocaleString()} comparisons`;
   ctx.font = fontString(canvas, 'heading', 'mono', 700);
+  const lw = ctx.measureText(label).width;
+  ctx.fillStyle = 'rgba(10,12,18,0.55)';
+  ctx.fillRect(draw.x + 2, draw.y + 2, Math.max(lw + 16, 132), 52);
+  ctx.fillStyle = col.accent;
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText(`${run.comps.toLocaleString()} comparisons`, draw.x + 4, draw.y + 4);
+  ctx.fillText(label, draw.x + 8, draw.y + 6);
+  ctx.fillStyle = col.muted;
+  ctx.font = fontString(canvas, 'caption', 'mono', 600);
+  ctx.fillText(`t = ${run.elapsed.toFixed(1)} s`, draw.x + 8, draw.y + 32);
   if (run.done) {
     ctx.fillStyle = col.merge;
     ctx.font = fontString(canvas, 'caption', 'mono', 700);
     ctx.textAlign = 'right';
-    ctx.fillText('sorted', draw.x + draw.w - 4, draw.y + 4);
+    ctx.fillText(`sorted in ${run.elapsed.toFixed(1)} s`, draw.x + draw.w - 4, draw.y + 6);
   }
 
   // Readout strip.
@@ -252,10 +271,13 @@ function tick(now) {
   last = now;
   if (running) {
     if (!run.done) {
-      stepRun(run.perFrame * parseInt(sliderSpeed.value, 10));
+      run.elapsed += dt;
+      evAccum += eventsPerSec() * dt;
+      const steps = Math.floor(evAccum);
+      if (steps > 0) { evAccum -= steps; stepRun(steps); }
     } else {
       holdT += dt;
-      if (holdT > 1.3) { runCount += 1; startRun(); }
+      if (holdT > 1.6) { runCount += 1; startRun(); }
     }
   }
   render();
@@ -266,8 +288,9 @@ function bootSync() {
   syncVals();
   buildScatter();
   startRun();
+  // Capture frames want a populated mid-sort; the live page starts fresh so
+  // the comparison count and the elapsed clock both run from zero.
   if (CAPTURE_NAME) { stepRun(Math.round((Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * run.events.length)); }
-  else { stepRun(Math.round(run.events.length * 0.6)); }   // mid-sort on load
   relayout();
   render();
 }

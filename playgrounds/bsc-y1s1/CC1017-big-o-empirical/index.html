@@ -58,7 +58,7 @@
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
         <div class="row"><span class="label">array N</span><input aria-label="array size N" type="range" id="slider-N" min="8" max="120" step="4" value="48"><span class="value" id="value-N">48</span></div>
-        <div class="row"><span class="label">speed</span><input aria-label="replay speed" type="range" id="slider-speed" min="1" max="8" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+        <div class="row"><span class="label">speed</span><input aria-label="replay speed" type="range" id="slider-speed" min="1" max="8" step="1" value="5"><span class="value" id="value-speed">5</span></div>
         <div class="row"><span class="label">algorithm</span><select aria-label="algorithm" id="select-algo"><option value="bubble">bubble (N²)</option><option value="insertion">insertion (N²)</option><option value="merge">merge (N log N)</option></select><span class="value" id="value-algo">bubble</span></div>
         <div class="row buttons"><button id="btn-playpause" type="button" aria-pressed="false">Pause</button><button id="btn-reset" type="button">Reset</button></div>
       </div>
@@ -68,7 +68,8 @@
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
         <li class="t-body">Watch a sort run and the comparison counter climb; when it finishes, the array reshuffles and runs again.</li>
-        <li class="t-body">Switch between bubble, insertion, and merge and read the final comparison count: the quadratic sorts cost far more than merge at the same N.</li>
+        <li class="t-body">Switch between bubble, insertion, and merge at the same N and speed: every step takes the same time, so the clock at the top shows the quadratic sorts taking far longer to finish than merge.</li>
+        <li class="t-body">Drop the speed to 1 and shrink N: the sort crawls, one highlighted comparison at a time, so you can follow exactly what it does.</li>
         <li class="t-body">On the lower plot, the measured points land on straight lines, the slope is the exponent: about 2 for the quadratic sorts, about 1 for merge.</li>
         <li class="t-body">Raise N and watch the gap between the curves widen, the whole point of choosing a better algorithm.</li>
       </ul>
