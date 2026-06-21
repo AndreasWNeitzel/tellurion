@@ -10,10 +10,10 @@ curriculum_year: bsc-y2s1
 primary_citation: carroll-ostlie
 primary_chapter: 12
 hook: 'Gravity wants a gas cloud to collapse; pressure pushes back. Above the Jeans length gravity wins and the cloud runs away into a star.'
-one_paragraph: 'Small perturbations of a uniform self-gravitating gas obey the dispersion relation omega^2 = c_s^2 k^2 - 4 pi G rho. Short-wavelength modes (large k) keep omega^2 > 0 and merely oscillate as sound waves; long-wavelength modes flip omega^2 < 0 and grow exponentially, the runaway that starts star formation. The crossover is the Jeans length lambda_J = sqrt(pi c_s^2 / (G rho)). The playground plots the dispersion relation as you vary density and temperature, shading the stable and unstable bands and reporting the Jeans mass for cold-cloud conditions (tens of solar masses for a dense core). It pins down exactly when self-gravity beats pressure. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 12.'
-tags: [stellar, exoplanets, animation, live-readout]
+one_paragraph: 'Small perturbations of a uniform self-gravitating gas obey the dispersion relation omega^2 = c_s^2 k^2 - 4 pi G rho. Short-wavelength modes (large k) keep omega^2 > 0 and merely oscillate as sound waves; long-wavelength modes flip omega^2 < 0 and grow exponentially, the runaway that starts star formation. The crossover is the Jeans length lambda_J = sqrt(pi c_s^2 / (G rho)). The scene animates a density ripple of the chosen wavelength: below the Jeans length it sloshes as a sound wave, above it it runs away and fragments into clumps. The diagnostic plots the growth rate against wavelength, negative (oscillation) on the short side and rising to a free-fall plateau on the long side, crossing zero exactly at the Jeans length. Temperature and density set the Jeans length and the Jeans mass (tens of solar masses for a cold dense core). Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 12.'
+tags: [stellar, exoplanets, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -110,12 +110,23 @@ For canonical molecular-cloud parameters ($n = 10^3$ cm$^{-3}$, $T = 10$ K, pure
 
 ## Numerical method
 
-Closed-form. The dispersion is sampled at 200 logarithmically spaced $k$-points from $10^{-22}$ to $10^{-12}$ m$^{-1}$ and plotted on a signed-log $\omega^2$ axis.
+Closed-form dispersion relation. Rendering is plain Canvas2D: the scene
+draws a density slab rho0(1 + A cos kx) with the amplitude A following
+the analytic mode (A0 cosh(Gamma t) when unstable, A0 cos(omega t) when
+stable, the visual rate scaled by the actual rate so longer modes grow
+faster); the diagnostic samples the signed growth rate over 0.1 to 30 pc
+on a log-wavelength axis, scaled to the free-fall growth rate so the
+collapse plateau is visible.
 
 ## Controls
 
-- Temperature $T$ (5 to 10000 K). Sets the sound speed.
-- Number density $\log_{10}(n / \text{cm}^{-3})$ (-2 to 6). Sets the mass density via $\rho = n m_p$.
+- temperature T (5 to 80 K), setting the isothermal sound speed.
+- density log10(n / cm^-3) (2 to 5), setting the mass density rho = n m_p.
+- perturbation wavelength (0.2 to 20 pc): the mode tested in the scene.
+- Reset, Pause.
+
+Temperature and density set the Jeans length; the chosen wavelength
+relative to it decides whether the scene collapses or oscillates.
 
 ## Expected qualitative features
 

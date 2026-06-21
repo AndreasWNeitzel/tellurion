@@ -1,366 +1,291 @@
-// Jeans instability playground. Plots omega^2(k) on a signed
-// log-symmetric scale, shading the unstable band.
-
-import {
-  jeansLengthM, jeansMassKg, omegaSquared,
-  nToRho, isothermalCs, PC_M, M_SUN,
-} from './sim.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+// Vertical 4:5 hero for the Jeans gravitational instability, Canvas2D
+// only. Top region: a density ripple of the chosen wavelength that
+// oscillates as a sound wave (below the Jeans length) or collapses
+// exponentially (above it). Bottom region: the growth rate (collapse)
+// or oscillation frequency (stable) versus wavelength, crossing zero at
+// the Jeans length.
+//
+// Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics,
+// 2nd ed., Ch. 12.
 
-const params         = new URLSearchParams(location.search);
-const DETERMINISTIC  = params.get('deterministic') === '1';
-const CAPTURE_NAME   = params.get('capture');
-const CAPTURE_FRAC   = parseFloat(params.get('captureFraction') ?? '0');
+import { jeansLengthM, jeansMassKg, omegaSquared, nToRho, isothermalCs, G_SI, PC_M, M_SUN } from './sim.js';
 
-const canvas      = document.getElementById('stage');
-const ctx         = canvas.getContext('2d', { alpha: false });
-const readoutLj   = document.getElementById('readout-lj');
-const readoutMj   = document.getElementById('readout-mj');
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
 
-const sliderT     = document.getElementById('slider-T');
-const sliderLogN  = document.getElementById('slider-logn');
-const valueT      = document.getElementById('value-T');
-const valueLogN   = document.getElementById('value-logn');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-let T   = parseFloat(sliderT.value);
-let logN = parseFloat(sliderLogN.value);
+const sliderTemp = document.getElementById('slider-temp');
+const sliderN = document.getElementById('slider-n');
+const sliderLam = document.getElementById('slider-lam');
+const valueTemp = document.getElementById('value-temp');
+const valueN = document.getElementById('value-n');
+const valueLam = document.getElementById('value-lam');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
 
-sliderT.addEventListener('input', () => { T = parseFloat(sliderT.value); valueT.textContent = String(T.toFixed(0)); });
-sliderLogN.addEventListener('input', () => { logN = parseFloat(sliderLogN.value); valueLogN.textContent = logN.toFixed(2); });
+const SEC_PER_MYR = 3.156e13, A0 = 0.12, AMAX = 0.92;
+let running = !DETERMINISTIC;
+let phi = 0, hold = 0;
+
+function tempK() { return parseFloat(sliderTemp.value); }
+function nCm3() { return Math.pow(10, parseFloat(sliderN.value)); }
+function lamPc() { return parseFloat(sliderLam.value); }
+function cs() { return isothermalCs(tempK()); }
+function rho() { return nToRho(nCm3()); }
+function lamJpc() { return jeansLengthM(cs(), rho()) / PC_M; }
+function w2() { const k = 2 * Math.PI / (lamPc() * PC_M); return omegaSquared(k, cs(), rho()); }
+
+function syncVals() {
+  valueTemp.textContent = `${tempK().toFixed(0)} K`;
+  valueN.textContent = `1e${parseFloat(sliderN.value).toFixed(1)}`;
+  valueLam.textContent = `${lamPc().toFixed(1)} pc`;
+}
+[sliderTemp, sliderN, sliderLam].forEach((el) => el.addEventListener('input', () => { syncVals(); phi = 0; hold = 0; render(); }));
+btnReset.addEventListener('click', () => {
+  sliderTemp.value = '10'; sliderN.value = '3'; sliderLam.value = '5'; phi = 0; hold = 0;
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
+
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.7 },
+    { name: 'diagnostic', weight: 1.3 },
+  ]);
+}
 
 function colors() {
   const css = getComputedStyle(document.body);
   return {
-    bg:     css.getPropertyValue('--bg').trim() || '#060608',
-    fg:     css.getPropertyValue('--fg').trim() || '#e8e8e8',
-    muted:  css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
     accent: css.getPropertyValue('--accent').trim() || '#ffd166',
-    blue:   '#5bc0eb',
-    red:    '#ef476f',
-    grid:   '#23252a',
+    collapse: '#ef5466', stable: '#5bc0eb',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)',
   };
 }
 
-// Symmetric log scale: y > 0 -> log10(y), y < 0 -> -log10(-y), with
-// linear interpolation across zero.
-function symLog(y) {
-  const linthresh = 1e-30;
-  if (Math.abs(y) < linthresh) return y / linthresh;
-  return Math.sign(y) * (Math.log10(Math.abs(y) / linthresh) + 1);
+// warm "gas" colour for normalized density d in [0, 2]; brighter = denser.
+function gasColor(d) {
+  const t = Math.max(0, Math.min(1, d / 2));
+  const r = Math.round(255 * Math.min(1, t * 1.7));
+  const g = Math.round(255 * Math.max(0, (t - 0.32) * 1.5));
+  const b = Math.round(255 * Math.max(0, (t - 0.72) * 3.2));
+  return `rgb(${r},${g},${b})`;
+}
+
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
+  }
+}
+
+function amplitude(unstable) {
+  return unstable ? Math.min(AMAX, A0 * Math.cosh(phi)) : A0 * 3.2 * Math.cos(phi);
+}
+
+function drawScene(col, r) {
+  const unstable = w2() < 0;
+  panel(col, r, unstable ? 'A density ripple running away: gravity wins' : 'A density ripple sloshing: a sound wave');
+
+  const titleH = 22, stripH = 28;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const A = amplitude(unstable);
+  const cyc = 2.5;                       // wavelengths shown
+  const slabY = draw.y + draw.h * 0.36, slabH = draw.h * 0.54;
+
+  ctx.save();
+  clipTo(ctx, draw);
+
+  // density bands.
+  const NB = 200;
+  for (let i = 0; i < NB; i++) {
+    const xf = i / NB, kx = xf * cyc * 2 * Math.PI;
+    const d = 1 + A * Math.cos(kx);
+    ctx.fillStyle = gasColor(d);
+    ctx.fillRect(draw.x + xf * draw.w, slabY, draw.w / NB + 1, slabH);
+  }
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(draw.x, slabY, draw.w, slabH);
+
+  // density profile curve above the slab.
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i <= NB; i++) { const xf = i / NB, kx = xf * cyc * 2 * Math.PI; const d = 1 + A * Math.cos(kx); const X = draw.x + xf * draw.w, Y = slabY - 14 - (d - 1) / Math.max(0.3, A + 0.05) * (draw.h * 0.13); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
+  ctx.stroke();
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText('density ρ(x)', draw.x + 6, slabY - 16 - draw.h * 0.13 - 2);
+
+  // clump markers when collapsing hard.
+  if (unstable && A > 0.45) {
+    for (let m = 0; m < cyc; m++) {
+      const xf = (m + 0.0) / cyc; const X = draw.x + xf * draw.w;
+      ctx.fillStyle = 'rgba(255,240,200,0.9)'; ctx.beginPath(); ctx.arc(X, slabY + slabH / 2, 3 + 7 * A, 0, 2 * Math.PI); ctx.fill();
+    }
+  }
+
+  // regime label.
+  ctx.fillStyle = unstable ? col.collapse : col.stable; ctx.font = fontString(canvas, 'heading', 'sans', 800);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(unstable ? 'COLLAPSING' : 'STABLE (sound wave)', draw.x + draw.w / 2, draw.y + draw.h * 0.04);
+
+  ctx.restore();
+
+  // readout strip.
+  const lj = lamJpc(), ratio = lamPc() / lj;
+  const Mj = jeansMassKg(cs(), rho()) / M_SUN;
+  const items = [
+    [unstable ? 'collapse' : 'stable', unstable ? col.collapse : col.stable],
+    [`λ/λ_J ${ratio.toFixed(2)}`, col.accent],
+    [`λ_J ${lj.toFixed(2)}pc`, col.muted],
+    [`M_J ${Mj.toFixed(0)}M⊙`, col.muted],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - stripH / 2 + 1); });
+}
+
+const LAM_MIN = 0.1, LAM_MAX = 30;
+function rateMyr(lpc) {
+  const k = 2 * Math.PI / (lpc * PC_M); const ww = omegaSquared(k, cs(), rho());
+  const r = ww < 0 ? Math.sqrt(-ww) : -Math.sqrt(ww);   // + = growth (collapse), - = oscillation
+  return r * SEC_PER_MYR;
+}
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Growth rate vs wavelength (zero at the Jeans length)');
+
+  const inner = { x: r.x + 50, y: r.y + 28, w: r.w - 50 - 16, h: r.h - 28 - 42 };
+  // y-range tied to the maximum growth rate sqrt(4 pi G rho) so the
+  // collapse branch (which plateaus there) is fully visible; the much
+  // larger short-wavelength sound frequencies are clipped.
+  const mx = 1.7 * Math.sqrt(4 * Math.PI * G_SI * rho()) * SEC_PER_MYR;
+  const N = 160, pts = [];
+  for (let i = 0; i <= N; i++) { const lpc = LAM_MIN * Math.pow(LAM_MAX / LAM_MIN, i / N); pts.push([lpc, Math.max(-mx, Math.min(mx, rateMyr(lpc)))]); }
+  const lx = (lpc) => inner.x + (Math.log10(lpc) - Math.log10(LAM_MIN)) / (Math.log10(LAM_MAX) - Math.log10(LAM_MIN)) * inner.w;
+  const cy = inner.y + inner.h / 2;
+  const yOf = (rt) => cy - (rt / mx) * (inner.h / 2);
+
+  // collapse / stable shading split at lambda_J.
+  const lj = lamJpc(), xj = lx(lj);
+  ctx.fillStyle = 'rgba(239,84,102,0.10)'; ctx.fillRect(xj, inner.y, inner.x + inner.w - xj, inner.h);
+  ctx.fillStyle = 'rgba(91,192,235,0.08)'; ctx.fillRect(inner.x, inner.y, xj - inner.x, inner.h);
+
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(inner.x, cy); ctx.lineTo(inner.x + inner.w, cy); ctx.stroke();
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('0', inner.x - 5, cy);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const l of [0.1, 1, 10]) if (l >= LAM_MIN && l <= LAM_MAX) ctx.fillText(`${l}`, lx(l), inner.y + inner.h + 6);
+
+  // curve.
+  ctx.strokeStyle = col.accent; ctx.lineWidth = 2.6; ctx.beginPath();
+  pts.forEach((p, i) => { const X = lx(p[0]), Y = yOf(p[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke();
+
+  // lambda_J line + current lambda marker.
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(xj, inner.y); ctx.lineTo(xj, inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = col.fg; ctx.font = fontString(canvas, 'legend', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('λ_J', xj, inner.y + 3);
+  const cl = lamPc(); const cur = rateMyr(cl), curC = Math.max(-mx, Math.min(mx, cur));
+  ctx.fillStyle = cur > 0 ? col.collapse : col.stable; ctx.beginPath(); ctx.arc(lx(cl), yOf(curC), 5, 0, 2 * Math.PI); ctx.fill();
+
+  // region labels.
+  ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textBaseline = 'bottom';
+  ctx.fillStyle = col.collapse; ctx.textAlign = 'left'; ctx.fillText('collapse →', xj + 6, inner.y + inner.h - 4);
+  ctx.fillStyle = col.stable; ctx.textAlign = 'right'; ctx.fillText('← sound waves', xj - 6, inner.y + 16);
+
+  // labels.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('wavelength λ (pc, log)', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 38, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('growth rate (1/Myr)', 0, 0); ctx.restore();
 }
 
 function render() {
-  const c = colors();
-  ctx.fillStyle = c.bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  const cs = isothermalCs(T);
-  const n_cm3 = Math.pow(10, logN);
-  const rho = nToRho(n_cm3);
-
-  // Layout: dispersion plot on the LEFT, evolving-density simulation
-  // on the RIGHT.
-  const padL = 64, padR = 16, padT = 30, padB = 40;
-  const SIM_FRAC = 0.40;
-  const plotW = (canvas.width - padL - padR) * (1 - SIM_FRAC) - 16;
-  const plotH = canvas.height - padT - padB;
-
-  // k range from 1e-22 to 1e-12 /m (log) - covers galactic to subparsec.
-  const kMinLog = -22, kMaxLog = -12;
-  function xFor(lK) { return padL + plotW * (lK - kMinLog) / (kMaxLog - kMinLog); }
-
-  // omega^2 range (log absolute) from 1e-32 (epsilon) to 1e-22.
-  const wMinSym = -10, wMaxSym = 10; // symlog units
-  function yFor(w2) {
-    const s = symLog(w2);
-    return padT + plotH * (1 - (s - wMinSym) / (wMaxSym - wMinSym));
-  }
-
-  // Grid.
-  ctx.strokeStyle = c.grid;
-  ctx.lineWidth = 1;
-  for (let lK = kMinLog; lK <= kMaxLog; lK += 2) {
-    const x = xFor(lK);
-    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
-    ctx.fillStyle = c.muted;
-    ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`1e${lK}`, x - 18, padT + plotH + 14);
-  }
-  // zero line.
-  ctx.strokeStyle = c.muted;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(padL, yFor(0)); ctx.lineTo(padL + plotW, yFor(0)); ctx.stroke();
-
-  // Compute kJ.
-  const lamJ = jeansLengthM(cs, rho);
-  const kJ = 2 * Math.PI / lamJ;
-  const lkJ = Math.log10(kJ);
-
-  // Shade unstable band (k < kJ).
-  if (lkJ > kMinLog) {
-    const xShade = xFor(Math.min(kMaxLog, lkJ));
-    ctx.fillStyle = 'rgba(239, 71, 111, 0.10)';
-    ctx.fillRect(padL, padT, xShade - padL, plotH);
-  }
-
-  // Dispersion curve.
-  ctx.strokeStyle = c.accent;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let i = 0; i <= 200; i += 1) {
-    const lK = kMinLog + (kMaxLog - kMinLog) * i / 200;
-    const k = Math.pow(10, lK);
-    const w2 = omegaSquared(k, cs, rho);
-    const xx = xFor(lK);
-    const yy = yFor(w2);
-    if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
-  }
-  ctx.stroke();
-
-  // Jeans wavenumber marker.
-  if (lkJ > kMinLog && lkJ < kMaxLog) {
-    const xJ = xFor(lkJ);
-    ctx.strokeStyle = c.red;
-    ctx.setLineDash([5, 4]);
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(xJ, padT); ctx.lineTo(xJ, padT + plotH); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = c.red;
-    ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`k_J = 2pi/lambda_J`, xJ + 4, padT + 12);
-  }
-
-  // Axis labels.
-  ctx.fillStyle = c.muted;
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('k (1/m)', padL + plotW - 50, padT + plotH + 28);
-  ctx.save(); ctx.translate(16, padT + plotH / 2 + 40); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('ω^2 (1/s^2), signed-log', 0, 0); ctx.restore();
-
-  // Label regions.
-  ctx.fillStyle = c.red;
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('Jeans-unstable (ω^2 < 0)', padL + 12, padT + plotH - 8);
-  ctx.fillStyle = c.blue;
-  ctx.fillText('sound-wave (ω^2 > 0)', padL + plotW - 180, padT + 24);
-
-  // ======================================================================
-  // RIGHT: live evolution of a 1D density field under the dispersion.
-  // delta(x, t) = sum_k A_k cos(k x) * f_k(t), where
-  //   f_k(t) = cos(omega_k t)   if omega_k^2 > 0   (sound wave),
-  //   f_k(t) = cosh(gamma_k t)  if omega_k^2 < 0   (Jeans-unstable).
-  // The user sees stable modes oscillate while unstable ones blow up
-  // exponentially.
-  // ======================================================================
-  const simX = padL + plotW + 16;
-  const simW = canvas.width - padR - simX;
-  ctx.fillStyle = 'rgba(15, 22, 36, 0.85)';
-  ctx.fillRect(simX, padT, simW, plotH);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
-  ctx.strokeRect(simX + 0.5, padT + 0.5, simW - 1, plotH - 1);
-  ctx.fillStyle = c.fg;
-  ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('δ(x, t) evolution', simX + 8, padT + 16);
-
-  // Two stacked panes: top = density profile, bottom = mode amplitudes
-  // tracked vs time (the diagnostic).
-  const topH = plotH * 0.55, botH = plotH - topH - 14;
-  // Density field.
-  const fx0 = simX + 16, fy0 = padT + 28, fw = simW - 32, fh = topH - 30;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
-  for (let yv = -1; yv <= 1.001; yv += 0.5) {
-    const y = fy0 + fh / 2 - (yv / 2) * fh;
-    ctx.beginPath(); ctx.moveTo(fx0, y); ctx.lineTo(fx0 + fw, y); ctx.stroke();
-  }
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
-  ctx.beginPath(); ctx.moveTo(fx0, fy0 + fh / 2); ctx.lineTo(fx0 + fw, fy0 + fh / 2); ctx.stroke();
-  // Pick three probe wavenumbers: one well below k_J (unstable), one
-  // near k_J, one well above (stable sound wave).
-  const NX_FIELD = 240;
-  const tEvolve = simTime;
-  const probeKs = [
-    { k: Math.pow(10, lkJ - 1.2), col: '#ef476f', label: 'k<k_J unstable' },
-    { k: Math.pow(10, lkJ),       col: '#ffd166', label: 'k=k_J marginal' },
-    { k: Math.pow(10, lkJ + 1.2), col: '#5bc0eb', label: 'k>k_J stable' },
-  ];
-  // Amplitude evolution f(t).
-  function f_k(k, t) {
-    const w2 = omegaSquared(k, cs, rho);
-    if (w2 >= 0) return Math.cos(Math.sqrt(w2) * t);
-    return Math.cosh(Math.sqrt(-w2) * t);
-  }
-  // Sum the three probe modes into the density field; cap amplitude
-  // at +/- 1 visually so the unstable mode doesn't blow off-screen.
-  for (let i = 0; i < NX_FIELD; i += 1) {
-    const xFrac = i / (NX_FIELD - 1);
-    const xWorld = xFrac * (2 * Math.PI / probeKs[0].k);     // domain = one wavelength of the longest mode
-    let d = 0;
-    for (const probe of probeKs) {
-      d += 0.25 * Math.cos(probe.k * xWorld) * f_k(probe.k, tEvolve);
-    }
-    d = Math.max(-1, Math.min(1, d));
-    const x = fx0 + xFrac * fw;
-    const y = fy0 + fh / 2 - (d / 2) * fh;
-    ctx.fillStyle = d >= 0 ? 'rgba(239, 71, 111, 0.7)' : 'rgba(91, 192, 235, 0.7)';
-    ctx.fillRect(x, Math.min(y, fy0 + fh / 2), 1.5, Math.abs(d / 2 * fh));
-  }
-  ctx.fillStyle = 'rgba(200, 210, 230, 0.8)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('δ(x) (3 superposed modes)', fx0, fy0 + 12);
-
-  // Mode amplitude time-series panel.
-  const ax0 = simX + 36, ay0 = padT + topH, aw = simW - 50, ah = botH - 30;
-  ctx.fillStyle = 'rgba(8, 14, 24, 0.7)';
-  ctx.fillRect(ax0 - 12, ay0, aw + 20, ah + 26);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.18)';
-  ctx.strokeRect(ax0 - 12 + 0.5, ay0 + 0.5, aw + 19, ah + 25);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('mode amplitude vs time', ax0 - 8, ay0 + 14);
-  // Y range: log10|A| from -2 to 4 (six decades). The plot area starts
-  // BELOW the title (ay0 + 24) so the top y-tick cannot collide with it.
-  const aMin = -2, aMax = 4;
-  const plotTop = ay0 + 24;
-  function yOfA(la) {
-    return plotTop + (1 - (la - aMin) / (aMax - aMin)) * (ay0 + ah - 6 - plotTop);
-  }
-  function xOfT(t) { return ax0 + (t / 18) * aw; }
-  // Axes.
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
-  for (let la = aMin; la <= aMax; la += 1) {
-    ctx.beginPath(); ctx.moveTo(ax0, yOfA(la)); ctx.lineTo(ax0 + aw, yOfA(la)); ctx.stroke();
-  }
-  ctx.fillStyle = 'rgba(200, 210, 240, 0.75)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'right';
-  for (let la = aMin; la <= aMax; la += 2) ctx.fillText(`10^${la}`, ax0 - 2, yOfA(la) + 3);
-  ctx.textAlign = 'left';
-  // Curves.
-  const NPT = 80;
-  for (const probe of probeKs) {
-    ctx.strokeStyle = probe.col; ctx.lineWidth = 1.6;
-    ctx.beginPath();
-    let started = false;
-    for (let i = 0; i <= NPT; i += 1) {
-      const t = (i / NPT) * 18;        // 0..18 sim-time units
-      const a = Math.abs(f_k(probe.k, t));
-      if (a < 1e-3) continue;
-      const la = Math.max(aMin, Math.min(aMax, Math.log10(a)));
-      const x = xOfT(t), y = yOfA(la);
-      if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-  // Current-time marker.
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-  ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
-  const xt = xOfT(Math.min(18, simTime));
-  ctx.beginPath(); ctx.moveTo(xt, ay0 + 18); ctx.lineTo(xt, ay0 + ah + 4); ctx.stroke();
-  ctx.setLineDash([]);
-  // Legend: three entries spread evenly across the panel width so the
-  // last one cannot clip the right edge.
-  const llyy = ay0 + ah + 12;
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  const legStep = (aw - 8) / probeKs.length;
-  probeKs.forEach((probe, i) => {
-    ctx.fillStyle = probe.col;
-    ctx.fillText(probe.label, ax0 - 8 + i * legStep, llyy);
-  });
+  if (!REG) relayout();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
-// Live cosmic time (simulation seconds; gravity scales set by rho).
-let simTime = 0;
-let lastWall = performance.now();
-
-function updateReadout() {
-  const cs = isothermalCs(T);
-  const n_cm3 = Math.pow(10, logN);
-  const rho = nToRho(n_cm3);
-  const lam = jeansLengthM(cs, rho);
-  const M = jeansMassKg(cs, rho);
-  readoutLj.textContent = (lam / PC_M).toFixed(3);
-  readoutMj.textContent = (M / M_SUN).toFixed(2);
-}
-
-// Honour the OS reduced-motion preference: when set, the time sweep
-// holds at a representative mid-point rather than animating.
-const REDUCED_MOTION = prefersReducedMotion();
-function loop(now) {
-  const dt = Math.min(0.05, (now - lastWall) / 1000);
-  lastWall = now;
-  // Sweep simulation time from 0 to 18 in ~ 9 seconds, then loop.
-  if (REDUCED_MOTION) { simTime = 9; }
-  else {
-    simTime += dt * 2;
-    if (simTime > 18) simTime = 0;
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (running) {
+    const ww = w2(), unstable = ww < 0;
+    const rateRef = Math.sqrt(4 * Math.PI * G_SI * rho());
+    const vr = Math.min(1.4, Math.sqrt(Math.abs(ww)) / rateRef);
+    if (unstable) {
+      if (amplitude(true) >= AMAX - 1e-6) { hold += 1; if (hold > 45) { phi = 0; hold = 0; } }
+      else phi += vr * 1.4 * dt;
+    } else { phi += vr * 2.2 * dt; }
   }
-  // Guard the render so a transient exception cannot silently kill
-  // the rAF chain (the chain must keep scheduling).
-  try { render(); updateReadout(); }
-  catch (e) { console.error('jeans loop failed', e); }
-  requestAnimationFrame(loop);
-}
-
-function bootSync() {
-  if (CAPTURE_NAME) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    T = 10 + frac * 1000;
-    sliderT.value = String(Math.round(T));
-    valueT.textContent = String(Math.round(T));
-  }
-  valueT.textContent = String(T.toFixed(0));
-  valueLogN.textContent = logN.toFixed(2);
   render();
-  updateReadout();
+  requestAnimationFrame(tick);
+}
 
-  if (DETERMINISTIC) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, T, logN };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
-  }
+function bootSync() { syncVals(); relayout(); phi = 1.2; render(); }
+
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(loop);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(loop);
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
 }
 
-
-// === Diagnostics interface (Layout System v2) ===
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const rho = nToRho(Math.pow(10, logN));
-  const Lj = jeansLengthM(T, rho);
-  const Mj = jeansMassKg(T, rho);
   return {
     fields: [
-      { key: 'T', label: 'Temperature T', value: T, format: 'float' },
-      { key: 'logN', label: 'Log density log10(n)', value: logN, format: 'float' },
-      { key: 'Lj', label: 'Jeans length Lj', value: Lj / PC_M, format: 'float' },
-      { key: 'Mj', label: 'Jeans mass Mj', value: Mj / M_SUN, format: 'float' }
-    ]
+      { key: 'regime', label: 'regime', value: w2() < 0 ? 'collapse' : 'stable', format: 'text' },
+      { key: 'ratio', label: 'λ / λ_J', value: lamPc() / lamJpc(), format: 'float' },
+      { key: 'lamJ', label: 'Jeans length (pc)', value: lamJpc(), format: 'float' },
+      { key: 'Mj', label: 'Jeans mass (M_sun)', value: jeansMassKg(cs(), rho()) / M_SUN, format: 'float' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
-  const rho = nToRho(Math.pow(10, logN));
-  const Lj = jeansLengthM(T, rho);
-  const unstableK = 1 / Lj;
-  return [{
-    key: 'jeans-instability',
-    label: `Unstable region k < 1/Lj (wavenumber < ${(1e-20/Lj).toFixed(3)})`,
-    value: 'pass',
-    status: 'pass'
-  }];
+  try {
+    // Jeans criterion: the mode is unstable (omega^2 < 0) exactly when its
+    // wavelength exceeds the Jeans length.
+    const ww = w2();
+    const consistent = (ww < 0) === (lamPc() > lamJpc());
+    return [{
+      key: 'jeans',
+      label: 'ω² < 0  ⟺  λ > λ_J',
+      value: (ww * SEC_PER_MYR * SEC_PER_MYR).toExponential(2),
+      status: consistent ? 'pass' : 'drift',
+    }];
+  } catch (e) {
+    return [];
+  }
 };

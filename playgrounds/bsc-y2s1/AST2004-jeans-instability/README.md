@@ -1,17 +1,31 @@
 # Jeans instability
 
-In a uniform self-gravitating medium of density $\rho$ and sound speed $c_s$, plane-wave density perturbations follow the dispersion $\omega^2 = c_s^2 k^2 - 4 \pi G \rho$. Long-wavelength modes ($k$ small) have $\omega^2 < 0$ and grow exponentially: this is gravitational instability, the seed of star formation. The crossover is at the Jeans length $\lambda_J = \sqrt{\pi c_s^2 / G \rho}$.
+A self-gravitating gas cloud is a tug of war between gravity (which collapses it)
+and pressure (which smooths clumps into sound waves). For a plane-wave density
+ripple the two balance through the dispersion relation omega^2 = c_s^2 k^2 - 4 pi
+G rho. Long-wavelength ripples (small k) have omega^2 < 0 and grow exponentially,
+the gravitational collapse that seeds star formation; short ones oscillate as
+sound waves. The crossover is the Jeans length lambda_J = sqrt(pi c_s^2 / G rho).
 
-Look for the parabola $\omega^2(k)$. The shaded band ($k < k_J$) is the Jeans-unstable region. Increasing density shrinks $\lambda_J$, increasing temperature grows it. For a cold dense cloud ($T = 10$ K, $n = 10^3$ cm$^{-3}$) the readout shows $\lambda_J \sim 1.5$ pc and $M_J \sim 50\,M_\odot$.
+Look for the scene: set a wavelength above the Jeans length and the density ripple
+runs away into bright clumps; set it below and the ripple just sloshes back and
+forth. The lower plot is the growth rate against wavelength, negative (oscillation)
+on the short side, rising to a free-fall plateau on the long side, and crossing
+zero exactly at the Jeans length. A colder or denser cloud shrinks the Jeans
+length, so smaller ripples collapse (for T = 10 K, n = 1e3 cm^-3 the readout shows
+lambda_J ~ 1.5 pc, M_J ~ 50 solar masses).
 
-Two sliders set the temperature in K and the number density as $\log_{10}(n/\text{cm}^{-3})$.
+Use the temperature, density, and wavelength sliders. Pause freezes the ripple
+and Reset restores the cold-cloud collapse.
 
 ## Reference
 
-Primary citation: Carroll-Ostlie, *An Introduction to Modern Astrophysics*, 2e, Ch. 12 (`carroll-ostlie`).
+Primary citation: Carroll and Ostlie, *An Introduction to Modern Astrophysics*,
+2nd ed., Ch. 12.
 
 ## Verification
 
-- Strong invariants: $\omega^2 = 0$ at $k = k_J$; $\lambda_J \propto c_s / \sqrt{\rho}$.
-- Visual gate: SSIM > 0.92 against committed golden frames at seed 0xC0FFEE.
-- Last verified: see `.verified`.
+- Strong invariants: omega^2 = 0 at k = k_J; lambda_J proportional to c_s /
+  sqrt(rho); cold-cloud Jeans length and mass in the expected ranges.
+- Live readout: the Jeans criterion (omega^2 < 0 iff lambda > lambda_J), checked
+  each frame in the rail.
