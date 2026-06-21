@@ -43,16 +43,16 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
+      <canvas class="playground-canvas" id="stage" width="800" height="1000"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Period-spacing diagram with mode trapping.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Mode trapping in an evolved star. Top: the buoyancy frequency N(r) with a composition glitch, and the displacement eigenfunction of the current g-mode (gold when trapped, green when propagating). Bottom: the observable period-spacing diagram deltaP(P), whose dips mark the trapped modes. Both come from solving the g-mode wave equation psi'' + (l(l+1) N^2/(omega^2 r^2)) psi = 0 on one N(r) profile. Reference: Aerts, Christensen-Dalsgaard and Kurtz (2010), Ch. 3.4; Cunha et al. (2015).</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">Π_1 (s)</span><input aria-label="Π_1 (s)" type="range" id="slider-p" min="60" max="300" step="1" value="80"><span class="value" id="value-p">80</span></div>
-<div class="row"><span class="label">A</span><input aria-label="A" type="range" id="slider-A" min="0" max="0.5" step="0.01" value="0.2"><span class="value" id="value-A">0.20</span></div>
-<div class="row"><span class="label">P_trap (s)</span><input aria-label="P_trap (s)" type="range" id="slider-T" min="100" max="800" step="5" value="350"><span class="value" id="value-T">350</span></div>
+<div class="row"><span class="label">glitch strength A</span><input aria-label="glitch strength A" type="range" id="slider-A" min="0" max="0.6" step="0.05" value="0.45"><span class="value" id="value-A">0.45</span></div>
+<div class="row"><span class="label">glitch position</span><input aria-label="glitch position r/R" type="range" id="slider-xg" min="0.12" max="0.45" step="0.02" value="0.22"><span class="value" id="value-xg">0.22</span></div>
+<div class="row"><span class="label">degree ℓ</span><input aria-label="degree l" type="range" id="slider-l" min="1" max="2" step="1" value="1"><span class="value" id="value-l">1</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">ΔP rms:</span><span class="value" id="readout-r">0</span></div></div>
@@ -61,8 +61,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Set the glitch strength to zero: the eigenfunctions all look alike and the period spacing is flat at Pi_1, the asymptotic g-mode result.</li>
+        <li class="t-body">Turn the glitch up: the spacing develops dips, and the modes sitting in those dips are the trapped ones, ringing loudly on one side of the glitch.</li>
+        <li class="t-body">Move the glitch outward: the modulation period of the dips changes, because it is set by the buoyancy depth of the glitch. This is how the dip pattern locates the glitch.</li>
+        <li class="t-body">Watch the sweep: successive modes trap and release as their period passes through the dips.</li>
       </ul>
     </section>
 

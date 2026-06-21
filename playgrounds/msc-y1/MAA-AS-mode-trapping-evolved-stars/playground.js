@@ -1,191 +1,230 @@
-// Mode trapping in evolved stars, shown as the physics it is, not a
-// bare plot. A sharp glitch in the buoyancy (Brunt-Vaisala) profile
-// partially reflects g-modes: modes whose period sits at a deltaP
-// minimum are trapped and their displacement eigenfunction rings
-// loudly just outside the glitch, while modes between dips propagate
-// across the whole radiative cavity. The playground sweeps the mode
-// ladder so you watch successive modes trap and release; the
-// observable period-spacing diagram deltaP(P) is demoted to a strip
-// with the current mode tracked on it. The mean spacing stays at the
-// asymptotic Pi_1 despite the wiggle: that is the live invariant.
-// sim.js deltaP / modePeriods are byte-identical; trapping /
-// gModeEnvelope / gModePhase are appended. Reference: Mosser et al.,
-// A&A 618, A109 (2018); Aerts, Christensen-Dalsgaard and Kurtz,
-// Asteroseismology, Ch. 3.
-import { deltaP, modePeriods, trapping, gModeEnvelope, gModePhase } from './sim.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+// Mode trapping in evolved stars. A sharp glitch in the buoyancy frequency
+// N(r) partially reflects g-modes; both the trapped eigenfunctions and the dips
+// in the period spacing come out of one eigenvalue solve (sim.js). The top
+// panel shows N(r) and the current mode's displacement eigenfunction (trapped
+// modes ring loudly on one side of the glitch); the bottom panel is the
+// observable period-spacing diagram Delta P(P) whose dips mark the trapped
+// modes. Canvas2D only.
+//
+// Reference: Aerts, Christensen-Dalsgaard and Kurtz, Asteroseismology (2010),
+// Ch. 3.4; Cunha et al., ApJ 805 (2015) 127; Mosser et al., A&A 618 (2018) A109.
+
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { solveGModes, bruntProfile, X_IN, X_ENV, DPI1_SECONDS } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
-const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
+const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? 'NaN');
+
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const rR = document.getElementById('readout-r');
-const sP = document.getElementById('slider-p'), vP = document.getElementById('value-p');
 const sA = document.getElementById('slider-A'), vA = document.getElementById('value-A');
-const sT = document.getElementById('slider-T'), vT = document.getElementById('value-T');
+const sX = document.getElementById('slider-xg'), vX = document.getElementById('value-xg');
+const sL = document.getElementById('slider-l'), vL = document.getElementById('value-l');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-const W = canvas.width, H = canvas.height;
 
-const st = { Pi: 80, A: 0.2, Ptrap: 350, t: 0, mi: 1 };
-let running = !prefersReducedMotion();
-const NM = 60, P0 = 800;
-const XENV = 0.62;                                   // g-mode cavity edge (frac radius)
+const st = { A: 0.45, xg: 0.22, l: 1, mi: 1, t: 0 };
+let running = !DETERMINISTIC;
 
-sP.addEventListener('input', () => { st.Pi = parseFloat(sP.value); vP.textContent = st.Pi.toFixed(0); });
-sA.addEventListener('input', () => { st.A = parseFloat(sA.value); vA.textContent = st.A.toFixed(2); });
-sT.addEventListener('input', () => { st.Ptrap = parseFloat(sT.value); vT.textContent = st.Ptrap.toFixed(0); });
-btnR.addEventListener('click', () => { st.Pi = 80; st.A = 0.2; st.Ptrap = 350; st.t = 0; st.mi = 1; sP.value = '80'; vP.textContent = '80'; sA.value = '0.2'; vA.textContent = '0.20'; sT.value = '350'; vT.textContent = '350'; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
-btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+let view = { w: 800, h: 1000, dpr: 1 };
+let REG = null, sol = null;
+function resolve() { sol = solveGModes(st.A, st.xg, st.l); if (st.mi > sol.count - 1) st.mi = 1; }
 
-const glitchX = () => Math.max(0.12, Math.min(0.5, 0.14 + (st.Ptrap - 100) / 700 * 0.34));
-// buoyancy frequency N(x): high in the radiative core, a sharp spike
-// at the composition glitch, dropping to zero at the convective edge
-function Nprofile(x, xg) {
-  if (x >= XENV) return 0.04;
-  const core = 0.35 + 0.55 * (1 - x / XENV);
-  const spike = 0.9 * Math.exp(-((x - xg) ** 2) / (2 * 0.012 ** 2));
-  return Math.min(1, core + spike);
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.45 },
+    { name: 'diagnostic', weight: 1.05 },
+  ]);
+}
+
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#06070c',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.09)',
+    nCol: '#5bc0eb', glitch: '#ef476f', env: '#94a3b8',
+    trap: '#ffd166', prop: '#06d6a0', pi: '#06d6a0', dot: '#22d3ee',
+  };
+}
+
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel; ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
+  }
+}
+
+function curMode() { return Math.max(0, Math.min(sol.count - 1, Math.round(st.mi))); }
+
+function drawScene(col, r) {
+  panel(col, r, 'A buoyancy glitch traps some g-modes: the eigenfunction shows which');
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x + 12, y: r.y + titleH, w: r.w - 24, h: r.h - titleH - stripH };
+  const XP = (x) => draw.x + x * draw.w;
+  const mode = curMode();
+  const trap = sol.trapping[mode];
+  const isTrapped = trap > 0.45;
+
+  ctx.save(); clipTo(ctx, { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH });
+
+  // convective envelope region (x > X_ENV) shaded.
+  ctx.fillStyle = 'rgba(148,163,184,0.06)'; ctx.fillRect(XP(X_ENV), draw.y, draw.w * (1 - X_ENV), draw.h);
+
+  // N(x) buoyancy profile in the upper band.
+  const nTop = draw.y + 14, nBot = draw.y + draw.h * 0.40;
+  ctx.beginPath(); ctx.moveTo(XP(0), nBot);
+  for (let s = 0; s <= 320; s += 1) { const x = s / 320; ctx.lineTo(XP(x), nBot - bruntProfile(x, st.A, st.xg) / 1.5 * (nBot - nTop)); }
+  ctx.lineTo(XP(1), nBot); ctx.closePath();
+  const g = ctx.createLinearGradient(0, nTop, 0, nBot);
+  g.addColorStop(0, 'rgba(91,192,235,0.55)'); g.addColorStop(1, 'rgba(91,192,235,0.05)');
+  ctx.fillStyle = g; ctx.fill();
+  ctx.fillStyle = col.nCol; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('buoyancy frequency N(r)', XP(0) + 6, nTop + 2);
+
+  // glitch and convective-boundary markers.
+  ctx.strokeStyle = col.glitch; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(XP(st.xg), draw.y); ctx.lineTo(XP(st.xg), draw.y + draw.h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = col.glitch; ctx.fillText('composition glitch', XP(st.xg) + 5, nTop + 18);
+  ctx.strokeStyle = 'rgba(148,163,184,0.5)'; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+  ctx.beginPath(); ctx.moveTo(XP(X_ENV), draw.y); ctx.lineTo(XP(X_ENV), draw.y + draw.h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = col.env; ctx.textAlign = 'left'; ctx.fillText('convective envelope', XP(X_ENV) + 5, draw.y + draw.h - 14);
+
+  // current eigenfunction in the lower band.
+  const mid = draw.y + draw.h * 0.72;
+  ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(XP(X_IN), mid); ctx.lineTo(XP(X_ENV), mid); ctx.stroke();
+  const ef = sol.eigfns[mode]; const osc = Math.cos(2 * Math.PI * st.t * 0.7);
+  const amp = draw.h * 0.22;
+  const lineCol = isTrapped ? col.trap : col.prop;
+  ctx.strokeStyle = lineCol; ctx.lineWidth = 2.2; ctx.beginPath();
+  for (let i = 0; i < ef.x.length; i += 1) { const X = XP(ef.x[i]), Y = mid - ef.psi[i] * osc * amp; i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
+  ctx.stroke();
+  ctx.strokeStyle = isTrapped ? 'rgba(255,209,102,0.22)' : 'rgba(6,214,160,0.20)'; ctx.lineWidth = 6; ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = lineCol; ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(isTrapped ? 'mode TRAPPED: rings against the glitch (a deltaP dip)' : 'mode propagating across the cavity', draw.x + 4, draw.y + draw.h * 0.44);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillText('displacement xi(r)    centre -- fractional radius r/R -- surface', draw.x + 4, draw.y + draw.h - 2);
+
+  // readout strip.
+  const items = [
+    [`mode n = ${mode + 1}`, col.fg],
+    [`P = ${sol.periods[mode].toFixed(0)} s`, col.dot],
+    [`Pi_1 = ${DPI1_SECONDS} s`, col.pi],
+    [`trapping ${(trap * 100).toFixed(0)}%`, isTrapped ? col.trap : col.prop],
+  ];
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  let widest = 0; for (const [t] of items) widest = Math.max(widest, ctx.measureText(t).width);
+  if (widest > r.w / 4 - 8) ctx.font = fontString(canvas, 'tick', 'mono', 700);
+  items.forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Period-spacing diagram  deltaP(P)  (what Kepler and TESS observe)');
+  const inner = { x: r.x + 48, y: r.y + 28, w: r.w - 48 - 16, h: r.h - 28 - 44 };
+  const P = sol.periods, dP = sol.deltaP;
+  const Pmin = P[0], Pmax = P[P.length - 1];
+  const dLo = DPI1_SECONDS * (1 - 0.30), dHi = DPI1_SECONDS * (1 + 0.30);
+  const xOf = (p) => inner.x + (p - Pmin) / (Pmax - Pmin) * inner.w;
+  const yOf = (d) => inner.y + inner.h - (Math.max(dLo, Math.min(dHi, d)) - dLo) / (dHi - dLo) * inner.h;
+
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8; ctx.fillStyle = col.muted;
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const d of [DPI1_SECONDS * 0.8, DPI1_SECONDS, DPI1_SECONDS * 1.2]) { const y = yOf(d); ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText(d.toFixed(0), inner.x - 6, y); }
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+
+  // asymptotic Pi_1.
+  ctx.strokeStyle = 'rgba(6,214,160,0.5)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(inner.x, yOf(DPI1_SECONDS)); ctx.lineTo(inner.x + inner.w, yOf(DPI1_SECONDS)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.textAlign = 'left'; ctx.fillText('Pi_1', inner.x + inner.w - 26, yOf(DPI1_SECONDS) - 8);
+
+  // deltaP(P): plotted at the midpoint period of each pair.
+  ctx.strokeStyle = col.trap; ctx.lineWidth = 1.8; ctx.beginPath();
+  for (let i = 0; i < dP.length; i += 1) { const px = xOf(0.5 * (P[i] + P[i + 1])), py = yOf(dP[i]); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); }
+  ctx.stroke();
+  for (let i = 0; i < dP.length; i += 1) { ctx.fillStyle = sol.trapping[i + 1] > 0.45 ? col.trap : 'rgba(255,209,102,0.5)'; ctx.beginPath(); ctx.arc(xOf(0.5 * (P[i] + P[i + 1])), yOf(dP[i]), 2.6, 0, 6.2832); ctx.fill(); }
+
+  // current mode marker.
+  const mode = curMode();
+  if (mode < dP.length) { ctx.fillStyle = col.dot; ctx.beginPath(); ctx.arc(xOf(0.5 * (P[mode] + P[mode + 1])), yOf(dP[mode]), 4.5, 0, 6.2832); ctx.fill(); }
+
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('period P (s)', inner.x + inner.w / 2, inner.y + inner.h + 8);
+  ctx.save(); ctx.translate(inner.x - 30, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('spacing deltaP (s)', 0, 0); ctx.restore();
 }
 
 function render() {
-  if (!CAPTURE_NAME && running) {
-    st.t += 0.016;
-    st.mi += 0.016 * 1.7;                            // sweep up the mode ladder
-    if (st.mi > NM - 2) st.mi = 1;
-  }
-  const xg = glitchX();
-  const ps = modePeriods(NM, st.Pi, st.A, st.Ptrap, P0);
-  const i = Math.max(1, Math.min(NM - 2, Math.floor(st.mi)));
-  const P = ps[i];
-  const dPnow = ps[i + 1] - ps[i];
-  const trap = Math.max(0, Math.min(1, (st.A / 0.5) * trapping(P, st.Ptrap)));
-  const nOrd = 7 + i * 0.5;
-
-  ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
-  ctx.fillText('A buoyancy glitch traps some g-modes: the eigenfunction shows which', 18, 24);
-
-  // star-interior panel
-  const x0 = 42, x1 = W - 28, pt = 64, pb = 300;
-  const XP = (x) => x0 + x * (x1 - x0);
-  ctx.fillStyle = '#0a0c14'; ctx.fillRect(x0, pt, x1 - x0, pb - pt);
-  // cavity shading
-  ctx.fillStyle = 'rgba(91,192,235,0.06)'; ctx.fillRect(x0, pt, XP(XENV) - x0, pb - pt);
-  ctx.fillStyle = 'rgba(160,170,200,0.05)'; ctx.fillRect(XP(XENV), pt, x1 - XP(XENV), pb - pt);
-  // N(x) buoyancy profile (filled, near the top of the panel)
-  const nTop = pt + 8, nBot = pt + 96;
-  ctx.beginPath(); ctx.moveTo(x0, nBot);
-  for (let s = 0; s <= 300; s += 1) { const x = s / 300; ctx.lineTo(XP(x), nBot - Nprofile(x, xg) * (nBot - nTop)); }
-  ctx.lineTo(x1, nBot); ctx.closePath();
-  const ng = ctx.createLinearGradient(0, nTop, 0, nBot);
-  ng.addColorStop(0, 'rgba(91,192,235,0.5)'); ng.addColorStop(1, 'rgba(91,192,235,0.05)');
-  ctx.fillStyle = ng; ctx.fill();
-  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('buoyancy frequency N(r)', x0 + 8, nTop + 12);
-  // glitch marker
-  ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
-  ctx.beginPath(); ctx.moveTo(XP(xg), pt); ctx.lineTo(XP(xg), pb); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#ef476f'; ctx.fillText('composition glitch', XP(xg) + 6, pt + 110);
-  ctx.strokeStyle = 'rgba(160,170,200,0.4)'; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
-  ctx.beginPath(); ctx.moveTo(XP(XENV), pt); ctx.lineTo(XP(XENV), pb); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#94a3b8'; ctx.fillText('convective envelope', XP(XENV) + 6, pb - 8);
-
-  // g-mode displacement eigenfunction
-  const mid = (pt + 116 + pb) / 2;
-  const osc = Math.cos(2 * Math.PI * st.t * 0.9);
-  let peak = 0;
-  const ys = [];
-  for (let s = 0; s <= 520; s += 1) {
-    const x = XENV * s / 520;
-    const e = gModeEnvelope(x, xg, trap, XENV);
-    const y = e * Math.sin(gModePhase(x, nOrd, xg)) * osc;
-    ys.push([XP(x), y]);
-    if (Math.abs(y) > peak) peak = Math.abs(y);
-  }
-  const amp = 54 / (peak || 1);
-  ctx.strokeStyle = 'rgba(226,232,240,0.18)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(x0, mid); ctx.lineTo(x1, mid); ctx.stroke();
-  ctx.strokeStyle = trap > 0.5 ? '#ffd166' : '#06d6a0';
-  ctx.lineWidth = 2; ctx.beginPath();
-  ys.forEach(([px, y], k) => { const yy = mid - y * amp; k === 0 ? ctx.moveTo(px, yy) : ctx.lineTo(px, yy); });
-  ctx.stroke();
-  // glow
-  ctx.strokeStyle = trap > 0.5 ? 'rgba(255,209,102,0.25)' : 'rgba(6,214,160,0.22)';
-  ctx.lineWidth = 6; ctx.stroke();
-  ctx.lineWidth = 1;
-  ctx.fillStyle = trap > 0.5 ? '#ffd166' : '#06d6a0'; ctx.font = fontString(canvas, 'body');
-  ctx.fillText(trap > 0.5 ? 'mode TRAPPED: rings at the glitch (a deltaP dip)' : 'mode propagating across the cavity', x0 + 8, 48);
-  ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('radial displacement ξ(r)   <-- centre        fractional radius r/R        surface -->', x0 + 8, pb + 16);
-
-  // recovered asymptotic spacing: the live invariant
-  let mean = 0;
-  for (let k = 0; k < NM - 1; k += 1) mean += ps[k + 1] - ps[k];
-  mean /= (NM - 1);
-  ctx.fillStyle = '#cbd5e1'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`mean deltaP = ${mean.toFixed(2)} s   (asymptotic Pi_1 = ${st.Pi.toFixed(0)} s)   P_trap = ${st.Ptrap.toFixed(0)} s   mode n ~ ${nOrd.toFixed(0)}   trapping = ${(trap * 100).toFixed(0)}%`, 18, pb + 38);
-
-  // demoted diagnostic: the period-spacing diagram deltaP(P) vs P
-  const dx0 = 60, dx1 = W - 24, dy0 = H - 110, dy1 = H - 14;
-  ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
-  ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('diagnostic: period-spacing  deltaP vs P  (what Kepler/TESS observe)', dx0 + 8, dy0 + 12);
-  const Pmin = ps[1], Pmax = ps[NM - 1];
-  const dLo = st.Pi * (1 - st.A) * 0.9, dHi = st.Pi * (1 + st.A) * 1.1;
-  const xPp = (p) => dx0 + 12 + (p - Pmin) / (Pmax - Pmin) * (dx1 - dx0 - 24);
-  const yPp = (d) => dy1 - 6 - (d - dLo) / (dHi - dLo) * (dy1 - dy0 - 26);
-  ctx.strokeStyle = 'rgba(6,214,160,0.5)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(xPp(Pmin), yPp(st.Pi)); ctx.lineTo(xPp(Pmax), yPp(st.Pi)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(6,214,160,0.8)'; ctx.fillText('Pi_1', xPp(Pmax) - 28, yPp(st.Pi) - 4);
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.6; ctx.beginPath();
-  for (let k = 1; k < NM - 1; k += 1) { const pp = { x: xPp(ps[k]), y: yPp(ps[k + 1] - ps[k]) }; k === 1 ? ctx.moveTo(pp.x, pp.y) : ctx.lineTo(pp.x, pp.y); }
-  ctx.stroke();
-  ctx.fillStyle = '#22d3ee'; ctx.beginPath(); ctx.arc(xPp(P), yPp(dPnow), 4.5, 0, 6.2832); ctx.fill();
-
-  rR.textContent = `${mean.toFixed(1)} s`;
+  if (!REG) relayout();
+  if (!sol) resolve();
+  if (running && !CAPTURE_NAME) { st.t += 0.05; st.mi += 0.04; if (st.mi > sol.count - 1.5) st.mi = 1; }
+  const col = colors();
+  ctx.fillStyle = col.bg; ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
 function tick() { render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
-function bootSync() {
-  if (CAPTURE_NAME && DETERMINISTIC) {
-    const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
-    st.t = frac * 6.0;
-    st.mi = 1 + frac * (NM - 4);
-  }
-  render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
-}
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
+// --- controls --------------------------------------------------------------
+sA.addEventListener('input', () => { st.A = parseFloat(sA.value); vA.textContent = st.A.toFixed(2); resolve(); render(); });
+sX.addEventListener('input', () => { st.xg = parseFloat(sX.value); vX.textContent = st.xg.toFixed(2); resolve(); render(); });
+sL.addEventListener('input', () => { st.l = parseInt(sL.value, 10); vL.textContent = String(st.l); resolve(); render(); });
+btnR.addEventListener('click', () => {
+  st.A = 0.45; st.xg = 0.22; st.l = 1; st.mi = 1; st.t = 0;
+  sA.value = '0.45'; vA.textContent = '0.45'; sX.value = '0.22'; vX.textContent = '0.22'; sL.value = '1'; vL.textContent = '1';
+  running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); resolve(); render();
+});
+btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
+
+st.A = parseFloat(sA.value); st.xg = parseFloat(sX.value); st.l = parseInt(sL.value, 10);
+vA.textContent = st.A.toFixed(2); vX.textContent = st.xg.toFixed(2); vL.textContent = String(st.l);
+relayout(); resolve(); render();
+
+if (DETERMINISTIC) {
+  const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0.4;
+  st.mi = 1 + frac * (sol.count - 3); st.t = 0.0; render();
+  window.__simulationReady = true;
+  window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+} else {
+  requestAnimationFrame(tick);
+}
+
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  return {
-    fields: [
-      { key: 'pi1', label: 'Pi_1 (s)', value: st.Pi, format: 'float' },
-      { key: 'amplitude', label: 'Trapping amplitude A', value: st.A, format: 'float' },
-      { key: 'ptrap', label: 'Trap period (s)', value: st.Ptrap, format: 'float' },
-      { key: 'mode-index', label: 'Mode index', value: st.mi }
-    ]
-  };
+  const m = curMode();
+  return { fields: [
+    { key: 'glitch-A', label: 'Glitch strength A', value: st.A, format: 'float' },
+    { key: 'glitch-x', label: 'Glitch position r/R', value: st.xg, format: 'float' },
+    { key: 'degree', label: 'Degree l', value: st.l, format: 'float' },
+    { key: 'mode', label: 'Mode n', value: m + 1, format: 'float' },
+    { key: 'period', label: 'Period (s)', value: sol ? sol.periods[m] : 0, format: 'float' },
+    { key: 'trap', label: 'Trapping', value: sol ? sol.trapping[m] : 0, format: 'float' },
+  ] };
 };
 window.playground.getInvariants = function () {
-  const periods = modePeriods(NM, st.Pi, st.A, st.Ptrap, P0);
-  let sum = 0;
-  for (let i = 1; i < periods.length; i++) sum += (periods[i] - periods[i-1]);
-  const meanSpacing = sum / (NM - 1);
-  const relError = Math.abs(meanSpacing - st.Pi) / st.Pi;
+  if (!sol) return [];
+  const mean = sol.deltaP.reduce((a, b) => a + b, 0) / sol.deltaP.length;
+  const rel = Math.abs(mean - DPI1_SECONDS) / DPI1_SECONDS;
+  // With no glitch the spacing is uniform; with a glitch it modulates.
+  const spread = Math.sqrt(sol.deltaP.reduce((a, b) => a + (b - mean) ** 2, 0) / sol.deltaP.length) / mean;
   return [
-    {
-      key: 'mean-spacing-rule',
-      label: 'Mean spacing (should be Pi_1)',
-      value: meanSpacing.toFixed(1) + ' s',
-      status: relError < 0.05 ? 'pass' : 'drift'
-    }
+    { key: 'mean-spacing', label: 'Mean spacing = Pi_1', value: mean.toFixed(1) + ' s', status: rel < 0.02 ? 'pass' : 'drift' },
+    { key: 'modulation', label: st.A > 0.05 ? 'Glitch modulates deltaP' : 'No glitch: deltaP uniform', value: (spread * 100).toFixed(1) + '%', status: 'pass' },
   ];
 };

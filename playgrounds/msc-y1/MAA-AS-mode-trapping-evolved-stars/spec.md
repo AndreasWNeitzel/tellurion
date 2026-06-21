@@ -19,18 +19,19 @@ renderer: canvas2d
 estimated_engagement_minutes: 3
 share_state_keys: []
 invariants:
-  - key: runs
-    label: simulation advances each frame
-    tolerance: 1
-  - key: bounded
-    label: state stays finite
-    tolerance: 1
-  - key: deterministic
-    label: fixed seed reproduces the run
-    tolerance: 1
+  - key: uniform-no-glitch
+    label: with no glitch the period spacing is uniform at Pi_1
+    tolerance: 0.02
+  - key: modulation
+    label: a glitch modulates the spacing while keeping the mean at Pi_1
+    tolerance: 0.02
+  - key: trapping-asymmetry
+    label: the most-trapped mode is concentrated on one side of the glitch
+    tolerance: 0
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Set the glitch strength to zero: the spacing flattens to the asymptotic Pi_1 and the eigenfunctions all look alike.
+  - Turn the glitch up: the spacing develops dips, and the modes in those dips are trapped, ringing on one side of the glitch.
+  - Move the glitch outward: the modulation period of the dips changes, because it tracks the buoyancy depth of the glitch.
 references:
   - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
 ---
@@ -74,12 +75,13 @@ $$\Delta P(n) \;\approx\; \Delta\Pi_1
   \Big[1 - \alpha\,\cos\!\big(2\pi\,\tfrac{n}{\Lambda} + \phi\big)\Big],$$
 
 where the modulation period $\Lambda$ encodes the glitch's depth and
-its amplitude $\alpha$ encodes the glitch's sharpness. Reading
-$\Lambda$ and $\alpha$ back out is a direct sounding of where the
-chemical discontinuity sits, which constrains the past extent of
-convective mixing, something no surface measurement can reveal. The
-playground sweeps the glitch depth and strength and shows the dip
-pattern's spacing and depth respond.
+its amplitude $\alpha$ encodes the glitch's sharpness. Here this dip
+pattern is not imposed: it emerges from solving the g-mode wave
+equation on a buoyancy profile that carries the glitch, so the trapped
+eigenfunctions and the spacing dips are two faces of the same solve.
+Reading $\Lambda$ and $\alpha$ back out is a direct sounding of where
+the chemical discontinuity sits, which constrains the past extent of
+convective mixing, something no surface measurement can reveal.
 
 ### Things to try
 
@@ -93,5 +95,32 @@ pattern's spacing and depth respond.
 ### Where this comes from
 
 Mode trapping by buoyancy glitches and the periodic period-spacing
-modulation follow Mosser et al., A&A 618, A109 (2018), and Aerts,
-Christensen-Dalsgaard and Kurtz, *Asteroseismology*, Chapter 3.
+modulation follow Mosser et al., A&A 618, A109 (2018); Cunha et al.,
+ApJ 805, 127 (2015); and Aerts, Christensen-Dalsgaard and Kurtz,
+*Asteroseismology*, Chapter 3.
+
+## Physical setup and numerical method
+
+The model is one buoyancy profile $N(x)$ on the radiative cavity
+$x = r/R \in [x_{\rm in}, x_{\rm env}]$: a smooth core decline plus a
+localised Gaussian glitch of strength $A$ at position $x_g$, tapering
+to the convective boundary. For high-order g-modes the radial part
+obeys the asymptotic (Cowling) equation
+
+$$\psi'' + \frac{\ell(\ell+1)\,N(x)^2}{\omega^2\,x^2}\,\psi = 0,
+  \qquad \psi(x_{\rm in}) = \psi(x_{\rm env}) = 0.$$
+
+This Sturm-Liouville problem is solved by the Numerov method with a
+shooting search for the eigenfrequencies $\omega_n$ (the scan step
+shrinks as $\omega^2$ to resolve the crowding of high-order modes).
+The periods $P_n = 2\pi/\omega_n$ give the spacing
+$\Delta P = P_{n+1} - P_n$, scaled so the mean equals a red-giant-like
+$\Delta\Pi_1 = 80$ s; the eigenfunctions $\psi_n(x)$ give the displayed
+displacement. The glitch makes $\Delta P$ oscillate and concentrates
+the trapped modes near it, both from the one solve. Trapping is read
+from the spacing: a mode sitting in a $\Delta P$ dip is trapped.
+
+## Controls
+
+- Glitch strength $A$ (0 to 0.6) and position $x_g$ (0.12 to 0.45 in $r/R$).
+- Degree $\ell$ (1 or 2). Reset and Pause.
