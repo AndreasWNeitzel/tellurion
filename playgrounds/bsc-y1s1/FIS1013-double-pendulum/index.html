@@ -120,6 +120,16 @@
       <input type="range" id="slider-l2" min="0.3" max="2" step="0.05" value="1" aria-label="Length l2 of lower rod in m">
       <span class="value" id="value-l2">1.00 m</span>
     </div>
+    <div class="row">
+      <span class="label">release</span>
+      <input type="range" id="slider-theta0" min="0.4" max="3.1" step="0.02" value="2.9" aria-label="Initial release angle of both arms in radians">
+      <span class="value" id="value-theta0">166&deg;</span>
+    </div>
+    <div class="row">
+      <span class="label">pendulums</span>
+      <input type="range" id="slider-pend" min="1" max="40" step="1" value="18" aria-label="Number of pendulums in the ensemble">
+      <span class="value" id="value-pend">18</span>
+    </div>
     <div class="row buttons">
       <button id="btn-reset" type="button" aria-label="Reset positions and velocities to default IC">Reset</button>
       <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
@@ -137,9 +147,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Watch the coloured arms: they start as one (a fraction of a degree apart) and within seconds fan out completely. That is chaos, sensitive dependence on the start.</li>
-        <li class="t-body">The lower plot is the separation between them on a log axis. The straight rise is exponential blow-up; it flattens once they are as different as they can be.</li>
-        <li class="t-body">Drag a bob to set a gentle, low starting angle: the motion turns regular and the curves no longer fly apart. Chaos only sets in once you raise the arms.</li>
+        <li class="t-body">Watch the coloured spray: a thousandth of a radian apart at the start, the pendulums fan out completely within seconds and trace wildly different paths. That is chaos, sensitive dependence on the start.</li>
+        <li class="t-body">The lower plot is the separation between them on a log axis. The straight climb is exponential blow-up; the dashed line is the fit and its slope is the Lyapunov exponent (the readout shows how often the separation doubles).</li>
+        <li class="t-body">Add more pendulums for a denser, more beautiful fan, and use the release slider to set a gentle low angle: the motion turns regular, the spray collapses to one curve, and the divergence plot reports no blow-up. Chaos only switches on once you raise the arms.</li>
       </ul>
     </section>
 

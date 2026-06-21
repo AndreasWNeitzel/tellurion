@@ -46,12 +46,16 @@ const sliders = {
   m2: document.getElementById('slider-m2'),
   l1: document.getElementById('slider-l1'),
   l2: document.getElementById('slider-l2'),
+  theta0: document.getElementById('slider-theta0'),
+  pend: document.getElementById('slider-pend'),
 };
 const sliderValues = {
   m1: document.getElementById('value-m1'),
   m2: document.getElementById('value-m2'),
   l1: document.getElementById('value-l1'),
   l2: document.getElementById('value-l2'),
+  theta0: document.getElementById('value-theta0'),
+  pend: document.getElementById('value-pend'),
 };
 const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
@@ -82,7 +86,7 @@ function relayout() {
 const TRAIL_MAX = 2400;    // number of (x2, y2) samples to keep (~2.4 s of motion at PHYSICS_DT=1ms)
 const TRAIL_DECAY = 0.55;  // peak alpha at the head of the trail; linear decay toward the tail
 const DIV_MAX = 12000;     // divergence samples (~12 s at 1 ms)
-const LOOP_T = 12.0;       // re-converge the ensemble after this many seconds
+const LOOP_T = 20.0;       // re-converge the ensemble after this many seconds
 
 // Default IC (rad) and parameters (kg, m), per spec.
 // Chaotic regime by default: both arms well raised so the motion is
@@ -102,6 +106,8 @@ const state = {
   m2: 1.0,
   l1: 1.0,
   l2: 1.0,
+  nPend: 18,            // ensemble size (slider)
+  theta0: 2.9,          // initial release angle for both arms (slider)
   inst: null,
   poincare: new PoincareCounter(),
   trail: [],            // ring buffer of {x, y} for bob 2 (physical-space trail)
@@ -136,14 +142,19 @@ const tokens = {
 // 10-member chaos ensemble: identical except theta1 offset by k * 1 ppm.
 // They track the primary at first, then diverge exponentially (the
 // signature of deterministic chaos / sensitive dependence).
-const ENSEMBLE_N = 10;
-// An imperceptible 1e-4 rad (~0.006 degrees) seed: small enough to look like a
-// single pendulum at first, large enough to fan apart on screen within a few
-// seconds given the modest Lyapunov rate at this energy.
-const ENSEMBLE_DTHETA = 1e-4;
+// A 1e-3 rad seed (a thousandth of a radian, ~0.06 deg): invisible at first so
+// the members look like one pendulum, then they fan apart within a few seconds
+// into the colored spray, and the divergence plot climbs from the seed to
+// chaotic saturation.
+const ENSEMBLE_DTHETA = 1e-3;
+const ENS_TRAIL_MAX = 90;     // per-member bob-2 trail length (the colored fan)
 // Kept as a module-scope array (not on `state`) so the existing drag and
 // phase-panel logic, which only reads state.inst, is untouched.
 let ensemble = [];
+function ensembleColor(k, n) {
+  const c = viridis(0.06 + 0.9 * (k - 1) / Math.max(1, n - 1));
+  return { rgb: `rgb(${c.r},${c.g},${c.b})`, r: c.r, g: c.g, b: c.b };
+}
 
 function makeInst(theta1, theta2, omega1, omega2) {
   const params = { l1: state.l1, l2: state.l2 };
@@ -161,11 +172,13 @@ function makeInst(theta1, theta2, omega1, omega2) {
 function rebuildEngine(ic) {
   state.inst = makeInst(ic.theta1, ic.theta2, ic.omega1, ic.omega2);
   ensemble = [];
-  for (let k = 1; k <= ENSEMBLE_N; k += 1) {
-    const c = viridis(0.12 + 0.8 * (k - 1) / (ENSEMBLE_N - 1));
+  const n = Math.max(1, Math.round(state.nPend));
+  for (let k = 1; k <= n; k += 1) {
+    const c = ensembleColor(k, n);
     ensemble.push({
       inst: makeInst(ic.theta1 + k * ENSEMBLE_DTHETA, ic.theta2, ic.omega1, ic.omega2),
-      color: `rgb(${c.r},${c.g},${c.b})`,
+      color: c.rgb, r: c.r, g: c.g, b: c.b,
+      trail: [],
     });
   }
   state.poincare.reset();
@@ -173,6 +186,8 @@ function rebuildEngine(ic) {
   state.divergence.length = 0;
   state.simT = 0;
 }
+// IC from the current release-angle slider.
+function currentIC() { return { theta1: state.theta0, theta2: state.theta0, omega1: 0, omega2: 0 }; }
 
 function clampToEnvelope(theta1, theta2) {
   // If the IC at rest would exceed the energy cap, scale both angles toward zero.
@@ -188,7 +203,11 @@ function clampToEnvelope(theta1, theta2) {
 }
 
 function reset() {
-  rebuildEngine(DEFAULT_IC);
+  state.theta0 = DEFAULT_IC.theta1;
+  state.nPend = 18;
+  if (sliders.theta0) { sliders.theta0.value = String(state.theta0); sliderValues.theta0.textContent = `${(state.theta0 * 180 / Math.PI).toFixed(0)}°`; }
+  if (sliders.pend) { sliders.pend.value = String(state.nPend); sliderValues.pend.textContent = String(state.nPend); }
+  rebuildEngine(currentIC());
   updateReadouts(true);
   drawAll();
 }
@@ -273,24 +292,51 @@ function drawDivergence() {
   ctx.fillStyle = tokens.surface; ctx.fillRect(r.x, r.y, r.w, r.h);
   ctx.strokeStyle = tokens.fgFaint; ctx.lineWidth = 0.6; ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
   ctx.fillStyle = tokens.fgMuted; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText('how fast near-identical starts diverge', r.x + 8, r.y + 6);
+  ctx.fillText('separation between the pendulums (rad)', r.x + 8, r.y + 6);
 
-  const padL = 46, padR = 14, padT = 26, padB = 26;
+  const padL = 52, padR = 14, padT = 28, padB = 28;
   const x0 = r.x + padL, x1 = r.x + r.w - padR, pw = x1 - x0;
   const y0 = r.y + padT, y1 = r.y + r.h - padB, ph = y1 - y0;
   const tMax = Math.max(8, state.simT);
-  const yLo = -6, yHi = 0.6;                 // log10 of separation: 1e-6 .. ~pi
+  const yLo = -4, yHi = 0.6;                 // log10 separation: 1e-4 rad .. ~pi
   const fx = (t) => x0 + (t / tMax) * pw;
   const fy = (l) => y1 - (l - yLo) / (yHi - yLo) * ph;
 
-  // Decade gridlines.
+  // Decade gridlines with real radian labels.
   ctx.font = fontString(canvas, 'tick'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  for (const l of [-6, -4, -2, 0]) {
+  const lab = { '-4': '1e-4', '-3': '1e-3', '-2': '1e-2', '-1': '0.1', '0': '1 rad' };
+  for (const l of [-4, -3, -2, -1, 0]) {
     const py = fy(l);
     ctx.strokeStyle = tokens.grid; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(x0, py); ctx.lineTo(x1, py); ctx.stroke();
-    ctx.fillStyle = tokens.fgFaint; ctx.fillText(`1e${l}`, x0 - 4, py);
+    ctx.fillStyle = tokens.fgFaint; ctx.fillText(lab[String(l)], x0 - 4, py);
   }
-  // Separation curve (log scale): straight rise = exponential growth = chaos.
+
+  // Least-squares fit of ln(separation) vs t over the exponential-growth window
+  // (above the 1e-6 seed, below saturation). The slope is the local Lyapunov
+  // exponent: e^{lambda t} growth plots as a straight line here.
+  let lam = null, c0 = 0, nFit = 0, sumT = 0, sumL = 0, sumTT = 0, sumTL = 0, tLo = Infinity, tHi = 0;
+  for (const d of state.divergence) {
+    if (d.s < 3e-6 || d.s > 0.5) continue;
+    const L = Math.log(d.s);
+    sumT += d.t; sumL += L; sumTT += d.t * d.t; sumTL += d.t * L; nFit += 1;
+    if (d.t < tLo) tLo = d.t; if (d.t > tHi) tHi = d.t;
+  }
+  if (nFit >= 8) {
+    const denom = nFit * sumTT - sumT * sumT;
+    if (Math.abs(denom) > 1e-9) { lam = (nFit * sumTL - sumT * sumL) / denom; c0 = (sumL - lam * sumT) / nFit; }
+  }
+  lastLambda = (lam && lam > 0) ? lam : null;
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x0, y0, pw, ph); ctx.clip();
+  // Lyapunov fit line.
+  if (lam && lam > 0) {
+    const k = 1 / Math.LN10;
+    ctx.strokeStyle = tokens.accent; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(fx(tLo), fy((c0 + lam * tLo) * k)); ctx.lineTo(fx(tHi), fy((c0 + lam * tHi) * k)); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  // Separation curve.
   if (state.divergence.length >= 2) {
     ctx.strokeStyle = tokens.accentWarm; ctx.lineWidth = 1.8; ctx.beginPath();
     let first = true;
@@ -300,12 +346,24 @@ function drawDivergence() {
     }
     ctx.stroke();
   }
-  // Axis.
+  ctx.restore();
+
+  // x ticks.
   ctx.fillStyle = tokens.fgFaint; ctx.font = fontString(canvas, 'tick'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   const dt = Math.max(2, Math.round(tMax / 4));
   for (let s = 0; s <= tMax + 1e-9; s += dt) ctx.fillText(`${s}s`, fx(s), y1 + 4);
-  ctx.fillStyle = tokens.fgMuted; ctx.textBaseline = 'bottom';
-  ctx.fillText('a straight rise on this log axis is exponential blow-up', (x0 + x1) / 2, r.y + r.h - 3);
+
+  // Lyapunov annotation.
+  ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  if (lam && lam > 0) {
+    ctx.fillStyle = tokens.accent;
+    ctx.fillText(`lambda ~ ${lam.toFixed(2)}/s, doubles every ${(Math.LN2 / lam).toFixed(2)} s`, x1, r.y + 6);
+  } else {
+    ctx.fillStyle = tokens.fgMuted;
+    ctx.fillText('low energy: no blow-up (regular motion)', x1, r.y + 6);
+  }
+  ctx.fillStyle = tokens.fgMuted; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('a straight climb is exponential; the dashed slope is the Lyapunov rate', (x0 + x1) / 2, r.y + r.h - 3);
 }
 
 function drawAll() {
@@ -318,29 +376,43 @@ function drawAll() {
   ctx.fillStyle = tokens.surface; ctx.fillRect(s.x, s.y, s.w, s.h);
   ctx.strokeStyle = tokens.fgFaint; ctx.lineWidth = 0.6; ctx.strokeRect(s.x + 0.5, s.y + 0.5, s.w - 1, s.h - 1);
   drawSupport();
-  drawTrail();
-  // Chaos ensemble underneath the primary: thin colored arms + bob2,
-  // visibly fanning apart as sensitive dependence amplifies the 1 ppm
-  // offsets.
+  // The colored fan: each member's bob-2 trail, glowing (additive) and fading
+  // along its length. This is the hero of the animation, the many near-identical
+  // pendulums tracing wildly different paths from the same start.
+  ctx.lineCap = 'round';
+  ctx.globalCompositeOperation = 'lighter';
+  for (const e of ensemble) {
+    const tr = e.trail;
+    if (!tr || tr.length < 2) continue;
+    const n = tr.length;
+    for (let i = 1; i < n; i += 1) {
+      const a = i / n;
+      ctx.strokeStyle = `rgba(${e.r},${e.g},${e.b},${(0.04 + 0.5 * a).toFixed(3)})`;
+      ctx.lineWidth = 0.5 + 1.9 * a;
+      ctx.beginPath();
+      ctx.moveTo(tr[i - 1].x, tr[i - 1].y);
+      ctx.lineTo(tr[i].x, tr[i].y);
+      ctx.stroke();
+    }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.lineCap = 'butt';
+  // Member arms (thin, faint) + bob, fainter than the primary.
   for (const e of ensemble) {
     const { p1, p2 } = thetaToBobPx(e.inst.q[0], e.inst.q[1]);
-    ctx.strokeStyle = e.color;
-    ctx.globalAlpha = 0.5;
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.moveTo(SUPPORT_X, SUPPORT_Y);
-    ctx.lineTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.stroke();
-    ctx.fillStyle = e.color;
-    ctx.beginPath(); ctx.arc(p2.x, p2.y, 3, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = e.color; ctx.globalAlpha = 0.30; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(SUPPORT_X, SUPPORT_Y); ctx.lineTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    ctx.globalAlpha = 0.85; ctx.fillStyle = e.color;
+    ctx.beginPath(); ctx.arc(p2.x, p2.y, 2.6, 0, 2 * Math.PI); ctx.fill();
   }
   ctx.globalAlpha = 1;
+  // Primary trail + the lead pendulum, brightest and on top.
+  drawTrail();
   const t1 = state.inst.q[0], t2 = state.inst.q[1];
   drawPendulum(t1, t2);
   // Title + chaos caption on the scene.
   ctx.fillStyle = tokens.fgMuted; ctx.font = fontString(canvas, 'caption', 'sans'); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText(`${ENSEMBLE_N} pendulums, started a fraction of a degree apart`, s.x + 8, s.y + 7);
+  ctx.fillText(`${ensemble.length} pendulums, started a thousandth of a radian apart`, s.x + 8, s.y + 7);
   drawDivergence();
 }
 
@@ -348,6 +420,8 @@ function drawAll() {
 // Physics stepping.
 //
 
+let ensStep = 0;
+let lastLambda = null;   // most recent fitted Lyapunov exponent (1/s) or null
 function stepOnce() {
   engineStep(state.inst, PHYSICS_DT);
   for (const e of ensemble) engineStep(e.inst, PHYSICS_DT);
@@ -358,6 +432,15 @@ function stepOnce() {
   const { p2 } = thetaToBobPx(state.inst.q[0], state.inst.q[1]);
   state.trail.push(p2);
   if (state.trail.length > TRAIL_MAX) state.trail.shift();
+  // Per-member bob-2 trails (the colored fan), subsampled to span ~1.5 s.
+  ensStep = (ensStep + 1) % 8;
+  if (ensStep === 0) {
+    for (const e of ensemble) {
+      const ep2 = thetaToBobPx(e.inst.q[0], e.inst.q[1]).p2;
+      e.trail.push(ep2);
+      if (e.trail.length > ENS_TRAIL_MAX) e.trail.shift();
+    }
+  }
   // Track the ensemble's spread from the primary: the configuration-space
   // distance of the farthest member. This grows exponentially (sensitive
   // dependence) then saturates, the quantitative signature of chaos.
@@ -511,6 +594,17 @@ bindSlider('m2', 'kg', 1);
 bindSlider('l1', 'm',  2);
 bindSlider('l2', 'm',  2);
 
+if (sliders.theta0) sliders.theta0.addEventListener('input', () => {
+  state.theta0 = parseFloat(sliders.theta0.value);
+  sliderValues.theta0.textContent = `${(state.theta0 * 180 / Math.PI).toFixed(0)}°`;
+  rebuildEngine(currentIC()); fitScene(); drawAll(); updateReadouts(true);
+});
+if (sliders.pend) sliders.pend.addEventListener('input', () => {
+  state.nPend = parseInt(sliders.pend.value, 10);
+  sliderValues.pend.textContent = String(state.nPend);
+  rebuildEngine(currentIC()); drawAll(); updateReadouts(true);
+});
+
 btnReset.addEventListener('click', reset);
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
@@ -590,7 +684,7 @@ function tick(now) {
   }
   // Loop: once the ensemble has fully diverged, re-converge it and replay
   // the start-together-then-fan-apart story.
-  if (state.simT > LOOP_T) { rebuildEngine(DEFAULT_IC); }
+  if (state.simT > LOOP_T) { rebuildEngine(currentIC()); }
   drawAll();
   updateReadouts(false);
   requestAnimationFrame(tick);
@@ -616,8 +710,9 @@ window.playground.getState = function () {
     fields: [
       { key: 'theta1', label: 'upper angle $\\theta_1$', value: i.q[0], format: 'float' },
       { key: 'theta2', label: 'lower angle $\\theta_2$', value: i.q[1], format: 'float' },
-      { key: 'omega1', label: 'upper rate $\\omega_1$', value: i.qdot[0], format: 'float' },
-      { key: 'omega2', label: 'lower rate $\\omega_2$', value: i.qdot[1], format: 'float' },
+      { key: 'npend', label: 'pendulums', value: ensemble.length, format: 'int' },
+      { key: 'lyap', label: 'Lyapunov $\\lambda$ (1/s)', value: lastLambda || 0, format: 'float' },
+      { key: 'doubling', label: 'separation doubles every (s)', value: lastLambda ? Math.LN2 / lastLambda : 0, format: 'float' },
     ],
   };
 };
