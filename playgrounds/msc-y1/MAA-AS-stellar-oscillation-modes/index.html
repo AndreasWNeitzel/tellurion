@@ -49,17 +49,17 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">Real $Y_l^m(\theta, \phi)\cos(\omega t)$ drawn on the visible hemisphere with a diverging colormap; a propagation diagram shows $N(r)$ and $S_l(r)$ for a polytrope, with the mode frequency marked.</p>
+      <p class="t-body">A star does not just pulse in and out; it rings in patterns. Each non-radial mode splits into an angular part, the spherical harmonic $Y_l^m(\theta, \phi)$ that tiles the surface into expanding and contracting cells, and a radial part, the eigenfunction $\xi_r(r)$ that sets how many shells the wave crosses on the way in. The surface here shows the live displacement $Y_l^m(\theta,\phi)\cos(\omega t)$ in red (outward) and blue (inward) with its nodal lines, the still curves separating the cells: $l - |m|$ circles of latitude and $2|m|$ meridians. The diagnostic shows the radial eigenfunction of a real $n_{\mathrm{poly}}=3$ polytrope, computed here, whose number of interior nodes is the radial order $n$. So the three integers split the work cleanly: $l$ and $m$ shape the surface, $n$ counts the nodes in depth. Acoustic (p-mode) frequencies come from the asymptotic JWKB quantisation of the sound-speed cavity, scaled to a solar-like large separation $\Delta\nu = 135\ \mu$Hz.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="600"></canvas>
+      <canvas class="playground-canvas" id="stage" width="800" height="1000"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Stellar Oscillation Modes.</figcaption>
+    <figcaption class="t-small playground-caption">Figure 1. Stellar oscillation modes. Top: the surface displacement of a mode, the real spherical harmonic Y_l^m(theta, phi) cos(omega t), as a radially displaced sphere (red outward, blue inward) with its nodal lines. Bottom: the radial displacement eigenfunction xi_r(r) of an n=3 polytrope, with n interior nodes and the p-mode turning point marked. Method: Lane-Emden structure with JWKB acoustic quantisation. Reference: Aerts, Christensen-Dalsgaard and Kurtz (2010), Ch. 3.</figcaption>
 
     <section class="playground-controls">
       <div id="controls" class="pg-controls"></div>
@@ -69,8 +69,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Hold n and l fixed and sweep m from -l to l: the surface pattern reorganises from rings (m=0) to a checkerboard of meridional cells (|m|=l), while the radial eigenfunction below never changes. m is purely an orientation.</li>
+        <li class="t-body">Raise n: count the extra nodes appearing in the eigenfunction below. Each new node is one more shell where the gas reverses direction, and the frequency climbs by the large separation.</li>
+        <li class="t-body">Raise l at fixed n: the p-mode turning point moves outward, the cavity shrinks toward the surface, and the eigenfunction's inner edge retreats. High-degree modes never reach the core.</li>
+        <li class="t-body">Set l=0: the turning point sits at the centre, the mode fills the whole star, and the surface breathes uniformly (a radial mode).</li>
       </ul>
     </section>
 

@@ -1,77 +1,93 @@
-// Stellar oscillation modes: surface displacement Y_l^m(theta, phi) cos(omega t)
-// drawn on a 2D projection of a sphere. Color: red = outward, blue = inward.
+// Stellar oscillation modes. The surface shows the angular part of a mode, the
+// real spherical harmonic Y_l^m(theta, phi) cos(omega t), drawn as a radially
+// displaced, depth-sorted sphere with its nodal lines. The diagnostic shows the
+// radial part, the eigenfunction xi_r(r) of a real n_poly = 3 polytrope, whose
+// number of interior nodes is the radial order n. Canvas2D only.
+//
+// Reference: Aerts, Christensen-Dalsgaard and Kurtz, Asteroseismology (2010),
+// Ch. 3; Unno et al., Nonradial Oscillations of Stars (1989).
 
-import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { rdbu } from '../../../shared/js/render/colormaps.js';
+import {
+  realYlm, plgndr, modeFrequency, radialEigenfunction, turningRadius, surfaceNodes,
+} from './sim.js';
 
-const params        = new URLSearchParams(location.search);
+const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
-const CAPTURE_NAME  = params.get('capture');
+const CAPTURE_NAME = params.get('capture');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const readoutInv   = document.getElementById('readout-invariant') || { textContent: '' };
-const readoutFrame = document.getElementById('readout-frame') || { textContent: '' };
-const controlsEl   = document.getElementById('controls');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
+const controlsEl = document.getElementById('controls');
 
-const W = canvas.width, H = canvas.height;
-const state = { n: 1, l: 2, m: 0, t: 0 };
+const state = { n: 2, l: 3, m: 1, t: 0 };
+// optional initial mode from the URL (also the share-state keys).
+const clampInt = (v, lo, hi, dflt) => (v === null || !Number.isFinite(+v) ? dflt : Math.max(lo, Math.min(hi, parseInt(v, 10))));
+state.n = clampInt(params.get('n'), 0, 5, state.n);
+state.l = clampInt(params.get('l'), 0, 6, state.l);
+state.m = clampInt(params.get('m'), -state.l, state.l, state.m);
+let running = !DETERMINISTIC;
 
-// Associated Legendre P_l^m using a small recurrence (l up to 5).
-function factorial(k) { let r = 1; for (let i = 2; i <= k; i += 1) r *= i; return r; }
-function plgndr(l, m, x) {
-  let pmm = 1;
-  if (m > 0) {
-    const somx2 = Math.sqrt((1 - x) * (1 + x));
-    let fact = 1;
-    for (let i = 1; i <= m; i += 1) { pmm *= -fact * somx2; fact += 2; }
+let view = { w: 900, h: 600, dpr: 1 };
+let REG = null;
+// cached radial structure, rebuilt only when (n, l) changes.
+let eig = null, freq = 0, rt = 0;
+function rebuildRadial() {
+  eig = radialEigenfunction(state.n, state.l);
+  freq = modeFrequency(state.n, state.l);
+  rt = turningRadius(state.n, state.l);
+}
+
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.7 },
+    { name: 'diagnostic', weight: 1.05 },
+  ]);
+}
+
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#08090d',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.09)',
+  };
+}
+
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
-  if (l === m) return pmm;
-  let pmmp1 = x * (2 * m + 1) * pmm;
-  if (l === m + 1) return pmmp1;
-  let pll = 0;
-  for (let ll = m + 2; ll <= l; ll += 1) {
-    pll = (x * (2 * ll - 1) * pmmp1 - (ll + m - 1) * pmm) / (ll - m);
-    pmm = pmmp1; pmmp1 = pll;
-  }
-  return pll;
-}
-function realYlm(l, m, theta, phi) {
-  const x = Math.cos(theta);
-  const mm = Math.abs(m);
-  const norm = Math.sqrt((2 * l + 1) / (4 * Math.PI) * factorial(l - mm) / factorial(l + mm));
-  const p = plgndr(l, mm, x);
-  if (m > 0) return Math.SQRT2 * norm * p * Math.cos(mm * phi);
-  if (m < 0) return Math.SQRT2 * norm * p * Math.sin(mm * phi);
-  return norm * p;
 }
 
-function modeFrequency(n, l) {
-  // Asymptotic p-mode: omega proportional to Delta_nu (n + l/2 + epsilon).
-  return (n + l * 0.5 + 1.5) * 60.0; // microhertz
+// Map a radial displacement (already scaled to roughly [-1, 1]) to a diverging
+// red (outward) / blue (inward) colour with depth shading.
+function dispColor(d, shade) {
+  const c = rdbu(0.5 + 0.5 * Math.max(-1, Math.min(1, d)));
+  return `rgb(${(c.r * shade) | 0},${(c.g * shade) | 0},${(c.b * shade) | 0})`;
 }
 
-// 3D mesh of the pulsating stellar surface. Each (theta, phi) vertex
-// is displaced RADIALLY by the spherical harmonic:
-//   r(theta, phi, t) = 1 + amp * Y_l^m(theta, phi) * cos(omega t).
-// The camera slowly orbits; quads are depth-sorted and shaded, with
-// fill colour encoding the instantaneous radial displacement.
-const NLAT = 38, NLON = 64;
-function render() {
-  ctx.fillStyle = '#0E0E13';
-  ctx.fillRect(0, 0, W, H);
-
-  const cx = W * 0.30, cy = H * 0.5;
-  const R = Math.min(W, H) * 0.30;
-  const phase = Math.cos(state.t);
-  const amp = 0.22;                                  // exaggerated for visibility
-  const az = state.t * 0.12;
+// 3D oblique projection of the pulsating surface. Returns the projector closure
+// so nodal lines can reuse the exact same transform.
+function makeProjector(cx, cy, R, phase, az) {
   const ca = Math.cos(az), sa = Math.sin(az);
-  const tilt = 0.42, ct = Math.cos(tilt), stl = Math.sin(tilt);
-  function project(theta, phi) {
+  const tilt = 0.46, ct = Math.cos(tilt), stl = Math.sin(tilt);
+  const amp = 0.20;
+  return function project(theta, phi, displaced = true) {
     const disp = realYlm(state.l, state.m, theta, phi) * phase;
-    const rr = 1 + amp * disp;
+    const rr = displaced ? 1 + amp * disp : 1;
     const x = rr * Math.sin(theta) * Math.cos(phi);
     const y = rr * Math.cos(theta);
     const z = rr * Math.sin(theta) * Math.sin(phi);
@@ -80,7 +96,24 @@ function render() {
     const yr = ct * y - stl * zr;
     const depth = stl * y + ct * zr;
     return { sx: cx + xr * R, sy: cy - yr * R, depth, disp };
-  }
+  };
+}
+
+function drawScene(col, r) {
+  panel(col, r, 'Surface displacement  Y_l^m(theta, phi) cos(omega t)');
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const cx = draw.x + draw.w / 2, cy = draw.y + draw.h / 2;
+  const R = Math.min(draw.w, draw.h) * 0.42;
+  const phase = Math.cos(state.t);
+  const az = state.t * 0.10;
+  const project = makeProjector(cx, cy, R, phase, az);
+
+  ctx.save();
+  clipTo(ctx, draw);
+
+  // depth-sorted quad mesh.
+  const NLAT = 40, NLON = 72;
   const quads = [];
   for (let i = 0; i < NLAT; i += 1) {
     const th0 = Math.PI * i / NLAT, th1 = Math.PI * (i + 1) / NLAT;
@@ -97,144 +130,224 @@ function render() {
   }
   quads.sort((a, b) => a.depthMid - b.depthMid);
   for (const q of quads) {
-    const a = Math.max(-1, Math.min(1, q.dispMid * 3.0));
-    let r, g, b;
-    if (a >= 0) { r = 220 * a + 70 * (1 - a); g = 90 * a + 70 * (1 - a); b = 60 * a + 90 * (1 - a); }
-    else { r = 60 * (-a) + 70 * (1 + a); g = 120 * (-a) + 70 * (1 + a); b = 220 * (-a) + 90 * (1 + a); }
-    const shade = 0.45 + 0.55 * Math.max(0, Math.min(1, (q.depthMid + 1.3) / 2.6));
-    ctx.fillStyle = `rgb(${(r * shade) | 0},${(g * shade) | 0},${(b * shade) | 0})`;
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    const shade = 0.5 + 0.5 * Math.max(0, Math.min(1, (q.depthMid + 1.25) / 2.5));
+    ctx.fillStyle = dispColor(q.dispMid * 2.6, shade);
+    ctx.strokeStyle = 'rgba(0,0,0,0.16)';
     ctx.beginPath();
-    ctx.moveTo(q.p00.sx, q.p00.sy);
-    ctx.lineTo(q.p01.sx, q.p01.sy);
-    ctx.lineTo(q.p11.sx, q.p11.sy);
-    ctx.lineTo(q.p10.sx, q.p10.sy);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
+    ctx.moveTo(q.p00.sx, q.p00.sy); ctx.lineTo(q.p01.sx, q.p01.sy);
+    ctx.lineTo(q.p11.sx, q.p11.sy); ctx.lineTo(q.p10.sx, q.p10.sy);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(220,225,235,0.85)';
-  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText(`pulsation mode Y_${state.l}^${state.m} (displacement exaggerated)`, 16, H - 14);
 
-  // Propagation diagram (placeholder Lamb and Brunt-Vaisala for an n=3 polytrope).
-  const px0 = W * 0.55, py0 = H * 0.2, pw = W * 0.4, ph = H * 0.6;
-  ctx.strokeStyle = 'rgba(220,220,240,0.4)'; ctx.strokeRect(px0, py0, pw, ph);
-  ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'body');
-  ctx.fillText('Propagation diagram (n=3 polytrope)', px0 + 8, py0 + 16);
-  ctx.fillText('r/R', px0 + pw - 28, py0 + ph - 6);
-  ctx.fillText('freq (uHz)', px0 + 6, py0 + 14 + 14);
+  drawNodalLines(project, col);
+  ctx.restore();
 
-  const G = 100;
-  for (let curve = 0; curve < 2; curve += 1) {
-    ctx.strokeStyle = curve === 0 ? '#7c9cff' : '#fdb56a';
-    ctx.beginPath();
-    for (let i = 0; i < G; i += 1) {
-      const xr = i / (G - 1);
-      // Toy N(r) peaks near r=0.3, vanishes at center and surface
-      const N = 200 * Math.exp(-((xr - 0.3) ** 2) / 0.02);
-      // Lamb S_l: increases sharply near surface, l(l+1)/r^2 c_s^2
-      const Sl = Math.sqrt(state.l * (state.l + 1)) * 30 / Math.max(xr, 0.05);
-      const y = curve === 0 ? N : Sl;
-      const sx = px0 + xr * pw;
-      const sy = py0 + ph - Math.min(1, y / 500) * (ph - 30) - 20;
-      if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+  // readout strip.
+  const sn = surfaceNodes(state.l, state.m);
+  const items = [
+    [`(n,l,m)=(${state.n},${state.l},${state.m})`, col.fg],
+    [`${freq.toFixed(0)} uHz`, col.accent],
+    [`${state.n} r-nodes`, '#7cc6ff'],
+    [`surf ${sn.latitudes}+${sn.meridians}`, '#ff8a8a'],
+  ];
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  let widest = 0; for (const [t] of items) widest = Math.max(widest, ctx.measureText(t).width);
+  if (widest > r.w / 4 - 8) ctx.font = fontString(canvas, 'tick', 'mono', 700);
+  items.forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+}
+
+// Nodal lines of Y_l^m: l - |m| circles of latitude (P_l^|m| = 0) and, for
+// m != 0, 2|m| meridians (cos(m phi) = 0). Only the front-facing arc is drawn.
+function drawNodalLines(project, col) {
+  const mm = Math.abs(state.m);
+  ctx.lineWidth = 1.4; ctx.strokeStyle = 'rgba(245,247,255,0.92)';
+
+  // latitude circles: scan theta for sign changes of P_l^mm(cos theta).
+  const thetaNodes = [];
+  let prev = plgndr(state.l, mm, Math.cos(0.001));
+  for (let i = 1; i <= 400; i += 1) {
+    const th = Math.PI * i / 400;
+    const val = plgndr(state.l, mm, Math.cos(th));
+    if (prev === 0 || (val < 0) !== (prev < 0)) thetaNodes.push(th - Math.PI / 800);
+    prev = val;
+  }
+  for (const thN of thetaNodes) strokeRing(project, (phi) => [thN, phi], 0, 2 * Math.PI);
+
+  // meridians: cos(m phi) = 0 at phi = (2k+1) pi / (2 mm).
+  if (mm > 0) {
+    for (let k = 0; k < 2 * mm; k += 1) {
+      const phiN = (2 * k + 1) * Math.PI / (2 * mm);
+      strokeRing(project, (th) => [th, phiN], 0, Math.PI);
     }
-    ctx.stroke();
   }
-  // Mode frequency line.
-  const omega = modeFrequency(state.n, state.l);
-  const lineY = py0 + ph - Math.min(1, omega / 500) * (ph - 30) - 20;
-  ctx.strokeStyle = '#ffd57f'; ctx.setLineDash([4, 3]);
-  ctx.beginPath(); ctx.moveTo(px0, lineY); ctx.lineTo(px0 + pw, lineY); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = '#ffd57f';
-  ctx.fillText(`omega = ${omega.toFixed(1)} uHz`, px0 + pw - 110, lineY - 4);
-  const type = omega > Math.sqrt(state.l * (state.l + 1)) * 30 ? 'p-mode' : 'g-mode';
-  ctx.fillStyle = '#dcdde2';
-  ctx.fillText(`type: ${type}`, px0 + 8, py0 + ph - 8);
+}
 
-  readoutInv.textContent = `(n, l, m) = (${state.n}, ${state.l}, ${state.m})  omega = ${omega.toFixed(1)} uHz`;
-  readoutFrame.textContent = state.t.toFixed(2);
+// Stroke a parametric curve on the (undisplaced) unit sphere, breaking the path
+// wherever the surface turns away from the camera so only the near side shows.
+function strokeRing(project, paramAt, t0, t1) {
+  const N = 160;
+  ctx.beginPath();
+  let pen = false;
+  for (let i = 0; i <= N; i += 1) {
+    const t = t0 + (t1 - t0) * i / N;
+    const [th, phi] = paramAt(t);
+    const p = project(th, phi, false);
+    if (p.depth > 0.02) { if (pen) ctx.lineTo(p.sx, p.sy); else { ctx.moveTo(p.sx, p.sy); pen = true; } }
+    else pen = false;
+  }
+  ctx.stroke();
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Radial eigenfunction of an n=3 polytrope (JWKB, n interior nodes)');
+  const inner = { x: r.x + 40, y: r.y + 30, w: r.w - 40 - 16, h: r.h - 30 - 44 };
+  const xOf = (x) => inner.x + x * inner.w;
+  const yOf = (v) => inner.y + inner.h / 2 - v * (inner.h / 2 - 8);
+  const phase = Math.cos(state.t);
+
+  // p-mode cavity [r_t, 1] shaded; evanescent core [0, r_t] left dark.
+  if (rt > 0) {
+    ctx.fillStyle = 'rgba(124,198,255,0.07)';
+    ctx.fillRect(xOf(rt), inner.y, inner.w * (1 - rt), inner.h);
+  }
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+
+  // zero line.
+  ctx.strokeStyle = col.grid; ctx.beginPath(); ctx.moveTo(inner.x, yOf(0)); ctx.lineTo(inner.x + inner.w, yOf(0)); ctx.stroke();
+
+  // turning point.
+  if (rt > 0) {
+    ctx.strokeStyle = 'rgba(124,198,255,0.6)'; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(xOf(rt), inner.y); ctx.lineTo(xOf(rt), inner.y + inner.h); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#7cc6ff'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('turning point', xOf(rt), inner.y + 4);
+  }
+
+  // eigenfunction, scaled by the same instantaneous phase as the sphere.
+  ctx.strokeStyle = col.accent; ctx.lineWidth = 2.2; ctx.beginPath();
+  for (let i = 0; i < eig.x.length; i += 1) {
+    const X = xOf(eig.x[i]), Y = yOf(eig.xi[i] * phase);
+    if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+  }
+  ctx.stroke();
+
+  // node markers on the zero line.
+  ctx.fillStyle = '#ff8a8a';
+  for (const xn of eig.nodes) { ctx.beginPath(); ctx.arc(xOf(xn), yOf(0), 3, 0, 2 * Math.PI); ctx.fill(); }
+
+  // axes labels.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const x of [0, 0.25, 0.5, 0.75, 1]) ctx.fillText(x.toFixed(2), xOf(x), inner.y + inner.h + 6);
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillText('radius  r / R', inner.x + inner.w / 2, inner.y + inner.h + 22);
+  ctx.save(); ctx.translate(inner.x - 26, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('radial displacement', 0, 0); ctx.restore();
+}
+
+function render() {
+  if (!REG) relayout();
+  if (!eig) rebuildRadial();
+  const col = colors();
+  ctx.fillStyle = col.bg; ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
 function tick() {
-  state.t += 0.05;
+  if (running) state.t += 0.045;
   render();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
 
+// --- controls --------------------------------------------------------------
 function buildControls() {
   controlsEl.innerHTML = '';
-  function slider(id, label, min, max, step, value, onInput, fmt = v => v.toFixed(0)) {
+  const refs = {};
+  function slider(id, label, min, max, value, onInput) {
     const row = document.createElement('div'); row.className = 'row';
     const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = id; lab.textContent = label;
     const inp = document.createElement('input'); inp.id = id; inp.type = 'range';
-    inp.min = String(min); inp.max = String(max); inp.step = String(step); inp.value = String(value);
+    inp.min = String(min); inp.max = String(max); inp.step = '1'; inp.value = String(value);
     inp.setAttribute('aria-label', label);
-    const val = document.createElement('span'); val.className = 'value'; val.textContent = fmt(value);
-    inp.addEventListener('input', () => { const v = parseFloat(inp.value); val.textContent = fmt(v); onInput(v); });
+    const val = document.createElement('span'); val.className = 'value'; val.textContent = String(value);
+    inp.addEventListener('input', () => { const v = parseInt(inp.value, 10); val.textContent = String(v); onInput(v, val); });
     row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
     controlsEl.appendChild(row);
+    refs[id] = { inp, val };
   }
-  slider('n-mode', 'n', 0, 5, 1, state.n, v => state.n = v);
-  slider('l-mode', 'l', 0, 4, 1, state.l, v => {
+  slider('n-mode', 'radial order n', 0, 5, state.n, (v) => { state.n = v; rebuildRadial(); render(); });
+  slider('l-mode', 'degree l', 0, 6, state.l, (v) => {
     state.l = v;
-    // Maintain |m| <= l invariant (BLOCKER fix: plgndr returns 0 for m > l).
-    state.m = Math.max(-state.l, Math.min(state.l, state.m));
+    state.m = Math.max(-v, Math.min(v, state.m));
+    refs['m-mode'].inp.value = String(state.m); refs['m-mode'].val.textContent = String(state.m);
+    rebuildRadial(); render();
   });
-  slider('m-mode', 'm', -4, 4, 1, state.m, v => { state.m = Math.max(-state.l, Math.min(state.l, v)); });
+  slider('m-mode', 'azimuthal m', -6, 6, state.m, (v) => {
+    state.m = Math.max(-state.l, Math.min(state.l, v));
+    refs['m-mode'].inp.value = String(state.m); refs['m-mode'].val.textContent = String(state.m);
+    render();
+  });
 
+  const brow = document.createElement('div'); brow.className = 'row buttons';
+  const play = document.createElement('button'); play.type = 'button'; play.textContent = running ? 'Pause' : 'Play';
+  play.setAttribute('aria-pressed', String(!running));
+  play.addEventListener('click', () => { running = !running; play.textContent = running ? 'Pause' : 'Play'; play.setAttribute('aria-pressed', String(!running)); });
+  const reset = document.createElement('button'); reset.type = 'button'; reset.textContent = 'Reset';
+  reset.addEventListener('click', () => {
+    state.n = 2; state.l = 3; state.m = 1; state.t = 0; running = true; play.textContent = 'Pause'; play.setAttribute('aria-pressed', 'false');
+    for (const id of ['n-mode', 'l-mode', 'm-mode']) { refs[id].inp.value = String(state[id[0]]); refs[id].val.textContent = String(state[id[0]]); }
+    rebuildRadial(); render();
+  });
+  brow.appendChild(play); brow.appendChild(reset); controlsEl.appendChild(brow);
 }
 
 buildControls();
+relayout();
+rebuildRadial();
 render();
+
 if (DETERMINISTIC) {
-  for (let i = 0; i < 30; i += 1) { state.t += 0.1; render(); }
+  state.t = 2.5;             // a phase with strong, non-zero displacement
+  render();
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
 } else {
   requestAnimationFrame(tick);
 }
 
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+
+// physics self-check kept for the visual-test harness.
 window.__physicsCheck = async () => {
-  // Y_0^0 should be constant 1/(2 sqrt(pi)).
   const v00 = realYlm(0, 0, Math.PI / 3, 0.7);
   const expected = 1 / (2 * Math.sqrt(Math.PI));
   if (Math.abs(v00 - expected) > 1e-9) return { name: 'Y_0^0 normalization', pass: false, msg: `${v00} vs ${expected}` };
   return { name: 'Y_l^m surface harmonic', pass: true, msg: `Y_0^0 = ${v00.toFixed(6)}` };
 };
 
-
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const omega = modeFrequency(state.n, state.l);
+  const sn = surfaceNodes(state.l, state.m);
   return {
     fields: [
       { key: 'radial-order', label: 'Radial order n', value: state.n, format: 'float' },
       { key: 'degree-l', label: 'Degree l', value: state.l, format: 'float' },
-      { key: 'azimuth-m', label: 'Azimuth m', value: state.m, format: 'float' },
-      { key: 'frequency', label: 'Frequency (uHz)', value: omega, format: 'float' }
-    ]
+      { key: 'azimuth-m', label: 'Azimuthal m', value: state.m, format: 'float' },
+      { key: 'frequency', label: 'Frequency (uHz)', value: freq, format: 'float' },
+      { key: 'turning', label: 'p-mode turning point r/R', value: rt, format: 'float' },
+      { key: 'surface-nodes', label: 'Surface nodes (lat+merid)', value: `${sn.latitudes}+${sn.meridians}`, format: 'text' },
+    ],
   };
 };
 window.playground.getInvariants = function () {
   const mBound = Math.abs(state.m) <= state.l;
-  const v00 = realYlm(0, 0, Math.PI / 3, 0.7);
-  const expected00 = 1 / (2 * Math.sqrt(Math.PI));
-  const harmonicOk = Math.abs(v00 - expected00) < 1e-8;
+  const nodesOk = eig && eig.nodes.length === state.n;
   return [
-    {
-      key: 'azimuth-bound',
-      label: 'Azimuthal number |m| <= l',
-      value: mBound ? 'pass' : 'fail',
-      status: mBound ? 'pass' : 'drift'
-    },
-    {
-      key: 'harmonic-normalization',
-      label: 'Y_0^0 normalization correct',
-      value: harmonicOk ? 'pass' : 'drift',
-      status: harmonicOk ? 'pass' : 'drift'
-    }
+    { key: 'azimuth-bound', label: 'Azimuthal number |m| <= l', value: mBound ? 'pass' : 'fail', status: mBound ? 'pass' : 'drift' },
+    { key: 'radial-nodes', label: 'Radial nodes equal n', value: nodesOk ? 'pass' : `${eig ? eig.nodes.length : '?'} != ${state.n}`, status: nodesOk ? 'pass' : 'drift' },
   ];
 };
