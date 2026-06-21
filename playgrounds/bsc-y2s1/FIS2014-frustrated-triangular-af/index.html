@@ -64,18 +64,22 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="640" tabindex="0" aria-label="Triangular AF Ising spin grid with live energy and frustration readouts."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0" aria-label="Antiferromagnetic Ising spins on a triangular lattice, drawn as up/down circles with frustrated triangles highlighted (or as chirality domains). Below, the satisfied-bond fraction approaching the 2/3 frustration ceiling and the magnetization staying near zero."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Antiferromagnetic Ising on a triangular lattice; row-offset display.
-      Method: single-spin Metropolis.</figcaption>
+      Antiferromagnetic Ising on a triangular lattice. Spins are drawn as up/down
+      discs with the fully frustrated (all-equal) triangles flagged in red; the
+      toggle shows the three-sublattice chirality domains instead. The diagnostic
+      tracks the satisfied-bond fraction against its 2/3 ceiling and the
+      magnetization. Method: single-spin Metropolis Monte Carlo.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="AF controls">
     <div class="row"><span class="label">T</span><input aria-label="T" type="range" id="slider-T" min="0.05" max="5.0" step="0.05" value="0.5"><span class="value" id="value-T">0.50</span></div>
-    <div class="row"><span class="label">L</span><input aria-label="L" type="range" id="slider-L" min="32" max="96" step="16" value="64"><span class="value" id="value-L">64</span></div>
+    <div class="row"><span class="label">L</span><input aria-label="L" type="range" id="slider-L" min="24" max="72" step="8" value="40"><span class="value" id="value-L">40</span></div>
     <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="8" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+    <div class="row"><span class="label">view</span><select aria-label="view" id="select-view"><option value="spins" selected="">spins + frustration</option><option value="domains">chirality domains</option></select><span class="value" id="value-view">spins</span></div>
     <div class="row buttons">
       <button id="btn-cold" type="button">Cold (stripe)</button>
       <button id="btn-hot" type="button">Hot (random)</button>
@@ -87,8 +91,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Cool the lattice (lower T) and watch the red frustrated triangles thin out but never vanish, the visible sign that frustration cannot be fully relieved.</li>
+        <li class="t-body">Follow the lower plot: the satisfied-bond fraction rises toward 2/3 and stalls there (one frustrated bond per triangle is unavoidable), while |M| stays near zero, so the lattice never orders.</li>
+        <li class="t-body">Switch the view to chirality domains: the salt-and-pepper spins resolve into the three-sublattice domain mosaic, the order that emerges from disorder.</li>
+        <li class="t-body">Hit Cold (stripe) then watch it relax, or Hot (random) to quench from infinite temperature.</li>
       </ul>
     </section>
 
