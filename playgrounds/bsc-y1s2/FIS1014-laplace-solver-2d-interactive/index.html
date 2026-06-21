@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Interactive Laplace Solver: Draw Your Own Conductors</title>
+<title>Interactive Laplace solver: watch an electric field relax into place</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,18 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-  body { padding: var(--space-4); }
-  .pg-figure { max-width: 760px; position: relative; }
-  .pg-figure canvas { width: 100%; height: auto; background: #07080c; cursor: crosshair; display: block; }
-  .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 12ch 9ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
-  figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: repeat(3, 1fr); grid-column: span 2; }
-</style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -44,32 +38,42 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Interactive Laplace Solver: Draw Your Own Conductors</h1>
+      <h1 class="t-title playground-title">Watch an electric field relax into place</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">In a charge-free region the electrostatic potential obeys Laplace's equation, $\nabla^2 V = 0$, which has the smoothing property that V at any point is the average of its neighbours and can have no interior maximum or minimum. The primary canvas is the potential field itself with electric-field streamlines; you drag to paint conductors, pick presets (parallel plates, coaxial cable, dipole, charged sphere), set the voltage, and switch between the potential, the field magnitude |E|, and equipotential views. Watching the solution relax shows the potential settling into the unique configuration fixed by the conductor boundaries, with E always perpendicular to them.</p>
+      <p class="t-body">In empty space the electric potential obeys Laplace's equation: at every point it is exactly the average of its neighbours, with no bumps or dips of its own. That gives a beautifully simple way to solve for the field of any set of conductors. Start from any guess, then sweep across the grid replacing each free point with the average around it, over and over. The potential ripples and settles until nothing changes, and what remains is the unique solution that matches the conductors you fixed. This is relaxation, the workhorse behind real field solvers. Pick a classic geometry or paint your own electrodes straight onto the grid and watch the field re-solve in real time, the equipotential lines bending into place. The diagnostic tracks the residual, how much the field still changes each sweep, plunging toward zero as it converges.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="600"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A potential field relaxing on a grid by successive over-relaxation, with equipotential contours and conductors you can paint. Below, the residual per sweep on a log scale, plunging as it converges."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Live SOR solution of Laplace's equation with field streamlines.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Interactive Laplace solver by successive over-relaxation. Top: the potential as a diverging colour map with equipotential contours; conductors (Dirichlet cells) are fixed and can be painted. Bottom: the residual (largest change per sweep) on a log scale, decaying toward zero as the solution converges. Method: red-black SOR, phi_ij to the neighbour average, with the grounded box as the outer boundary.</figcaption>
 
     <section class="playground-controls">
-      <div id="controls" class="pg-controls"></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Laplace solver controls">
+    <div class="row"><span class="label">setup</span><select aria-label="conductor preset" id="select-preset"><option value="plates" selected="">parallel plates</option><option value="coax">coaxial cable</option><option value="dipole">two electrodes</option><option value="sphere">charged disc</option></select><span class="value" id="value-preset">plates</span></div>
+    <div class="row"><span class="label">brush</span><select aria-label="paint brush" id="select-brush"><option value="1" selected="">paint +1</option><option value="-1">paint -1</option><option value="0">paint ground</option><option value="erase">erase</option></select><span class="value" id="value-brush">+1</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
       <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch a fresh setup solve from flat: the colour map fills in and the equipotential lines snap into place as the residual falls.</li>
+        <li class="t-body">Paint your own electrodes onto the grid with the brush and watch the field re-solve around them in real time.</li>
+        <li class="t-body">Try the coaxial cable: the equipotentials become evenly spaced rings, the logarithmic potential of a cable.</li>
+        <li class="t-body">Read the lower plot: the residual drops by orders of magnitude per few sweeps, then flattens once converged.</li>
       </ul>
     </section>
 

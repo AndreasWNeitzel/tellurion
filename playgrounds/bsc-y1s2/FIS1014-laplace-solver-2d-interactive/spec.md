@@ -5,16 +5,16 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'Paint a conductor with the mouse and watch the electrostatic field find its own shape in about a second.'
-one_paragraph: 'In a charge-free region the electrostatic potential obeys Laplace''s equation, del^2 V = 0, which has the smoothing property that V at any point is the average of its neighbours and can have no interior maximum or minimum. The primary canvas is the potential field itself with electric-field streamlines; you drag to paint conductors, pick presets (parallel plates, coaxial cable, dipole, charged sphere), set the voltage, and switch between the potential, the field magnitude |E|, and equipotential views. Watching the solution relax shows the potential settling into the unique configuration fixed by the conductor boundaries, with E always perpendicular to them. Reference: Griffiths, Introduction to Electrodynamics, Chapter 3.'
+one_paragraph: 'In a charge-free region the electrostatic potential obeys Laplace''s equation, del^2 V = 0, which has the smoothing property that V at any point is the average of its neighbours and can have no interior maximum or minimum. The primary canvas is the potential field itself, a diverging colour map with equipotential contours that relaxes live by red-black successive over-relaxation; you drag to paint conductors (paint +1, -1, ground, or erase), pick presets (parallel plates, coaxial cable, two electrodes, charged disc), and watch the field re-solve in real time. The relaxation replays on a loop so the potential is always seen settling into the unique configuration fixed by the conductor boundaries. The diagnostic plots the residual, the largest change per sweep, on a log scale, plunging toward zero as it converges. Reference: Griffiths, Introduction to Electrodynamics, Chapter 3.'
 tags: [electromagnetism, interactive-drag, field-visualization, animation]
 difficulty: 3
-tier: advanced
+tier: hero
 hero_candidate: true
 renderer: canvas2d
 estimated_engagement_minutes: 5
 curriculum_year: 'L:F-1Y-2S'
 primary_uc: FIS1004
-primary_citation: marion-thornton
+primary_citation: griffiths-em
 share_state_keys: []
 invariants:
   - key: runs
@@ -30,7 +30,7 @@ what_to_try:
   - Vary each control and watch the rail readouts respond.
   - Compare the diagnostic plot against the live scene.
 references:
-  - "Marion, Thornton, Classical Dynamics of Particles and Systems, Fifth ed."
+  - "Griffiths, Introduction to Electrodynamics, 4th ed., Ch. 3; Press et al., Numerical Recipes, Sec. 20.5."
 ---
 
 # Interactive Laplace Solver
@@ -110,25 +110,29 @@ red-black successive over-relaxation with `omega ~ 1.9`.
 
 ## Numerical method
 
-Red-black SOR on a 150x150 grid, ~14 sweeps per animation frame, so
-the field converges visibly in about a second. Dirichlet cells are
-re-imposed every sweep. The field is drawn from an ImageData buffer;
-streamlines integrate `-grad phi` by normalized steps.
+Red-black SOR (omega = 1.92) on a 112x112 grid, 3 sweeps per animation
+frame, so the field converges visibly in about a second; once converged
+the interior is wiped and the relaxation replays on a loop. Dirichlet
+cells are re-imposed every sweep. The potential is drawn from an
+ImageData buffer (diverging colour map); equipotential contours are
+drawn by sub-sampled marching squares.
 
 ## Controls
 
-- preset selector (parallel plates, coaxial, dipole, charged sphere).
-- voltage slider; view selector (phi, |E|, equipotentials).
-- draw +V / -V / erase brushes; drag on the canvas to paint;
-  Reset, Pause.
+- setup selector (parallel plates, coaxial, two electrodes, charged disc).
+- brush selector: paint +1 / -1 / ground / erase; drag on the canvas to
+  paint conductors and watch the field re-solve.
+- Reset, Pause.
 
 ## Expected qualitative features
 
-- The field relaxes from noise to the smooth solution on load.
+- The field relaxes from flat to the smooth solution on load and on every
+  replay; painting re-solves around the new conductors live.
 - Parallel plates give a near-uniform interior field with fringing.
-- Coaxial gives the radial logarithmic potential; dipole the classic
-  two-lobe pattern; the sphere an equipotential interior.
-- Streamlines always leave conductors normally.
+- Coaxial gives the radial logarithmic potential; two electrodes the
+  classic dipole-like pattern; the disc an equipotential interior.
+- Equipotential contours always meet conductors so the field leaves them
+  normally.
 
 ## Invariants and acceptance thresholds
 
