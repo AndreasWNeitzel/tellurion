@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Faraday Induction on a Sliding Bar</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Faraday Induction on a Sliding Bar</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Slide a conducting bar along two rails through a magnetic field and a current appears from nothing. As the bar advances it sweeps out area, so the magnetic flux through the loop, $\Phi = B L x$, grows, and Faraday's law turns that change into an electromotive force $\mathcal{E} = -\,d\Phi/dt = -B L v$. The EMF drives a current $I = \mathcal{E}/R$ around the loop, and that current, sitting in the same field, feels a force. Lenz's law fixes its direction: it always opposes the motion that created it, so the bar is dragged backward by $F = B^2 L^2 v / R$. Push the bar with a steady force and it speeds up only until this magnetic drag grows to match the push, settling at the terminal velocity $v_t = F_{\text{app}} R / (B^2 L^2)$. Nothing is free: at terminal speed the mechanical power you supply, $F_{\text{app}} v_t$, is exactly the heat $I^2 R$ dumped in the resistor.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="780" height="1020" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A conducting bar sliding on rails in a magnetic field into the page, the growing flux loop, the induced current and the opposing Lenz force, and the velocity rising to a terminal value."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Faraday induction on a sliding-bar circuit. Top: the rail loop in a field into the page, the swept flux, the induced current and the opposing Lenz force. Bottom: the velocity rising to the terminal value where the push balances the drag. Method: closed-form motional EMF with a linear-drag equation of motion. Source: Griffiths, Introduction to Electrodynamics, 5e, Sec. 7.1-7.2.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Faraday controls">
+    <div class="row"><span class="label">B (T)</span><input aria-label="magnetic field B (T)" type="range" id="slider-B" min="0.2" max="2" step="0.05" value="1"><span class="value" id="value-B">1.00</span></div>
+    <div class="row"><span class="label">L (m)</span><input aria-label="rail separation L (m)" type="range" id="slider-L" min="0.4" max="1.6" step="0.05" value="1"><span class="value" id="value-L">1.00</span></div>
+    <div class="row"><span class="label">R (Ohm)</span><input aria-label="resistance R (Ohm)" type="range" id="slider-R" min="0.5" max="6" step="0.1" value="2"><span class="value" id="value-R">2.00</span></div>
+    <div class="row"><span class="label">F_app (N)</span><input aria-label="applied force (N)" type="range" id="slider-F" min="0.1" max="2.5" step="0.05" value="1"><span class="value" id="value-F">1.00</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Raise the field $B$: the EMF and current jump, the Lenz force bites harder, and the bar settles at a much lower terminal velocity (it scales as $1/B^2$).</li>
+        <li class="t-body">Raise the resistance $R$: less current flows for the same EMF, so the drag weakens and the bar runs faster, reaching $v_t = F_{\text{app}} R / (B^2 L^2)$.</li>
+        <li class="t-body">Watch the velocity curve flatten onto the dashed terminal line, and the two power readouts converge: at terminal speed the push power equals the heat dissipated.</li>
+        <li class="t-body">Increase the rail separation $L$: a taller loop sweeps flux faster, so the bar brakes sooner (the drag scales as $L^2$).</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
