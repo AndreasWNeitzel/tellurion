@@ -1,19 +1,29 @@
-# Kepler Solar System Explorer
+# Kepler orbit explorer
 
-A central mass at the origin (yellow disc), four inner Solar System planets at their real semi-major axes and eccentricities (Mercury through Mars), plus a user-controllable fifth test orbit. All five bodies obey the same inverse-square law in GM = 1 units where a = 1 AU corresponds to Earth's orbit (1 yr per revolution by Kepler's III law).
+A top-down view of the inner solar system: the Sun at the centre, the four inner
+planets (Mercury through Mars) at their real semi-major axes and eccentricities,
+plus an adjustable comet. All bodies obey the same inverse-square law in GM = 1
+units, where a = 1 is Earth's orbit (1 year per revolution), and are integrated
+with an energy-conserving symplectic step so the orbits stay closed.
 
-The inset (top-right) plots log(T^2 / 4 pi^2) versus log(a^3) for every body. They all land on the dashed line of slope 1, which is Kepler's third law: T^2 proportional to a^3 regardless of eccentricity. Adjust the test orbit's (a, e) and watch its data point slide along the line.
+The lower plot is Kepler's third law: period squared against semi-major axis
+cubed. Every body, planet or comet, lands on one straight line through the origin
+(T squared proportional to a cubed), no matter its eccentricity. Slide the comet
+outward and its point climbs the line while its eccentric orbit grows in the
+scene. Watch the inner planets lap the slow outer ones, and each body speed
+through its closest approach (Kepler's second law).
 
-The animation runs in real time: the speed slider sets the year-per-second rate (default 1 yr/sec; Mercury then completes a full orbit every ~ 0.24 sec on screen, Mars every ~ 1.88 sec). The test orbit can stretch out to a = 2.5, e = 0.6 for a comet-like trajectory.
+Use the comet semi-major-axis slider and the speed slider. Pause freezes the
+animation and Reset restores the default system.
 
 ## Reference
 
-Primary citation: Newman, "Computational Physics", 2013, Exercise 8.12 "Orbit of the Earth". Bib key `newman2013`, chapter_index lists Section 8.12.
+Primary citation: Carroll and Ostlie, *An Introduction to Modern Astrophysics*,
+2nd ed., Ch. 2.
 
 ## Verification
 
-- Strong invariants: per-body Kepler's III law (T = 2 pi a^(3/2) in GM = 1 units); eccentricity recovered from state to 1e-8; semi-major axis recovered to 1e-8; Earth orbit returns within 2 percent of IC after one period.
-- Long-term integration: all five bodies stay bound over 1 yr (radius < 2 a_apastron).
-- Reproducibility: bit-identical positions after 1000 steps.
-- Visual gate: SSIM > 0.92 across 5 frames spanning t = 0 to t = 2 yr.
-- Last verified: see `.verified`.
+- Strong invariants: per-body Kepler's third law (T = 2 pi a^(3/2)); eccentricity
+  and semi-major axis recovered from the state to 1e-8; Earth returns within 2% of
+  its start after one period; bit-identical reproducibility after 1000 steps.
+- Live readout: the total energy drift (symplectic conservation), in the rail.

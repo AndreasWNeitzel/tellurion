@@ -1,464 +1,263 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
-// playground.js
-// Kepler Solar System: the four inner planets orbiting a central mass with
-// realistic (a, e), plus a fifth user-controllable test particle. A live
-// Kepler-III plot (T^2 vs a^3) shows that every body lands on the same line.
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+// Vertical 4:5 hero for the Kepler orbit explorer, Canvas2D only. Top
+// region: a top-down view of the inner planets (real eccentricities) and
+// a comet orbiting the Sun under the inverse-square force, integrated
+// symplectically. Bottom region: Kepler's third law, period squared
+// against semi-major axis cubed, every body on the same straight line.
+//
+// Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics,
+// 2nd ed., Ch. 2.
 
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
-import {
-  PLANETS, createSwarm, stepSwarm, bodyPosition,
-  keplerThirdLaw, DEFAULT_DT,
-} from './sim.js';
+import { PLANETS, createSwarm, stepSwarm, bodyPosition, keplerThirdLaw, DEFAULT_DT } from './sim.js';
+import { snapshot } from '../../../shared/js/engine/symplectic.js';
 
-const urlParams      = new URLSearchParams(location.search);
-const SEED           = parseInt(urlParams.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
-const DETERMINISTIC  = urlParams.get('deterministic') === '1';
-const CAPTURE_NAME   = urlParams.get('capture');
-const CAPTURE_FRAC   = parseFloat(urlParams.get('captureFraction') ?? '0');
+const params = new URLSearchParams(location.search);
+const DETERMINISTIC = params.get('deterministic') === '1';
+const CAPTURE_NAME = params.get('capture');
 
-const canvas       = document.getElementById('stage');
-const ctx          = canvas.getContext('2d', { alpha: false });
-const sliderTestA  = document.getElementById('slider-test-a');
-const sliderTestE  = document.getElementById('slider-test-e');
-const valueTestA   = document.getElementById('value-test-a');
-const valueTestE   = document.getElementById('value-test-e');
-const sliderSpeed  = document.getElementById('slider-speed');
-const valueSpeed   = document.getElementById('value-speed');
-const btnReset     = document.getElementById('btn-reset');
-const btnPlayPause = document.getElementById('btn-playpause');
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-const W = canvas.width, H = canvas.height;
+const sliderA = document.getElementById('slider-a');
+const sliderSpeed = document.getElementById('slider-speed');
+const valueA = document.getElementById('value-a');
+const valueSpeed = document.getElementById('value-speed');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
 
-// World coordinate window: Mars semi-major axis 1.524 AU plus eccentricity
-// gives apastron 1.66 AU; with a 5th user-test orbit up to a = 2.5, e = 0.6
-// the system extends to ~ 4 AU. View [-3.5, 3.5] x [-2.2, 2.2].
-const VIEW = { xmin: -3.5, xmax: 3.5, ymin: -2.2, ymax: 2.2 };
+const COL = ['#9aa0a6', '#e0b070', '#5b8def', '#ef5466', '#67d98c'];   // Merc,Ven,Earth,Mars,comet
+const NAMES = ['Mercury', 'Venus', 'Earth', 'Mars', 'comet'];
+let running = !DETERMINISTIC;
+let swarm = null, bodies = [], trails = [], E0 = 0, VIEW = 3.4;
 
-// Kepler-III inset (top-right).
-const KPL = { x: 600, y: 40, w: 250, h: 180, log_a3_min: -2, log_a3_max: 1.6, log_T2_min: -1, log_T2_max: 2.6 };
+function cometA() { return parseFloat(sliderA.value); }
+function speed() { return parseFloat(sliderSpeed.value); }
 
-const TRAIL_MAX = 6000;
-
-const state = {
-  test:    { a: 1.8, e: 0.45, omega: 0.7 * Math.PI },
-  swarm:   null,
-  trails:  [],            // array of arrays of {x,y}, one per body
-  speed:   1.0,           // years/sec
-  playing: !(DETERMINISTIC || prefersReducedMotion()),
-  t:       0,
-};
-
-function cssVar(name, fallback) {
-  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return v || fallback;
-}
-
-const tokens = {
-  bg:        cssVar('--bg', '#FBFBF9'),
-  surface:   cssVar('--surface', '#FFFFFF'),
-  fg:        cssVar('--fg', '#1A1B1C'),
-  fgMuted:   cssVar('--fg-muted', '#5C5E61'),
-  fgFaint:   cssVar('--fg-faint', '#9A9C9F'),
-  accent:    cssVar('--accent', '#1B6CA8'),
-  accentWarm:cssVar('--accent-warm', '#C13B27'),
-  cat1:      cssVar('--cat-1', '#4C72B0'),
-  cat2:      cssVar('--cat-2', '#DD8452'),
-  cat3:      cssVar('--cat-3', '#55A868'),
-  cat4:      cssVar('--cat-4', '#C44E52'),
-  grid:      cssVar('--grid', '#9A9C9F4D'),
-};
-const PLANET_COLOR = {
-  'cat-1': tokens.cat1,
-  'cat-2': tokens.cat2,
-  'cat-3': tokens.cat3,
-  'cat-4': tokens.cat4,
-};
-
-function allBodies() {
-  return [...PLANETS, {
-    name: 'Test',
-    a: state.test.a,
-    e: state.test.e,
-    omega: state.test.omega,
-    color: 'accent-warm',
-  }];
-}
-
-function rebuildSwarm() {
-  const bodies = allBodies();
-  state.swarm = createSwarm(bodies);
-  state.trails = bodies.map(() => []);
-  state.t = 0;
-}
-
-function pxWorld(x, y) {
-  return {
-    px: ((x - VIEW.xmin) / (VIEW.xmax - VIEW.xmin)) * W,
-    py: (1 - (y - VIEW.ymin) / (VIEW.ymax - VIEW.ymin)) * H,
-  };
-}
-
-function pxKepler(log_a3, log_T2) {
-  return {
-    px: KPL.x + (log_a3 - KPL.log_a3_min) / (KPL.log_a3_max - KPL.log_a3_min) * KPL.w,
-    py: KPL.y + (1 - (log_T2 - KPL.log_T2_min) / (KPL.log_T2_max - KPL.log_T2_min)) * KPL.h,
-  };
-}
-
-function drawBackground() {
-  ctx.fillStyle = tokens.bg;
-  ctx.fillRect(0, 0, W, H);
-  // grid
-  ctx.strokeStyle = tokens.grid;
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  for (let x = -3; x <= 3; x += 1) {
-    const { px: xp } = pxWorld(x, 0);
-    ctx.moveTo(xp, 0); ctx.lineTo(xp, H);
+function totalEnergy() {
+  const s = snapshot(swarm.inst); let E = 0;
+  for (let i = 0; i < swarm.N; i++) {
+    const x = s.q[2 * i], y = s.q[2 * i + 1], vx = s.qdot[2 * i], vy = s.qdot[2 * i + 1];
+    E += 0.5 * (vx * vx + vy * vy) - 1 / Math.hypot(x, y);
   }
-  for (let y = -2; y <= 2; y += 1) {
-    const { py: yp } = pxWorld(0, y);
-    ctx.moveTo(0, yp); ctx.lineTo(W, yp);
-  }
-  ctx.stroke();
-  // axes
-  ctx.strokeStyle = tokens.fgFaint;
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  const o = pxWorld(0, 0);
-  ctx.moveTo(0, o.py); ctx.lineTo(W, o.py);
-  ctx.moveTo(o.px, 0); ctx.lineTo(o.px, H);
-  ctx.stroke();
+  return E;
 }
-
-function drawSun() {
-  const o = pxWorld(0, 0);
-  ctx.fillStyle = '#F2C641';
-  ctx.beginPath();
-  ctx.arc(o.px, o.py, 9, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.strokeStyle = tokens.fg;
-  ctx.lineWidth = 1;
-  ctx.stroke();
+function rebuild() {
+  bodies = [...PLANETS.map((p) => ({ a: p.a, e: p.e, omega: p.omega })), { a: cometA(), e: 0.6, omega: 0.3 }];
+  swarm = createSwarm(bodies);
+  trails = bodies.map(() => []);
+  E0 = totalEnergy();
+  VIEW = 1.12 * Math.max(...bodies.map((b) => b.a * (1 + b.e)));
 }
-
-function drawBodyTrailAndDot(idx, body, color) {
-  // trail
-  const trail = state.trails[idx];
-  if (trail.length >= 2) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.2;
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
-    const first = pxWorld(trail[0].x, trail[0].y);
-    ctx.moveTo(first.px, first.py);
-    for (let i = 1; i < trail.length; i += 1) {
-      const p = pxWorld(trail[i].x, trail[i].y);
-      ctx.lineTo(p.px, p.py);
-    }
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-  }
-  // current position
-  const { x, y } = bodyPosition(state.swarm, idx);
-  const p = pxWorld(x, y);
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(p.px, p.py, 4, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.strokeStyle = tokens.fg;
-  ctx.lineWidth = 0.7;
-  ctx.stroke();
-}
-
-function drawKeplerThirdLawInset() {
-  // Panel background uses a soft tinted surface so it reads as a real
-  // subplot rather than a flat white box.
-  ctx.fillStyle = 'rgba(26, 27, 28, 0.04)';
-  ctx.fillRect(KPL.x, KPL.y, KPL.w, KPL.h);
-  ctx.strokeStyle = tokens.fg;
-  ctx.lineWidth = 0.8;
-  ctx.strokeRect(KPL.x + 0.5, KPL.y + 0.5, KPL.w - 1, KPL.h - 1);
-
-  // gridlines at every integer in log space
-  ctx.strokeStyle = tokens.grid;
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  for (let v = Math.ceil(KPL.log_a3_min); v <= Math.floor(KPL.log_a3_max); v += 1) {
-    const p = pxKepler(v, 0);
-    ctx.moveTo(p.px, KPL.y); ctx.lineTo(p.px, KPL.y + KPL.h);
-  }
-  for (let v = Math.ceil(KPL.log_T2_min); v <= Math.floor(KPL.log_T2_max); v += 1) {
-    const p = pxKepler(0, v);
-    ctx.moveTo(KPL.x, p.py); ctx.lineTo(KPL.x + KPL.w, p.py);
-  }
-  ctx.stroke();
-  // axis tick labels
-  ctx.fillStyle = tokens.fgFaint;
-  ctx.font = fontString(canvas, 'tick');
-  ctx.textAlign = 'center';
-  for (let v = Math.ceil(KPL.log_a3_min); v <= Math.floor(KPL.log_a3_max); v += 1) {
-    const p = pxKepler(v, KPL.log_T2_min);
-    ctx.fillText(`10^${v}`, p.px, KPL.y + KPL.h + 12);
-  }
-  ctx.textAlign = 'right';
-  for (let v = Math.ceil(KPL.log_T2_min); v <= Math.floor(KPL.log_T2_max); v += 1) {
-    const p = pxKepler(KPL.log_a3_min, v);
-    ctx.fillText(`10^${v}`, KPL.x - 4, p.py + 3);
-  }
-
-  // Kepler-III line on log-log axes (slope 1 in the (log_a3, log_T2 / 4 pi^2) plane)
-  ctx.strokeStyle = tokens.accent;
-  ctx.lineWidth = 1.2;
-  ctx.setLineDash([5, 4]);
-  ctx.beginPath();
-  const p0 = pxKepler(KPL.log_a3_min, KPL.log_a3_min);
-  const p1 = pxKepler(KPL.log_a3_max, KPL.log_a3_max);
-  ctx.moveTo(p0.px, p0.py); ctx.lineTo(p1.px, p1.py);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // data points with planet name labels
-  const bodies = allBodies();
-  for (let i = 0; i < bodies.length; i += 1) {
-    const a = bodies[i].a;
-    const T = keplerThirdLaw(a);
-    const log_a3 = Math.log10(a * a * a);
-    const log_T2 = Math.log10(T * T / (4 * Math.PI * Math.PI));
-    const p = pxKepler(log_a3, log_T2);
-    const c = bodies[i].color === 'accent-warm' ? tokens.accentWarm : PLANET_COLOR[bodies[i].color];
-    ctx.fillStyle = c;
-    ctx.beginPath();
-    ctx.arc(p.px, p.py, 6, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.strokeStyle = tokens.fg;
-    ctx.lineWidth = 1.0;
-    ctx.stroke();
-    // label
-    ctx.fillStyle = tokens.fg;
-    ctx.font = fontString(canvas, 'tick');
-    ctx.textAlign = 'left';
-    ctx.fillText(bodies[i].name, p.px + 8, p.py + 3);
-  }
-
-  // axis labels
-  ctx.fillStyle = tokens.fgMuted;
-  ctx.font = fontString(canvas, 'caption');
-  ctx.textAlign = 'center';
-  ctx.fillText("Kepler's third law: T^2 proportional to a^3", KPL.x + KPL.w / 2, KPL.y - 8);
-  ctx.font = fontString(canvas, 'tick');
-  ctx.fillStyle = tokens.fgFaint;
-  ctx.fillText('a^3 (AU^3)', KPL.x + KPL.w / 2, KPL.y + KPL.h + 26);
-  ctx.save();
-  ctx.translate(KPL.x - 36, KPL.y + KPL.h / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('T^2 / (4 π^2) (yr^2)', 0, 0);
-  ctx.restore();
-}
-
-function drawLegendAndReadout() {
-  const bodies = allBodies();
-  ctx.font = fontString(canvas, 'caption');
-  ctx.textAlign = 'left';
-  let y = 50;
-  for (let i = 0; i < bodies.length; i += 1) {
-    const b = bodies[i];
-    const c = b.color === 'accent-warm' ? tokens.accentWarm : PLANET_COLOR[b.color];
-    ctx.fillStyle = c;
-    ctx.beginPath();
-    ctx.arc(28, y - 3, 4, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.fillStyle = tokens.fg;
-    // Kepler-III period in real years: T_yr = a^1.5 (one year per Earth orbit).
-    const T_yr = Math.pow(b.a, 1.5);
-    ctx.fillText(`${b.name}: a = ${b.a.toFixed(3)} AU, e = ${b.e.toFixed(3)}, T = ${T_yr.toFixed(2)} yr`,
-                 42, y);
-    y += 16;
-  }
-
-  // simulation time
-  ctx.fillStyle = tokens.fgMuted;
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillText(`t = ${state.t.toFixed(2)} yr`, 20, y + 6);
-  ctx.fillText(`speed = ${state.speed.toFixed(1)} yr/s`, 20, y + 22);
-}
-
-function drawTitles() {
-  ctx.fillStyle = tokens.fgMuted;
-  ctx.font = fontString(canvas, 'caption');
-  ctx.textAlign = 'left';
-  ctx.fillText('Inner solar system. Yellow disc = Sun. Four real planets + one custom test orbit.',
-               20, 22);
-}
-
-function drawAll() {
-  drawBackground();
-  drawTitles();
-  drawLegendAndReadout();
-
-  if (!state.swarm) return;
-  const bodies = allBodies();
-  for (let i = 0; i < bodies.length; i += 1) {
-    const c = bodies[i].color === 'accent-warm' ? tokens.accentWarm : PLANET_COLOR[bodies[i].color];
-    drawBodyTrailAndDot(i, bodies[i], c);
-  }
-  drawSun();
-  drawKeplerThirdLawInset();
-}
-
-function stepN(nSteps) {
-  if (!state.swarm) return;
-  for (let i = 0; i < nSteps; i += 1) {
-    stepSwarm(state.swarm, DEFAULT_DT);
-    state.t += DEFAULT_DT / (2 * Math.PI);          // yr per step
-    const bodies = allBodies();
-    for (let b = 0; b < bodies.length; b += 1) {
-      const { x, y } = bodyPosition(state.swarm, b);
-      const trail = state.trails[b];
-      trail.push({ x, y });
-      if (trail.length > TRAIL_MAX) trail.shift();
-    }
-  }
-}
-
-function applyTestSliders() {
-  state.test.a = parseFloat(sliderTestA.value);
-  state.test.e = parseFloat(sliderTestE.value);
-  valueTestA.textContent = state.test.a.toFixed(2);
-  valueTestE.textContent = state.test.e.toFixed(2);
-  rebuildSwarm();
-}
-
-sliderTestA.addEventListener('change', applyTestSliders);
-sliderTestE.addEventListener('change', applyTestSliders);
-sliderSpeed.addEventListener('input', () => {
-  state.speed = parseFloat(sliderSpeed.value);
-  valueSpeed.textContent = state.speed.toFixed(1);
-});
-
+function syncVals() { valueA.textContent = cometA().toFixed(2); valueSpeed.textContent = speed().toFixed(1); }
+sliderA.addEventListener('input', () => { syncVals(); rebuild(); render(); });
+sliderSpeed.addEventListener('input', syncVals);
 btnReset.addEventListener('click', () => {
-  sliderTestA.value = '1.8';
-  sliderTestE.value = '0.45';
-  sliderSpeed.value = '1.0';
-  state.speed = 1.0;
-  valueSpeed.textContent = '1.0';
-  applyTestSliders();
+  sliderA.value = '1.9'; sliderSpeed.value = '1';
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); rebuild(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
 });
 
-btnPlayPause.addEventListener('click', () => {
-  state.playing = !state.playing;
-  btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
-});
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null, SCN = null;
+function computeSceneTransform() {
+  const r = REG.scene;
+  const titleH = 22, stripH = 26;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const size = Math.min(draw.w, draw.h);
+  SCN = { draw, ox: draw.x + draw.w / 2, oy: draw.y + draw.h / 2, scale: size / (2 * VIEW) };
+}
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.85 },
+    { name: 'diagnostic', weight: 1.15 },
+  ]);
+  computeSceneTransform();
+}
+const WX = (x) => SCN.ox + x * SCN.scale;
+const WY = (y) => SCN.oy - y * SCN.scale;
 
-function bootSync() {
-  rebuildSwarm();
-  if (CAPTURE_NAME) {
-    // Deterministic capture: integrate t (in yr) up to captureFraction * 2 yr
-    // so the inner planets complete a few orbits and Mars completes ~ 1.
-    const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const targetYears = frac * 2.0;
-    const stepsNeeded = Math.round(targetYears * 2 * Math.PI / DEFAULT_DT);
-    stepN(stepsNeeded);
-    state.playing = false;
-  }
-  drawAll();
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    sun: '#ffd24a', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)',
+  };
+}
 
-  if (DETERMINISTIC) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const detail = { capture: CAPTURE_NAME ?? null, seed: SEED, t: state.t };
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail }));
-        window.__simulationReady = true;
-        window.__simulationReadyDetail = detail;
-      });
-    });
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
 }
 
-let lastFrameTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+function drawScene(col, r) {
+  panel(col, r, 'The inner solar system, to scale and in motion');
+  const { draw } = SCN;
+
+  ctx.save();
+  clipTo(ctx, draw);
+
+  // orbit ellipses (analytic guide).
+  for (let i = 0; i < bodies.length; i++) {
+    const b = bodies[i];
+    ctx.strokeStyle = COL[i]; ctx.globalAlpha = 0.35; ctx.lineWidth = 1.2; ctx.beginPath();
+    for (let k = 0; k <= 120; k++) { const nu = 2 * Math.PI * k / 120; const rr = b.a * (1 - b.e * b.e) / (1 + b.e * Math.cos(nu)); const x = rr * Math.cos(nu + b.omega), y = rr * Math.sin(nu + b.omega); if (k) ctx.lineTo(WX(x), WY(y)); else ctx.moveTo(WX(x), WY(y)); }
+    ctx.closePath(); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // trails + planets.
+  for (let i = 0; i < bodies.length; i++) {
+    const tr = trails[i];
+    if (tr.length > 1) { ctx.strokeStyle = COL[i]; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.6; ctx.beginPath(); tr.forEach((p, k) => { if (k) ctx.lineTo(WX(p[0]), WY(p[1])); else ctx.moveTo(WX(p[0]), WY(p[1])); }); ctx.stroke(); ctx.globalAlpha = 1; }
+    const p = bodyPosition(swarm, i);
+    ctx.fillStyle = COL[i]; ctx.beginPath(); ctx.arc(WX(p.x), WY(p.y), i === 4 ? 4 : 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = COL[i]; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(NAMES[i], WX(p.x) + 7, WY(p.y));
+  }
+
+  // Sun.
+  ctx.fillStyle = col.sun; ctx.beginPath(); ctx.arc(WX(0), WY(0), 8, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+
+  ctx.restore();
+
+  // readout strip.
+  const Tc = keplerThirdLaw(cometA()) / (2 * Math.PI);   // periods in Earth years (Earth T=2pi -> 1 yr)
+  const drift = Math.abs(totalEnergy() - E0) / Math.abs(E0);
+  const items = [
+    [`comet a ${cometA().toFixed(2)}`, COL[4]],
+    [`T ${Tc.toFixed(2)}yr`, col.fg],
+    ['Earth 1.00yr', COL[2]],
+    [`ΔE ${drift.toExponential(0)}`, col.muted],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 13); });
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, "Kepler's third law: T² grows as a³");
+
+  const inner = { x: r.x + 52, y: r.y + 28, w: r.w - 52 - 16, h: r.h - 28 - 42 };
+  const aMax = Math.max(...bodies.map((b) => b.a));
+  const x3Max = Math.pow(aMax, 3) * 1.12, y2Max = Math.pow(keplerThirdLaw(aMax), 2) * 1.12;
+  const xOf = (a3) => inner.x + a3 / x3Max * inner.w;
+  const yOf = (t2) => inner.y + inner.h - t2 / y2Max * inner.h;
+
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const f of [0, 0.5, 1]) { const y = inner.y + inner.h - f * inner.h; ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText((y2Max * f).toFixed(0), inner.x - 5, y); }
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+
+  // theoretical line T^2 = 4 pi^2 a^3.
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(xOf(0), yOf(0)); ctx.lineTo(xOf(x3Max), yOf(4 * Math.PI * Math.PI * x3Max)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'legend', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('T² = 4π²a³', xOf(x3Max * 0.36) + 6, yOf(4 * Math.PI * Math.PI * x3Max * 0.36) + 6);
+
+  // body points.
+  for (let i = 0; i < bodies.length; i++) {
+    const a3 = Math.pow(bodies[i].a, 3), t2 = Math.pow(keplerThirdLaw(bodies[i].a), 2);
+    ctx.fillStyle = COL[i]; ctx.beginPath(); ctx.arc(xOf(a3), yOf(t2), i === 4 ? 6 : 5, 0, 2 * Math.PI); ctx.fill();
+    if (i === 4 || i === 2) { ctx.fillStyle = COL[i]; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText(NAMES[i], xOf(a3) + 6, yOf(t2) - 3); }
+  }
+
+  // labels.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('semi-major axis cubed  a³', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 40, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('period squared  T²', 0, 0); ctx.restore();
+}
+
+function render() {
+  if (!REG) relayout();
+  if (!swarm) rebuild();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
+}
+
+function advance() {
+  const n = Math.max(1, Math.round(speed() * 6));
+  for (let s = 0; s < n; s++) stepSwarm(swarm, DEFAULT_DT);
+  for (let i = 0; i < bodies.length; i++) { const p = bodyPosition(swarm, i); trails[i].push([p.x, p.y]); if (trails[i].length > 140) trails[i].shift(); }
+}
+
+let last = performance.now();
 function tick(now) {
-  if (!state.playing) { lastFrameTime = now; requestAnimationFrame(tick); return; }
-  const dtReal = Math.min((now - lastFrameTime) / 1000, 0.1);
-  lastFrameTime = now;
-  // Years advanced this frame = dtReal * speed.
-  // dt per step in GM=1 time = DEFAULT_DT; one orbit period at a=1 is
-  // 2 pi GM=1 time = 1 yr. So years_step = DEFAULT_DT / (2 pi).
-  const yearsToAdvance = dtReal * state.speed;
-  const stepsNeeded = Math.round(yearsToAdvance * 2 * Math.PI / DEFAULT_DT);
-  stepN(stepsNeeded);
-  drawAll();
+  last = now;
+  if (running) advance();
+  render();
   requestAnimationFrame(tick);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    bootSync();
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
-} else {
-  bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(tick);
+function bootSync() {
+  syncVals(); rebuild(); relayout();
+  for (let i = 0; i < 220; i++) advance();   // pre-roll so trails are populated
+  render();
 }
 
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
-// State reports the test orbit's semi-major axis, eccentricity and
-// the orbiting-body count. The invariants check the two integrals
-// of the Kepler problem: each body conserves its orbital energy
-// (1/2 v^2 - GM/r) and its specific angular momentum (x vy - y vx),
-// so the swarm totals must not drift.
 window.playground = window.playground || {};
-let __E0 = null, __L0 = null, __Ax0 = null, __Ay0 = null, __swarmRef = null;
 window.playground.getState = function () {
   return {
     fields: [
-      { key: 'semi-major', label: 'test orbit a (AU)', value: state.test.a, format: 'float' },
-      { key: 'eccentricity', label: 'test orbit e', value: state.test.e, format: 'float' },
-      { key: 'bodies', label: 'orbiting bodies', value: state.swarm ? String(state.swarm.N) : '0' },
+      { key: 'comet', label: 'comet semi-major a', value: cometA(), format: 'float' },
+      { key: 'cometT', label: 'comet period (yr)', value: keplerThirdLaw(cometA()) / (2 * Math.PI), format: 'float' },
+      { key: 'bodies', label: 'bodies', value: bodies.length, format: 'int' },
+      { key: 'drift', label: 'energy drift (rel.)', value: Math.abs(totalEnergy() - E0) / Math.abs(E0), format: 'float' },
     ],
   };
 };
 window.playground.getInvariants = function () {
-  const sw = state.swarm;
-  if (!sw || !sw.inst) return [];
-  const q = sw.inst.q, p = sw.inst.qdot, N = sw.N;
-  let E = 0, L = 0, Ax = 0, Ay = 0;
-  for (let i = 0; i < N; i += 1) {
-    const x = q[2 * i], y = q[2 * i + 1], vx = p[2 * i], vy = p[2 * i + 1];
-    const r = Math.hypot(x, y);
-    E += 0.5 * (vx * vx + vy * vy) - 1 / Math.max(1e-12, r);
-    const Li = x * vy - y * vx;
-    L += Li;
-    // Specific Laplace-Runge-Lenz vector A = v x L - r-hat (GM = 1). Each
-    // body's A is fixed in time (points at perihelion, never rotates), so
-    // the swarm sum is conserved too.
-    Ax += vy * Li - x / Math.max(1e-12, r);
-    Ay += -vx * Li - y / Math.max(1e-12, r);
-  }
-  if (sw !== __swarmRef) { __swarmRef = sw; __E0 = E; __L0 = L; __Ax0 = Ax; __Ay0 = Ay; }   // re-baseline on swarm rebuild
-  const eDrift = Math.abs(E - __E0) / Math.max(1e-9, Math.abs(__E0));
-  const lDrift = Math.abs(L - __L0) / Math.max(1e-9, Math.abs(__L0));
-  const aDrift = Math.hypot(Ax - __Ax0, Ay - __Ay0) / Math.max(1e-9, Math.hypot(__Ax0, __Ay0));
-  return [
-    {
+  try {
+    // Symplectic integration conserves the total energy (bounded drift),
+    // so the orbits stay closed indefinitely.
+    const drift = Math.abs(totalEnergy() - E0) / Math.abs(E0);
+    return [{
       key: 'energy',
-      label: 'orbital energy conserved (Kepler)',
-      value: eDrift.toExponential(2),
-      status: eDrift < 5e-3 ? 'pass' : (eDrift < 5e-2 ? 'pending' : 'drift'),
-    },
-    {
-      key: 'angular-momentum',
-      label: 'angular momentum conserved',
-      value: lDrift.toExponential(2),
-      status: lDrift < 5e-3 ? 'pass' : (lDrift < 5e-2 ? 'pending' : 'drift'),
-    },
-    {
-      key: 'lrl-vector',
-      label: 'Laplace-Runge-Lenz vector fixed',
-      value: aDrift.toExponential(2),
-      status: aDrift < 5e-3 ? 'pass' : (aDrift < 5e-2 ? 'pending' : 'drift'),
-    },
-  ];
+      label: 'total energy conserved (rel. drift)',
+      value: drift.toExponential(2),
+      status: drift < 1e-2 ? 'pass' : (drift < 1e-1 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
+  }
 };

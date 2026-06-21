@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Kepler Solar System Explorer</title>
+<title>Kepler orbit explorer: why the outer planets move slower</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,34 +13,11 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-    .pg-figure { max-width: 860px; }
-    .pg-figure canvas { width: 100%; height: auto; }
-    .pg-controls {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-3) var(--space-4);
-      align-items: center;
-      margin-block: var(--space-4);
-    }
-    .pg-controls .row {
-      display: grid;
-      grid-template-columns: 8ch 1fr 7ch;
-      gap: var(--space-3);
-      align-items: center;
-      font-size: 13px;
-      color: var(--fg-muted);
-    }
-    .pg-controls .row .value {
-      font-family: var(--font-mono);
-      font-feature-settings: "tnum";
-      text-align: right;
-      color: var(--fg);
-    }
-    .pg-controls input[type="range"] { width: 100%; }
-    .pg-controls .row.buttons {
-      grid-template-columns: 1fr 1fr;
-      grid-column: span 2;
-    }
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -61,63 +38,42 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Kepler solar system explorer</h1>
+      <h1 class="t-title playground-title">Why the outer planets move slower</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-    A central mass at the origin, four inner Solar System planets at their real
-    semi-major axes and eccentricities (Mercury through Mars), plus a fifth user-
-    controllable test orbit. All five bodies obey the same inverse-square law in
-    $GM = 1$ units where $a = 1$ corresponds to Earth's orbit (1 yr). The inset shows
-    Kepler's third law: every body lands on the dashed $\log(T^2) = \log(a^3)$ line,
-    regardless of eccentricity. Adjust the test orbit's $(a, e)$ and time-speed; the
-    test point's location on the inset moves with the slider.
-  </p>
+      <p class="t-body">Watch the inner solar system run. Each planet traces an ellipse with the Sun at one focus, and the further out it orbits, the slower it goes, not a little slower, but on a precise schedule: the orbital period squared is proportional to the orbit size cubed. Mercury laps the Sun four times before Earth completes one circuit; Mars takes nearly two Earth years. This is Kepler's third law, and it falls straight out of Newtonian gravity. Along the way each planet also speeds up at its closest approach and dawdles at its farthest, sweeping equal areas in equal times. The bodies here move under the real inverse-square force, integrated with an energy-conserving symplectic scheme, with the actual eccentricities of the planets. Drop a comet at any distance and watch where it lands on the period-versus-size law. The scene is the orbiting system; the diagnostic is the third law itself, every body falling on one straight line.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="500" tabindex="0" aria-label="Solar System view with five orbiting bodies and a Kepler-third-law log-log inset."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A top-down view of the inner solar system, planets orbiting the Sun on real ellipses with a comet you can place. Below, Kepler's third law: period squared versus semi-major axis cubed, all bodies on one line."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Inner Solar System (Mercury through Mars at their real (a, e)) plus a user-
-      controlled test orbit. Method: 2D velocity-Verlet on the inverse-square force
-      from <code>shared/js/engine/symplectic.js</code>; ten conservation laws hold per
-      body (energy, angular momentum, Laplace-Runge-Lenz vector).</figcaption>
+      Kepler orbit explorer. Top: the inner planets (Mercury to Mars, real eccentricities) and a comet orbiting the Sun under the inverse-square force, integrated symplectically. Bottom: Kepler's third law, period squared against semi-major axis cubed, every body on the same straight line. Method: symplectic Verlet, GM = 1 units; T = 2 pi a^(3/2).</figcaption>
 
     <section class="playground-controls">
-      <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
-    <div class="row">
-      <span class="label">test a (AU)</span>
-      <input type="range" id="slider-test-a" min="0.3" max="2.5" step="0.05" value="1.8" aria-label="Test-orbit semi-major axis in AU">
-      <span class="value" id="value-test-a">1.80</span>
-    </div>
-    <div class="row">
-      <span class="label">test e</span>
-      <input type="range" id="slider-test-e" min="0" max="0.6" step="0.02" value="0.45" aria-label="Test-orbit eccentricity">
-      <span class="value" id="value-test-e">0.45</span>
-    </div>
-    <div class="row">
-      <span class="label">speed (yr/s)</span>
-      <input type="range" id="slider-speed" min="0.05" max="1.5" step="0.05" value="0.3" aria-label="Time advance rate in years per second">
-      <span class="value" id="value-speed">0.3</span>
-    </div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Orbit explorer controls">
+    <div class="row"><span class="label">comet a</span><input aria-label="comet semi-major axis" type="range" id="slider-a" min="0.5" max="2.4" step="0.05" value="1.9"><span class="value" id="value-a">1.90</span></div>
+    <div class="row"><span class="label">speed</span><input aria-label="time speed" type="range" id="slider-speed" min="0.3" max="3" step="0.1" value="1"><span class="value" id="value-speed">1.0</span></div>
     <div class="row buttons">
-      <button id="btn-reset" type="button" aria-label="Reset all sliders">Reset</button>
-      <button id="btn-playpause" type="button" aria-pressed="false" aria-label="Toggle play and pause">Pause</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
     </div>
   </div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch Mercury whip around several times while Mars barely moves: the outer orbits really are slower.</li>
+        <li class="t-body">Follow one planet near the Sun and far from it: it visibly races at perihelion, crawls at aphelion (equal areas).</li>
+        <li class="t-body">Slide the comet outward and watch its point climb the period-size line in the lower plot, always on it.</li>
+        <li class="t-body">Notice the comet's stretched, eccentric orbit compared with the nearly circular planets.</li>
       </ul>
     </section>
 

@@ -8,11 +8,11 @@ primary_uc: AST2004
 primary_citation: carroll-ostlie
 supporting_ucs: []
 curriculum_year: bsc-y2s1
-hook: 'Set the size and shape of an orbit and watch it close perfectly, lap after lap; the energy, angular momentum, and the arrow pointing at perihelion never drift.'
-one_paragraph: 'The Kepler problem is the textbook two-body orbit: a test particle under inverse-square gravity. Set the semi-major axis a and eccentricity e and the playground launches the particle from apastron and integrates it with a symplectic velocity-Verlet step, so the total energy, the angular momentum, and the Laplace-Runge-Lenz vector stay flat over thousands of laps. The LRL arrow is the special signature of the 1/r force: it points at perihelion and does not rotate, which is exactly why the ellipse closes. Crank e up and the orbit stretches into a thin cigar with a fast whip around the focus, while the conserved-quantity readouts show nothing is lost. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 2.'
-tags: [stellar, exoplanets, animation, live-readout]
+hook: 'Watch the inner planets run: the further out the orbit, the slower it goes, on the precise schedule T squared proportional to a cubed.'
+one_paragraph: 'A top-down view of the inner solar system: Mercury, Venus, Earth and Mars (with their real eccentricities) plus an adjustable comet, all orbiting the Sun under inverse-square gravity and integrated with an energy-conserving symplectic velocity-Verlet step. The further out a body orbits the slower it moves, and the body also speeds through perihelion and dawdles at aphelion (Kepler''s second law). The scene animates the system with orbit ellipses and trails; the diagnostic is Kepler''s third law, period squared against semi-major axis cubed, on which every body, planet or comet, falls on a single straight line. Slide the comet outward and watch its point climb that line. Reference: Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 2.'
+tags: [stellar, exoplanets, animation, live-readout, interactive]
 difficulty: 3
-tier: simple
+tier: hero
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
@@ -92,7 +92,7 @@ treatment standard in Goldstein, *Classical Mechanics*, Chapter 3.
 
 ## Physical setup
 
-A test particle orbits a fixed central mass under inverse-square gravity in 2D. The system is the Newtonian Kepler problem in geometric units $GM = 1$ with the central mass at the origin and the test particle at $(x, y)$. The orbit is integrated by the velocity-Verlet branch of `shared/js/engine/symplectic.js`, which conserves total energy and angular momentum to high precision over thousands of periods. The user sets the orbit by adjusting two sliders for semi-major axis $a$ and eccentricity $e$; the playground initializes the particle at apastron with the corresponding velocity and renders the resulting closed orbit alongside the live energy, angular momentum, and Laplace-Runge-Lenz (LRL) vector readouts. At low $e$ the orbit is a near-circle; at high $e$ it is a sharply elongated ellipse with rapid perihelion passage.
+The four inner planets (Mercury, Venus, Earth, Mars, with real semi-major axes and eccentricities) and one adjustable comet orbit a fixed central mass under inverse-square gravity in 2D, in geometric units GM = 1 (a = 1 is Earth's orbit, period 1 yr = 2 pi). Each body is independent (no mutual interaction) and is integrated by the velocity-Verlet branch of `shared/js/engine/symplectic.js`, which conserves total energy over thousands of periods. Each body starts at periastron with the analytic speed. The scene renders the orbit ellipses, trails, and the Sun; the diagnostic plots Kepler's third law for every body.
 
 ## Governing equations
 
@@ -118,39 +118,38 @@ Initial conditions: place the particle at apastron $(r_\text{ap}, 0)$ with $r_\t
 
 ## Controls
 
-| name | type | units | range | default | sets |
-|------|------|-------|-------|---------|------|
-| a (semi-major axis) | slider | dimensionless (GM=1) | 0.5 to 2.0 | 1.0 | size of the orbit; $T = 2\pi a^{3/2}$ |
-| e (eccentricity) | slider | dimensionless | 0.0 to 0.9 | 0.6 | shape of the orbit; 0 circular, 1 parabolic |
-| reset | button | N/A | N/A | N/A | re-seed IC at apastron with the current (a, e) and clear the trail |
-| play / pause | button | N/A | N/A | play | toggle integration |
+- comet a (0.5 to 2.4): the semi-major axis of the adjustable comet; its
+  point slides along the Kepler-III line and its orbit resizes.
+- speed (0.3 to 3): the time rate of the animation.
+- Reset, Pause.
+
+The four planets are fixed at their real elements; only the comet and the
+playback speed are adjustable.
 
 ## Expected qualitative features
 
-### Visible in the default golden frames
-
-The captureFraction sweep maps to eccentricity along $e = 0.6 \cdot \text{frac}$ from 0 to 0.6 (frame to frame), with $a = 1$ fixed. Each frame integrates 1 period at the chosen eccentricity before capture. The five frames show:
-
-- t-000 ($e = 0$): a perfect circular orbit, particle at $(1, 0)$ with the trail covering the full circle.
-- t-025 ($e = 0.15$): slightly elongated ellipse.
-- t-050 ($e = 0.3$): more elongated, perihelion now visible to the left.
-- t-075 ($e = 0.45$): clearly eccentric, perihelion approaches the central mass.
-- t-100 ($e = 0.6$): the engine-test benchmark eccentricity; visibly elongated, with the central mass close to the perihelion focus.
-
-In every frame the central mass is a filled dot at the origin, the particle is a filled accent dot at apastron-end of its orbit (close to the starting position after one period), and the trail is the accent-colored polyline showing the orbit shape.
-
-### Available via user interaction
-
-- Dragging the eccentricity slider toward 0.9 increases the orbit elongation and decreases perihelion distance to $a(1 - e)$. At $e = 0.9$ perihelion is at $r = 0.1 a$, a regime where the engine test (run at $e = 0.6$) does not directly validate; the live $|dE/E|$ readout reports the drift for the user.
-- Dragging $a$ toward 0.5 shrinks the orbit; toward 2.0 enlarges it. The period $T = 2\pi a^{3/2}$ is shown in the readout.
+- Inner planets orbit faster than outer ones: Mercury laps several times
+  per Earth year; Mars takes nearly two years.
+- Each body speeds through perihelion and slows at aphelion (Kepler II),
+  visible in the eccentric comet and Mercury.
+- Every body (planets and comet) lies on a single straight line in the
+  T-squared versus a-cubed diagnostic (Kepler III).
+- Sliding the comet outward moves its point up the Kepler-III line and
+  enlarges its eccentric orbit in the scene.
+- The energy-drift readout stays tiny (symplectic integration), so the
+  orbits remain closed.
 
 ## Invariants and acceptance thresholds
 
-| invariant | strong/medium/weak | threshold | notes |
-|-----------|-------------------|-----------|-------|
-| Energy conservation | strong | $|dE/E| < 10^{-3}$ over $10^3$ periods at $a = 1$, $e = 0.6$, dt = 0.01 | mirror of the `tests/engines/symplectic.test.mjs` Kepler case at a shorter run length |
-| Angular momentum conservation | strong | $|dL/L| < 10^{-10}$ over $10^3$ periods at $a = 1$, $e = 0.6$ | central force; angular momentum is exact under symplectic Verlet to machine precision modulo cross-products |
-| LRL vector bounded | medium | $|\,|\vec{A}|(t) - |\vec{A}|(0)\,| / |\vec{A}|(0) < 5 \times 10^{-3}$ over $10^3$ periods | secular drift would signal an integrator failure; bounded drift is the Verlet baseline |
+| invariant | threshold | location |
+| periastron IC matches a(1-e) and the analytic speed | < 1e-8 | invariants test |
+| Kepler's third law T = 2 pi a^(3/2) | exact | invariants test |
+| eccentricity and a recovered from the state | < 1e-8 | invariants test |
+| Earth returns near its IC after one period | < 2% of a | invariants test |
+| total energy conserved (symplectic) | rel drift < 1e-2 | live readout |
+| reproducible: bit-identical after 1000 steps | exact | invariants test |
+
+All confirmed in `invariants.test.mjs` (7 tests passing).
 
 ## Limiting cases for verification
 
