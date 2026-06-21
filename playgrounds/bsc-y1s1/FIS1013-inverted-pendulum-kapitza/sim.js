@@ -55,9 +55,11 @@ export function stabilityRatio(a, omega) {
   return (a * a * omega * omega) / (2 * G_GRAV * L_PEN);
 }
 
-// Effective slow-time potential (Landau-Lifshitz):
-//   U_eff(theta) = -m g l cos(theta) + (1/4) m (a omega)^2 sin^2(theta)
-// With m = 1, l = 1. Minimum at theta = 0 (up) if a^2 omega^2 > 2 g l.
+// Effective slow-time potential (Landau-Lifshitz), with theta measured from
+// straight up so the bob is highest (largest gravitational PE) at theta = 0:
+//   U_eff(theta) = m g l cos(theta) + (1/4) m (a omega)^2 sin^2(theta)
+// With m = 1, l = 1, theta = 0 (up) is a local minimum iff a^2 omega^2 > 2 g l;
+// below threshold it is a maximum and the bob rolls down to theta = pi.
 export function effectivePotential(theta, a, omega) {
-  return -G_GRAV * Math.cos(theta) + 0.25 * (a * omega) ** 2 * Math.sin(theta) * Math.sin(theta);
+  return G_GRAV * Math.cos(theta) + 0.25 * (a * omega) ** 2 * Math.sin(theta) * Math.sin(theta);
 }

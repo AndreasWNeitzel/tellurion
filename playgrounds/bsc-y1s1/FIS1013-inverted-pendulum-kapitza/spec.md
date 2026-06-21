@@ -9,7 +9,7 @@ primary_citation: taylor-mech
 supporting_ucs: [FIS2021]
 curriculum_year: bsc-y1s1
 hook: "A pendulum hangs down because down is stable. Shake its pivot up and down fast enough and a second stable position appears, straight up: the pendulum stands on end and stays there, balanced by nothing but the vibration."
-one_paragraph: "An ordinary pendulum has one stable equilibrium (hanging down) and one unstable one (inverted). Kapitza showed that driving the pivot vertically at high frequency adds, after averaging over the fast shaking, an effective potential that can turn the inverted position into a genuine stable minimum. The condition is a^2 omega^2 / (2 g l) > 1, with a and omega the drive amplitude and frequency: above that threshold the bob, given a small kick, only jitters about straight-up instead of toppling. The left panel shows the driven pendulum sitting inverted and trembling; the right panel plots the effective potential U_eff(theta) with its minimum at theta = 0, and the readout prints the stability number and flags STABLE when it exceeds 1. Drop the drive below threshold and the inverted state collapses. This vibrational stabilization is the same idea behind Paul ion traps and some feedback-free control schemes."
+one_paragraph: "An ordinary pendulum has one stable equilibrium (hanging down) and one unstable one (inverted). Kapitza showed that driving the pivot vertically at high frequency adds, after averaging over the fast shaking, an effective potential that can turn the inverted position into a genuine stable minimum. The condition is a^2 omega^2 / (2 g l) > 1, with a and omega the drive amplitude and frequency: above that threshold the bob, given a small kick, only jitters about straight-up instead of toppling. The scene shows the driven pendulum sitting inverted and trembling, with a gauge for the drive strength; below it the effective potential U_eff(theta) is plotted with a marker sitting in the well at theta = 0, and the readout prints the stability number and flags STABLE when it exceeds 1. Drop the drive below threshold and the inverted state collapses. This vibrational stabilization is the same idea behind Paul ion traps and some feedback-free control schemes."
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -106,9 +106,9 @@ high-frequency drive).
 
 ## Controls
 
-- a: drive amplitude, 0.02 to 0.20 m.
-- omega: drive frequency, 10 to 100 rad/s.
-- speed: integrator steps per render frame.
+- a: drive amplitude, 0.02 to 0.30 m (updates the live pendulum).
+- omega: drive frequency, 10 to 100 rad/s (updates the live pendulum).
+- tilt: initial angle from vertical, 0 to 60 deg (re-releases the rod).
 - Reset / Pause / Play.
 
 ## Expected qualitative features
@@ -135,9 +135,9 @@ All confirmed in `invariants.test.mjs`.
 
 ## Visual fallback
 
-Canvas2D only. Left: mechanical scene with vertically driven pivot and
-pendulum trail. Right: effective potential U_eff(theta) with current
-theta marker.
+Canvas2D only. Top: the driven-pivot pendulum with a stability gauge for
+a^2 omega^2 / (2 g l). Bottom: the effective potential U_eff(theta) with a
+marker at the current angle, a well at theta = 0 once stable.
 
 ## Citations
 
