@@ -12,7 +12,13 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
-<style>.pg-figure { max-width: 760px; } .pg-figure canvas { width: 100%; height: auto; background: #060608; } .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); } .pg-controls .row { display: grid; grid-template-columns: 12ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); } .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); } .pg-controls input[type="range"] { width: 100%; } .pg-controls select { width: 100%; }</style>
+<style>
+    .pg-controls { display: grid; grid-template-columns: 1fr; gap: var(--space-3); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row.buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+    .pg-controls .row.buttons.two { grid-template-columns: 1fr 1fr; }
+    .pg-controls button { font-size: 13px; }
+    .pg-controls button[aria-pressed="true"] { border-color: var(--accent); color: var(--fg); }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -32,35 +38,47 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Series convergence tests</h1>
+      <h1 class="t-title playground-title">Series convergence</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> partial sums of four series with the geometric, ratio, and root tests applied. The accent curve is the partial sum; the dashed line is the limit (when finite).</p>
+      <p class="t-body">Add up infinitely many shrinking numbers, and sometimes you land on a finite total. The running total, the partial sum $S_N = \sum_{n=1}^{N} a_n$, is what actually converges (or not). Geometric $\sum 1/2^n$ climbs to 1; the Basel sum $\sum 1/n^2$ to $\pi^2/6$; the alternating $\sum (-1)^{n+1}/n$ zigzags onto $\ln 2$. But the harmonic sum $\sum 1/n$ never settles: it crawls past every bound even though its terms go to zero. That is the crucial lesson, terms shrinking to zero is necessary but not sufficient. The scene runs the partial sum toward its limit; the diagnostic plots the term sizes $|a_n|$ on a log scale, so the decay rate that decides convergence is visible.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="Partial sums climbing toward a limit, and the term sizes on a log scale."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Partial sums and the ratio/root convergence tests.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Series convergence. Top: the partial sum S_N as N grows, approaching the limit for a convergent series or climbing without bound for the harmonic series. Bottom: the term magnitudes |a_n| on a log axis, the decay rate that decides convergence. Method: direct partial summation.</figcaption>
+
 
     <section class="playground-controls">
-      <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">series</span><select aria-label="series" id="select-s"><option value="geom_half">geometric 1/2^n</option><option value="pseries_2" selected="">p-series 1/n^2</option><option value="pseries_1">harmonic 1/n</option><option value="alt_log2">alternating (-1)^(n+1)/n</option></select><span class="value" id="value-s">pseries_2</span></div>
-<div class="row"><span class="label">N</span><input aria-label="N" type="range" id="slider-N" min="2" max="200" step="1" value="40"><span class="value" id="value-N">40</span></div>
-</div>
-      <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">S_N:</span><span class="value" id="readout-s">0</span><span class="label">ratio rho:</span><span class="value" id="readout-r">0</span></div></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Series controls">
+    <div class="row buttons">
+      <button id="btn-geom_half" type="button">1/2ⁿ → 1</button>
+      <button id="btn-pseries_2" type="button">1/n² → π²/6</button>
+      <button id="btn-pseries_1" type="button">harmonic 1/n</button>
+      <button id="btn-alt_log2" type="button">(-1)ⁿ⁺¹/n → ln2</button>
+    </div>
+    <div class="row buttons two">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+      <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the geometric series fill toward 1: each term is half the last, and infinitely many of them still add to a finite total.</li>
+        <li class="t-body">Switch to the harmonic series: the partial sum climbs past the top of the plot and never levels off, even though its terms shrink to zero.</li>
+        <li class="t-body">The alternating series overshoots then undershoots its limit, the partial sums bracketing ln 2 more and more tightly.</li>
+        <li class="t-body">Compare the term-size plot: geometric terms fall on a straight line (exponential), the power-law series fall off far more slowly.</li>
       </ul>
     </section>
 
