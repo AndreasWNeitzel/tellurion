@@ -32,12 +32,13 @@ let running = !DETERMINISTIC;
 let g = createGrid(N);
 let resid = 1, residHist = [];
 let heat = null;
+let solved = false;   // once converged, hold the solution (no auto-reset); painting or a new preset resumes
 
 function syncVals() {
   valuePreset.textContent = { plates: 'plates', coax: 'coax', dipole: 'two', sphere: 'disc' }[selPreset.value];
   valueBrush.textContent = { '1': '+1', '-1': '-1', '0': 'gnd', erase: 'erase' }[selBrush.value];
 }
-function loadPreset() { applyPreset(g, selPreset.value); resid = 1; residHist = []; }
+function loadPreset() { applyPreset(g, selPreset.value); resid = 1; residHist = []; solved = false; }
 selPreset.addEventListener('change', () => { syncVals(); loadPreset(); render(); });
 selBrush.addEventListener('change', syncVals);
 btnReset.addEventListener('click', () => {
@@ -199,18 +200,11 @@ function render() {
   drawDiagnostic(col, REG.diagnostic);
 }
 
-function resetInterior() {
-  // wipe the free cells back to zero (keep the conductors) so the
-  // relaxation visibly replays from flat; conductors stay fixed.
-  for (let k = 0; k < N * N; k++) if (!g.fixed[k]) g.phi[k] = 0;
-  resid = 1; residHist = [];
-}
-let holdC = 0;
 function stepSolve() {
+  if (solved) return;     // hold the converged field; painting or a new preset sets solved=false to resume
   for (let s = 0; s < SWEEPS_PER_FRAME; s++) resid = sweep(g, OMEGA);
   residHist.push(resid); if (residHist.length > 240) residHist.shift();
-  // auto-replay the relaxation once converged (paused by interaction).
-  if (resid < 1e-5) { holdC += 1; if (holdC > 50) { resetInterior(); holdC = 0; } } else holdC = 0;
+  if (resid < 1e-5) solved = true;
 }
 
 // --- painting conductors ---
@@ -227,7 +221,7 @@ function paintAt(ev) {
     if (brush === 'erase') { g.fixed[j * N + i] = 0; }
     else setFixed(g, i, j, parseFloat(brush));
   }
-  resid = 1;
+  resid = 1; solved = false;    // painting changes the boundary conditions, so resume relaxing
 }
 canvas.addEventListener('pointerdown', (ev) => { if (!SCN) return; painting = true; canvas.setPointerCapture(ev.pointerId); ev.preventDefault(); paintAt(ev); render(); });
 canvas.addEventListener('pointermove', (ev) => { if (painting) { paintAt(ev); render(); } });
