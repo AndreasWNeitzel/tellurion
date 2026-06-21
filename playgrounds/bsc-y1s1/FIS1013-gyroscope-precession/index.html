@@ -59,6 +59,9 @@
       <div class="controls pg-controls" id="controls" role="group" aria-label="Gyroscope controls">
     <div class="row"><span class="label">spin rate</span><input aria-label="spin rate" type="range" id="slider-spin" min="20" max="120" step="2" value="50"><span class="value" id="value-spin">50</span></div>
     <div class="row"><span class="label">tilt</span><input aria-label="tilt angle" type="range" id="slider-tilt" min="0.2" max="1.2" step="0.05" value="0.6"><span class="value" id="value-tilt">34°</span></div>
+    <div class="row"><span class="label">mass (kg)</span><input aria-label="mass" type="range" id="slider-mass" min="0.3" max="3" step="0.1" value="1.0"><span class="value" id="value-mass">1.0</span></div>
+    <div class="row"><span class="label">arm r (m)</span><input aria-label="pivot to center of mass distance" type="range" id="slider-arm" min="0.2" max="1.0" step="0.02" value="0.5"><span class="value" id="value-arm">0.50</span></div>
+    <div class="row"><span class="label">gravity</span><input aria-label="gravity" type="range" id="slider-grav" min="1.6" max="25" step="0.1" value="9.8"><span class="value" id="value-grav">9.8</span></div>
     <div class="row buttons">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
       <button id="btn-reset" type="button">Reset</button>
@@ -73,6 +76,7 @@
         <li class="t-body">Drag the spin rate up: the flywheel spins faster and the precession visibly slows, the operating point sliding down the curve.</li>
         <li class="t-body">Drag it down toward 20: the precession speeds up until it is no longer slow compared to the spin, where the simple formula starts to break.</li>
         <li class="t-body">Change the tilt: the cone gets wider or narrower, but the precession rate does not change, the lean cancels out of the formula.</li>
+        <li class="t-body">Raise the mass, the arm r, or gravity: each scales the torque Mgr, so the precession speeds up in proportion (the hyperbola lifts and the operating point climbs). Drop gravity to the Moon's 1.6 and it crawls.</li>
         <li class="t-body">Watch the gravity arrow point straight down while the axis drifts sideways, not downward: that sideways drift is the whole effect.</li>
       </ul>
     </section>

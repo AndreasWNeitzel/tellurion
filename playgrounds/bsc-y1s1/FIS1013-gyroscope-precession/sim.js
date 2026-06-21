@@ -19,20 +19,31 @@ export const G_GRAV = 9.81;
 export const R_COM = 0.5;        // distance from pivot to center of mass
 export const I_SPIN = 0.1;       // moment of inertia about spin axis
 
-export function precessionRate(omega_spin) {
-  return M_TOP * G_GRAV * R_COM / (I_SPIN * omega_spin);
+// Constant part of the precession rate, Mgr/I_s (so Omega_p = precConst/omega_s).
+// Exposed so the diagnostic can sweep the spin rate at fixed M, g, r, I_s.
+export function precConst(s) { return s.M * s.g * s.r / s.I_s; }
+
+// Leading-order precession Omega_p = M g r / (I_s omega_s). Accepts the state
+// (preferred) or, for back-compat, a bare omega_spin number with default M,g,r.
+export function precessionRate(s) {
+  if (typeof s === 'number') return M_TOP * G_GRAV * R_COM / (I_SPIN * s);
+  return precConst(s) / s.omega_spin;
 }
 
 // Spinup state: theta (tilt from vertical), phi (azimuth around vertical),
-// psi (spin angle around the body axis).
-export function createTop({ theta = 0.6, omega_spin = 50, phi = 0 } = {}) {
-  return { theta, phi, psi: 0, omega_spin, t: 0, nSteps: 0 };
+// psi (spin angle around the body axis), and the physical parameters the user
+// can vary: mass M, gravity g, pivot-to-COM arm r, spin inertia I_s.
+export function createTop({
+  theta = 0.6, omega_spin = 50, phi = 0,
+  M = M_TOP, g = G_GRAV, r = R_COM, I_s = I_SPIN,
+} = {}) {
+  return { theta, phi, psi: 0, omega_spin, M, g, r, I_s, t: 0, nSteps: 0 };
 }
 
 // In the leading-order precession approximation, theta is constant,
 // phi advances at Omega_p, and psi advances at omega_spin.
 export function stepTop(s, dt = 0.005) {
-  const Omega_p = precessionRate(s.omega_spin);
+  const Omega_p = precessionRate(s);
   s.phi += Omega_p * dt;
   s.psi += s.omega_spin * dt;
   s.t += dt;

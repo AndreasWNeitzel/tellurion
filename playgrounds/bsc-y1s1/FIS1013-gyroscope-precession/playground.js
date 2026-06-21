@@ -10,7 +10,7 @@ import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-l
 // Reference: Marion and Thornton, Classical Dynamics, 5th ed., Ch. 11;
 // Goldstein, Poole, Safko, Classical Mechanics, 3rd ed., Sec. 5.7.
 
-import { createTop, stepTop, precessionRate, M_TOP, G_GRAV, R_COM, I_SPIN, L_VIS } from './sim.js';
+import { createTop, stepTop, precessionRate, precConst, M_TOP, G_GRAV, R_COM, I_SPIN, L_VIS } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -22,29 +22,47 @@ const ctx = canvas.getContext('2d', { alpha: false });
 
 const sliderSpin = document.getElementById('slider-spin');
 const sliderTilt = document.getElementById('slider-tilt');
+const sliderMass = document.getElementById('slider-mass');
+const sliderArm = document.getElementById('slider-arm');
+const sliderGrav = document.getElementById('slider-grav');
 const valueSpin = document.getElementById('value-spin');
 const valueTilt = document.getElementById('value-tilt');
+const valueMass = document.getElementById('value-mass');
+const valueArm = document.getElementById('value-arm');
+const valueGrav = document.getElementById('value-grav');
 const btnPlay = document.getElementById('btn-playpause');
 const btnReset = document.getElementById('btn-reset');
 
 const PHYSICS_DT = 1 / 240;
-const SPIN_CONST = M_TOP * G_GRAV * R_COM / I_SPIN;   // = Omega_p * omega_s
 let running = !DETERMINISTIC;
 let s = null;
 let psiVis = 0;                 // visual spin angle (decoupled from the fast true spin)
 
 function rebuild() {
-  s = createTop({ theta: parseFloat(sliderTilt.value), omega_spin: parseFloat(sliderSpin.value) });
+  s = createTop({
+    theta: parseFloat(sliderTilt.value),
+    omega_spin: parseFloat(sliderSpin.value),
+    M: parseFloat(sliderMass.value),
+    r: parseFloat(sliderArm.value),
+    g: parseFloat(sliderGrav.value),
+  });
   psiVis = 0;
 }
 function syncVals() {
   valueSpin.textContent = parseFloat(sliderSpin.value).toFixed(0);
   valueTilt.textContent = `${Math.round(parseFloat(sliderTilt.value) * 180 / Math.PI)}°`;
+  valueMass.textContent = parseFloat(sliderMass.value).toFixed(1);
+  valueArm.textContent = parseFloat(sliderArm.value).toFixed(2);
+  valueGrav.textContent = parseFloat(sliderGrav.value).toFixed(1);
 }
 sliderSpin.addEventListener('input', () => { syncVals(); if (s) s.omega_spin = parseFloat(sliderSpin.value); render(); });
 sliderTilt.addEventListener('input', () => { syncVals(); if (s) s.theta = parseFloat(sliderTilt.value); render(); });
+sliderMass.addEventListener('input', () => { syncVals(); if (s) s.M = parseFloat(sliderMass.value); render(); });
+sliderArm.addEventListener('input', () => { syncVals(); if (s) s.r = parseFloat(sliderArm.value); render(); });
+sliderGrav.addEventListener('input', () => { syncVals(); if (s) s.g = parseFloat(sliderGrav.value); render(); });
 btnReset.addEventListener('click', () => {
   sliderSpin.value = '50'; sliderTilt.value = '0.6';
+  sliderMass.value = '1.0'; sliderArm.value = '0.5'; sliderGrav.value = '9.8';
   running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
   syncVals(); rebuild(); render();
 });
@@ -207,12 +225,12 @@ function drawScene(col, r) {
   ctx.restore();
 
   // readout strip.
-  const Wp = precessionRate(s.omega_spin);
+  const Wp = precessionRate(s);
   const items = [
     [`ω_s ${s.omega_spin.toFixed(0)}`, col.fg],
     [`Ω_p ${Wp.toFixed(2)}`, col.prec],
     [`T_p ${(2 * Math.PI / Wp).toFixed(1)}s`, col.muted],
-    [`tilt ${Math.round(th * 180 / Math.PI)}°`, col.muted],
+    [`Mgr ${(s.M * s.g * s.r).toFixed(1)}`, col.grav],
   ];
   ctx.font = fontString(canvas, 'caption', 'mono', 700);
   ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
@@ -224,7 +242,9 @@ function drawDiagnostic(col, r) {
   panel(col, r, 'Precession rate vs spin rate: a hyperbola');
 
   const inner = { x: r.x + 48, y: r.y + 28, w: r.w - 48 - 16, h: r.h - 28 - 42 };
-  const yMax = precessionRate(SPIN_MIN) * 1.06;
+  // Auto-scale to the current Mgr/I_s so the hyperbola fills the frame as the
+  // mass, arm, or gravity sliders change.
+  const yMax = (precConst(s) / SPIN_MIN) * 1.06;
   const xOf = (w) => inner.x + (w - SPIN_MIN) / (SPIN_MAX - SPIN_MIN) * inner.w;
   const yOf = (Wp) => inner.y + inner.h - (Wp / yMax) * inner.h;
 
@@ -237,14 +257,18 @@ function drawDiagnostic(col, r) {
   for (const w of [20, 50, 80, 110]) ctx.fillText(String(w), xOf(w), inner.y + inner.h + 6);
   ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
 
-  // curve Omega = const / omega.
+  // curve Omega = (Mgr/I_s) / omega, clipped to the frame.
+  const pc = precConst(s);
+  ctx.save();
+  ctx.beginPath(); ctx.rect(inner.x, inner.y, inner.w, inner.h); ctx.clip();
   ctx.strokeStyle = col.prec; ctx.lineWidth = 2.4;
   ctx.beginPath();
-  for (let i = 0; i <= 120; i++) { const w = SPIN_MIN + (SPIN_MAX - SPIN_MIN) * i / 120; const X = xOf(w), Y = yOf(precessionRate(w)); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
+  for (let i = 0; i <= 120; i++) { const w = SPIN_MIN + (SPIN_MAX - SPIN_MIN) * i / 120; const X = xOf(w), Y = yOf(pc / w); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
   ctx.stroke();
+  ctx.restore();
 
   // current operating point + guide lines.
-  const w0 = s.omega_spin, Wp0 = precessionRate(w0);
+  const w0 = s.omega_spin, Wp0 = precessionRate(s);
   ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(xOf(w0), yOf(Wp0)); ctx.lineTo(xOf(w0), inner.y + inner.h); ctx.moveTo(xOf(w0), yOf(Wp0)); ctx.lineTo(inner.x, yOf(Wp0)); ctx.stroke();
   ctx.setLineDash([]);
@@ -287,7 +311,7 @@ function tick(now) {
 function bootSync() {
   syncVals();
   rebuild();
-  const pre = CAPTURE_NAME ? (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * (2 * Math.PI / precessionRate(s.omega_spin)) : 1.2;
+  const pre = CAPTURE_NAME ? (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * (2 * Math.PI / precessionRate(s)) : 1.2;
   const n = Math.round(pre / PHYSICS_DT);
   for (let i = 0; i < n; i++) stepTop(s, PHYSICS_DT);
   psiVis = pre * (1.4 + 0.04 * s.omega_spin);
@@ -311,11 +335,12 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const Wp = precessionRate(s.omega_spin);
+  const Wp = precessionRate(s);
   return {
     fields: [
       { key: 'spin', label: 'spin rate $\\omega_s$ (rad/s)', value: s.omega_spin, format: 'float' },
       { key: 'prec', label: 'precession $\\Omega_p$ (rad/s)', value: Wp, format: 'float' },
+      { key: 'torque', label: 'gravity torque $Mgr$', value: s.M * s.g * s.r, format: 'float' },
       { key: 'period', label: 'precession period (s)', value: 2 * Math.PI / Wp, format: 'float' },
       { key: 'tilt', label: 'tilt (deg)', value: s.theta * 180 / Math.PI, format: 'float' },
     ],
@@ -323,8 +348,10 @@ window.playground.getState = function () {
 };
 window.playground.getInvariants = function () {
   try {
-    const prod = precessionRate(s.omega_spin) * s.omega_spin;   // = Mgr/I_s, constant along the curve
-    const rel = Math.abs(prod - SPIN_CONST) / SPIN_CONST;
+    // Omega_p * omega_s should equal Mgr/I_s exactly (leading-order law).
+    const prod = precessionRate(s) * s.omega_spin;
+    const target = precConst(s);
+    const rel = Math.abs(prod - target) / target;
     return [{
       key: 'product',
       label: 'Ω_p · ω_s = Mgr/I_s (rel. error)',
