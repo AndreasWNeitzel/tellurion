@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>The HR Diagram: Real Stars and a Stellar Evolution Track</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 6ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); }
+    .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The HR Diagram: Real Stars and a Stellar Evolution Track</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">The Hertzsprung-Russell diagram is the single most important plot in stellar astrophysics: where a star sits on it is set by its temperature and luminosity, and a star traces a path across it as it ages. This playground plots about 3000 real Gaia DR3 stars on the Kiel plane (effective temperature against surface gravity), and threads a real MESA stellar-evolution model for a Sun-like star straight through them. Drag the age and watch a marker walk the model track from the zero-age main sequence, through the subgiant branch and up the red giant branch, through helium burning and the asymptotic giant branch, and finally down to the white-dwarf graveyard. The diagnostic plots the model evolutionary speed against age: a Sun-like star spends about nine billion years, most of its life, creeping along the main sequence, then races through the giant phases in a few hundred million years. That is why the main sequence is the most populated region of any unbiased stellar census: stars are seen most often where they live longest. This Gaia spectroscopic sample is itself rich in luminous giants (bright evolved stars are the easiest to measure at distance), so its red giant branch and red clump are especially well drawn.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="900" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A Kiel diagram of about 3000 real Gaia DR3 stars with a real MESA solar evolution track threaded through them and a marker at the current stellar age, plus a plot of evolutionary speed and observed star density versus age."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      The HR diagram. Top: about 3000 real Gaia DR3 stars on the Kiel plane (Teff vs log g), coloured by metallicity, with the real MESA solar-metallicity evolution track (orange) and a marker at the current stellar age. Bottom: the model evolutionary speed (Kiel-plane path length per Gyr) versus age, showing the star creeps along the main sequence and races through the giant phases. Data: Gaia DR3 (Gaia Collaboration 2023); MESA (Paxton et al. 2011). No fabricated values.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="HR diagram controls">
+    <div class="row"><span class="label">age</span><input aria-label="stellar age" type="range" id="slider-age" min="0" max="12.4" step="0.01" value="9"><span class="value" id="value-age">9.00 Gyr</span></div>
+    <div class="row wide"><button id="btn-view" type="button">Switch plane</button><span class="value" id="value-view">Kiel (Teff, logg)</span></div>
+    <div class="row wide"><button id="btn-color" type="button">Colour stars</button><span class="value" id="value-color">metallicity [M/H]</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Restart</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Press Pause then drag the age slider: the white marker crawls along the main sequence for the first 9 Gyr, then accelerates up the giant branch in under a Gyr. Watch how slowly it moves where the real stars are densest.</li>
+        <li class="t-body">Find the green turn-off circle: that is the moment core hydrogen runs out (age about 9 Gyr for a Sun-like star), the bend where the main sequence ends and the star becomes a giant.</li>
+        <li class="t-body">Read the bottom plot on a log scale: the model speed is lowest on the main sequence and spikes by orders of magnitude during the post-main-sequence and white-dwarf transitions, the quantitative reason the giant phases are fleeting.</li>
+        <li class="t-body">Switch the plane to the observational colour-magnitude diagram (the raw Gaia measurements), and switch the star colour between metallicity and plain population density.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
