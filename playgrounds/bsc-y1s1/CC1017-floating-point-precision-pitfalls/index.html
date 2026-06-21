@@ -44,24 +44,24 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">Dhahran, 25 February 1991. A Patriot battery counts time in tenth-of-a-second ticks and multiplies by a 24-bit copy of $0.1$. But $0.1$ has no exact binary form, and chopped to 24 bits it becomes $209715/2097152 = 0.0999999046\ldots$, so every tick is short by about $9.5\times10^{-8}$ s. The error is never reset while the battery stays powered, so it grows in proportion to uptime. The radar places its range gate, the window where it expects the tracked target next, using that clock; multiply the time error by the Scud's closing speed of about 1676 m/s and the gate is displaced. After roughly 100 hours the clock is off by 0.34 s and the gate is half a kilometre off target: the incoming Scud falls outside it, the track is dropped, and no interceptor fires. The scene shows the gate walking off the target as uptime grows; the diagnostic plots the displacement against uptime and the gate's catch radius. 28 people died from one truncated constant.</p>
+      <p class="t-body">A long-running tracking system counts time in tenth-of-a-second ticks and multiplies by a 24-bit copy of $0.1$. But $0.1$ has no exact binary form, and chopped to 24 bits it becomes $209715/2097152 = 0.0999999046\ldots$, so every tick is short by about $9.5\times10^{-8}$ s. The error is never reset while the system stays powered, so it grows in proportion to uptime. The tracker uses that clock to open a prediction gate, the window where it expects a fast moving object to be next; multiply the time error by the object's speed and the gate is displaced behind the true position. After roughly 100 hours the clock is off by 0.34 s, the gate is hundreds of metres behind the object, and the object slips outside the gate and is missed. The scene shows the gate walking off the object as uptime grows; the diagnostic plots the displacement against uptime and the gate's catch radius. One truncated constant, repeated billions of times, becomes a gross failure.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="The Patriot range gate displaced from the incoming Scud by accumulated clock error; below, displacement versus uptime against the gate radius."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A tracker's prediction gate displaced from a fast moving object by accumulated 24-bit clock error; below, displacement versus uptime against the catch radius."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      The Patriot range gate displaced by accumulated 24-bit clock error. Top: the incoming Scud and the gate the radar opens for it, offset by the clock drift; when the offset exceeds the gate radius the track is lost. Bottom: gate displacement versus uptime against the catch radius, with the Dhahran point marked. Method: exact IEEE chop error per tick times uptime times closing speed.</figcaption>
+      A prediction gate displaced by accumulated 24-bit clock error. Top: a fast object on a track and the catch gate the tracker opens for it, offset by the clock drift; when the offset exceeds the catch radius the object is missed. Bottom: gate displacement versus uptime against the catch radius, with the 100-hour reference marked. Method: exact IEEE chop error per tick times uptime times object speed.</figcaption>
 
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Scenario controls">
     <div class="row"><span class="label">uptime (h)</span><input aria-label="uptime in hours" type="range" id="slider-hours" min="0" max="100" step="1" value="18"><span class="value" id="value-hours">18</span></div>
-    <div class="row"><span class="label">Scud (m/s)</span><input aria-label="Scud closing speed" type="range" id="slider-speed" min="800" max="2000" step="4" value="1676"><span class="value" id="value-speed">1676</span></div>
+    <div class="row"><span class="label">object (m/s)</span><input aria-label="object speed" type="range" id="slider-speed" min="800" max="2000" step="4" value="1676"><span class="value" id="value-speed">1676</span></div>
     <div class="row wide"><label><input type="checkbox" id="toggle-fix"> patched software (exact time, no drift)</label></div>
     <div class="row buttons">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
@@ -77,10 +77,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Just watch: the system clock ages on its own and the interceptor goes from clean kills, through near misses, to a lost track. The intercept-confidence bar slides down continuously, there is no single instant it "switches off".</li>
-        <li class="t-body">Grab the uptime slider to hold a moment: a thousandth-of-a-radian rounding of 0.1 per tick accumulates into the miss distance shown, growing in exact proportion to how long the battery has been powered.</li>
-        <li class="t-body">Park it near 100 hours, the real Dhahran value: the gate is about half a kilometre off, far outside its radius, and the launcher never fires.</li>
-        <li class="t-body">Tick patched software: the drift vanishes, every intercept is clean at any uptime. One corrected constant fixes it.</li>
+        <li class="t-body">Just watch: the system clock ages on its own and the catch goes from centered, through edge catches, to a clean miss. The catch-confidence bar slides down continuously, there is no single instant it "switches off".</li>
+        <li class="t-body">Grab the uptime slider to hold a moment: the tiny rounding of 0.1 per tick accumulates into the miss distance shown, growing in exact proportion to how long the system has been powered.</li>
+        <li class="t-body">Park it near 100 hours: the gate is hundreds of metres behind the object, far outside the catch radius, and the object is missed.</li>
+        <li class="t-body">Tick patched software: the drift vanishes, every catch is centered at any uptime. One corrected constant fixes it.</li>
       </ul>
     </section>
 
