@@ -32,7 +32,7 @@ const btnPlay = document.getElementById('btn-playpause');
 const btnReset = document.getElementById('btn-reset');
 
 const PHYSICS_DT = 1 / 240;
-const I = [1, 2, 3];
+let I = [1, 2, 3];   // principal moments, recomputed per object from its shape
 let running = !DETERMINISTIC;
 let s = null;
 let faces = [];          // body-frame geometry
@@ -59,25 +59,56 @@ function boxFaces(c, h, color, sticker) {
   }
   return out;
 }
-function buildObject(kind) {
-  if (kind === 'book') return boxFaces([0, 0, 0], [0.95, 0.62, 0.11], '#8a5a3b', '#ffd166');
-  if (kind === 'phone') return boxFaces([0, 0, 0], [0.85, 0.42, 0.07], '#2a3340', '#5bc0eb');
-  if (kind === 'racket') {
-    return [
-      ...boxFaces([-0.62, 0, 0], [0.45, 0.07, 0.05], '#7a5230'),
-      ...boxFaces([0.5, 0, 0], [0.52, 0.44, 0.04], '#b07a3a', '#ffd166'),
-    ];
-  }
-  // T-handle (default): stem along axis 0, crossbar along axis 1.
-  return [
-    ...boxFaces([0, 0, 0], [0.9, 0.12, 0.12], '#9aa3b2', '#ffd166'),
-    ...boxFaces([0.78, 0, 0], [0.12, 0.6, 0.12], '#8893a4', '#67d98c'),
+// Each object is a small set of axis-aligned boxes (centre c, half-extents h).
+function objectBoxes(kind) {
+  if (kind === 'book') return [{ c: [0, 0, 0], h: [0.95, 0.62, 0.11], color: '#8a5a3b', sticker: '#ffd166' }];
+  if (kind === 'phone') return [{ c: [0, 0, 0], h: [0.85, 0.42, 0.07], color: '#2a3340', sticker: '#5bc0eb' }];
+  if (kind === 'racket') return [
+    // Handle and head overlap slightly along x so the racket is one solid piece.
+    { c: [-0.5, 0, 0], h: [0.55, 0.06, 0.05], color: '#7a5230' },
+    { c: [0.55, 0, 0], h: [0.55, 0.46, 0.035], color: '#b07a3a', sticker: '#ffd166' },
   ];
+  // T-handle (default): stem along x, crossbar along y, joined.
+  return [
+    { c: [0, 0, 0], h: [0.9, 0.12, 0.12], color: '#9aa3b2', sticker: '#ffd166' },
+    { c: [0.78, 0, 0], h: [0.12, 0.6, 0.12], color: '#8893a4', sticker: '#67d98c' },
+  ];
+}
+// Shift the boxes so the centre of mass sits at the origin: a free body
+// tumbles about its COM, and the model must be drawn about the same point.
+function centered(boxes) {
+  let M = 0, cx = 0, cy = 0, cz = 0;
+  for (const b of boxes) { const m = 8 * b.h[0] * b.h[1] * b.h[2]; M += m; cx += m * b.c[0]; cy += m * b.c[1]; cz += m * b.c[2]; }
+  cx /= M; cy /= M; cz /= M;
+  return boxes.map((b) => ({ ...b, c: [b.c[0] - cx, b.c[1] - cy, b.c[2] - cz] }));
+}
+function buildFaces(boxes) {
+  const out = [];
+  for (const b of boxes) out.push(...boxFaces(b.c, b.h, b.color, b.sticker));
+  return out;
+}
+// Principal moments [Ixx, Iyy, Izz] about the COM from the box set (uniform
+// density). The objects are axis-symmetric, so the body axes are principal.
+// Each shape gives distinct inertias and so a distinct tumble (different flip
+// period and wobble), instead of one shared dynamics for every object.
+function objectInertia(boxes) {
+  let Ixx = 0, Iyy = 0, Izz = 0;
+  for (const b of boxes) {
+    const [hx, hy, hz] = b.h, [cx, cy, cz] = b.c;
+    const m = 8 * hx * hy * hz;   // density 1
+    Ixx += m / 3 * (hy * hy + hz * hz) + m * (cy * cy + cz * cz);
+    Iyy += m / 3 * (hx * hx + hz * hz) + m * (cx * cx + cz * cz);
+    Izz += m / 3 * (hx * hx + hy * hy) + m * (cx * cx + cy * cy);
+  }
+  const mx = Math.max(Ixx, Iyy, Izz) || 1;       // normalise to keep a comparable time scale
+  return [3 * Ixx / mx, 3 * Iyy / mx, 3 * Izz / mx];
 }
 
 function rebuild() {
+  const boxes = centered(objectBoxes(selObject.value));
+  I = objectInertia(boxes);
   s = createRacket({ I, spin: parseFloat(sliderSpin.value), axis: parseInt(selAxis.value, 10), perturb: parseFloat(sliderPerturb.value) });
-  faces = buildObject(selObject.value);
+  faces = buildFaces(boxes);
   hist = []; flips = 0; lastSign = Math.sign(s.w[parseInt(selAxis.value, 10)]) || 1;
 }
 function syncVals() {
@@ -86,7 +117,7 @@ function syncVals() {
   valueSpin.textContent = parseFloat(sliderSpin.value).toFixed(1);
   valuePerturb.textContent = parseFloat(sliderPerturb.value).toFixed(3);
 }
-selObject.addEventListener('change', () => { syncVals(); faces = buildObject(selObject.value); render(); });
+selObject.addEventListener('change', () => { syncVals(); rebuild(); render(); });
 [selAxis, sliderSpin, sliderPerturb].forEach((el) => el.addEventListener('input', () => { syncVals(); rebuild(); render(); }));
 selAxis.addEventListener('change', () => { syncVals(); rebuild(); render(); });
 btnReset.addEventListener('click', () => {
@@ -308,6 +339,10 @@ function tick(now) {
 }
 
 function bootSync() {
+  const obj = params.get('object');
+  if (obj && [...selObject.options].some((o) => o.value === obj)) selObject.value = obj;
+  const ax = params.get('axis');
+  if (ax !== null && ['0', '1', '2'].includes(ax)) selAxis.value = ax;
   syncVals();
   rebuild();
   const pre = CAPTURE_NAME ? (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 6 : 2.4;
@@ -338,6 +373,7 @@ window.playground.getState = function () {
   return {
     fields: [
       { key: 'axis', label: 'spin axis', value: ['major', 'middle', 'minor'][a], format: 'text' },
+      { key: 'inertia', label: 'moments $I_1:I_2:I_3$', value: `${I[0].toFixed(2)} : ${I[1].toFixed(2)} : ${I[2].toFixed(2)}`, format: 'text' },
       { key: 'flips', label: 'flips so far', value: flips, format: 'int' },
       { key: 'w', label: 'spin |ω|', value: Math.hypot(s.w[0], s.w[1], s.w[2]), format: 'float' },
       { key: 'L', label: 'angular momentum |L|', value: angularMomentumMag(s), format: 'float' },
