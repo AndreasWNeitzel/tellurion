@@ -267,7 +267,17 @@ function drawDiagnostic(col, r) {
     w: r.w - 44 - 14,
     h: r.h - 28 - 38,
   };
-  const yHalf = Math.max(Math.abs(sim.x1), Math.abs(sim.x2), modeScale, 0.2) * 1.1;
+  // Auto-fit the vertical range to the largest displacement actually on screen
+  // (now or anywhere in the visible history window), so the traces never leak
+  // past the frame.
+  let yMaxAbs = Math.max(Math.abs(sim.x1), Math.abs(sim.x2), modeScale, 0.2);
+  const t0w = Math.max(0, sim.t - WINDOW);
+  for (const h of hist) {
+    if (h.t < t0w) continue;
+    if (Math.abs(h.x1) > yMaxAbs) yMaxAbs = Math.abs(h.x1);
+    if (Math.abs(h.x2) > yMaxAbs) yMaxAbs = Math.abs(h.x2);
+  }
+  const yHalf = yMaxAbs * 1.1;
   const tNow = sim.t;
   const t0 = Math.max(0, tNow - WINDOW);
   const tSpan = Math.max(WINDOW, tNow) - t0 || 1;
@@ -305,6 +315,12 @@ function drawDiagnostic(col, r) {
     }
     ctx.stroke();
   };
+  // Clip the traces to the plot box (belt-and-suspenders with the auto-fit
+  // range above): no curve may ever render outside the frame.
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(inner.x, inner.y, inner.w, inner.h);
+  ctx.clip();
   plot('x1', col.m1);
   plot('x2', col.m2);
 
@@ -314,6 +330,7 @@ function drawDiagnostic(col, r) {
     dot(yOf(cur.x1), col.m1);
     dot(yOf(cur.x2), col.m2);
   }
+  ctx.restore();
 
   // Axis labels.
   ctx.fillStyle = col.muted;

@@ -201,8 +201,10 @@ function drawScene(col) {
   vArrow(p1, v1, col.cool);
   vArrow(p2, v2, col.warm);
 
-  // Momentum inset: p1 and p2 added tip to tail to the constant total.
-  const iw = Math.min(180, r.w * 0.42), ih = 78;
+  // Momentum inset: p1 and p2 added tip to tail to the constant total. The
+  // path (origin -> p1 -> p1+p2) is auto-scaled and centred to fit the inset
+  // box for any masses/angles, and clipped so nothing leaks past the frame.
+  const iw = Math.min(180, r.w * 0.42), ih = 86;
   const ix = r.x + r.w - iw - 8, iy = r.y + r.h - ih - 8;
   ctx.fillStyle = 'rgba(8,10,18,0.8)';
   ctx.fillRect(ix, iy, iw, ih);
@@ -212,17 +214,31 @@ function drawScene(col) {
   ctx.fillText('p₁ + p₂ = total (fixed)', ix + 6, iy + 5);
   const p1v = [st.m1 * v1[0], st.m1 * v1[1]];
   const p2v = [st.m2 * v2[0], st.m2 * v2[1]];
-  const ms = (iw - 24) / (P0() * 1.05);
-  const sx = ix + 12, sy = iy + ih - 22;
+  const ptot = [p1v[0] + p2v[0], p1v[1] + p2v[1]];
+  // Bounding box of all path points in momentum units (screen y is flipped).
+  const pts = [[0, 0], p1v, ptot, [P0(), 0]];
+  let mnx = 0, mxx = 0, mny = 0, mxy = 0;
+  for (const [px, py] of pts) { mnx = Math.min(mnx, px); mxx = Math.max(mxx, px); mny = Math.min(mny, py); mxy = Math.max(mxy, py); }
+  const spanX = Math.max(mxx - mnx, 1e-6), spanY = Math.max(mxy - mny, 1e-6);
+  const plotW = iw - 24, plotH = ih - 34;
+  const ms = Math.min(plotW / spanX, plotH / spanY);
+  // Centre the bbox in the plotting area (below the title).
+  const px0 = ix + 12, py0 = iy + 22;
+  const cx = px0 + (plotW - spanX * ms) / 2 - mnx * ms;
+  const cyBase = py0 + (plotH - spanY * ms) / 2 + mxy * ms;  // y flips: max-y at top
+  const SX = (mx) => cx + mx * ms;
+  const SY = (my) => cyBase - my * ms;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(ix + 1, iy + 1, iw - 2, ih - 2); ctx.clip();
   // total (constant) reference, dashed.
   ctx.strokeStyle = 'rgba(255,209,102,0.45)';
   ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + P0() * ms, sy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(SX(0), SY(0)); ctx.lineTo(SX(ptot[0]), SY(ptot[1])); ctx.stroke();
   ctx.setLineDash([]);
   // p1 then p2 tip to tail.
-  const t1x = sx + p1v[0] * ms, t1y = sy - p1v[1] * ms;
-  arrow(sx, sy, t1x, t1y, col.cool, 2, 6);
-  arrow(t1x, t1y, t1x + p2v[0] * ms, t1y - p2v[1] * ms, col.warm, 2, 6);
+  arrow(SX(0), SY(0), SX(p1v[0]), SY(p1v[1]), col.cool, 2, 6);
+  arrow(SX(p1v[0]), SY(p1v[1]), SX(ptot[0]), SY(ptot[1]), col.warm, 2, 6);
+  ctx.restore();
 
   // Readout overlay (top).
   const keNow = ke2d(st.m1, v1, st.m2, v2);
