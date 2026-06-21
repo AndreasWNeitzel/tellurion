@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Torque-Free Rigid Body: Euler's Equations 3D</title>
+<title>Torque-Free Rigid Body: the polhode and the fixed angular momentum</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,19 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-  body { padding: var(--space-4); }
-  .pg-figure { max-width: 860px; position: relative; }
-  .pg-figure canvas { width: 100%; height: auto; background: #050507; cursor: grab; display: block; }
-  .pg-figure canvas.dragging { cursor: grabbing; }
-  .readout-panel { position: absolute; top: 12px; left: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 15ch 11ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
-  figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -45,32 +38,44 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Torque-Free Rigid Body: Euler's Equations 3D</h1>
+      <h1 class="t-title playground-title">A free body and its wandering spin axis</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A Phong-shaded inertia ellipsoid tumbles under Euler's torque-free equations, integrated with RK4 and a unit quaternion. The angular-velocity vector traces the polhode on the body and the herpolhode in space while the angular momentum stays fixed. Spinning about the intermediate principal axis triggers the Dzhanibekov (tennis-racket) flip.</p>
+      <p class="t-body">Throw a rigid body with no torque on it and it does not keep spinning about a fixed line. Its instantaneous spin axis, the white arrow, drifts around inside the body and around in space, tracing a closed curve called the polhode. What stays nailed in place is the angular momentum, the gold arrow: with no torque it cannot change, so the whole tumble organises itself around that one fixed direction. Two numbers, the rotational energy and the magnitude of angular momentum, are exactly conserved, and together they pin the spin axis to a single curve on the inertia ellipsoid. Spin near the long or short axis and that curve is a tight loop, a steady tumble; spin near the middle axis and it runs along the separatrix, so the body flips end over end. The scene shows the ellipsoid tumbling with the spin axis and the fixed angular momentum; the diagnostic is the polhode itself, the path the spin axis traces.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="600"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="An inertia ellipsoid tumbling under Euler's equations, showing the spin-axis arrow, the fixed angular-momentum arrow, and the polhode painted on the body; below, the polhode traced in the omega1-omega3 plane."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Torque-free rigid-body rotation; polhode and herpolhode of the angular-velocity vector.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Torque-free rigid-body rotation (Poinsot construction). Top: the inertia ellipsoid tumbling under Euler's equations, with the spin axis omega (white), the conserved angular momentum L (gold, fixed in space), and the polhode painted on the body. Bottom: the polhode traced in the omega1-omega3 principal plane, a tight loop for stable spins and a separatrix bowtie for the intermediate axis. Method: RK4 on Euler's equations with quaternion orientation.</figcaption>
 
     <section class="playground-controls">
-      <div id="controls" class="pg-controls"></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Rigid-body controls">
+    <div class="row"><span class="label">spin axis</span><select aria-label="spin axis" id="select-axis"><option value="0">minor / long (stable)</option><option value="1" selected="">middle (flips)</option><option value="2">major / short (stable)</option></select><span class="value" id="value-axis">middle</span></div>
+    <div class="row"><span class="label">asymmetry</span><input aria-label="asymmetry" type="range" id="slider-shape" min="0.6" max="1.4" step="0.05" value="1.0"><span class="value" id="value-shape">1.00</span></div>
+    <div class="row"><span class="label">spin rate</span><input aria-label="spin rate" type="range" id="slider-spin" min="2" max="8" step="0.5" value="4"><span class="value" id="value-spin">4.0</span></div>
+    <div class="row"><span class="label">nudge</span><input aria-label="perturbation" type="range" id="slider-perturb" min="0.01" max="0.15" step="0.01" value="0.05"><span class="value" id="value-perturb">0.05</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
       <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Keep the spin axis on middle: the polhode below traces a bowtie through the centre and the ellipsoid flips end over end, on a clock.</li>
+        <li class="t-body">Switch to the minor or major axis: the polhode collapses to a small closed loop and the tumble is steady, no flips.</li>
+        <li class="t-body">Watch the gold angular-momentum arrow: it barely moves while everything else tumbles, because no torque acts on the body.</li>
+        <li class="t-body">Raise the asymmetry: a more elongated ellipsoid makes the middle-axis flips faster and more violent.</li>
       </ul>
     </section>
 

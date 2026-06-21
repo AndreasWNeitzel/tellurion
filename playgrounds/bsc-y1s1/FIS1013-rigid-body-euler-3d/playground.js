@@ -1,18 +1,19 @@
-// Torque-free rigid body hero. A Phong-shaded inertia ellipsoid tumbles
-// under Euler's equations (RK4 + unit quaternion, headless sim.js). The
-// three principal axes are colour-coded arrows, the body-frame angular
-// velocity omega is white, the space-fixed angular momentum L is gold.
-// The omega tip leaves the polhode (painted on the body) and the
-// herpolhode (fixed in space, in the invariable plane perpendicular to
-// L). Spinning about the intermediate axis triggers the Dzhanibekov
-// flip. Shared orbit camera: drag to orbit, wheel to zoom.
-// Reference: Landau and Lifshitz, Mechanics (3rd ed.), Sec. 37.
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
+// Vertical 4:5 hero for torque-free rigid-body rotation (Poinsot
+// construction), Canvas2D only. Top region: the inertia ellipsoid
+// tumbling under Euler's equations in orthographic pseudo-3D, with the
+// instantaneous spin axis (white), the conserved angular momentum
+// (gold, fixed in space), the three principal axes, and the polhode
+// painted on the body. Bottom region: the polhode traced in the
+// omega1-omega3 principal plane, a tight loop for stable axes and a
+// separatrix bowtie for the intermediate axis.
+//
+// Reference: Goldstein, Poole, Safko, Classical Mechanics, 3rd ed.,
+// Sec. 5.6; Landau and Lifshitz, Mechanics, 3rd ed., Sec. 37.
 
 import { createRigidBody, step, energy, angularMomentumSq, bodyToWorld, angularMomentumWorld } from './sim.js';
-import { createGL2 } from '../../../shared/js/engine-gl/context.js';
-import { compileProgram } from '../../../shared/js/engine-gl/shader.js';
-import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -20,313 +21,458 @@ const CAPTURE_NAME = params.get('capture');
 const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
-const readoutEl = document.getElementById('readout');
-const controlsEl = document.getElementById('controls');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-const READOUTS = ['E (rot)', '|L|', 'ω·ê₂', 't', 'state'];
-const rEls = {};
-for (const k of READOUTS) {
-  const a = document.createElement('span'); a.className = 'label'; a.textContent = k;
-  const b = document.createElement('span'); b.className = 'value'; b.textContent = '--';
-  readoutEl.appendChild(a); readoutEl.appendChild(b); rEls[k] = b;
-}
+const selAxis = document.getElementById('select-axis');
+const sliderShape = document.getElementById('slider-shape');
+const sliderSpin = document.getElementById('slider-spin');
+const sliderPerturb = document.getElementById('slider-perturb');
+const valueAxis = document.getElementById('value-axis');
+const valueShape = document.getElementById('value-shape');
+const valueSpin = document.getElementById('value-spin');
+const valuePerturb = document.getElementById('value-perturb');
+const btnPlay = document.getElementById('btn-playpause');
+const btnReset = document.getElementById('btn-reset');
 
-const DEF = { I: [2.0, 3.0, 4.0], omega: [0.25, 4.2, 0.18] };
-let body = createRigidBody({ I: DEF.I.slice(), omega: DEF.omega.slice() });
-let running = true, acc = 0;
-const polhode = [];          // body-frame omega tip history
-const herpolhode = [];       // world-frame omega tip history
+const PHYSICS_DT = 1 / 240;
+let running = !DETERMINISTIC;
+let body = null;
+let sa = [1, 1, 1];          // ellipsoid semi-axes (body frame)
+const polhode = [];          // body-frame omega-tip history (unit dirs)
+const trace = [];            // body-frame (w1, w3) history for the diagnostic
 const TRAIL = 900;
 
-function buildSlider(label, min, max, stp, value, onInput, fmt = v => v.toFixed(1)) {
-  const row = document.createElement('div'); row.className = 'row';
-  const lab = document.createElement('span'); lab.className = 'label'; lab.textContent = label;
-  const inp = document.createElement('input'); inp.type = 'range'; inp.min = String(min); inp.max = String(max); inp.step = String(stp); inp.value = String(value); inp.setAttribute('aria-label', label);
-  const val = document.createElement('span'); val.className = 'value'; val.textContent = fmt(+value);
-  inp.addEventListener('input', () => { val.textContent = fmt(+inp.value); onInput(parseFloat(inp.value)); });
-  row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
-  controlsEl.appendChild(row);
-  return inp;
-}
-function reseed(I, omega) {
-  body = createRigidBody({ I: I.slice(), omega: omega.slice() });
-  polhode.length = 0; herpolhode.length = 0; acc = 0;
-}
-const sI1 = buildSlider('I₁', 1, 6, 0.1, DEF.I[0], v => { DEF.I[0] = v; reseed(DEF.I, body.w); });
-const sI3 = buildSlider('I₃', 1, 6, 0.1, DEF.I[2], v => { DEF.I[2] = v; reseed(DEF.I, body.w); });
-const btnRow = document.createElement('div'); btnRow.className = 'row buttons';
-const bDz = document.createElement('button'); bDz.type = 'button'; bDz.textContent = 'Dzhanibekov';
-const bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset';
-const bPause = document.createElement('button'); bPause.type = 'button'; bPause.id = 'btn-pause'; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false');
-btnRow.appendChild(bDz); btnRow.appendChild(bReset); btnRow.appendChild(bPause);
-controlsEl.appendChild(btnRow);
-bDz.addEventListener('click', () => { DEF.I = [1.0, 2.0, 4.0]; sI1.value = '1'; sI3.value = '4'; reseed(DEF.I, [0.04, 5.0, 0.04]); });
-bReset.addEventListener('click', () => { DEF.I = [2.0, 3.0, 4.0]; sI1.value = '2'; sI3.value = '4'; reseed(DEF.I, DEF.omega.slice()); running = true; bPause.textContent = 'Pause'; bPause.setAttribute('aria-pressed', 'false'); });
-bPause.addEventListener('click', () => { running = !running; bPause.textContent = running ? 'Pause' : 'Play'; bPause.setAttribute('aria-pressed', String(!running)); });
-
-const gl = createGL2(canvas);
-// Zoomed out enough that the whole Poinsot construction (the
-// invariable-plane disk r=3.4, the polhode on the body and the
-// herpolhode in the plane) is fully framed; 5.8 cropped the curve.
-const camera = createOrbitCamera(canvas, { target: [0, 0, 0], radius: 9.6, minRadius: 3, maxRadius: 20, azimuthDeg: 38, elevationDeg: 24, fovDeg: 45 });
-window.__camera = camera;
-
-// UV sphere (unit), reused and scaled to the inertia ellipsoid.
-function makeSphere(nu, nv) {
-  const pos = [], idx = [];
-  for (let v = 0; v <= nv; v += 1) {
-    const th = v / nv * Math.PI;
-    for (let u = 0; u <= nu; u += 1) {
-      const ph = u / nu * 2 * Math.PI;
-      pos.push(Math.sin(th) * Math.cos(ph), Math.cos(th), Math.sin(th) * Math.sin(ph));
-    }
+// --- ellipsoid mesh (unit-sphere directions, recomputed each frame) ---
+const NU = 26, NV = 14;
+const dirs = [];             // (NU+1)*(NV+1) unit directions
+for (let v = 0; v <= NV; v++) {
+  const th = v / NV * Math.PI;
+  for (let u = 0; u <= NU; u++) {
+    const ph = u / NU * 2 * Math.PI;
+    dirs.push([Math.sin(th) * Math.cos(ph), Math.cos(th), Math.sin(th) * Math.sin(ph)]);
   }
-  for (let v = 0; v < nv; v += 1) for (let u = 0; u < nu; u += 1) {
-    const a = v * (nu + 1) + u, b = a + nu + 1;
-    idx.push(a, b, a + 1, a + 1, b, b + 1);
-  }
-  return { pos: new Float32Array(pos), idx: new Uint16Array(idx) };
 }
-const sph = makeSphere(48, 32);
-const sphVBO = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, sphVBO); gl.bufferData(gl.ARRAY_BUFFER, sph.pos, gl.STATIC_DRAW);
-const sphIBO = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphIBO); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, sph.idx, gl.STATIC_DRAW);
-
-const meshProg = compileProgram(gl, `#version 300 es
-in vec3 p; uniform mat4 uMVP, uModel; out vec3 vN; out vec3 vW; out vec3 vP;
-void main(){ vN = normalize(mat3(uModel)*normalize(p)); vec4 w=uModel*vec4(p,1.); vW=w.xyz; vP=normalize(p); gl_Position=uMVP*vec4(p,1.); }`,
-`#version 300 es
-precision highp float; in vec3 vN; in vec3 vW; in vec3 vP; out vec4 o; uniform vec3 uEye;
-const float PI=3.14159265;
-void main(){
-  vec3 N=normalize(vN); vec3 Ld=normalize(vec3(0.5,0.8,0.4));
-  vec3 V=normalize(uEye-vW); vec3 Hh=normalize(Ld+V);
-  float d=max(dot(N,Ld),0.0); float s=pow(max(dot(N,Hh),0.0),48.0);
-  float rim=pow(1.0-max(dot(N,V),0.0),3.0);
-  // Body-fixed lat/long grid so the tumble is readable on the body
-  // itself; principal axes get coloured face tints so orientation
-  // and the Dzhanibekov flip are unmistakable.
-  float lat=asin(clamp(vP.y,-1.,1.));        // -pi/2..pi/2  (axis 2)
-  float lon=atan(vP.z,vP.x);                  // -pi..pi
-  float gA=abs(fract(lat*(7.0/PI)+0.5)-0.5);
-  float gB=abs(fract(lon*(9.0/PI)+0.5)-0.5);
-  float gw=fwidth(lat)*3.5+0.012;
-  float gline=1.0-smoothstep(0.0,gw,min(gA,gB));
-  vec3 tint=vec3(0.40,0.52,0.78);
-  tint=mix(tint,vec3(0.86,0.40,0.40),smoothstep(0.55,0.95,abs(vP.x))*0.6); // axis 1 (red)
-  tint=mix(tint,vec3(0.45,0.85,0.55),smoothstep(0.80,0.99,abs(vP.y))*0.7); // axis 2 (green, spin)
-  vec3 base=tint*(0.55+0.45*abs(N.y));
-  vec3 col=base*(0.22+0.85*d)+vec3(0.9,0.93,1.0)*s*0.6;
-  col+=vec3(0.30,0.45,0.70)*rim*0.5;                       // depth-cueing rim glow
-  col=mix(col,vec3(0.94,0.98,1.0),gline*0.85);             // bright grid lines
-  col=col/(col+vec3(1.0)); col=pow(col,vec3(0.4545));
-  o=vec4(col,1.0);
-}`);
-const lineProg = compileProgram(gl, `#version 300 es
-in vec3 p; uniform mat4 uMVP; void main(){ gl_Position=uMVP*vec4(p,1.); gl_PointSize=4.0; }`,
-`#version 300 es
-precision highp float; uniform vec4 uColor; out vec4 o; void main(){ o=uColor; }`);
-const dynVBO = gl.createBuffer();
-
-function mul(a, b) { const c = new Float32Array(16); for (let i = 0; i < 4; i += 1) for (let j = 0; j < 4; j += 1) { let s = 0; for (let k = 0; k < 4; k += 1) s += a[k * 4 + j] * b[i * 4 + k]; c[i * 4 + j] = s; } return c; }
-function quatScaleMat(q, sx, sy, sz) {
-  const [w, x, y, z] = q;
-  return new Float32Array([
-    (1 - 2 * (y * y + z * z)) * sx, (2 * (x * y + w * z)) * sx, (2 * (x * z - w * y)) * sx, 0,
-    (2 * (x * y - w * z)) * sy, (1 - 2 * (x * x + z * z)) * sy, (2 * (y * z + w * x)) * sy, 0,
-    (2 * (x * z + w * y)) * sz, (2 * (y * z - w * x)) * sz, (1 - 2 * (x * x + y * y)) * sz, 0,
-    0, 0, 0, 1,
-  ]);
+const quads = [];
+for (let v = 0; v < NV; v++) for (let u = 0; u < NU; u++) {
+  const a = v * (NU + 1) + u, b = a + NU + 1;
+  quads.push([a, b, b + 1, a + 1]);
 }
+
 function semiAxes(I) {
-  // Uniform ellipsoid: I1 ~ b^2+c^2, I2 ~ a^2+c^2, I3 ~ a^2+b^2.
   const [I1, I2, I3] = I;
   const a2 = 0.5 * (-I1 + I2 + I3), b2 = 0.5 * (I1 - I2 + I3), c2 = 0.5 * (I1 + I2 - I3);
-  const s = 2.0;
-  return [Math.sqrt(Math.max(0.25, a2)) * s * 0.6, Math.sqrt(Math.max(0.25, b2)) * s * 0.6, Math.sqrt(Math.max(0.25, c2)) * s * 0.6];
+  const f = 1.2;
+  return [Math.sqrt(Math.max(0.16, a2)) * f, Math.sqrt(Math.max(0.16, b2)) * f, Math.sqrt(Math.max(0.16, c2)) * f];
+}
+function inertia() {
+  const d = parseFloat(sliderShape.value);   // asymmetry: I = [3-d, 3, 3+d]
+  return [3 - d, 3, 3 + d];
+}
+function initialOmega(I) {
+  const axis = parseInt(selAxis.value, 10);
+  const rate = parseFloat(sliderSpin.value);
+  const eps = parseFloat(sliderPerturb.value) * rate;
+  const w = [eps, eps, eps];
+  w[axis] = rate;
+  // perturb the two transverse components slightly off-axis
+  w[(axis + 1) % 3] = eps;
+  w[(axis + 2) % 3] = eps * 0.6;
+  return w;
+}
+function rebuild() {
+  const I = inertia();
+  body = createRigidBody({ I, omega: initialOmega(I) });
+  sa = semiAxes(I);
+  polhode.length = 0; trace.length = 0;
+}
+function syncVals() {
+  valueAxis.textContent = ['minor', 'middle', 'major'][parseInt(selAxis.value, 10)];
+  valueShape.textContent = parseFloat(sliderShape.value).toFixed(2);
+  valueSpin.textContent = parseFloat(sliderSpin.value).toFixed(1);
+  valuePerturb.textContent = parseFloat(sliderPerturb.value).toFixed(2);
+}
+[selAxis, sliderShape, sliderSpin, sliderPerturb].forEach((el) => el.addEventListener('input', () => { syncVals(); rebuild(); render(); }));
+selAxis.addEventListener('change', () => { syncVals(); rebuild(); render(); });
+btnReset.addEventListener('click', () => {
+  selAxis.value = '1'; sliderShape.value = '1.0'; sliderSpin.value = '4'; sliderPerturb.value = '0.05';
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); rebuild(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
+
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.85 },
+    { name: 'diagnostic', weight: 1.15 },
+  ]);
 }
 
-function drawLines(mvp, verts, color, mode) {
-  gl.useProgram(lineProg);
-  gl.bindBuffer(gl.ARRAY_BUFFER, dynVBO);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.DYNAMIC_DRAW);
-  const lp = gl.getAttribLocation(lineProg, 'p');
-  gl.enableVertexAttribArray(lp); gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
-  gl.uniformMatrix4fv(gl.getUniformLocation(lineProg, 'uMVP'), false, mvp);
-  gl.uniform4fv(gl.getUniformLocation(lineProg, 'uColor'), color);
-  gl.drawArrays(mode, 0, verts.length / 3);
+// fixed camera: tilt about x then rotate about y. Camera looks toward +z.
+const CAM = (() => {
+  const ax = -0.42, ay = 0.62;
+  const cx = Math.cos(ax), sx = Math.sin(ax), cy = Math.cos(ay), sy = Math.sin(ay);
+  const Rx = [[1, 0, 0], [0, cx, -sx], [0, sx, cx]];
+  const Ry = [[cy, 0, sy], [0, 1, 0], [-sy, 0, cy]];
+  return mul3(Ry, Rx);
+})();
+function mul3(A, B) {
+  const C = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) for (let k = 0; k < 3; k++) C[i][j] += A[i][k] * B[k][j];
+  return C;
+}
+function mv3(M, v) { return [M[0][0] * v[0] + M[0][1] * v[1] + M[0][2] * v[2], M[1][0] * v[0] + M[1][1] * v[1] + M[1][2] * v[2], M[2][0] * v[0] + M[2][1] * v[1] + M[2][2] * v[2]]; }
+function toCam(vBody) { return mv3(CAM, bodyToWorld(body.q, vBody)); }
+function surfPoint(d) {
+  // ellipsoid surface point in unit-direction d.
+  const rho = 1 / Math.sqrt((d[0] / sa[0]) ** 2 + (d[1] / sa[1]) ** 2 + (d[2] / sa[2]) ** 2);
+  return [d[0] * rho, d[1] * rho, d[2] * rho];
 }
 
-function invariablePlane(Lw, R, segs) {
-  // Disk in the invariable plane (perpendicular to the conserved
-  // space-fixed L). The herpolhode rolls in exactly this plane, so
-  // drawing it makes the Poinsot construction legible.
-  const Ln = Math.hypot(...Lw) || 1;
-  const n = [Lw[0] / Ln, Lw[1] / Ln, Lw[2] / Ln];
-  const a = Math.abs(n[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
-  let t = [a[1] * n[2] - a[2] * n[1], a[2] * n[0] - a[0] * n[2], a[0] * n[1] - a[1] * n[0]];
-  const tn = Math.hypot(...t) || 1; t = [t[0] / tn, t[1] / tn, t[2] / tn];
-  const b = [n[1] * t[2] - n[2] * t[1], n[2] * t[0] - n[0] * t[2], n[0] * t[1] - n[1] * t[0]];
-  const fan = [0, 0, 0], rim = [];
-  for (let i = 0; i <= segs; i += 1) {
-    const a2 = i / segs * 2 * Math.PI, c = Math.cos(a2) * R, s = Math.sin(a2) * R;
-    const x = t[0] * c + b[0] * s, y = t[1] * c + b[1] * s, z = t[2] * c + b[2] * s;
-    fan.push(x, y, z); rim.push(x, y, z);
+function colors() {
+  const css = getComputedStyle(document.body);
+  return {
+    bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
+    fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
+    muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
+    accent: css.getPropertyValue('--accent').trim() || '#ffd166',
+    ax0: '#ef476f', ax1: '#67d98c', ax2: '#5bc0eb',
+    omega: '#f4f6ff', L: '#ffce4d', polh: '#34e0c8',
+    border: 'rgba(255,255,255,0.12)',
+    grid: 'rgba(255,255,255,0.08)',
+  };
+}
+
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
-  return { fan, rim };
+}
+
+const LIGHT = (() => { const v = [0.35, 0.5, 0.78]; const n = Math.hypot(...v); return [v[0] / n, v[1] / n, v[2] / n]; })();
+
+function drawScene(col, r) {
+  panel(col, r, 'The inertia ellipsoid tumbling, with ω and a fixed L');
+
+  const titleH = 22, stripH = 28;
+  const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
+  const cx = draw.x + draw.w / 2, cy = draw.y + draw.h / 2;
+  const scale = Math.min(draw.w, draw.h) * 0.165;
+  const SX = (cp) => cx + cp[0] * scale;
+  const SY = (cp) => cy - cp[1] * scale;
+
+  ctx.save();
+  clipTo(ctx, draw);
+
+  // transform mesh vertices to camera space.
+  const cverts = dirs.map((d) => toCam([sa[0] * d[0], sa[1] * d[1], sa[2] * d[2]]));
+
+  // body-axis tint per vertex (so the tumble reads): blend toward the
+  // principal-axis colours by |direction component|.
+  const tintFor = (d) => {
+    const ax = d[0] * d[0], ay = d[1] * d[1], az = d[2] * d[2];
+    const r0 = 0.30 + 0.62 * ax + 0.12 * az;
+    const g0 = 0.36 + 0.55 * ay + 0.10 * ax;
+    const b0 = 0.42 + 0.60 * az + 0.12 * ay;
+    return [r0, g0, b0];
+  };
+
+  // front faces only, depth sorted.
+  const faces = [];
+  for (const q of quads) {
+    const p0 = cverts[q[0]], p1 = cverts[q[1]], p2 = cverts[q[2]], p3 = cverts[q[3]];
+    const e1 = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]];
+    const e2 = [p3[0] - p0[0], p3[1] - p0[1], p3[2] - p0[2]];
+    let n = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
+    const ctr = [(p0[0] + p1[0] + p2[0] + p3[0]) / 4, (p0[1] + p1[1] + p2[1] + p3[1]) / 4, (p0[2] + p1[2] + p2[2] + p3[2]) / 4];
+    if (n[0] * ctr[0] + n[1] * ctr[1] + n[2] * ctr[2] < 0) n = [-n[0], -n[1], -n[2]];
+    const nn = Math.hypot(...n) || 1;
+    const nz = n[2] / nn;
+    if (nz <= 0.02) continue;            // backface cull
+    const lit = Math.max(0, (n[0] * LIGHT[0] + n[1] * LIGHT[1] + n[2] * LIGHT[2]) / nn);
+    const di = dirs[q[0]];
+    faces.push({ q: [p0, p1, p2, p3], z: ctr[2], sh: 0.28 + 0.72 * lit, tint: tintFor(di) });
+  }
+  faces.sort((a, b) => a.z - b.z);
+  for (const f of faces) {
+    const [tr, tg, tb] = f.tint;
+    ctx.fillStyle = `rgb(${Math.round(tr * f.sh * 255)},${Math.round(tg * f.sh * 255)},${Math.round(tb * f.sh * 255)})`;
+    ctx.beginPath();
+    f.q.forEach((p, i) => { const X = SX(p), Y = SY(p); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+    ctx.closePath(); ctx.fill();
+  }
+
+  // seam rings on the three principal planes (front half only).
+  const ringCols = [col.ax0, col.ax1, col.ax2];
+  for (let k = 0; k < 3; k++) {
+    ctx.strokeStyle = ringCols[k]; ctx.lineWidth = 1.6; ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    let pen = false;
+    for (let i = 0; i <= 80; i++) {
+      const t = i / 80 * 2 * Math.PI;
+      const d = [0, 0, 0];
+      d[(k + 1) % 3] = Math.cos(t); d[(k + 2) % 3] = Math.sin(t);
+      const sp = surfPoint(d);
+      const nb = [sp[0] / (sa[0] * sa[0]), sp[1] / (sa[1] * sa[1]), sp[2] / (sa[2] * sa[2])];
+      const ncam = mv3(CAM, bodyToWorld(body.q, nb));
+      const cp = toCam([sp[0] * 1.01, sp[1] * 1.01, sp[2] * 1.01]);
+      if (ncam[2] > 0) { const X = SX(cp), Y = SY(cp); if (pen) ctx.lineTo(X, Y); else { ctx.moveTo(X, Y); pen = true; } }
+      else pen = false;
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // polhode painted on the body (front half only), coloured by recency.
+  if (polhode.length > 2) {
+    ctx.lineWidth = 2.6;
+    for (let i = 1; i < polhode.length; i++) {
+      const d0 = polhode[i - 1], d1 = polhode[i];
+      const sp = surfPoint(d1);
+      const nb = [sp[0] / (sa[0] * sa[0]), sp[1] / (sa[1] * sa[1]), sp[2] / (sa[2] * sa[2])];
+      const ncam = mv3(CAM, bodyToWorld(body.q, nb));
+      if (ncam[2] <= 0) continue;
+      const a = toCam([surfPoint(d0)[0] * 1.02, surfPoint(d0)[1] * 1.02, surfPoint(d0)[2] * 1.02]);
+      const b = toCam([sp[0] * 1.02, sp[1] * 1.02, sp[2] * 1.02]);
+      const t = i / polhode.length;
+      const c = viridis(0.45 + 0.5 * t);
+      ctx.strokeStyle = `rgba(${c.r},${c.g},${c.b},${0.35 + 0.6 * t})`;
+      ctx.beginPath(); ctx.moveTo(SX(a), SY(a)); ctx.lineTo(SX(b), SY(b)); ctx.stroke();
+    }
+  }
+
+  // principal-axis stubs (dominant one emphasised).
+  const dom = body.w.map((v) => Math.abs(v)).indexOf(Math.max(...body.w.map((v) => Math.abs(v))));
+  const axCols = [col.ax0, col.ax1, col.ax2];
+  for (let k = 0; k < 3; k++) {
+    const e = [0, 0, 0]; e[k] = 1;
+    const tip = toCam(e.map((v) => v * (sa[k] + 0.5)));
+    ctx.strokeStyle = axCols[k]; ctx.lineWidth = (k === dom) ? 3 : 1.4; ctx.globalAlpha = (k === dom) ? 1 : 0.5;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(SX(tip), SY(tip)); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // angular momentum L (gold, fixed in space) and spin axis omega (white).
+  const arrow = (vWorldCam, color, len, label, dash) => {
+    const n = Math.hypot(...vWorldCam) || 1;
+    const tip = [vWorldCam[0] / n * len, vWorldCam[1] / n * len, vWorldCam[2] / n * len];
+    ctx.strokeStyle = color; ctx.lineWidth = 3; if (dash) ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(SX(tip), SY(tip)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(SX(tip), SY(tip), 4, 0, 2 * Math.PI); ctx.fill();
+    ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const lp = [tip[0] * 1.16, tip[1] * 1.16, tip[2] * 1.16];
+    ctx.fillText(label, SX(lp), SY(lp));
+  };
+  const Lcam = mv3(CAM, angularMomentumWorld(body));
+  const wcam = mv3(CAM, bodyToWorld(body.q, body.w));
+  arrow(Lcam, col.L, 2.7, 'L', false);
+  arrow(wcam, col.omega, 2.3, 'ω', false);
+
+  ctx.restore();
+
+  // readout strip.
+  const dE = energyDrift();
+  const items = [
+    [['minor', 'middle', 'major'][parseInt(selAxis.value, 10)] + ' axis', parseInt(selAxis.value, 10) === 1 ? col.ax1 : col.muted],
+    [`|ω| ${Math.hypot(...body.w).toFixed(1)}`, col.omega],
+    [`|L| ${Math.sqrt(angularMomentumSq(body)).toFixed(1)}`, col.L],
+    [`E drift ${dE.toExponential(0)}`, col.muted],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, r.y + r.h - stripH / 2 + 1); });
+}
+
+// Analytic polhode projected to the (w1, w3) plane: sweep w2 over its
+// allowed range and solve the two conserved quadratics for w1^2, w3^2,
+// emitting the four sign branches. Returns {branches:[[ [w1,w3],... ]], m}.
+function polhodeGuide() {
+  const [I1, I2, I3] = body.I;
+  const E = energy(body), L2 = angularMomentumSq(body);
+  const det = I1 * I3 * (I3 - I1) || 1e-9;
+  const w2max = Math.sqrt(Math.max(0, 2 * E / I2));
+  const N = 160;
+  const raw = [];
+  for (let i = 0; i <= N; i++) {
+    const w2 = -w2max + 2 * w2max * i / N, w2s = w2 * w2;
+    const w1s = ((2 * E - I2 * w2s) * I3 * I3 - (L2 - I2 * I2 * w2s) * I3) / det;
+    const w3s = ((L2 - I2 * I2 * w2s) * I1 - (2 * E - I2 * w2s) * I1 * I1) / det;
+    raw.push([w1s, w3s]);
+  }
+  const signs = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+  const branches = []; let m = 0.3;
+  for (const [s1, s3] of signs) {
+    const br = [];
+    for (const [w1s, w3s] of raw) {
+      if (w1s < -1e-4 || w3s < -1e-4) { if (br.length > 1) branches.push(br.slice()); br.length = 0; continue; }
+      const w1 = s1 * Math.sqrt(Math.max(0, w1s)), w3 = s3 * Math.sqrt(Math.max(0, w3s));
+      m = Math.max(m, Math.abs(w1), Math.abs(w3));
+      br.push([w1, w3]);
+    }
+    if (br.length > 1) branches.push(br);
+  }
+  return { branches, m };
+}
+
+function drawDiagnostic(col, r) {
+  panel(col, r, 'The polhode: spin axis traced in the ω₁–ω₃ plane');
+
+  const inner = { x: r.x + 44, y: r.y + 30, w: r.w - 44 - 16, h: r.h - 30 - 42 };
+  const guide = polhodeGuide();
+  const m = guide.m * 1.14;
+  const cx = inner.x + inner.w / 2, cy = inner.y + inner.h / 2;
+  const sx = (inner.w / 2) / m, sy = (inner.h / 2) / m;
+  const xOf = (w1) => cx + w1 * sx;
+  const yOf = (w3) => cy - w3 * sy;
+
+  // axes.
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(inner.x, cy); ctx.lineTo(inner.x + inner.w, cy); ctx.moveTo(cx, inner.y); ctx.lineTo(cx, inner.y + inner.h); ctx.stroke();
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(m.toFixed(1), inner.x + inner.w - 3, cy - 3);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(m.toFixed(1), cx + 3, inner.y + 3);
+
+  // analytic polhode (faint guide showing the whole curve).
+  ctx.strokeStyle = 'rgba(120,140,200,0.45)'; ctx.lineWidth = 1.3;
+  for (const br of guide.branches) {
+    ctx.beginPath();
+    br.forEach((p, i) => { const X = xOf(p[0]), Y = yOf(p[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+    ctx.stroke();
+  }
+
+  // live polhode trace, coloured by recency.
+  if (trace.length > 2) {
+    ctx.lineWidth = 2.4;
+    for (let i = 1; i < trace.length; i++) {
+      const t = i / trace.length;
+      const c = viridis(0.4 + 0.55 * t);
+      ctx.strokeStyle = `rgba(${c.r},${c.g},${c.b},${0.3 + 0.65 * t})`;
+      ctx.beginPath(); ctx.moveTo(xOf(trace[i - 1][0]), yOf(trace[i - 1][1])); ctx.lineTo(xOf(trace[i][0]), yOf(trace[i][1])); ctx.stroke();
+    }
+    const last = trace[trace.length - 1];
+    ctx.fillStyle = col.omega; ctx.beginPath(); ctx.arc(xOf(last[0]), yOf(last[1]), 4.2, 0, 2 * Math.PI); ctx.fill();
+  }
+
+  // labels.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('ω₁  (minor-axis rate)', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 32, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('ω₃ (major-axis rate)', 0, 0); ctx.restore();
+
+  const axis = parseInt(selAxis.value, 10);
+  ctx.fillStyle = axis === 1 ? col.accent : col.muted;
+  ctx.font = fontString(canvas, 'legend', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText(axis === 1 ? 'separatrix bowtie: it flips' : 'closed loop: steady tumble', inner.x + 7, inner.y + inner.h - 7);
+}
+
+let __E0 = null, __L0 = null, __Eprev = null;
+function energyDrift() {
+  const E = energy(body);
+  if (__Eprev !== null && Math.abs(E - __Eprev) > 0.02 * Math.max(1e-9, Math.abs(__Eprev))) { __E0 = E; __L0 = angularMomentumSq(body); }
+  __Eprev = E;
+  if (__E0 === null) { __E0 = E; __L0 = angularMomentumSq(body); }
+  const dE = Math.abs(E - __E0) / Math.max(1e-12, Math.abs(__E0));
+  const dL = Math.abs(angularMomentumSq(body) - __L0) / Math.max(1e-12, Math.abs(__L0));
+  return Math.max(dE, dL);
 }
 
 function render() {
-  const W = canvas.width, H = canvas.height;
-  gl.viewport(0, 0, W, H);
-  gl.clearColor(0.02, 0.02, 0.03, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  gl.enable(gl.DEPTH_TEST);
-  const view = camera.viewMatrix();
-  const proj = camera.projMatrix(W / H);
-  const vp = mul(proj, view);
-  const sa = semiAxes(body.I);
-  const model = quatScaleMat(body.q, sa[0], sa[1], sa[2]);
-  const mvp = mul(vp, model);
-  const eye = camera.eyePosition();
-
-  // Ellipsoid.
-  gl.useProgram(meshProg);
-  gl.bindBuffer(gl.ARRAY_BUFFER, sphVBO);
-  const mp = gl.getAttribLocation(meshProg, 'p');
-  gl.enableVertexAttribArray(mp); gl.vertexAttribPointer(mp, 3, gl.FLOAT, false, 0, 0);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphIBO);
-  gl.uniformMatrix4fv(gl.getUniformLocation(meshProg, 'uMVP'), false, mvp);
-  gl.uniformMatrix4fv(gl.getUniformLocation(meshProg, 'uModel'), false, model);
-  gl.uniform3fv(gl.getUniformLocation(meshProg, 'uEye'), eye);
-  gl.drawElements(gl.TRIANGLES, sph.idx.length, gl.UNSIGNED_SHORT, 0);
-
-  gl.disable(gl.DEPTH_TEST);
-  // Principal axes (body frame -> world via quaternion), length 1.3x semi-axis.
-  const cols = [[1, 0.36, 0.36, 1], [0.36, 1, 0.45, 1], [0.42, 0.6, 1, 1]];
-  const eBody = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
-  for (let i = 0; i < 3; i += 1) {
-    const dir = bodyToWorld(body.q, eBody[i]);
-    const L = sa[i] + 1.0;
-    drawLines(vp, [0, 0, 0, dir[0] * L, dir[1] * L, dir[2] * L], cols[i], gl.LINES);
-  }
-  // omega (white) and L (gold), world frame, bounded to ~3.0 units so
-  // the arrows stay framed regardless of |w|, |L|.
-  const wW = bodyToWorld(body.q, body.w);
-  const wn = Math.hypot(...wW) || 1; const ws = 3.0 / wn;
-  drawLines(vp, [0, 0, 0, wW[0] * ws, wW[1] * ws, wW[2] * ws], [1, 1, 1, 1], gl.LINES);
-  drawLines(vp, [wW[0] * ws, wW[1] * ws, wW[2] * ws], [1, 1, 1, 1], gl.POINTS);
-  const Lw = angularMomentumWorld(body); const Ln = Math.hypot(...Lw) || 1; const ls = 3.4 / Ln;
-  drawLines(vp, [0, 0, 0, Lw[0] * ls, Lw[1] * ls, Lw[2] * ls], [1, 0.82, 0.3, 1], gl.LINES);
-  drawLines(vp, [Lw[0] * ls, Lw[1] * ls, Lw[2] * ls], [1, 0.82, 0.3, 1], gl.POINTS);
-
-  // Invariable plane, perpendicular to the conserved space-fixed L:
-  // a faint translucent disk with a bright rim. The herpolhode rolls
-  // exactly in this plane (Poinsot's construction).
-  const ip = invariablePlane(Lw, 3.4, 96);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  drawLines(vp, ip.fan, [0.34, 0.42, 0.78, 0.12], gl.TRIANGLE_FAN);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-  drawLines(vp, ip.rim, [0.62, 0.72, 1.0, 0.45], gl.LINE_STRIP);
-
-  // Glowing polhode (on the body) / herpolhode (in the plane):
-  // additive strip plus beaded points.
-  if (polhode.length > 6) {
-    drawLines(mvp, polhode, [0.5, 1, 0.85, 0.95], gl.LINE_STRIP);
-    drawLines(mvp, polhode, [0.7, 1, 0.95, 0.6], gl.POINTS);
-  }
-  if (herpolhode.length > 6) {
-    drawLines(vp, herpolhode, [1, 0.58, 0.96, 0.9], gl.LINE_STRIP);
-    drawLines(vp, herpolhode, [1, 0.74, 1, 0.55], gl.POINTS);
-  }
-  gl.disable(gl.BLEND);
-
-  const E = energy(body), Lm = Math.sqrt(angularMomentumSq(body));
-  const dz = body.I[0] < body.I[1] && body.I[1] < body.I[2] && Math.abs(body.w[1]) > Math.abs(body.w[0]) + Math.abs(body.w[2]);
-  rEls['E (rot)'].textContent = E.toFixed(4);
-  rEls['|L|'].textContent = Lm.toFixed(4);
-  rEls['ω·ê₂'].textContent = body.w[1].toFixed(3);
-  rEls.t.textContent = body.t.toFixed(2);
-  rEls.state.textContent = dz ? 'intermediate' : 'stable';
+  if (!REG) relayout();
+  if (!body) rebuild();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
-const PHYS_DT = 0.005;
-function advance(dtSim) {
-  let n = Math.min(2000, Math.round(dtSim / PHYS_DT));
-  for (let i = 0; i < n; i += 1) {
-    step(body, PHYS_DT);
-    const wn = Math.hypot(...body.w) || 1;
-    polhode.push(body.w[0] / wn * 1.04, body.w[1] / wn * 1.04, body.w[2] / wn * 1.04);
-    const ww = bodyToWorld(body.q, body.w);
-    herpolhode.push(ww[0] / wn * 3.4, ww[1] / wn * 3.4, ww[2] / wn * 3.4);
-    while (polhode.length > TRAIL * 3) polhode.splice(0, 3);
-    while (herpolhode.length > TRAIL * 3) herpolhode.splice(0, 3);
-  }
+function recordTrace() {
+  const wn = Math.hypot(...body.w) || 1;
+  polhode.push([body.w[0] / wn, body.w[1] / wn, body.w[2] / wn]);
+  while (polhode.length > TRAIL) polhode.shift();
+  trace.push([body.w[0], body.w[2]]);
+  while (trace.length > TRAIL) trace.shift();
 }
 
 let last = performance.now();
+let accum = 0, sample = 0;
 function tick(now) {
-  const dt = Math.min((now - last) / 1000, 0.05); last = now;
-  if (running) advance(dt * 1.6);
-  camera.tickIdle(now);
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (running) {
+    accum += dt * 1.3;
+    let guard = 0;
+    while (accum >= PHYSICS_DT && guard < 800) { step(body, PHYSICS_DT); accum -= PHYSICS_DT; guard++; if ((sample++ % 4) === 0) recordTrace(); }
+  }
   render();
   requestAnimationFrame(tick);
 }
+
 function bootSync() {
-  if (CAPTURE_NAME) advance(2.0 + CAPTURE_FRAC * 9.0);
+  syncVals();
+  rebuild();
+  const pre = CAPTURE_NAME ? (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 9 + 1.5 : 3.0;
+  for (let i = 0; i < Math.round(pre / PHYSICS_DT); i++) { step(body, PHYSICS_DT); if ((i % 4) === 0) recordTrace(); }
+  relayout();
   render();
-  if (DETERMINISTIC) {
-    let warm = 0;
-    const settle = () => { render(); warm += 1; if (warm < 28) { requestAnimationFrame(settle); return; } window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); };
-    requestAnimationFrame(settle);
-  }
 }
 
-window.__physicsCheck = async () => {
-  const b = createRigidBody({ I: [2, 3, 4], omega: [1.1, 0.7, 0.3] });
-  const E0 = energy(b), L0 = angularMomentumSq(b);
-  for (let i = 0; i < 10000; i += 1) step(b, 0.005);
-  const dE = Math.abs(energy(b) - E0) / E0, dL = Math.abs(angularMomentumSq(b) - L0) / L0;
-  if (dE > 1e-4 || dL > 1e-4) return { name: 'rigid-body conservation', pass: false, msg: `dE=${dE.toExponential(2)} dL=${dL.toExponential(2)}` };
-  return { name: 'E and |L|^2 conserved', pass: true, msg: `dE=${dE.toExponential(2)}, d|L|^2=${dL.toExponential(2)} over 1e4 steps` };
-};
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
-
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
+}
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const dom = body.w.map((v) => Math.abs(v)).indexOf(Math.max(...body.w.map((v) => Math.abs(v))));
   return {
     fields: [
-      { key: 'angular-speed', label: 'angular speed $|\\omega|$', value: Math.hypot(...body.w), format: 'float' },
-      { key: 'rot-energy', label: 'rotational energy $E$', value: energy(body), format: 'float' },
-      { key: 'angular-momentum', label: 'angular momentum $|L|$', value: Math.sqrt(angularMomentumSq(body)), format: 'float' },
+      { key: 'axis', label: 'dominant axis', value: ['minor (1)', 'middle (2)', 'major (3)'][dom], format: 'text' },
+      { key: 'w', label: 'angular speed $|\\omega|$', value: Math.hypot(...body.w), format: 'float' },
+      { key: 'E', label: 'rotational energy $E$', value: energy(body), format: 'float' },
+      { key: 'L', label: 'angular momentum $|L|$', value: Math.sqrt(angularMomentumSq(body)), format: 'float' },
     ],
   };
 };
-// A conservative (Hamiltonian) system: total energy is the
-// invariant. The baseline is the energy at the start of the run and
-// is re-taken whenever a control change steps the energy.
-let __energy0 = null, __energyPrev = null;
-if (!window.playground.getInvariants) {
-  window.playground.getInvariants = function () {
-    try {
-      const E = energy(body);
-      if (!Number.isFinite(E)) return [];
-      if (__energyPrev !== null
-        && Math.abs(E - __energyPrev) > 0.02 * Math.max(1e-9, Math.abs(__energyPrev)) + 1e-9) {
-        __energy0 = E;                    // discontinuity: a control changed the system
-      }
-      __energyPrev = E;
-      if (__energy0 === null) __energy0 = E;
-      const dE = Math.abs(E - __energy0) / Math.max(1e-12, Math.abs(__energy0));
-      return [{
-        key: 'energy',
-        label: 'total energy conserved (rel. drift)',
-        value: dE.toExponential(2),
-        status: dE < 1e-3 ? 'pass' : (dE < 1e-2 ? 'pending' : 'drift'),
-      }];
-    } catch (e) { return []; }
-  };
-}
+window.playground.getInvariants = function () {
+  try {
+    const d = energyDrift();
+    if (!Number.isFinite(d)) return [];
+    return [{
+      key: 'conserved',
+      label: 'energy and |L| conserved (rel. drift)',
+      value: d.toExponential(2),
+      status: d < 1e-3 ? 'pass' : (d < 1e-2 ? 'pending' : 'drift'),
+    }];
+  } catch (e) {
+    return [];
+  }
+};

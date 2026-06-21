@@ -4,13 +4,13 @@ slug: rigid-body-euler-3d
 status: verified
 audience: portfolio
 created: 2026-05-17
-hook: 'Spin a brick about its middle axis and it flips itself over, again and again, with no torque at all.'
-one_paragraph: 'A Phong-shaded inertia ellipsoid tumbles under Euler''s torque-free equations, integrated with RK4 and a unit quaternion. The angular-velocity vector traces the polhode on the body and the herpolhode in space while the angular momentum stays fixed. Spinning about the intermediate principal axis triggers the Dzhanibekov (tennis-racket) flip.'
+hook: 'A free body never spins about a fixed line: its spin axis traces a polhode while the angular momentum stays nailed in place.'
+one_paragraph: 'An inertia ellipsoid tumbles under Euler''s torque-free equations (RK4 plus a unit quaternion), drawn in Canvas2D orthographic pseudo-3D with depth-sorted, lambert-shaded faces and the three principal-plane seam rings. The instantaneous spin axis is white, the conserved angular momentum is gold and fixed in space, and the polhode is painted on the body. The diagnostic traces the polhode in the omega1-omega3 principal plane, against the analytic polhode curve for the live energy and angular momentum: a tight closed loop for the major or minor axis, a separatrix bowtie for the intermediate axis, where the body flips end over end.'
 tags: [mechanics, 3d, animation, live-readout]
 difficulty: 3
 tier: hero
 hero_candidate: false
-renderer: webgl2
+renderer: canvas2d
 estimated_engagement_minutes: 5
 curriculum_year: 'L:F-1Y-1S'
 primary_uc: F1006
@@ -120,18 +120,23 @@ $\dot q=\tfrac12\,q\otimes[0,\boldsymbol\omega_{\text{body}}]$.
 
 ## Numerical method
 
-Classical RK4 on the 7-vector `(omega, q)` with `dt = 0.005`, the
-quaternion renormalised each step. The polhode is the omega-tip
-history in the body frame (painted on the body); the herpolhode is
-the omega-tip history in the world frame (it lies in the invariable
-plane perpendicular to L).
+Classical RK4 on the 7-vector `(omega, q)` at `dt = 1/240 s`, the
+quaternion renormalised each step. Rendering is plain Canvas2D: the
+ellipsoid is a lat-long quad mesh transformed by the quaternion and a
+fixed orthographic camera, back-face culled, depth-sorted (painter's
+algorithm) and lambert-shaded; the three principal-plane seam rings
+and the body-frame polhode are drawn front-half only. The diagnostic
+overlays the live (omega1, omega3) trace on the analytic polhode,
+obtained by sweeping omega2 over its allowed range and solving the two
+conserved quadratics for omega1^2 and omega3^2.
 
 ## Controls
 
-- I1, I3 sliders (reshape the ellipsoid and reseed the trace).
-- Dzhanibekov preset (I = 1,2,4 spinning about the intermediate axis).
+- `spin axis`: minor / middle / major (sets the initial spin and a
+  small transverse nudge).
+- `asymmetry`: how triaxial the ellipsoid is, I = (3 - a, 3, 3 + a).
+- `spin rate`, `nudge` (the perturbation off the chosen axis).
 - Reset, Pause.
-- Drag to orbit the camera, wheel to zoom.
 
 ## Expected qualitative features
 
