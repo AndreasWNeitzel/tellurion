@@ -167,51 +167,52 @@ function drawHero(col) {
   }
   ctx.stroke();
 
-  // Group marker: a translucent band on the envelope peak nearest the centre,
-  // travelling at the group velocity. Drawn before the riders so the balls sit
-  // on top.
   const dk = waveK(state.f1) - waveK(state.f2);
   const dw = omega(state.f1) - omega(state.f2);
+  const kbar = 0.5 * (waveK(state.f1) + waveK(state.f2));
+  const wbar = 0.5 * (omega(state.f1) + omega(state.f2));
+  const yTopM = ay(2.3), yBotM = ay(-2.3);
+
+  // Group markers: a vertical line on EVERY envelope peak, all moving together
+  // at the group velocity (peaks sit at dk x - dw t = 2 pi m). Steady markers
+  // on every low-frequency crest, not a single jumping one.
   if (Math.abs(dk) > 1e-9) {
-    const mCenter = (dk * (L / 2) - dw * t) / (2 * Math.PI);
-    let best = null;
-    for (const m of [Math.floor(mCenter), Math.ceil(mCenter)]) {
-      const xm = (2 * Math.PI * m + dw * t) / dk;
-      if (xm >= 0 && xm <= L) {
-        if (best === null || Math.abs(xm - L / 2) < Math.abs(best - L / 2)) best = xm;
-      }
-    }
-    if (best !== null) {
-      const xg = sxOf(best);
-      ctx.fillStyle = 'rgba(214,138,105,0.14)';
-      ctx.fillRect(xg - 10, r.y + padTop - 8, 20, (r.h - padTop - padBot) + 16);
-      ctx.strokeStyle = col.warm; ctx.lineWidth = 1.4;
-      ctx.beginPath(); ctx.moveTo(xg, ay(2.2)); ctx.lineTo(xg, ay(-2.2)); ctx.stroke();
+    const mLo = Math.ceil((dk * 0 - dw * t) / (2 * Math.PI));
+    const mHi = Math.floor((dk * L - dw * t) / (2 * Math.PI));
+    for (let m = mLo; m <= mHi; m += 1) {
+      const xs = sxOf((2 * Math.PI * m + dw * t) / dk);
+      ctx.fillStyle = 'rgba(214,138,105,0.10)';
+      ctx.fillRect(xs - 6, yTopM, 12, yBotM - yTopM);
+      ctx.strokeStyle = col.warm; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(xs, yTopM); ctx.lineTo(xs, yBotM); ctx.stroke();
     }
   }
 
-  // Phase riders: balls on carrier crests x_n = (2 pi n + wbar t)/kbar; they
-  // stream right at the phase velocity and bob as the envelope passes through.
-  const kbar = 0.5 * (waveK(state.f1) + waveK(state.f2));
-  const wbar = 0.5 * (omega(state.f1) + omega(state.f2));
+  // Balls riding the carrier crests (stream right at the phase velocity).
   if (kbar > 1e-9) {
     const nLo = Math.ceil((-wbar * t) / (2 * Math.PI));
     const nHi = Math.floor((kbar * L - wbar * t) / (2 * Math.PI));
-    let mid = null, midDist = Infinity;
     for (let n = nLo; n <= nHi; n += 1) {
       const xn = (2 * Math.PI * n + wbar * t) / kbar;
-      const d = Math.abs(xn - L / 2);
-      if (d < midDist) { midDist = d; mid = n; }
-    }
-    for (let n = nLo; n <= nHi; n += 1) {
-      const xn = (2 * Math.PI * n + wbar * t) / kbar;
-      const yv = envelopeField(xn, t, state.f1, state.f2);   // sits on the crest
-      const isPhase = (n === mid);
-      ctx.fillStyle = isPhase ? '#ffffff' : col.cool;
+      const yv = envelopeField(xn, t, state.f1, state.f2);
+      ctx.fillStyle = col.cool;
       ctx.beginPath();
-      ctx.arc(sxOf(xn), ay(clamp(yv, -AMAX, AMAX)), isPhase ? 5 : 3, 0, Math.PI * 2);
+      ctx.arc(sxOf(xn), ay(clamp(yv, -AMAX, AMAX)), 2.6, 0, Math.PI * 2);
       ctx.fill();
     }
+  }
+
+  // Phase marker: ONE vertical line gliding at the phase velocity. It is not
+  // snapped to a crest, so it moves smoothly (at the carrier-crest speed) and
+  // visibly overtakes the group lines; for deep water v_phase = 2 v_group.
+  {
+    const vpHere = phaseVel(state.f1, state.f2);
+    const xPhase = L > 0 ? (((vpHere * t) % L) + L) % L : 0;
+    const xs = sxOf(xPhase);
+    ctx.strokeStyle = col.cool; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.moveTo(xs, yTopM); ctx.lineTo(xs, yBotM); ctx.stroke();
+    ctx.fillStyle = col.cool;
+    ctx.beginPath(); ctx.moveTo(xs, yTopM); ctx.lineTo(xs - 4, yTopM - 6); ctx.lineTo(xs + 4, yTopM - 6); ctx.closePath(); ctx.fill();
   }
   ctx.restore();
 

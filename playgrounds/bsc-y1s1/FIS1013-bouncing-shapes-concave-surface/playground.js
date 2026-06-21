@@ -55,8 +55,13 @@ function drop() {
   hist.length = 0;
 }
 // Comet trails: keep the last few positions of every ball (flat x,y pairs).
-const TRAIL_PTS = 18;
+// Short, so they read as motion streaks that clear quickly rather than
+// smearing the whole bowl into a blur, and cheaper to draw.
+const TRAIL_PTS = 8;
 function recordTrails() {
+  // Trails are a per-ball cost; above a few hundred balls the dense cluster is
+  // the show and trails just smear it, so skip them and keep the framerate.
+  if (sys.balls.length > 500) return;
   for (const b of sys.balls) {
     if (!b.trail) b.trail = [];
     b.trail.push(b.x, b.y);
@@ -162,7 +167,7 @@ function drawScene(col, r) {
   }
   ctx.stroke();
 
-  // Comet trails (older segments fade), colored by the ball's origin column.
+  // Comet trails (older segments fade fast), colored by the ball's origin.
   ctx.lineCap = 'round';
   for (const b of sys.balls) {
     const tr = b.trail;
@@ -170,9 +175,9 @@ function drawScene(col, r) {
     const c = viridis(b.ci / 5);
     const np = tr.length / 2;
     for (let k = 1; k < np; k++) {
-      const a2 = k / np;                       // newer -> brighter
-      ctx.strokeStyle = `rgba(${c.r | 0},${c.g | 0},${c.b | 0},${0.05 + 0.30 * a2})`;
-      ctx.lineWidth = 0.6 + 1.8 * a2;
+      const a2 = k / np;                       // newer -> brighter; old ~ gone
+      ctx.strokeStyle = `rgba(${c.r | 0},${c.g | 0},${c.b | 0},${(0.32 * a2 * a2).toFixed(3)})`;
+      ctx.lineWidth = 0.5 + 1.6 * a2;
       ctx.beginPath();
       ctx.moveTo(SX(tr[2 * k - 2]), SY(tr[2 * k - 1]));
       ctx.lineTo(SX(tr[2 * k]), SY(tr[2 * k + 1]));
@@ -180,12 +185,11 @@ function drawScene(col, r) {
     }
   }
 
-  // Balls as glowing dots, colored by their original column.
-  const br = 3.0;
+  // Balls as bright dots, colored by their original column. (No per-ball glow
+  // halo: it was the main cost behind the lag with many balls.)
+  const br = 3.2;
   for (const b of sys.balls) {
     const c = viridis(b.ci / 5);
-    ctx.fillStyle = `rgba(${c.r | 0},${c.g | 0},${c.b | 0},0.16)`;
-    ctx.beginPath(); ctx.arc(SX(b.x), SY(b.y), br * 2.3, 0, 2 * Math.PI); ctx.fill();
     ctx.fillStyle = `rgb(${c.r | 0},${c.g | 0},${c.b | 0})`;
     ctx.beginPath(); ctx.arc(SX(b.x), SY(b.y), br, 0, 2 * Math.PI); ctx.fill();
   }
