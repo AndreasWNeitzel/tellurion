@@ -44,11 +44,24 @@ function drop() {
   sys = createSystem({
     shape: selShape.value, arrangement: selArrange.value,
     e: parseFloat(sliderE.value), a: parseFloat(sliderA.value),
-    n: parseInt(sliderN.value, 10), mu: 0.02, seed: SEED + dropCount,
+    // No tangential friction: energy is lost only through the normal
+    // restitution e, so e = 1 conserves energy exactly (the diagnostic stays
+    // flat) and e < 1 steps down. Friction was masking e = 1 as a slow leak.
+    n: parseInt(sliderN.value, 10), mu: 0, seed: SEED + dropCount,
   });
   E0 = totalEnergy(sys);
   sys.E0 = E0;
+  sys.balls.forEach((b) => { b.trail = []; });
   hist.length = 0;
+}
+// Comet trails: keep the last few positions of every ball (flat x,y pairs).
+const TRAIL_PTS = 18;
+function recordTrails() {
+  for (const b of sys.balls) {
+    if (!b.trail) b.trail = [];
+    b.trail.push(b.x, b.y);
+    if (b.trail.length > TRAIL_PTS * 2) b.trail.splice(0, b.trail.length - TRAIL_PTS * 2);
+  }
 }
 function syncVals() {
   valueShape.textContent = selShape.value;
@@ -122,10 +135,14 @@ function drawScene(col, r) {
   ctx.save();
   clipTo(ctx, draw);
 
-  // Bowl: filled region below the profile curve.
+  // Bowl: filled region below the profile curve, with a soft vertical gradient
+  // so the basin reads as a lit surface rather than a flat block.
   const fS = SHAPES[sys.shape].f;
   const a = sys.a;
-  ctx.fillStyle = col.bowl;
+  const grad = ctx.createLinearGradient(0, SY(yTop), 0, draw.y + draw.h);
+  grad.addColorStop(0, 'rgba(44,58,82,0.30)');
+  grad.addColorStop(1, 'rgba(16,21,32,0.95)');
+  ctx.fillStyle = grad;
   ctx.beginPath();
   ctx.moveTo(SX(-XV), draw.y + draw.h);
   for (let i = 0; i <= 120; i++) {
@@ -135,8 +152,8 @@ function drawScene(col, r) {
   ctx.lineTo(SX(XV), draw.y + draw.h);
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = col.muted;
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(150,170,200,0.55)';
+  ctx.lineWidth = 1.6;
   ctx.beginPath();
   for (let i = 0; i <= 120; i++) {
     const x = -XV + (2 * XV) * i / 120;
@@ -145,11 +162,32 @@ function drawScene(col, r) {
   }
   ctx.stroke();
 
-  // Balls, colored by their original column.
+  // Comet trails (older segments fade), colored by the ball's origin column.
+  ctx.lineCap = 'round';
+  for (const b of sys.balls) {
+    const tr = b.trail;
+    if (!tr || tr.length < 4) continue;
+    const c = viridis(b.ci / 5);
+    const np = tr.length / 2;
+    for (let k = 1; k < np; k++) {
+      const a2 = k / np;                       // newer -> brighter
+      ctx.strokeStyle = `rgba(${c.r | 0},${c.g | 0},${c.b | 0},${0.05 + 0.30 * a2})`;
+      ctx.lineWidth = 0.6 + 1.8 * a2;
+      ctx.beginPath();
+      ctx.moveTo(SX(tr[2 * k - 2]), SY(tr[2 * k - 1]));
+      ctx.lineTo(SX(tr[2 * k]), SY(tr[2 * k + 1]));
+      ctx.stroke();
+    }
+  }
+
+  // Balls as glowing dots, colored by their original column.
+  const br = 3.0;
   for (const b of sys.balls) {
     const c = viridis(b.ci / 5);
+    ctx.fillStyle = `rgba(${c.r | 0},${c.g | 0},${c.b | 0},0.16)`;
+    ctx.beginPath(); ctx.arc(SX(b.x), SY(b.y), br * 2.3, 0, 2 * Math.PI); ctx.fill();
     ctx.fillStyle = `rgb(${c.r | 0},${c.g | 0},${c.b | 0})`;
-    ctx.fillRect(SX(b.x) - 1.3, SY(b.y) - 1.3, 2.6, 2.6);
+    ctx.beginPath(); ctx.arc(SX(b.x), SY(b.y), br, 0, 2 * Math.PI); ctx.fill();
   }
 
   ctx.restore();
@@ -170,47 +208,71 @@ function drawScene(col, r) {
 }
 
 function drawDiagnostic(col, r) {
-  panel(col, r, 'Total energy over time: flat (e=1) or stepping down');
+  panel(col, r, 'Energy as a fraction of the drop: flat (e=1) or stepping down');
 
   const inner = { x: r.x + 44, y: r.y + 26, w: r.w - 44 - 14, h: r.h - 26 - 38 };
   const WINDOW = 16;
   const tNow = sys.t;
   const t0 = Math.max(0, tNow - WINDOW);
   const tSpan = Math.max(WINDOW, tNow) - t0 || 1;
-  const yMax = E0 * 1.08;
+  // Normalised: the y-axis is energy / initial energy, so it runs 0 to 1 and
+  // e = 1 sits exactly on the top line whatever the absolute energy.
+  const yMax = 1.06;
   const xOf = (t) => inner.x + ((t - t0) / tSpan) * inner.w;
-  const yOf = (E) => inner.y + inner.h - (E / yMax) * inner.h;
+  const yOf = (f) => inner.y + inner.h - (f / yMax) * inner.h;
 
-  // grid + ticks.
+  // grid + ticks (0, 0.5, 1).
   ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  for (const f of [0, 0.5, 1]) { const y = yOf(f * yMax); ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText((f * yMax).toFixed(0), inner.x - 5, y); }
+  for (const f of [0, 0.5, 1]) { const y = yOf(f); ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText(f.toFixed(1), inner.x - 5, y); }
   ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
 
-  // initial-energy reference.
+  // initial-energy reference at 1.0.
   ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = col.muted; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(inner.x, yOf(E0)); ctx.lineTo(inner.x + inner.w, yOf(E0)); ctx.stroke(); ctx.restore();
+  ctx.beginPath(); ctx.moveTo(inner.x, yOf(1)); ctx.lineTo(inner.x + inner.w, yOf(1)); ctx.stroke(); ctx.restore();
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('E₀ (dropped)', inner.x + 4, yOf(E0) - 2);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('E₀ = 1', inner.x + 4, yOf(1) - 2);
 
-  // energy curve.
-  ctx.strokeStyle = col.energy; ctx.lineWidth = 2.4;
-  ctx.beginPath();
-  let started = false;
-  for (const h of hist) {
-    if (h.t < t0) continue;
-    const X = xOf(h.t), Y = yOf(h.E);
-    if (!started) { ctx.moveTo(X, Y); started = true; } else ctx.lineTo(X, Y);
+  // Build the normalised curve points in the window.
+  const pts = [];
+  for (const h of hist) { if (h.t < t0) continue; pts.push([xOf(h.t), yOf(h.E / E0), h.E / E0]); }
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(inner.x, inner.y, inner.w, inner.h); ctx.clip();
+  if (pts.length > 1) {
+    // Filled area under the curve (gradient), and a faint shaded "lost" band
+    // between the curve and 1.0 so the dissipation reads at a glance.
+    const fill = ctx.createLinearGradient(0, yOf(1), 0, yOf(0));
+    fill.addColorStop(0, 'rgba(255,209,102,0.28)');
+    fill.addColorStop(1, 'rgba(255,209,102,0.02)');
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], yOf(0));
+    for (const p of pts) ctx.lineTo(p[0], p[1]);
+    ctx.lineTo(pts[pts.length - 1][0], yOf(0));
+    ctx.closePath(); ctx.fill();
+    // lost band (above curve up to 1.0).
+    ctx.fillStyle = 'rgba(239,71,111,0.10)';
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], yOf(1));
+    for (const p of pts) ctx.lineTo(p[0], p[1]);
+    ctx.lineTo(pts[pts.length - 1][0], yOf(1));
+    ctx.closePath(); ctx.fill();
+    // curve.
+    ctx.strokeStyle = col.energy; ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    pts.forEach((p, i) => { if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); });
+    ctx.stroke();
   }
-  ctx.stroke();
+  ctx.restore();
 
   // axis labels.
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   ctx.fillText('time (s)', inner.x + inner.w / 2, inner.y + inner.h + 18);
   ctx.save(); ctx.translate(inner.x - 32, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('energy', 0, 0); ctx.restore();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('energy / E₀', 0, 0); ctx.restore();
 }
 
 function render() {
@@ -234,6 +296,7 @@ function tick(now) {
     accum += dt;
     let guard = 0;
     while (accum >= PHYSICS_DT && guard < 600) { step(sys, PHYSICS_DT); accum -= PHYSICS_DT; guard++; if ((sample++ % 8) === 0) recordE(); }
+    recordTrails();
     // auto re-drop once settled or after a while.
     if (sys.t > 17 || (sys.t > 3 && diagnostics(sys).maxSpeed < 0.3)) { dropCount += 1; drop(); }
   }

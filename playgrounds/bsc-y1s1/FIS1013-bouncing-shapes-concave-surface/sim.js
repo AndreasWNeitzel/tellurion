@@ -88,9 +88,12 @@ const CRESCENT = (() => {
     const a = aA + (2 * Math.PI - 2 * aA) * i / 70;
     p.push([R * Math.cos(a), R * Math.sin(a)]);
   }
-  // Inner (shadow) arc: back from -intersection to +intersection along B.
+  // Inner (shadow) arc: the part of circle B that lies INSIDE circle A, i.e.
+  // B's LEFT arc (through angle pi), traced from the lower intersection back to
+  // the upper one. Tracing B's right side instead (through angle 0) enclosed
+  // B's outward bulge and gave a blob, not a lune.
   for (let i = 0; i <= 70; i += 1) {
-    const a = -aB + (2 * aB) * i / 70;
+    const a = (2 * Math.PI - aB) - (2 * Math.PI - 2 * aB) * i / 70;
     p.push([dx + r * Math.cos(a), r * Math.sin(a)]);
   }
   const tilt = 35 * Math.PI / 180;
@@ -140,6 +143,7 @@ function surfaceY(s, x) { return SHAPES[s.shape].f(x, s.a); }
 function surfaceSlope(s, x) { return SHAPES[s.shape].df(x, s.a); }
 
 export function step(s, dt = 1 / 240) {
+  const elastic = (s.e >= 0.999 && s.mu <= 1e-9);
   for (const b of s.balls) {
     b.vy -= G * dt;
     b.x += b.vx * dt;
@@ -159,7 +163,8 @@ export function step(s, dt = 1 / 240) {
       b.vy = vnp * ny + vtp * ty;
       b.y = ys + 1e-4;
     }
-    if (Math.abs(b.x) > 3.2) { b.vx *= -0.5; b.x = Math.sign(b.x) * 3.2; }
+    // Outer walls: perfectly elastic in the ideal case so e = 1 stays e = 1.
+    if (Math.abs(b.x) > 3.2) { b.vx *= (elastic ? -1 : -0.5); b.x = Math.sign(b.x) * 3.2; }
   }
   s.t += dt;
 }
