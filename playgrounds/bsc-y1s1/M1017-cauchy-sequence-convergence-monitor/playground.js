@@ -39,6 +39,11 @@ let dir = 1;
 function name() { return selSeq.value; }
 function eps() { return Math.pow(10, parseFloat(sliderEps.value)); }
 function N0() { return Math.max(1, Math.min(N0_MAX, Math.round(Math.pow(10, n0Log)))); }
+// Continuous (fractional) tail start. The integer N0 above is only for the
+// readouts; positioning the tail window and cursor by the real value keeps the
+// sweep gliding at a uniform rate instead of stalling on each integer at the
+// low-N end, where a single integer spans a large slice of the log axis.
+function N0c() { return Math.max(1, Math.min(N0_MAX, Math.pow(10, n0Log))); }
 
 function buildSeq() {
   seq = new Float64Array(NMAX + 1);
@@ -58,10 +63,12 @@ function buildSeq() {
   yLo -= pad; yHi += pad;
 }
 
-function tailWidth(n0) {
-  const hi = Math.min(NMAX, TAILK * n0);
+function tailWidth(n0) {                 // n0 may be fractional
+  const lo = Math.max(1, Math.ceil(n0));
+  const hi = Math.min(NMAX, Math.floor(TAILK * n0));
   let mn = Infinity, mx = -Infinity;
-  for (let n = n0; n <= hi; n++) { const v = seq[n]; if (v < mn) mn = v; if (v > mx) mx = v; }
+  for (let n = lo; n <= hi; n++) { const v = seq[n]; if (v < mn) mn = v; if (v > mx) mx = v; }
+  if (!isFinite(mn)) { const v = seq[lo] || 0; return { mn: v, mx: v, w: 0 }; }
   return { mn, mx, w: mx - mn };
 }
 
@@ -130,7 +137,8 @@ function drawScene(col, r) {
 
   const titleH = 22, stripH = 28;
   const inner = { x: r.x + 46, y: r.y + titleH + 8, w: r.w - 46 - 14, h: r.h - titleH - 8 - stripH - 22 };
-  const n0 = N0();
+  const n0 = N0c();                      // continuous position for smooth motion
+  const n0int = Math.round(n0);
   const hi = Math.min(NMAX, TAILK * n0);
   const tw = tailWidth(n0);
   const e = eps();
@@ -185,7 +193,7 @@ function drawScene(col, r) {
   const shortName = { geom: '1/2ⁿ', harm: 'harmonic', arctan: 'Leibniz', zeta2: 'Σ1/k²' }[name()];
   const items = [
     [shortName, col.seq],
-    [`N₀ = ${n0}`, col.fg],
+    [`N₀ = ${n0int}`, col.fg],
     [`width ${tw.w.toExponential(1)}`, wcol],
     [within ? 'within ε' : 'wider than ε', within ? col.width : col.bad],
   ];
@@ -233,8 +241,8 @@ function drawDiagnostic(col, r) {
   }
   ctx.stroke();
 
-  // current N0 cursor.
-  const n0 = N0();
+  // current N0 cursor (continuous, glides smoothly across the log axis).
+  const n0 = N0c();
   const cxN = xOf(n0);
   ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1;
   ctx.save(); ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(cxN, inner.y); ctx.lineTo(cxN, inner.y + inner.h); ctx.stroke(); ctx.restore();
