@@ -30,6 +30,8 @@ let running = !DETERMINISTIC;
 let charges = [];
 let lines = [];               // [{xs, ys, ds}]
 let heat = null;              // offscreen canvas
+let sceneCache = null;        // offscreen: heatmap + static field lines
+let diagCurve = null;         // cached |E|(x,0) samples for the diagnostic
 let phase = 0;
 
 function clonePreset(name) { return PRESETS[name].map((c) => ({ x: c.x, y: c.y, q: c.q })); }
@@ -129,6 +131,47 @@ function recompute() {
     }
   }
   hctx.putImageData(img, 0, 0);
+
+  // Cache the |E|(x, 0) samples for the diagnostic (static between drags), so
+  // the per-frame path does not call field() 240 times every frame.
+  const xMinW = invX(draw.x), xMaxW = invX(draw.x + draw.w);
+  diagCurve = [];
+  const Nd = 240;
+  for (let i = 0; i <= Nd; i++) {
+    const wx = xMinW + (xMaxW - xMinW) * i / Nd;
+    const { Ex, Ey } = field(wx, 0, charges);
+    diagCurve.push({ wx, m: Math.hypot(Ex, Ey) });
+  }
+
+  buildSceneCache();
+}
+
+// The heatmap and the traced field lines are static until a charge moves, the
+// preset changes, or the canvas resizes; only the flowing arrowheads animate.
+// Render that static layer once into an offscreen canvas and blit it each
+// frame, so the animation loop stays at full framerate instead of re-stroking
+// every line on every frame.
+function buildSceneCache() {
+  if (!SCN || !heat) return;
+  const dpr = view.dpr || 1;
+  if (!sceneCache) sceneCache = document.createElement('canvas');
+  sceneCache.width = Math.max(1, Math.round(view.w * dpr));
+  sceneCache.height = Math.max(1, Math.round(view.h * dpr));
+  const cc = sceneCache.getContext('2d');
+  cc.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cc.clearRect(0, 0, view.w, view.h);
+  const { draw } = SCN;
+  cc.imageSmoothingEnabled = true;
+  cc.drawImage(heat, draw.x, draw.y, draw.w, draw.h);
+  cc.save();
+  cc.beginPath(); cc.rect(draw.x, draw.y, draw.w, draw.h); cc.clip();
+  cc.strokeStyle = colors().line; cc.lineWidth = 1.4;
+  for (const l of lines) {
+    cc.beginPath();
+    for (let i = 0; i < l.xs.length; i++) { const X = WX(l.xs[i]), Y = WY(l.ys[i]); if (i) cc.lineTo(X, Y); else cc.moveTo(X, Y); }
+    cc.stroke();
+  }
+  cc.restore();
 }
 
 function panel(col, r, title) {
@@ -160,20 +203,11 @@ function drawScene(col, r) {
   panel(col, r, 'Field lines over the field-strength map (drag a charge)');
   const { draw } = SCN;
 
+  // Static layer (heatmap + field lines), prerendered in recompute().
+  if (sceneCache) ctx.drawImage(sceneCache, 0, 0, view.w, view.h);
+
   ctx.save();
   clipTo(ctx, draw);
-
-  // field-magnitude map.
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(heat, draw.x, draw.y, draw.w, draw.h);
-
-  // field lines.
-  ctx.strokeStyle = col.line; ctx.lineWidth = 1.4;
-  for (const l of lines) {
-    ctx.beginPath();
-    for (let i = 0; i < l.xs.length; i++) { const X = WX(l.xs[i]), Y = WY(l.ys[i]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }
-    ctx.stroke();
-  }
 
   // flowing arrowheads (direction of E, + to -).
   ctx.fillStyle = '#ffffff';
@@ -236,16 +270,17 @@ function drawDiagnostic(col, r) {
     ctx.beginPath(); ctx.moveTo(xOf(c.x), inner.y); ctx.lineTo(xOf(c.x), inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]);
   }
 
-  // |E|(x, 0).
+  // |E|(x, 0), from the cached samples (recomputed only when charges move).
+  const curve = diagCurve || [];
   ctx.strokeStyle = col.accent; ctx.lineWidth = 2.4; ctx.beginPath();
-  for (let i = 0; i <= N; i++) {
-    const wx = xMinW + (xMaxW - xMinW) * i / N;
-    const { Ex, Ey } = field(wx, 0, charges);
-    const m = Math.hypot(Ex, Ey);
-    const X = xOf(wx), Y = yOf(m);
+  ctx.save(); ctx.beginPath(); ctx.rect(inner.x, inner.y, inner.w, inner.h); ctx.clip();
+  ctx.strokeStyle = col.accent; ctx.lineWidth = 2.4; ctx.beginPath();
+  for (let i = 0; i < curve.length; i++) {
+    const X = xOf(curve[i].wx), Y = yOf(curve[i].m);
     if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
   }
   ctx.stroke();
+  ctx.restore();
 
   // labels.
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
@@ -295,7 +330,7 @@ let last = performance.now();
 function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05);
   last = now;
-  if (running) phase += 0.6 * dt;
+  if (running) phase += 1.4 * dt;
   render();
   requestAnimationFrame(tick);
 }
