@@ -33,8 +33,9 @@ let view = { w: 780, h: 1020, dpr: 1 }, REG = null;
 function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [
-    { name: 'scene', weight: 1.45 },
-    { name: 'diag', weight: 1.05 },
+    { name: 'scene', weight: 1.18 },
+    { name: 'wave', weight: 0.66 },
+    { name: 'diag', weight: 0.95 },
   ]);
 }
 
@@ -194,11 +195,45 @@ function drawDiag(col, r) {
   ctx.save(); ctx.translate(inner.x - 28, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('current I / I_max', 0, 0); ctx.restore();
 }
 
+// Time-domain voltages: the instantaneous value of each phasor is its projection
+// onto the reference axis, V_i(t) = A_i cos(theta + p_i). These oscilloscope
+// traces make the oscillation explicit (the rotating phasors generate sinusoids)
+// and show the phase relationships: V_R in phase with the current, V_L leading by
+// 90 degrees, V_C lagging by 90, and the source leading by phi.
+function drawWave(col, r) {
+  panel(col, r, 'The same voltages in time: each phasor projects to an oscillating sinusoid');
+  const inner = { x: r.x + 14, y: r.y + 24, w: r.w - 28, h: r.h - 24 - 16 };
+  const w = TWO_PI * driveF;
+  const v = voltages(cir.V0, w, cir.R, cir.L, cir.C);
+  const span = Math.max(v.VR, v.VL, v.VC, v.Vsrc, 1e-9);
+  const cy = inner.y + inner.h / 2, amp = inner.h * 0.42 / span;
+  const CYC = 2.6, phiWin = CYC * TWO_PI;                 // cycles shown across the panel
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(inner.x, cy); ctx.lineTo(inner.x + inner.w, cy); ctx.stroke();
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  // phase at screen x: right edge is "now" (theta), going left is the past.
+  const phaseAt = (x) => theta - (1 - (x - inner.x) / inner.w) * phiWin;
+  const traces = [[v.VR, 0, col.vr], [v.VL, Math.PI / 2, col.vl], [v.VC, -Math.PI / 2, col.vc], [v.Vsrc, v.phi, col.vsrc]];
+  ctx.save(); clipTo(ctx, inner);
+  for (const [A, p, c] of traces) {
+    ctx.strokeStyle = c; ctx.lineWidth = A === v.Vsrc ? 2.4 : 1.8; ctx.beginPath();
+    for (let x = inner.x; x <= inner.x + inner.w; x += 2) { const yv = cy - A * amp * Math.cos(phaseAt(x) + p); x === inner.x ? ctx.moveTo(x, yv) : ctx.lineTo(x, yv); }
+    ctx.stroke();
+    // marker at "now" (right edge): the instantaneous value = the phasor projection.
+    const yNow = cy - A * amp * Math.cos(theta + p);
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(inner.x + inner.w - 1, yNow, 3, 0, TWO_PI); ctx.fill();
+  }
+  ctx.restore();
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+  ctx.fillText('now', inner.x + inner.w - 4, inner.y + inner.h - 2);
+  ctx.textAlign = 'left'; ctx.fillText('time ->', inner.x + 4, inner.y + inner.h - 2);
+}
+
 function render() {
   if (!REG) relayout();
   const col = colors();
   ctx.fillStyle = col.bg; ctx.fillRect(0, 0, view.w, view.h);
   drawScene(col, REG.scene);
+  drawWave(col, REG.wave);
   drawDiag(col, REG.diag);
 }
 function tick() { if (running) theta += 0.03; render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
