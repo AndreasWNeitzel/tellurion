@@ -42,7 +42,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A capacitor charged to $V_0$ discharges through a resistor $R$ in a smooth exponential fall. The voltage $V_C(t) = V_0 e^{-t/\tau}$ drops to 37 percent (that is $1/e$) at the time constant $\tau = RC$, the characteristic time of every timing circuit. Watch the charge drain through the glowing resistor at the top, the voltage decay against the $\tau$ markers in the middle, and the stored energy turn into heat in the budget below.</p>
+      <p class="t-body">A capacitor charged to $V_0$ discharges through a resistor $R$ in a smooth exponential fall. The voltage $V_C(t) = V_0 e^{-t/\tau}$ drops to 37 percent (that is $1/e$) at the time constant $\tau = RC$, the characteristic time of every timing circuit. The current is largest at the very start and dies away with the same exponential, so the resistor dissipates the most power, $P = I^2 R$, at $t = 0$ and cools as the current fades. Watch the charge circulate through the glowing resistor at the top, the voltage decay against the $\tau$ markers in the middle, and the power curve at the bottom: its height is the heating rate (it falls, like the glow), while the shaded area swept out under it is the energy delivered as heat, growing toward the capacitor's initial store.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -51,7 +51,7 @@
       </button>
       <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"
               data-plot-role="diagnostic"
-              aria-label="RC discharge: a circuit discharging through a resistor, the voltage decay curve, and the energy budget."></canvas>
+              aria-label="RC discharge: a circuit discharging through a resistor, the voltage decay curve, and the power dissipated in the resistor with the area under it showing the energy delivered as heat."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
@@ -74,7 +74,7 @@
       <ul>
         <li class="t-body">Increase $R$ or $C$ and the decay stretches out: $\tau = RC$ grows in proportion.</li>
         <li class="t-body">Watch the voltage curve cross the $\tau$ line at 37 percent, the same fraction whatever $V_0$ is.</li>
-        <li class="t-body">Follow the energy budget: the stored energy decays at twice the rate of the voltage, and all of it ends up as heat in the resistor.</li>
+        <li class="t-body">Follow the power curve: it peaks at the start (the resistor is hottest at $t=0$) and falls as the current dies, while the shaded area, the heat already delivered, keeps growing toward the capacitor's full initial energy.</li>
       </ul>
     </section>
 

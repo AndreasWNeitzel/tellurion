@@ -11,7 +11,7 @@
 //      heat dumped in the resistor, which add to the initial store. The
 //      quantitative diagnostic: energy is conserved, just relocated to heat.
 
-import { vC, iR, energyC, energyDissipated } from './sim.js';
+import { vC, iR, energyC, energyDissipated, powerR } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { stack, setupCanvas } from '../../../shared/js/render/vertical-layout.js';
@@ -41,7 +41,7 @@ let t = 0;
 let running = !prefersReducedMotion();
 let lastTime = (typeof performance !== 'undefined' ? performance.now() : 0);
 
-const SWEEP_SECONDS = 9;   // wall-clock time to sweep one discharge
+const SWEEP_SECONDS = 13;  // wall-clock time to sweep one discharge (slower so the charge flow reads)
 const T_SPAN = 6;          // plot horizon in units of tau
 
 let view = { w: 760, h: 950, dpr: 1 };
@@ -67,7 +67,7 @@ function colors() {
 
 // Current dots circulate the loop; their parameter lives in [0,1) so they
 // survive a resize. Advanced in tick() at a rate set by the live current.
-const NDOTS = 16;
+const NDOTS = 22;
 const dots = Array.from({ length: NDOTS }, (_, i) => i / NDOTS);
 
 function relayout() {
@@ -129,14 +129,20 @@ function drawCircuit(col, reg) {
   ctx.lineWidth = 2;
   ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
 
-  // Circulating current dots (blue), brighter and faster when current is high.
+  // Circulating current dots (blue): the moving charge. Kept clearly visible
+  // throughout (alpha floor) and given a soft glow so the flow reads even as
+  // the current dies away, rather than vanishing after the first instant.
   for (const s of dots) {
     const [px, py] = perim(x0, y0, x1, y1, s);
-    const a = 0.15 + 0.8 * iNorm;
-    ctx.fillStyle = `rgba(91,184,232,${a})`;
-    ctx.beginPath();
-    ctx.arc(px, py, 2.6 + 1.6 * iNorm, 0, Math.PI * 2);
-    ctx.fill();
+    const a = 0.4 + 0.55 * iNorm;
+    const rad = 3.4 + 1.8 * iNorm;
+    const gd = ctx.createRadialGradient(px, py, 0, px, py, rad * 2.4);
+    gd.addColorStop(0, `rgba(120,200,245,${a})`);
+    gd.addColorStop(1, 'rgba(120,200,245,0)');
+    ctx.fillStyle = gd;
+    ctx.beginPath(); ctx.arc(px, py, rad * 2.4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = `rgba(150,210,250,${Math.min(1, a + 0.15)})`;
+    ctx.beginPath(); ctx.arc(px, py, rad, 0, Math.PI * 2); ctx.fill();
   }
 
   // Capacitor on the left edge: two plates with a charge glow that fades.
@@ -191,7 +197,10 @@ function drawCircuit(col, reg) {
   ctx.fillStyle = col.fg;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText('R', x1 + 14, midY);
+  ctx.fillText('R', x1 + 14, midY - 8);
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillStyle = 'rgba(255,140,90,0.9)';
+  ctx.fillText('P=I²R', x1 + 14, midY + 8);
 
   // Parameters, top-left.
   ctx.font = fontString(canvas, 'caption', 'mono');
@@ -200,7 +209,9 @@ function drawCircuit(col, reg) {
   ctx.textBaseline = 'top';
   ctx.fillText(`V₀=${V0.toFixed(1)} V   R=${(R / 1e3).toFixed(1)} kΩ   C=${(C / 1e-6).toFixed(1)} µF`, reg.x + 8, reg.y + 7);
 
-  // Readout strip: tau prominent, V and I below.
+  // Readout strip: tau prominent, then V / I / P (instantaneous power dumped in
+  // R, which is what makes it glow and is maximal at t = 0).
+  const P = powerR(t, V0, R, tau);
   const cx = reg.x + reg.w / 2;
   ctx.font = fontString(canvas, 'title', 'mono', 700);
   ctx.fillStyle = col.accent;
@@ -208,12 +219,10 @@ function drawCircuit(col, reg) {
   ctx.textBaseline = 'alphabetic';
   ctx.fillText(`τ = RC = ${tau.toFixed(2)} s`, cx, reg.y + reg.h - 44);
   ctx.font = fontString(canvas, 'heading', 'mono', 600);
-  ctx.fillStyle = col.orange;
-  ctx.textAlign = 'right';
-  ctx.fillText(`V = ${V.toFixed(2)} V`, cx - 14, reg.y + reg.h - 16);
-  ctx.fillStyle = col.blue;
-  ctx.textAlign = 'left';
-  ctx.fillText(`I = ${(I * 1e3).toFixed(2)} mA`, cx + 14, reg.y + reg.h - 16);
+  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'center';
+  ctx.fillStyle = col.orange; ctx.fillText(`V ${V.toFixed(2)} V`, reg.x + reg.w * 0.22, reg.y + reg.h - 16);
+  ctx.fillStyle = col.blue; ctx.fillText(`I ${(I * 1e3).toFixed(2)} mA`, reg.x + reg.w * 0.5, reg.y + reg.h - 16);
+  ctx.fillStyle = '#ff8c5a'; ctx.fillText(`P ${(P * 1e3).toFixed(1)} mW`, reg.x + reg.w * 0.78, reg.y + reg.h - 16);
 }
 
 function drawVoltage(col, reg) {
@@ -303,59 +312,59 @@ function drawVoltage(col, reg) {
   ctx.fillText('V(t) = V₀ e^(−t/τ)', reg.x + 8, reg.y + 7);
 }
 
-function drawEnergy(col, reg) {
-  panel(col, reg, 'energy budget');
+// Power dissipated in R, P(t) = I^2 R, which peaks at t = 0 and decays: the
+// resistor is hottest at the start and cools as the current dies (matching the
+// scene glow). The area under the curve is energy: shaded left of the cursor is
+// heat already delivered to R, shaded right is the energy still stored in C, and
+// the two always sum to U0. This makes the "resistor cools while total heat
+// accumulates" story a single picture instead of a contradiction.
+function drawPower(col, reg) {
+  panel(col, reg, 'power into R = I²R  (area = energy)');
   const tau = R * C;
   const padL = 42, padR = 14, padT = 26, padB = 24;
   const x0 = reg.x + padL, x1 = reg.x + reg.w - padR, pw = x1 - x0;
   const y0 = reg.y + padT, y1 = reg.y + reg.h - padB, ph = y1 - y0;
   const tMax = T_SPAN * tau;
-  const U0 = energyC(0, V0, C, tau) || 1;
+  const P0 = powerR(0, V0, R, tau) || 1;
   const fx = (tt) => x0 + pw * (tt / tMax);
   const fy = (frac) => y1 - ph * clamp(frac, 0, 1);
-
-  // total = 1 reference.
-  ctx.strokeStyle = col.grid;
-  ctx.lineWidth = 0.6;
-  ctx.beginPath(); ctx.moveTo(x0, fy(1)); ctx.lineTo(x1, fy(1)); ctx.stroke();
-  ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillStyle = col.muted;
-  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  ctx.fillText('U₀', x0 - 4, fy(1));
-  ctx.fillText('0', x0 - 4, fy(0));
-
-  const stored = (tt) => energyC(tt, V0, C, tau) / U0;          // e^(-2t/tau)
-  const heat = (tt) => energyDissipated(tt, V0, C, tau) / U0;   // 1 - e^(-2t/tau)
-  const curve = (fn, color) => {
-    ctx.beginPath();
-    for (let i = 0; i <= 240; i += 1) {
-      const tt = tMax * i / 240;
-      const px = fx(tt), py = fy(fn(tt));
-      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-    }
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2.2;
-    ctx.lineJoin = 'round';
-    ctx.stroke();
-  };
-  curve(heat, col.blue);
-  curve(stored, col.orange);
-
-  // Cursor.
+  const Pf = (tt) => powerR(tt, V0, R, tau) / P0;     // = e^(-2t/tau)
   const tc = clamp(t, 0, tMax);
-  const xc = fx(tc);
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-  ctx.setLineDash([5, 4]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(xc, y0); ctx.lineTo(xc, y1); ctx.stroke();
-  ctx.setLineDash([]);
 
-  // Labels.
-  ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillStyle = col.orange;
-  ctx.fillText('stored in C', x0 + 6, y0 + 2);
-  ctx.fillStyle = col.blue;
-  ctx.fillText('heat in R', x0 + 92, y0 + 2);
+  // axes.
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.6;
+  ctx.beginPath(); ctx.moveTo(x0, fy(1)); ctx.lineTo(x1, fy(1)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0, fy(0)); ctx.lineTo(x1, fy(0)); ctx.stroke();
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = col.muted;
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText('P₀', x0 - 4, fy(1)); ctx.fillText('0', x0 - 4, fy(0));
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let k = 0; k <= T_SPAN; k += 1) ctx.fillText(k === 0 ? '0' : `${k}τ`, fx(k * tau), y1 + 4);
+
+  // shaded areas: heat delivered (left of cursor) and energy still stored (right).
+  const fillArea = (ta, tb, color) => {
+    ctx.beginPath(); ctx.moveTo(fx(ta), fy(0));
+    const N = 140;
+    for (let i = 0; i <= N; i += 1) { const tt = ta + (tb - ta) * i / N; ctx.lineTo(fx(tt), fy(Pf(tt))); }
+    ctx.lineTo(fx(tb), fy(0)); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+  };
+  fillArea(0, tc, 'rgba(91,184,232,0.32)');      // heat delivered to R
+  fillArea(tc, tMax, 'rgba(240,163,94,0.22)');   // energy still in C
+
+  // power curve.
+  ctx.beginPath();
+  for (let i = 0; i <= 240; i += 1) { const tt = tMax * i / 240; const px = fx(tt), py = fy(Pf(tt)); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+  ctx.strokeStyle = '#ff7a4d'; ctx.lineWidth = 2.4; ctx.lineJoin = 'round'; ctx.stroke();
+
+  // cursor + marker at the current power (tracks the resistor glow).
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(fx(tc), y0); ctx.lineTo(fx(tc), y1); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#ff7a4d'; ctx.beginPath(); ctx.arc(fx(tc), fy(Pf(tc)), 4.5, 0, Math.PI * 2); ctx.fill();
+
+  // labels.
+  ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.textBaseline = 'top';
+  ctx.fillStyle = 'rgba(91,184,232,0.95)'; ctx.textAlign = 'left'; ctx.fillText('heat delivered to R', x0 + 6, y0 + 2);
+  ctx.fillStyle = 'rgba(240,163,94,0.95)'; ctx.textAlign = 'right'; ctx.fillText('energy still in C', x1 - 6, y0 + 2);
 }
 
 function render() {
@@ -365,7 +374,7 @@ function render() {
   ctx.fillRect(0, 0, view.w, view.h);
   drawCircuit(col, REG.circuit);
   drawVoltage(col, REG.volt);
-  drawEnergy(col, REG.energy);
+  drawPower(col, REG.energy);
 }
 
 let holdUntil = 0;

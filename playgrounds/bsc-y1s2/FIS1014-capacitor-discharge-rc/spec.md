@@ -10,7 +10,7 @@ curriculum_year: bsc-y1s2
 primary_citation: griffithsem2017
 primary_chapter: 7
 hook: "Charge a capacitor, then let it dump through a resistor. The voltage does not fall steadily; it decays exponentially, losing the same fraction every time constant tau = RC, the heartbeat of every timing circuit."
-one_paragraph: "A charged capacitor C discharging through a resistor R obeys V(t) = V0 e^{-t/RC}. The decay is exponential, not linear: after one time constant tau = RC the voltage is down to 1/e (about 37 percent), after 5 tau it is effectively zero, and the shape is the same whatever V0 is. The playground shows the RC circuit and the V(t) curve building, with a dashed marker at t = tau crossing the curve at the 37 percent point and a readout of R, C and tau (tau = R C, so 10 kOhm times 10 uF gives 0.1 s). Larger R or C means a slower decay. This single exponential sets the timing of camera flashes, switch debouncers and oscillators, and describes the leak of charge through any real insulator."
+one_paragraph: "A charged capacitor C discharging through a resistor R obeys V(t) = V0 e^{-t/RC}. The decay is exponential, not linear: after one time constant tau = RC the voltage is down to 1/e (about 37 percent), after 5 tau it is effectively zero, and the shape is the same whatever V0 is. The playground shows the RC circuit with charge circulating through a glowing resistor, the V(t) curve with a dashed marker at t = tau crossing the 37 percent point, and a power panel: the resistor dissipates P = I^2 R, maximal at t = 0 and decaying like the current, so the resistor is hottest at the start and cools off (matching its glow), while the area swept under the power curve is the heat delivered, growing toward the capacitor's initial energy. Larger R or C means a slower decay. This single exponential sets the timing of camera flashes, switch debouncers and oscillators, and describes the leak of charge through any real insulator."
 tags: [electromagnetism, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -29,8 +29,9 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Increase R or C and the decay stretches out; tau = RC grows in proportion.
+  - The power curve peaks at t = 0 (resistor hottest) and falls as the current dies.
+  - The shaded area under the power curve is the heat delivered, growing toward the capacitor's initial energy.
 references:
   - "Griffiths, Introduction to Electrodynamics, Fourth ed., Ch. 7."
 ---

@@ -2,7 +2,7 @@
 
 A capacitor charged to $V_0$ discharges through a resistor with $V_C(t) = V_0 e^{-t/\tau}$, $\tau = RC$. The current is $I = V_C/R$. After one time constant $V$ is $V_0/e \approx 0.37 V_0$; after five it is below 1 percent. The total energy initially in the capacitor, $\tfrac{1}{2} C V_0^2$, is dissipated as heat in $R$.
 
-Look for the orange charge cloud shrinking with $V$, the $V(t)$ exponential on the right, and the $\tau$ tick mark on the time axis where $V$ crosses $V_0/e$. Changing $R$ or $C$ rescales the time axis without changing the shape.
+Look for the orange charge cloud shrinking with $V$, the blue charge packets circulating through the loop (fast at first, slowing as the current dies), and the $V(t)$ exponential with the $\tau$ tick where $V$ crosses $V_0/e$. The bottom panel plots the power dissipated in the resistor, $P = I^2 R$: it is largest at $t = 0$ and falls as the current fades, so the resistor is hottest at the start and cools off, exactly as its glow shows. The area swept out under the power curve is the energy delivered as heat (blue, growing); the area still ahead of the cursor is the energy still stored in the capacitor (orange), and the two always sum to the initial store. Changing $R$ or $C$ rescales the time axis without changing the shape.
 
 Three sliders set $V_0$, $R$, and $C$; Reset restarts the clock; Play/Pause toggles time.
 
