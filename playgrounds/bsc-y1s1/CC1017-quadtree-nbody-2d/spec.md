@@ -1,5 +1,5 @@
 ---
-title: Quadtree N-body and the Barnes-Hut Approximation
+title: Quadtree Collision Detection
 slug: quadtree-nbody-2d
 status: verified
 audience: portfolio

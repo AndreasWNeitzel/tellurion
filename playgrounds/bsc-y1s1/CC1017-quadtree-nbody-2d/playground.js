@@ -1,15 +1,15 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
 import { viridis } from '../../../shared/js/render/colormaps.js';
-// Vertical 4:5 hero for the Barnes-Hut quadtree N-body. Top region: a gravity
-// disk orbiting a heavy core, with the live adaptive quadtree drawn over it.
-// Bottom region: force-pair evaluations per step versus N, Barnes-Hut (about
-// N log N) against the brute-force direct sum (N^2).
+// Vertical 4:5 hero for quadtree spatial partitioning. Top region: equal hard
+// disks bouncing in a box, with the live quadtree drawn over them, its cells
+// subdividing wherever the disks crowd together. Bottom region: pair-checks per
+// step against N, the O(N^2) all-pairs parabola versus the O(N log N) quadtree.
 //
-// Reference: Barnes and Hut, Nature 324, 446 (1986); Springel 2005 (GADGET-2).
+// Reference: Barnes and Hut, Nature 324 (1986); Samet, Spatial Data Structures.
 
 import {
-  makeDisk, buildTree, accBH, accDirect, leapfrog, snapshotTree,
+  createBoxState, stepBox, quadtreeCells, directChecks,
 } from './sim.js';
 
 const params = new URLSearchParams(location.search);
@@ -21,57 +21,59 @@ const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 
 const sliderN = document.getElementById('slider-n');
-const sliderTheta = document.getElementById('slider-theta');
 const selTree = document.getElementById('select-tree');
+const toggleShowTree = document.getElementById('toggle-show-tree');
 const valueN = document.getElementById('value-n');
-const valueTheta = document.getElementById('value-theta');
 const valueTree = document.getElementById('value-tree');
-const toggleTree = document.getElementById('toggle-show-tree');
+const btnPlay = document.getElementById('btn-playpause');
 const btnReset = document.getElementById('btn-reset');
-const btnPause = document.getElementById('btn-pause');
 
-const G = 1, EPS = 0.03, DT = 0.003, SUBSTEPS = 3, SEED = 0xC0FFEE;
+const DT = 1 / 120;
+const SUBSTEPS = 2;
+const SEED = 0xC0FFEE;
 let running = !DETERMINISTIC;
 let state = null;
-let cost = null;
-let aScratch = null;
+let root = null;            // last quadtree (for drawing)
+let costCurve = null;       // [{N, direct, tree}] for the diagnostic
+
+const Nbodies = () => parseInt(sliderN.value, 10);
+const mode = () => (selTree.value === 'tree' ? 'tree' : 'direct');
+const showTree = () => toggleShowTree.checked && mode() === 'tree';
 
 function rebuild() {
-  const N = parseInt(sliderN.value, 10);
-  state = makeDisk(N, { seed: SEED });
-  accBH(state, theta(), G, EPS);     // initialise accelerations + tree
-  aScratch = new Float64Array(2 * N);
+  state = createBoxState(Nbodies(), { seed: SEED });
+  for (let k = 0; k < 12; k++) stepBox(state, DT, 'tree');   // relax overlaps
+  root = null;
+  buildCostCurve();
 }
-function theta() { return parseFloat(sliderTheta.value); }
-function useTree() { return selTree.value === 'tree'; }
-
-function costCurve(th) {
-  const Ns = [50, 100, 200, 400, 600, 800, 1000, 1200];
-  const out = [];
-  for (const n of Ns) {
-    const st = makeDisk(n, { seed: SEED });
-    const r = accBH(st, th, G, EPS);
-    out.push({ n, bh: Math.max(1, r.evals), direct: n * (n - 1) });
-  }
-  return out;
+// Pair-checks vs N: the direct count is exact; the quadtree count is measured
+// on a scratch box at each sampled N (one relaxed step), giving the real curve.
+function buildCostCurve() {
+  const Ns = [50, 150, 300, 500, 700, 900, 1100, 1200];
+  costCurve = Ns.map((n) => {
+    const sc = createBoxState(n, { seed: SEED + 7 });
+    let r = { checks: 0 };
+    for (let k = 0; k < 6; k++) r = stepBox(sc, DT, 'tree');
+    return { N: n, direct: directChecks(n), tree: r.checks };
+  });
 }
 
 function syncVals() {
-  valueN.textContent = String(parseInt(sliderN.value, 10));
-  valueTheta.textContent = parseFloat(sliderTheta.value).toFixed(2);
-  valueTree.textContent = selTree.value;
+  valueN.textContent = String(Nbodies());
+  valueTree.textContent = selTree.value === 'tree' ? 'quadtree' : 'all pairs';
 }
 sliderN.addEventListener('input', () => { syncVals(); rebuild(); render(); });
-sliderTheta.addEventListener('input', () => { syncVals(); cost = costCurve(theta()); render(); });
 selTree.addEventListener('change', () => { syncVals(); render(); });
-toggleTree.addEventListener('change', render);
+toggleShowTree.addEventListener('change', render);
 btnReset.addEventListener('click', () => {
-  rebuild(); running = true; btnPause.textContent = 'Pause'; btnPause.setAttribute('aria-pressed', 'false'); render();
+  sliderN.value = '500'; selTree.value = 'tree'; toggleShowTree.checked = true;
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); rebuild(); render();
 });
-btnPause.addEventListener('click', () => {
+btnPlay.addEventListener('click', () => {
   running = !running;
-  btnPause.textContent = running ? 'Pause' : 'Play';
-  btnPause.setAttribute('aria-pressed', String(!running));
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
 });
 
 let view = { w: 760, h: 950, dpr: 1 };
@@ -79,8 +81,8 @@ let REG = null;
 function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [
-    { name: 'scene', weight: 1.9 },
-    { name: 'diagnostic', weight: 1.15 },
+    { name: 'scene', weight: 1.7 },
+    { name: 'diagnostic', weight: 1.25 },
   ]);
 }
 
@@ -92,9 +94,7 @@ function colors() {
     fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
     muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
     accent: css.getPropertyValue('--accent').trim() || '#ffd166',
-    tree: 'rgba(200,170,120,0.20)',
-    core: '#ffd166',
-    bh: '#67d98c',
+    tree: '#5bc0eb',
     direct: '#ef476f',
     border: 'rgba(255,255,255,0.12)',
     grid: 'rgba(255,255,255,0.08)',
@@ -116,126 +116,101 @@ function panel(col, r, title) {
   }
 }
 
-function drawScene(col, r) {
-  panel(col, r, 'A gravity disk, binned by an adaptive quadtree');
-
-  const titleH = 22, stripH = 28;
-  const draw = { x: r.x + 6, y: r.y + titleH + 4, w: r.w - 12, h: r.h - titleH - 4 - stripH - 4 };
-  const VIEW = 1.4;
-  const side = Math.min(draw.w, draw.h);
-  const cx = draw.x + draw.w / 2, cy = draw.y + draw.h / 2;
-  const scale = side / (2 * VIEW);
-  const SX = (x) => cx + x * scale;
-  const SY = (y) => cy - y * scale;
-
-  ctx.save();
-  clipTo(ctx, draw);
-
-  // Quadtree boxes (rebuilt for the current positions).
-  if (toggleTree.checked) {
-    const nN = buildTree(state.x, state.m, state.N);
-    const tr = snapshotTree();
-    ctx.strokeStyle = col.tree;
-    ctx.lineWidth = 1;
-    for (let k = 0; k < nN; k++) {
-      if (tr.nBody[k] === -2) continue;
-      const w = 2 * tr.nHalf[k] * scale;
-      if (w < 3) continue;             // skip tiny deep cells (clutter + cost)
-      ctx.strokeRect(SX(tr.nHx[k] - tr.nHalf[k]), SY(tr.nHy[k] + tr.nHalf[k]), w, w);
-    }
-  }
-
-  // Bodies, colored by speed.
-  const { x, v, N } = state;
-  for (let i = 1; i < N; i++) {
-    const sp = Math.hypot(v[2 * i], v[2 * i + 1]);
-    const c = viridis(Math.min(1, sp / 6));
-    ctx.fillStyle = `rgb(${c.r | 0},${c.g | 0},${c.b | 0})`;
-    ctx.fillRect(SX(x[2 * i]) - 1, SY(x[2 * i + 1]) - 1, 2.2, 2.2);
-  }
-  // Heavy core.
-  ctx.fillStyle = col.core;
-  ctx.beginPath(); ctx.arc(SX(x[0]), SY(x[1]), 5, 0, 2 * Math.PI); ctx.fill();
-
-  ctx.restore();
-
-  // Readout strip.
-  const directEv = state.N * (state.N - 1);
-  const bhEv = state.evals || 1;
-  const speedup = directEv / bhEv;
-  const ry = r.y + r.h - stripH / 2 + 1;
-  const items = [
-    [`N = ${state.N}`, col.fg],
-    [useTree() ? 'Barnes-Hut' : 'direct N²', useTree() ? col.bh : col.direct],
-    [`evals = ${fmt(useTree() ? bhEv : directEv)}`, useTree() ? col.bh : col.direct],
-    [`speedup ${speedup.toFixed(0)}×`, col.accent],
-  ];
-  ctx.font = fontString(canvas, 'caption', 'mono', 700);
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry); });
-}
-
 function fmt(v) {
-  if (v >= 1e6) return (v / 1e6).toFixed(2) + 'M';
-  if (v >= 1e3) return (v / 1e3).toFixed(1) + 'k';
+  if (v >= 1e6) return `${(v / 1e6).toFixed(2)}M`;
+  if (v >= 1e3) return `${(v / 1e3).toFixed(1)}k`;
   return String(Math.round(v));
 }
 
+function drawScene(col, r) {
+  panel(col, r, showTree() ? 'disks colliding, with the live quadtree over them' : 'disks colliding (all-pairs, no partition)');
+  const titleH = 22, stripH = 28;
+  const m = Math.min(r.w - 20, r.h - titleH - 8 - stripH - 8);
+  const bx = r.x + (r.w - m) / 2, by = r.y + titleH + 6;
+  const X = (u) => bx + u * m, Y = (u) => by + u * m;
+
+  ctx.save();
+  clipTo(ctx, { x: bx, y: by, w: m, h: m });
+  ctx.fillStyle = '#07090f'; ctx.fillRect(bx, by, m, m);
+
+  // Live quadtree cells (only in quadtree mode with the toggle on).
+  if (showTree() && root) {
+    const cells = quadtreeCells(root);
+    ctx.strokeStyle = 'rgba(91,192,235,0.35)'; ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    for (const [x0, y0, x1, y1] of cells) ctx.rect(X(x0), Y(y0), (x1 - x0) * m, (y1 - y0) * m);
+    ctx.stroke();
+  }
+
+  // Disks, coloured by speed.
+  const rad = Math.max(1.2, state.r * m);
+  for (let i = 0; i < state.N; i += 1) {
+    const sp = Math.hypot(state.v[2 * i], state.v[2 * i + 1]);
+    const c = viridis(Math.min(1, sp / 0.32));
+    ctx.fillStyle = `rgb(${c.r | 0},${c.g | 0},${c.b | 0})`;
+    ctx.beginPath(); ctx.arc(X(state.x[2 * i]), Y(state.x[2 * i + 1]), rad, 0, 6.28); ctx.fill();
+  }
+  ctx.restore();
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(bx + 0.5, by + 0.5, m - 1, m - 1);
+
+  // Readout strip.
+  const checks = state.checks;
+  const direct = directChecks(state.N);
+  const ry = r.y + r.h - stripH / 2 + 1;
+  const speedup = checks > 0 ? direct / checks : 0;
+  const items = [
+    [`N = ${state.N}`, col.fg],
+    [mode() === 'tree' ? 'quadtree' : 'all pairs', mode() === 'tree' ? col.tree : col.direct],
+    [`${fmt(checks)} checks/step`, col.accent],
+    [mode() === 'tree' ? `${speedup.toFixed(0)}x fewer` : 'N(N-1)/2', col.muted],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry); });
+}
+
 function drawDiagnostic(col, r) {
-  panel(col, r, 'Force-pair evaluations vs N: N log N vs N²');
+  panel(col, r, 'pair-checks per step vs N: O(N^2) all-pairs vs O(N log N) quadtree');
+  const inner = { x: r.x + 52, y: r.y + 28, w: r.w - 52 - 14, h: r.h - 28 - 40 };
+  const Nmax = 1200;
+  const yMax = directChecks(Nmax) * 1.05;
+  const xOf = (n) => inner.x + (n / Nmax) * inner.w;
+  const yOf = (c) => inner.y + inner.h - (c / yMax) * inner.h;
 
-  const inner = { x: r.x + 46, y: r.y + 28, w: r.w - 46 - 14, h: r.h - 28 - 40 };
-  if (!cost) cost = costCurve(theta());
-  const xLo = Math.log10(50), xHi = Math.log10(1200);
-  const yLo = 1, yHi = Math.log10(1200 * 1199) + 0.2;   // log10 of evals
-  const xOf = (n) => inner.x + (Math.log10(n) - xLo) / (xHi - xLo) * inner.w;
-  const yOf = (e) => inner.y + inner.h - (Math.log10(Math.max(1, e)) - yLo) / (yHi - yLo) * inner.h;
-
-  // grid + ticks (decades on y, a few N on x).
   ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  for (let e = 2; e <= 6; e += 1) {
-    const y = yOf(Math.pow(10, e));
-    ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke();
-    ctx.fillText(`1e${e}`, inner.x - 5, y);
-  }
+  for (const f of [0, 0.5, 1]) { const y = yOf(f * yMax); ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText(fmt(f * yMax), inner.x - 5, y); }
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (const n of [50, 200, 600, 1200]) ctx.fillText(String(n), xOf(n), inner.y + inner.h + 4);
+  for (const n of [0, 400, 800, 1200]) ctx.fillText(String(n), xOf(n), inner.y + inner.h + 4);
   ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
 
-  // direct N^2 and BH curves.
-  const curve = (key, color) => {
-    ctx.strokeStyle = color; ctx.lineWidth = 2.6; ctx.beginPath();
-    cost.forEach((p, i) => { const X = xOf(p.n), Y = yOf(p[key]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
+  ctx.save(); ctx.beginPath(); ctx.rect(inner.x, inner.y, inner.w, inner.h); ctx.clip();
+  ctx.strokeStyle = col.direct; ctx.lineWidth = 2.6; ctx.beginPath();
+  for (let i = 0; i <= 80; i++) { const n = Nmax * i / 80; const X = xOf(n), Yv = yOf(directChecks(n)); i ? ctx.lineTo(X, Yv) : ctx.moveTo(X, Yv); }
+  ctx.stroke();
+  if (costCurve) {
+    ctx.strokeStyle = col.tree; ctx.lineWidth = 2.6; ctx.beginPath();
+    costCurve.forEach((p, i) => { const X = xOf(p.N), Yv = yOf(p.tree); i ? ctx.lineTo(X, Yv) : ctx.moveTo(X, Yv); });
     ctx.stroke();
-    cost.forEach((p) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(xOf(p.n), yOf(p[key]), 2.5, 0, 2 * Math.PI); ctx.fill(); });
-  };
-  curve('direct', col.direct);
-  curve('bh', col.bh);
-
-  // current N cursor.
-  const cxN = xOf(state.N);
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1;
-  ctx.save(); ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(cxN, inner.y); ctx.lineTo(cxN, inner.y + inner.h); ctx.stroke(); ctx.restore();
-
-  // legend.
-  const legend = [['direct N²', col.direct], ['Barnes-Hut', col.bh]];
-  ctx.fillStyle = 'rgba(10,12,18,0.72)'; ctx.fillRect(inner.x + 6, inner.y + 6, 168, 18);
-  let lx = inner.x + 12; const ly = inner.y + 15;
-  ctx.font = fontString(canvas, 'legend', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  for (const [lab, c] of legend) {
-    ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 14, ly); ctx.stroke();
-    ctx.fillStyle = col.fg; ctx.fillText(lab, lx + 17, ly); lx += ctx.measureText(lab).width + 28;
   }
+  const cn = state.N;
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xOf(cn), inner.y); ctx.lineTo(xOf(cn), inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]);
+  const activeC = mode() === 'tree' ? state.checks : directChecks(cn);
+  ctx.fillStyle = mode() === 'tree' ? col.tree : col.direct;
+  ctx.beginPath(); ctx.arc(xOf(cn), yOf(activeC), 4.5, 0, 6.28); ctx.fill();
+  ctx.restore();
 
-  // axis labels.
+  ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillStyle = col.direct; ctx.fillText('all pairs O(N^2)', inner.x + 8, inner.y + 6);
+  ctx.fillStyle = col.tree; ctx.fillText('quadtree O(N log N)', inner.x + 8, inner.y + 20);
+
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText('number of bodies N', inner.x + inner.w / 2, inner.y + inner.h + 20);
-  ctx.save(); ctx.translate(inner.x - 34, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('evals / step', 0, 0); ctx.restore();
+  ctx.fillText('number of disks N', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 40, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('checks / step', 0, 0); ctx.restore();
 }
 
 function render() {
@@ -253,7 +228,7 @@ function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05);
   last = now;
   if (running) {
-    for (let k = 0; k < SUBSTEPS; k++) leapfrog(state, DT, { use_tree: useTree(), theta: theta(), G, eps: EPS });
+    for (let k = 0; k < SUBSTEPS; k++) { const res = stepBox(state, DT, mode()); root = res.root; }
   }
   render();
   requestAnimationFrame(tick);
@@ -262,9 +237,8 @@ function tick(now) {
 function bootSync() {
   syncVals();
   rebuild();
-  cost = costCurve(theta());
-  const steps = CAPTURE_NAME ? Math.round((Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 200) : 120;
-  for (let k = 0; k < steps; k++) leapfrog(state, DT, { use_tree: true, theta: theta(), G, eps: EPS });
+  const pre = CAPTURE_NAME ? Math.round((Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 120) : 40;
+  for (let k = 0; k < pre; k++) { const res = stepBox(state, DT, mode()); root = res.root; }
   relayout();
   render();
 }
@@ -277,9 +251,7 @@ if (typeof ResizeObserver !== 'undefined') {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    if (!CAPTURE_NAME) requestAnimationFrame(tick);
-  }, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
 } else if (!CAPTURE_NAME) {
   requestAnimationFrame(tick);
 }
@@ -287,37 +259,28 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const directEv = state.N * (state.N - 1);
-  const bhEv = state.evals || 1;
+  if (!state) rebuild();
+  const direct = directChecks(state.N);
   return {
     fields: [
-      { key: 'N', label: 'bodies $N$', value: state.N, format: 'int' },
-      { key: 'evals', label: 'BH evals/step', value: bhEv, format: 'int' },
-      { key: 'direct', label: 'direct $N^2$', value: directEv, format: 'int' },
-      { key: 'speedup', label: 'speedup', value: directEv / bhEv, format: 'float' },
+      { key: 'n', label: 'disks $N$', value: state.N, format: 'int' },
+      { key: 'method', label: 'method', value: mode() === 'tree' ? 'quadtree' : 'all pairs', format: 'text' },
+      { key: 'checks', label: 'pair-checks / step', value: state.checks, format: 'int' },
+      { key: 'speedup', label: 'fewer checks vs N^2', value: state.checks > 0 ? direct / state.checks : 0, format: 'float' },
     ],
   };
 };
 
 window.playground.getInvariants = function () {
   try {
-    if (!state) return [];
-    // Barnes-Hut accuracy: relative L2 error of the tree forces against the
-    // exact direct sum. This is exactly what the opening angle theta trades
-    // for speed, so it is the meaningful check (energy drift would conflate
-    // the integrator with the force approximation).
-    const N = state.N;
-    accDirect(state, G, EPS);
-    for (let i = 0; i < 2 * N; i++) aScratch[i] = state.a[i];   // exact
-    accBH(state, theta(), G, EPS);                              // approximate
-    let num = 0, den = 0;
-    for (let i = 0; i < 2 * N; i++) { const d = state.a[i] - aScratch[i]; num += d * d; den += aScratch[i] * aScratch[i]; }
-    const err = Math.sqrt(num / Math.max(1e-30, den));
+    if (!costCurve) buildCostCurve();
+    const big = costCurve[costCurve.length - 1];
+    const ratio = big.tree > 0 ? big.direct / big.tree : 0;
     return [{
-      key: 'bherr',
-      label: 'tree force error vs exact (rel. L2)',
-      value: err.toExponential(2),
-      status: err < 0.05 ? 'pass' : (err < 0.15 ? 'pending' : 'drift'),
+      key: 'speedup',
+      label: 'quadtree does far fewer checks than N^2 at large N',
+      value: `${ratio.toFixed(0)}x at N=${big.N}`,
+      status: ratio > 3 ? 'pass' : 'drift',
     }];
   } catch (e) {
     return [];

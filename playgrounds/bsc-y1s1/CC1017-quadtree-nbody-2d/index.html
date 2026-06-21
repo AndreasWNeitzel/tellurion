@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Quadtree N-body and the Barnes-Hut Approximation</title>
+<title>Quadtree Collision Detection</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -38,40 +38,38 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Quadtree N-body and the Barnes-Hut Approximation</h1>
+      <h1 class="t-title playground-title">Quadtree Collision Detection</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A galaxy of N stars pulls on itself by gravity. Doing it honestly costs $N^2$ force pairs every step, which is hopeless for a real galaxy. Barnes-Hut cheats brilliantly: it bins the stars into an adaptive quadtree and, for any clump that is far enough away, replaces the whole clump with a single point at its center of mass. A cell of width $s$ seen from distance $d$ is lumped when $s/d \lt \theta$. The result is $O(N\log N)$, the algorithm that makes galaxy and cosmology simulations possible. The scene shows the disk orbiting a heavy core with the live quadtree drawn over it; the diagnostic plots the force-pair count against N, Barnes-Hut against the brute-force $N^2$.</p>
+      <p class="t-body">To find which of $N$ moving disks are touching, the obvious method checks every pair: $N(N-1)/2$ tests every step, an $O(N^2)$ cost that explodes as $N$ grows. A quadtree fixes it. The box is recursively split into four until each cell holds only a handful of disks, so each disk need only test the few others in its own and neighbouring cells. The cells subdivide wherever the disks crowd and stay coarse where the box is empty, tracking the crowd every frame. The scene shows the disks bouncing and colliding with the live quadtree over them; the diagnostic plots pair-checks against $N$, the $O(N^2)$ all-pairs parabola against the gentle $O(N\log N)$ quadtree. Same collisions found, far less work.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" aria-label="An N-body disk with the live Barnes-Hut quadtree, and the force-pair count versus N."></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" aria-label="Disks colliding in a box with the live quadtree over them, and pair-checks per step versus N for the quadtree and all-pairs methods."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption">
-      <span class="figure-number">Figure 1.</span> Disk N-body with a live Barnes-Hut quadtree. Top: the disk orbiting a heavy core, with the adaptive cells overlaid. Bottom: force-pair evaluations per step versus N, Barnes-Hut against direct $N^2$. Method: kick-drift-kick leapfrog, Plummer-softened gravity, opening criterion $s/d \lt \theta$.</figcaption>
+      <span class="figure-number">Figure 1.</span> Quadtree-accelerated collision detection. Top: equal hard disks bouncing in a box with the adaptive quadtree overlaid, its cells subdividing where the disks crowd. Bottom: pair-checks per step versus N, the $O(N^2)$ all-pairs count against the measured $O(N\log N)$ quadtree count. Method: elastic disk collisions; a point quadtree (leaf capacity 4) queried with a neighbourhood box per disk.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
-        <div class="row"><span class="label">N bodies</span><input aria-label="N bodies" type="range" id="slider-n" min="50" max="1200" step="50" value="500"><span class="value" id="value-n">500</span></div>
-        <div class="row"><span class="label">opening θ</span><input aria-label="opening angle theta" type="range" id="slider-theta" min="0.2" max="1.2" step="0.05" value="0.7"><span class="value" id="value-theta">0.70</span></div>
-        <div class="row"><span class="label">algorithm</span><select aria-label="algorithm" id="select-tree"><option value="tree" selected>Barnes-Hut</option><option value="direct">direct N²</option></select><span class="value" id="value-tree">tree</span></div>
+        <div class="row"><span class="label">N disks</span><input aria-label="N disks" type="range" id="slider-n" min="50" max="1200" step="50" value="500"><span class="value" id="value-n">500</span></div>
+        <div class="row"><span class="label">method</span><select aria-label="collision method" id="select-tree"><option value="tree" selected>quadtree</option><option value="direct">all pairs (N²)</option></select><span class="value" id="value-tree">quadtree</span></div>
         <div class="row"><span class="label">show tree</span><input aria-label="show tree" type="checkbox" id="toggle-show-tree" checked style="grid-column: span 2; justify-self: start;"></div>
-        <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
+        <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-playpause" type="button" aria-pressed="false">Pause</button></div>
       </div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Watch the quadtree subdivide finely where stars crowd together and stay coarse in the empty gaps; it follows the matter every step.</li>
-        <li class="t-body">Switch to direct N²: the force-pair count jumps to the brute-force curve, far above Barnes-Hut, especially at large N.</li>
-        <li class="t-body">Raise the opening angle θ: the tree lumps clumps more aggressively, fewer evaluations and a coarser (faster, less accurate) force.</li>
-        <li class="t-body">Push N up and read the gap on the lower plot: Barnes-Hut grows like N log N while direct grows like N².</li>
+        <li class="t-body">Watch the quadtree subdivide finely where the disks crowd together and stay coarse in the empty gaps; it follows the disks every frame.</li>
+        <li class="t-body">Switch the method to all pairs (N²): the grid vanishes and the pair-check count jumps onto the brute-force parabola, far above the quadtree, especially at large N.</li>
+        <li class="t-body">Push N up and read the gap on the lower plot: the quadtree's check count creeps up like N log N while all-pairs climbs like N², the speedup the readout reports.</li>
       </ul>
     </section>
 
