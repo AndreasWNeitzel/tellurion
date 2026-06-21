@@ -36,6 +36,20 @@ const DMAX_U = 3.4;          // collapse displacement cap (clumps fully formed)
 let running = !DETERMINISTIC;
 let phi = 0, hold = 0;
 
+// A small Gaussian-random-field of plane-wave modes at random orientations
+// (seeded, fixed) makes the collapse fragment into natural filaments and nodes
+// rather than an axis-aligned square lattice. Each mode is a Zel'dovich
+// displacement along its wavevector; the integer wavevectors keep the box
+// periodic so the wrap is seamless.
+const NMODES = 7;
+const MODES = (() => {
+  let s = 0x1234abcd >>> 0;
+  const rnd = () => { s = (s + 0x6d2b79f5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const out = [];
+  for (let m = 0; m < NMODES; m += 1) { const a = 2 * Math.PI * rnd(); out.push({ dx: Math.cos(a), dy: Math.sin(a), f: 0.7 + 0.7 * rnd(), ph: 2 * Math.PI * rnd() }); }
+  return out;
+})();
+
 // Gas tracer particles on a jittered grid in box-fraction coords [0,1]^2.
 // Zel'dovich-style: position = grid + D(t) * displacement toward the density
 // maxima of the chosen mode, so the cloud fragments into cores when unstable.
@@ -138,14 +152,23 @@ function drawScene(col, r) {
   clipTo(ctx, { x: bx, y: by, w: S, h: S });
   ctx.fillStyle = '#04050a'; ctx.fillRect(bx, by, S, S);
 
-  // gas tracers: grid + Zel'dovich displacement toward the mode's density
-  // maxima. Drawn additively so pile-ups glow as collapsing cores.
+  // gas tracers: grid + multi-mode Zel'dovich displacement toward the density
+  // maxima of a small random-field of plane waves near the chosen scale, so the
+  // cloud fragments into filaments and cores. Drawn additively so pile-ups glow.
+  // Integer wavevectors near nClump keep the box periodic.
+  const mk = MODES.map((mo) => {
+    const nx = Math.round(nClump * mo.f * mo.dx), ny = Math.round(nClump * mo.f * mo.dy);
+    const km = Math.hypot(nx, ny) || 1;
+    return { kx: 2 * Math.PI * nx, ky: 2 * Math.PI * ny, ux: nx / km, uy: ny / km, ph: mo.ph };
+  });
+  const amp = (D / kf) * 1.7 / Math.sqrt(NMODES);
   const rad = Math.max(1.6, S / 220);
   ctx.globalCompositeOperation = 'lighter';
   ctx.fillStyle = unstable ? 'rgba(255,168,84,0.42)' : 'rgba(110,170,255,0.36)';
   for (let i = 0; i < qx.length; i += 1) {
-    const px = wrap(qx[i] + (D / kf) * Math.sin(kf * qx[i]));
-    const py = wrap(qy[i] + (D / kf) * Math.sin(kf * qy[i]));
+    let dxs = 0, dys = 0;
+    for (let m = 0; m < mk.length; m += 1) { const s = Math.sin(mk[m].kx * qx[i] + mk[m].ky * qy[i] + mk[m].ph); dxs += mk[m].ux * s; dys += mk[m].uy * s; }
+    const px = wrap(qx[i] + amp * dxs), py = wrap(qy[i] + amp * dys);
     ctx.beginPath(); ctx.arc(bx + px * S, by + py * S, rad, 0, 2 * Math.PI); ctx.fill();
   }
   ctx.globalCompositeOperation = 'source-over';
@@ -247,9 +270,10 @@ function tick(now) {
     const rateRef = Math.sqrt(4 * Math.PI * G_SI * rho());
     const vr = Math.min(1.4, Math.sqrt(Math.abs(ww)) / rateRef);
     if (unstable) {
-      if (currentD(true) >= DMAX_U - 1e-6) { hold += 1; if (hold > 50) { phi = 0; hold = 0; } }
-      else phi += vr * 1.5 * dt;
-    } else { phi += vr * 2.4 * dt; }
+      // grow the collapse until the cores are fully formed, then hold there
+      // (no auto-reset); a parameter change or Reset restarts from phi=0.
+      if (currentD(true) < DMAX_U - 1e-6) phi += vr * 1.5 * dt;
+    } else { phi += vr * 2.4 * dt; }   // stable: keep oscillating (a sound wave)
   }
   render();
   requestAnimationFrame(tick);
