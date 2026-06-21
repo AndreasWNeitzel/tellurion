@@ -10,7 +10,7 @@ curriculum_year: bsc-y1s1
 primary_citation: arfken-weber
 primary_chapter: 1
 hook: "Continuity has a precise meaning: for any vertical tolerance epsilon you demand on the output, a horizontal tolerance delta on the input keeps the function inside it. Shrink epsilon and watch the required delta shrink with it."
-one_paragraph: "A function is continuous at a point c if, for every epsilon > 0, there is a delta > 0 such that every x within delta of c lands within epsilon of f(c). The playground draws the curve with a box: an epsilon band of height 2 epsilon around f(c) and a delta band of width 2 delta around c, and it solves for the largest delta that keeps the curve inside the epsilon band over that interval. Increase epsilon and the box grows and a larger delta works; shrink epsilon toward zero and the admissible delta shrinks too, but for a continuous function it always exists. The readout prints epsilon and the maximal delta. This makes the abstract definition concrete: continuity is a game you always win, the challenger picks epsilon, you answer with delta."
+one_paragraph: "A function is continuous at a point c if, for every epsilon > 0, there is a delta > 0 such that every x within delta of c lands within epsilon of f(c). The playground draws the curve with a box: an epsilon band of height 2 epsilon around f(c) and a delta band of width 2 delta around c, and it solves for the largest delta that keeps the curve inside the epsilon band, with a moving test point that never leaves the box. Pick from a smooth function, a parabola, or one with a jump. For a continuous point the admissible delta shrinks with epsilon but always exists; at the jump it collapses to zero once epsilon is below the gap. The diagnostic plots that response delta(epsilon). This makes the abstract definition concrete: continuity is a game you always win, the challenger picks epsilon, you answer with delta, and a discontinuity is precisely where you cannot."
 tags: [numerics, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -79,9 +79,12 @@ makes visible:
   means, and uniform continuity is the stronger statement that one
   $\delta$ works for all $x_0$ at once.
 
-The playground uses $f=\sin$ (continuous everywhere) and lets you
+The playground offers three functions, two continuous ($\sin x$ and a
+parabola) and one with a jump discontinuity at the origin, and lets you
 move $x_0$ and $\epsilon$ to feel how $\delta_{\max}$ tracks the local
-slope.
+behavior. The diagnostic plots $\delta_{\max}(\epsilon)$: it rises from the
+origin for a continuous point and stays pinned at zero, until $\epsilon$
+clears the gap, at a jump.
 
 ### Things to try
 
@@ -89,8 +92,11 @@ slope.
   limit is being taken).
 - Move $x_0$ to a steep part of $\sin$ (near a zero crossing) and to
   a flat part (near a peak); compare how wide $\delta$ can be.
-- Note that a $\delta$ can always be found here, the signature of
-  continuity at every point.
+- Switch to the jump and set $x_0 = 0$: for small $\epsilon$ no $\delta$
+  works (the box cannot be drawn), the visible signature of a
+  discontinuity. Raise $\epsilon$ past the gap and a $\delta$ returns.
+- On the parabola at its vertex $\delta\approx\sqrt{2\epsilon}$, slower
+  than the linear $\delta\approx\epsilon/|f'(x_0)|$ of a sloped point.
 
 ### Where this comes from
 
