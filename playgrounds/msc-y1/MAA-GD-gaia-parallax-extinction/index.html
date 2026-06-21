@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Gaia Parallaxes: Distance, Bias, and Extinction</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 7ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); }
+    .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Gaia Parallaxes: Distance, Bias, and Extinction</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A parallax is the small angular wobble of a star as the Earth orbits the Sun, and it gives the distance: $d = 1/\varpi$ with $\varpi$ in arcseconds and $d$ in parsecs. The catch is that the measured parallax is noisy, and inverting a noisy number is treacherous: $1/\varpi$ is a nonlinear transformation, so the distance you get is biased and skewed once the fractional error $f = \sigma_\varpi/\varpi$ is no longer tiny, and the noise can even push the measured parallax negative, where $1/\varpi$ is meaningless. The fix, central to working with Gaia data in Galactic archaeology, is to treat distance as a Bayesian inference: combine the Gaussian parallax likelihood with a distance prior to get a proper posterior $p(d\,|\,\varpi,\sigma) \propto \text{prior}(d)\,\mathcal{N}(\varpi; 1/d, \sigma)$. This playground runs a live Monte Carlo of the naive estimator against that posterior, propagates the distance to an absolute magnitude (where dust extinction adds a second uncertainty), and shows exactly when the bias starts to matter. The example stars are real Gaia DR3 measurements.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1180" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="The distance posterior from a noisy parallax with a live Monte Carlo of the naive inversion, the absolute-magnitude consequence including extinction, and the bias versus fractional parallax error."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Gaia parallaxes, distance, and extinction. Top: the naive estimator d = 1/parallax sampled by Monte Carlo (histogram), the Bayesian posterior (gold) with its 68% interval, the naive distance (red), and the posterior median (green). Middle: the absolute magnitude M_G from the distance posterior, and the shift from neglecting the extinction A_G. Bottom: the relative correction (posterior minus naive) versus fractional parallax error, negligible below about 20 percent and severe above. Method: Gaussian likelihood with an EDSD or flat distance prior. Data: real Gaia DR3 stars. No fabricated values.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Gaia parallax controls">
+    <div class="row"><span class="label">parallax</span><input aria-label="parallax (mas)" type="range" id="slider-plx" min="0.05" max="5" step="0.01" value="0.5"><span class="value" id="value-plx">0.500 mas</span></div>
+    <div class="row"><span class="label">error f</span><input aria-label="fractional parallax error" type="range" id="slider-f" min="0.01" max="0.6" step="0.01" value="0.25"><span class="value" id="value-f">25 %</span></div>
+    <div class="row"><span class="label">prior L</span><input aria-label="prior length scale" type="range" id="slider-L" min="0.3" max="4" step="0.05" value="1.35"><span class="value" id="value-L">1.35 kpc</span></div>
+    <div class="row wide"><button id="btn-prior" type="button">Toggle prior</button><span class="value" id="value-prior">EDSD (Bailer-Jones)</span></div>
+    <div class="row wide"><button id="btn-star" type="button">Next real star</button><span class="value" id="value-star">#1 of 44</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Raise the fractional error: the Monte Carlo histogram of $1/\varpi$ skews to a long tail toward large distances, and the naive distance (red) drifts away from the posterior median (green).</li>
+        <li class="t-body">Toggle the prior between EDSD and flat: with a flat prior the posterior tail runs away at high error, while the exponentially-decreasing-density prior tames it (that is why Gaia distance catalogues use it).</li>
+        <li class="t-body">Watch the bottom panel: below about 20 percent fractional error the correction is small (you can almost invert safely), above it the bias grows quickly.</li>
+        <li class="t-body">Step through the real Gaia stars, and in the middle panel see how neglecting the extinction $A_G$ (gold dashed) makes the star look intrinsically fainter than it is.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
