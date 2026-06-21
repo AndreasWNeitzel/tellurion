@@ -10,7 +10,7 @@ curriculum_year: msc-y1
 primary_citation: aerts-asteroseism
 primary_chapter: 3
 hook: 'A non-rotating star''s oscillation modes are degenerate; spin the star and each splits into a frequency multiplet whose spacing measures the rotation rate.'
-one_paragraph: 'Without rotation, a stellar oscillation mode of degree l has 2l+1 components (the azimuthal orders m) at one shared frequency. Rotation lifts that degeneracy: prograde and retrograde modes shift in opposite directions, splitting the mode into an evenly spaced multiplet with spacing proportional to m(1 - C_nl)Omega, where Omega is the rotation rate and C_nl the Ledoux constant. The playground fans the (2l+1) multiplet out as you spin the star. Measuring that splitting in Kepler light curves is how the internal rotation of red giants and subgiants was determined. Reference: Aerts, Christensen-Dalsgaard and Kurtz, Asteroseismology, Ch. 3.8.'
+one_paragraph: 'Without rotation, a stellar oscillation mode of degree l has 2l+1 components (the azimuthal orders m) at one shared frequency, and the surface pattern is a standing wave. Rotation lifts that degeneracy because the Coriolis force makes prograde and retrograde azimuthal waves inequivalent: each m pattern is advected around the star, so an observer sees it oscillate at the shifted frequency nu0 + m(1 - C_nl)Omega, where Omega is the rotation rate and C_nl the Ledoux constant. The playground renders the real spherical-harmonic pattern Y_l^m on the star and lets it drift in azimuth (prograde for m>0, retrograde for m<0, stationary for m=0), the drift rate being the splitting itself, while the right panel shows the resulting 2l+1 multiplet with the selected component highlighted. Measuring that splitting in Kepler light curves is how the internal rotation of red giants and subgiants was determined. Reference: Aerts, Christensen-Dalsgaard and Kurtz, Asteroseismology, Ch. 3.8.'
 tags: [stellar, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -29,8 +29,9 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Set Omega = 0 and the multiplet collapses to one degenerate peak; turn it up and the pattern drifts as the peaks fan out.
+  - Step m: m=0 stays at nu0, m>0 drifts prograde and m<0 retrograde, splitting to opposite sides.
+  - Switch to a g-mode and the Ledoux constant shrinks the splitting relative to the rigid m*Omega comb.
 references:
   - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
 ---
