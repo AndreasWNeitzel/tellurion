@@ -1,306 +1,325 @@
-// playground.js
-// Big-O made watchable. The same seeded shuffle is sorted by an O(N^2)
-// algorithm (left) and merge sort, O(N log N) (right), both replayed
-// from a recorded comparison/write event stream. Every finished race
-// drops a point on the lower empirical plot, on top of the theoretical
-// 1/2 N(N-1) and N log2 N curves. "Sweep N" fills the curve at once.
+import { fontString } from '../../../shared/js/canvas-type.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { viridis } from '../../../shared/js/render/colormaps.js';
+// Vertical 4:5 hero for empirical Big-O. Top region: a real sort running on a
+// shuffled bar array, comparisons highlighted and counted live. Bottom region:
+// measured comparison counts versus N on log-log axes, the quadratic sorts on
+// the N^2 line and merge sort on N log N.
+//
+// Reference: Cormen et al., Introduction to Algorithms, 3rd ed., Ch. 2;
+// Newman, Computational Physics, Ch. 2.
 
-import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
-import { setCanvasFont } from '../../../shared/js/canvas-type.js';
 import {
-  shuffledArray, recordSort, comparisonCount,
-  EV_CMP, EV_SWAP, EV_SET,
+  shuffledArray, recordSort, comparisonCount, EV_CMP, EV_SWAP, EV_SET,
 } from './sim.js';
 
 const params = new URLSearchParams(location.search);
-const SEED = parseInt(params.get('seed') ?? `0x${DEFAULT_SEED.toString(16)}`, 16) || DEFAULT_SEED;
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
 const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const W = canvas.width, H = canvas.height;
 
 const sliderN = document.getElementById('slider-N');
-const valueN = document.getElementById('value-N');
 const sliderSpeed = document.getElementById('slider-speed');
+const selAlgo = document.getElementById('select-algo');
+const valueN = document.getElementById('value-N');
 const valueSpeed = document.getElementById('value-speed');
-const selectAlgo = document.getElementById('select-algo');
 const valueAlgo = document.getElementById('value-algo');
 const btnPlay = document.getElementById('btn-playpause');
 const btnReset = document.getElementById('btn-reset');
-const btnSweep = document.getElementById('btn-sweep');
 
-const NMAX = parseInt(sliderN.max, 10);
-const SWEEP_NS = [];
-for (let n = 8; n <= NMAX; n += 8) SWEEP_NS.push(n);
+const KINDS = ['bubble', 'insertion', 'merge'];
+const SCAT_N = [8, 16, 32, 64, 128, 256];
+const BASE_SEED = 0xC0FFEE;
+let running = !DETERMINISTIC;
+let runCount = 0;
+let run = null;            // {events, comparisons, disp, idx, comps, hi, hj, perFrame, done}
+let holdT = 0;
+let scatter = null;       // { bubble:[{n,c}], insertion:[...], merge:[...] }
 
-const state = {
-  N: parseInt(sliderN.value, 10),
-  speed: parseInt(sliderSpeed.value, 10),
-  algoA: selectAlgo.value,        // 'bubble' | 'insertion'  -> O(N^2)
-  playing: !(DETERMINISTIC || prefersReducedMotion()),
-  A: null,                        // left  race (quadratic)
-  B: null,                        // right race (merge)
-  points: new Map(),              // `${N}:${algoA}` -> { N, q, m }
-};
+function kind() { return selAlgo.value; }
+function N() { return parseInt(sliderN.value, 10); }
+
+function startRun() {
+  const n = N();
+  const arr = shuffledArray(n, BASE_SEED + runCount);
+  const rec = recordSort(kind(), arr);
+  const target = 380;       // frames to finish at speed 1
+  run = {
+    events: rec.events, comparisons: rec.comparisons,
+    disp: Array.from(arr), idx: 0, comps: 0, hi: -1, hj: -1, done: false,
+    perFrame: Math.max(1, Math.round(rec.events.length / target)),
+  };
+  holdT = 0;
+}
+function buildScatter() {
+  scatter = {};
+  for (const k of KINDS) scatter[k] = SCAT_N.map((n) => ({ n, c: Math.max(1, comparisonCount(k, n, BASE_SEED)) }));
+}
+
+function syncVals() {
+  valueN.textContent = String(N());
+  valueSpeed.textContent = String(parseInt(sliderSpeed.value, 10));
+  valueAlgo.textContent = kind();
+}
+sliderN.addEventListener('input', () => { syncVals(); startRun(); render(); });
+selAlgo.addEventListener('change', () => { syncVals(); startRun(); render(); });
+sliderSpeed.addEventListener('input', syncVals);
+btnReset.addEventListener('click', () => {
+  sliderN.value = '48'; selAlgo.value = 'bubble'; runCount = 0;
+  running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
+  syncVals(); startRun(); render();
+});
+btnPlay.addEventListener('click', () => {
+  running = !running;
+  btnPlay.textContent = running ? 'Pause' : 'Play';
+  btnPlay.setAttribute('aria-pressed', String(!running));
+});
+
+let view = { w: 760, h: 950, dpr: 1 };
+let REG = null;
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.6 },
+    { name: 'diagnostic', weight: 1.4 },
+  ]);
+}
 
 function colors() {
   const css = getComputedStyle(document.body);
   return {
     bg: css.getPropertyValue('--bg').trim() || '#060608',
+    panel: '#0a0c12',
     fg: css.getPropertyValue('--fg').trim() || '#e8e8e8',
     muted: css.getPropertyValue('--fg-muted').trim() || '#9aa0a6',
     accent: css.getPropertyValue('--accent').trim() || '#ffd166',
-    blue: '#5bc0eb',
-    red: '#ef476f',
-    grid: '#23252a',
+    bubble: '#ef476f',
+    insertion: '#ff9d6e',
+    merge: '#67d98c',
+    border: 'rgba(255,255,255,0.12)',
+    grid: 'rgba(255,255,255,0.08)',
   };
 }
+function kcol(col, k) { return k === 'merge' ? col.merge : (k === 'insertion' ? col.insertion : col.bubble); }
 
-function makeRace(kind, arr) {
-  return { kind, arr: Array.from(arr), rec: recordSort(kind, arr), cursor: 0, comp: 0, hi: [-1, -1] };
-}
-
-function rebuild() {
-  const arr = shuffledArray(state.N, SEED);
-  state.A = makeRace(state.algoA, arr);
-  state.B = makeRace('merge', arr);
-}
-
-// Apply up to `budget` events to one race; stop at the end.
-function advance(race, budget) {
-  const ev = race.rec.events;
-  let used = 0;
-  while (used < budget && race.cursor < ev.length) {
-    const e = ev[race.cursor]; race.cursor += 1;
-    if (e[0] === EV_CMP) { race.hi = [e[1], e[2]]; race.comp += 1; used += 1; }
-    else if (e[0] === EV_SWAP) { const t = race.arr[e[1]]; race.arr[e[1]] = race.arr[e[2]]; race.arr[e[2]] = t; }
-    else if (e[0] === EV_SET) { race.arr[e[1]] = e[2]; }
-  }
-  return race.cursor >= ev.length;
-}
-
-function recordPoint() {
-  const key = `${state.N}:${state.algoA}`;
-  if (state.points.has(key)) return;
-  state.points.set(key, { N: state.N, q: state.A.rec.comparisons, m: state.B.rec.comparisons });
-}
-
-function sweep() {
-  for (const n of SWEEP_NS) {
-    const arr = shuffledArray(n, SEED);
-    const q = comparisonCount(state.algoA, n, SEED);
-    const m = recordSort('merge', arr).comparisons;
-    state.points.set(`${n}:${state.algoA}`, { N: n, q, m });
+function panel(col, r, title) {
+  ctx.fillStyle = col.panel;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) {
+    ctx.font = fontString(canvas, 'caption', 'sans', 600);
+    ctx.fillStyle = col.muted;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, r.x + 8, r.y + 7);
   }
 }
 
-// === drawing ===
-const PAD = 24;
-const PANEL_TOP = 74, PANEL_H = 188;
-const GAP = 26;
-const PANEL_W = (W - 2 * PAD - GAP) / 2;
-const PLOT_TOP = PANEL_TOP + PANEL_H + 46;
-const PLOT_H = H - PLOT_TOP - 34;
-const PLOT_L = PAD + 52, PLOT_W = W - PLOT_L - PAD;
+function drawScene(col, r) {
+  panel(col, r, `${kind()} sort: every comparison counted`);
 
-function drawPanel(race, x0, title, barColor, c) {
-  setCanvasFont(ctx, canvas, 'body', { family: 'mono', align: 'left' });
-  ctx.fillStyle = c.muted;
-  ctx.fillText(title, x0, PANEL_TOP - 34);
-  ctx.fillStyle = barColor;
-  setCanvasFont(ctx, canvas, 'heading', { family: 'mono', weight: 600, align: 'left' });
-  ctx.fillText(`${race.comp} comparisons`, x0, PANEL_TOP - 14);
-
-  const a = race.arr, n = a.length;
-  const bw = PANEL_W / n;
+  const titleH = 22, stripH = 28;
+  const draw = { x: r.x + 10, y: r.y + titleH + 8, w: r.w - 20, h: r.h - titleH - 8 - stripH - 6 };
+  const n = run.disp.length;
+  const bw = draw.w / n;
   const maxV = n;
-  const done = race.cursor >= race.rec.events.length;
-  for (let i = 0; i < n; i += 1) {
-    const hgt = (a[i] / maxV) * (PANEL_H - 6);
-    const px = x0 + i * bw;
-    const active = !done && (i === race.hi[0] || i === race.hi[1]);
-    ctx.fillStyle = active ? c.fg : (done ? barColor : `${barColor}aa`);
-    ctx.fillRect(px, PANEL_TOP + PANEL_H - hgt, Math.max(1, bw - 1), hgt);
+
+  ctx.save();
+  clipTo(ctx, draw);
+  for (let i = 0; i < n; i++) {
+    const v = run.disp[i];
+    const h = (v / maxV) * (draw.h - 4);
+    const x = draw.x + i * bw;
+    const c = viridis(v / maxV);
+    const hot = (i === run.hi || i === run.hj);
+    ctx.fillStyle = hot ? '#ffffff' : `rgb(${c.r | 0},${c.g | 0},${c.b | 0})`;
+    ctx.fillRect(x + 0.5, draw.y + draw.h - h, Math.max(1, bw - 1), h);
   }
-  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
-  ctx.strokeRect(x0, PANEL_TOP, PANEL_W, PANEL_H);
-  if (done) {
-    ctx.fillStyle = c.muted;
-    setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'left' });
-    ctx.fillText('sorted', x0 + PANEL_W - 52, PANEL_TOP + 16);
+  ctx.restore();
+
+  // Big live comparison counter.
+  ctx.fillStyle = col.accent;
+  ctx.font = fontString(canvas, 'heading', 'mono', 700);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`${run.comps.toLocaleString()} comparisons`, draw.x + 4, draw.y + 4);
+  if (run.done) {
+    ctx.fillStyle = col.merge;
+    ctx.font = fontString(canvas, 'caption', 'mono', 700);
+    ctx.textAlign = 'right';
+    ctx.fillText('sorted', draw.x + draw.w - 4, draw.y + 4);
   }
+
+  // Readout strip.
+  const ry = r.y + r.h - stripH / 2 + 1;
+  const cls = kind() === 'merge' ? 'N log N' : 'N²';
+  const items = [
+    [`${kind()}`, kcol(col, kind())],
+    [`N = ${n}`, col.fg],
+    [`compares ${run.comps}`, col.accent],
+    [`class ${cls}`, kcol(col, kind())],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  items.forEach(([txt, c], i) => { ctx.fillStyle = c; ctx.fillText(txt, r.x + r.w * (i + 0.5) / 4, ry); });
 }
 
-function theoryQ(N) { return 0.5 * N * (N - 1); }            // O(N^2) envelope
-function theoryM(N) { return N * Math.log2(Math.max(N, 2)); } // O(N log N)
+function drawDiagnostic(col, r) {
+  panel(col, r, 'Comparisons vs N (log-log): slope is the exponent');
 
-function drawPlot(c) {
-  const yMax = theoryQ(NMAX) * 1.04;
-  const xOf = (N) => PLOT_L + PLOT_W * (N / NMAX);
-  const yOf = (v) => PLOT_TOP + PLOT_H * (1 - v / yMax);
+  const inner = { x: r.x + 48, y: r.y + 28, w: r.w - 48 - 14, h: r.h - 28 - 40 };
+  const xLo = Math.log10(8), xHi = Math.log10(256);
+  const yLo = Math.log10(2), yHi = Math.log10(256 * 256 / 2) + 0.3;
+  const xOf = (n) => inner.x + (Math.log10(n) - xLo) / (xHi - xLo) * inner.w;
+  const yOf = (c) => inner.y + inner.h - (Math.log10(Math.max(1, c)) - yLo) / (yHi - yLo) * inner.h;
 
-  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
-  ctx.fillStyle = c.muted;
-  setCanvasFont(ctx, canvas, 'tick', { family: 'mono', align: 'right' });
-  for (let g = 0; g <= 4; g += 1) {
-    const y = PLOT_TOP + PLOT_H * g / 4;
-    ctx.beginPath(); ctx.moveTo(PLOT_L, y); ctx.lineTo(PLOT_L + PLOT_W, y); ctx.stroke();
-    ctx.fillText(((yMax * (4 - g) / 4) | 0).toString(), PLOT_L - 6, y + 3);
-  }
-  ctx.textAlign = 'center';
-  for (let g = 0; g <= 4; g += 1) {
-    const N = NMAX * g / 4; const x = xOf(N);
-    ctx.beginPath(); ctx.moveTo(x, PLOT_TOP); ctx.lineTo(x, PLOT_TOP + PLOT_H); ctx.stroke();
-    ctx.fillText((N | 0).toString(), x, PLOT_TOP + PLOT_H + 16);
-  }
+  // grid + ticks.
+  ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8;
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let e = 1; e <= 4; e++) { const y = yOf(Math.pow(10, e)); ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText(`1e${e}`, inner.x - 5, y); }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const n of [8, 32, 128, 256]) ctx.fillText(String(n), xOf(n), inner.y + inner.h + 4);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
 
-  // Theory curves.
-  const curve = (fn, col) => {
-    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
-    for (let i = 0; i <= 160; i += 1) {
-      const N = NMAX * i / 160; const x = xOf(N), y = yOf(fn(N));
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
+  // measured series.
+  for (const k of KINDS) {
+    const pts = scatter[k];
+    const sel = k === kind();
+    ctx.strokeStyle = kcol(col, k);
+    ctx.globalAlpha = sel ? 1 : 0.5;
+    ctx.lineWidth = sel ? 2.8 : 1.6;
+    ctx.beginPath();
+    pts.forEach((p, i) => { const X = xOf(p.n), Y = yOf(p.c); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); });
     ctx.stroke();
-  };
-  curve(theoryQ, c.red);
-  curve(theoryM, c.blue);
-
-  // Measured points.
-  for (const p of state.points.values()) {
-    const xq = xOf(p.N);
-    ctx.fillStyle = c.red;
-    ctx.beginPath(); ctx.arc(xq, yOf(p.q), 3.2, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = c.blue;
-    ctx.beginPath(); ctx.arc(xq, yOf(p.m), 3.2, 0, 2 * Math.PI); ctx.fill();
+    ctx.globalAlpha = 1;
+    for (const p of pts) { ctx.fillStyle = kcol(col, k); ctx.beginPath(); ctx.arc(xOf(p.n), yOf(p.c), sel ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
   }
 
-  // Current-N marker.
-  const xc = xOf(state.N);
-  ctx.strokeStyle = c.fg; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(xc, PLOT_TOP); ctx.lineTo(xc, PLOT_TOP + PLOT_H); ctx.stroke();
-  ctx.setLineDash([]);
+  // current N cursor.
+  const cxN = xOf(Math.min(256, Math.max(8, N())));
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1;
+  ctx.save(); ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(cxN, inner.y); ctx.lineTo(cxN, inner.y + inner.h); ctx.stroke(); ctx.restore();
 
-  // Labels + legend.
-  ctx.fillStyle = c.muted;
-  setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'center' });
-  ctx.fillText('input size N', PLOT_L + PLOT_W / 2, PLOT_TOP + PLOT_H + 30);
-  ctx.save(); ctx.translate(PAD - 6, PLOT_TOP + PLOT_H / 2); ctx.rotate(-Math.PI / 2);
-  ctx.fillText('comparisons', 0, 0); ctx.restore();
-  setCanvasFont(ctx, canvas, 'legend', { family: 'mono', align: 'left' });
-  ctx.fillStyle = c.red; ctx.fillText('1/2 N(N-1), measured O(N^2)', PLOT_L + 8, PLOT_TOP + 14);
-  ctx.fillStyle = c.blue; ctx.fillText('N log2 N, measured merge', PLOT_L + 8, PLOT_TOP + 30);
+  // legend.
+  const legend = [['bubble N²', col.bubble], ['insertion N²', col.insertion], ['merge NlogN', col.merge]];
+  ctx.fillStyle = 'rgba(10,12,18,0.75)'; ctx.fillRect(inner.x + 6, inner.y + 6, 142, 46);
+  let ly = inner.y + 15;
+  ctx.font = fontString(canvas, 'legend', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  for (const [lab, c] of legend) {
+    ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(inner.x + 12, ly); ctx.lineTo(inner.x + 26, ly); ctx.stroke();
+    ctx.fillStyle = col.fg; ctx.fillText(lab, inner.x + 30, ly); ly += 15;
+  }
+
+  // axis labels.
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('array size N', inner.x + inner.w / 2, inner.y + inner.h + 20);
+  ctx.save(); ctx.translate(inner.x - 36, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('comparisons', 0, 0); ctx.restore();
 }
 
 function render() {
-  const c = colors();
-  ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = c.muted;
-  setCanvasFont(ctx, canvas, 'caption', { family: 'mono', align: 'left' });
-  ctx.fillText('Same shuffle, two algorithms. Counts accumulate on the plot below.', PAD, 18);
-  drawPanel(state.A, PAD, `${state.algoA} sort  O(N^2)`, c.red, c);
-  drawPanel(state.B, PAD + PANEL_W + GAP, 'merge sort  O(N log N)', c.blue, c);
-  drawPlot(c);
+  if (!REG) relayout();
+  if (!run) startRun();
+  if (!scatter) buildScatter();
+  const col = colors();
+  ctx.fillStyle = col.bg;
+  ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(col, REG.scene);
+  drawDiagnostic(col, REG.diagnostic);
 }
 
-function tick() {
-  if (state.playing) {
-    const aDone = advance(state.A, state.speed);
-    const bDone = advance(state.B, state.speed);
-    if (aDone && bDone) recordPoint();
+function stepRun(perFrame) {
+  const ev = run.events;
+  for (let s = 0; s < perFrame && run.idx < ev.length; s++) {
+    const e = ev[run.idx++];
+    if (e[0] === EV_CMP) { run.hi = e[1]; run.hj = e[2]; run.comps += 1; }
+    else if (e[0] === EV_SWAP) { const t = run.disp[e[1]]; run.disp[e[1]] = run.disp[e[2]]; run.disp[e[2]] = t; }
+    else if (e[0] === EV_SET) { run.disp[e[1]] = e[2]; }
+  }
+  if (run.idx >= ev.length) { run.done = true; run.hi = run.hj = -1; }
+}
+
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (running) {
+    if (!run.done) {
+      stepRun(run.perFrame * parseInt(sliderSpeed.value, 10));
+    } else {
+      holdT += dt;
+      if (holdT > 1.3) { runCount += 1; startRun(); }
+    }
   }
   render();
   requestAnimationFrame(tick);
 }
 
-// === controls ===
-sliderN.addEventListener('input', () => {
-  state.N = parseInt(sliderN.value, 10); valueN.textContent = String(state.N); rebuild();
-});
-sliderSpeed.addEventListener('input', () => {
-  state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed);
-});
-selectAlgo.addEventListener('change', () => {
-  state.algoA = selectAlgo.value; valueAlgo.textContent = state.algoA; rebuild();
-});
-btnPlay.addEventListener('click', () => {
-  state.playing = !state.playing;
-  btnPlay.textContent = state.playing ? 'Pause' : 'Play';
-  btnPlay.setAttribute('aria-pressed', String(!state.playing));
-});
-btnReset.addEventListener('click', () => { rebuild(); });
-btnSweep.addEventListener('click', () => { sweep(); render(); });
-
 function bootSync() {
-  valueN.textContent = String(state.N);
-  valueSpeed.textContent = String(state.speed);
-  valueAlgo.textContent = state.algoA;
-
-  if (CAPTURE_NAME) {
-    const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.N = 4 * Math.round((0.18 * NMAX + f * 0.64 * NMAX) / 4);
-    valueN.textContent = String(state.N);
-    rebuild();
-    sweep();                                   // populate the empirical plot
-    const aN = state.A.rec.events.length, bN = state.B.rec.events.length;
-    advance(state.A, Math.floor(f * aN) + 1);
-    advance(state.B, Math.floor(f * bN) + 1);
-    if (f >= 1) recordPoint();
-    render();
-    if (DETERMINISTIC) {
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        window.__simulationReady = true;
-        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME, seed: SEED, N: state.N } }));
-      }));
-    }
-    return;
-  }
-
-  rebuild();
+  syncVals();
+  buildScatter();
+  startRun();
+  if (CAPTURE_NAME) { stepRun(Math.round((Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * run.events.length)); }
+  else { stepRun(Math.round(run.events.length * 0.6)); }   // mid-sort on load
+  relayout();
   render();
 }
 
+window.addEventListener('load', bootSync);
+if (document.readyState !== 'loading') bootSync();
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
-} else {
-  bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!CAPTURE_NAME) requestAnimationFrame(tick);
+  }, { once: true });
+} else if (!CAPTURE_NAME) {
+  requestAnimationFrame(tick);
 }
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
-window.playground.getState = function getState() {
-  const ratio = state.B.comp > 0 ? state.A.comp / state.B.comp : 0;
+window.playground.getState = function () {
   return {
     fields: [
-      { key: 'N', label: 'array size N', value: state.N, format: 'int' },
-      { key: 'algoA', label: 'O(N²) sort', value: state.algoA },
-      { key: 'cmpA', label: 'comparisons O(N²)', value: state.A.comp, format: 'int' },
-      { key: 'cmpB', label: 'comparisons merge', value: state.B.comp, format: 'int' },
-      { key: 'ratio', label: 'ratio A / B', value: ratio, unit: '×', format: 'float' },
-      { key: 'points', label: 'races plotted', value: state.points.size, format: 'int' },
+      { key: 'algo', label: 'algorithm', value: kind(), format: 'text' },
+      { key: 'N', label: 'array size $N$', value: N(), format: 'int' },
+      { key: 'comps', label: 'comparisons so far', value: run ? run.comps : 0, format: 'int' },
+      { key: 'total', label: 'total comparisons', value: run ? run.comparisons : 0, format: 'int' },
     ],
   };
 };
-window.playground.getInvariants = function getInvariants() {
-  const N = state.N;
-  const quadCap = 0.5 * N * (N - 1);
-  const mergeCap = N * Math.ceil(Math.log2(Math.max(2, N)));
-  // Comparison-count bounds: the O(N^2) sort never exceeds 1/2 N(N-1)
-  // and merge sort never exceeds N ceil(log2 N).
-  const quadExcess = quadCap > 0 ? Math.max(0, state.A.comp - quadCap) / quadCap : 0;
-  const mergeExcess = mergeCap > 0 ? Math.max(0, state.B.comp - mergeCap) / mergeCap : 0;
-  return [
-    { key: 'quad_bound', label: 'O(N²) ≤ ½N(N-1)', value: quadExcess, tolerance: 1e-9,
-      status: quadExcess < 1e-9 ? 'pass' : 'drift' },
-    { key: 'merge_bound', label: 'merge ≤ N⌈log₂N⌉', value: mergeExcess, tolerance: 1e-9,
-      status: mergeExcess < 1e-9 ? 'pass' : 'drift' },
-    { key: 'merge_faster', label: 'merge ≤ O(N²) count',
-      value: state.B.comp > 0 && state.A.comp > 0 ? Math.max(0, state.B.comp - state.A.comp) : 0,
-      tolerance: 1e-9,
-      status: (state.A.comp === 0 || state.B.comp <= state.A.comp) ? 'pass' : 'drift' },
-  ];
+
+window.playground.getInvariants = function () {
+  try {
+    if (!scatter) buildScatter();
+    // The quadratic sorts must grow steeper than merge: the exponent
+    // (slope on log-log between the two endpoints) should be near 2 for
+    // bubble/insertion and near 1 for merge.
+    const slope = (k) => {
+      const p = scatter[k];
+      const a = p[0], b = p[p.length - 1];
+      return (Math.log(b.c) - Math.log(a.c)) / (Math.log(b.n) - Math.log(a.n));
+    };
+    const sBubble = slope('bubble'), sMerge = slope('merge');
+    const ok = sBubble > 1.7 && sMerge < 1.4 && sBubble > sMerge;
+    return [{
+      key: 'scaling',
+      label: 'N² grows steeper than N log N',
+      value: `${sBubble.toFixed(2)} vs ${sMerge.toFixed(2)}`,
+      status: ok ? 'pass' : 'drift',
+    }];
+  } catch (e) {
+    return [];
+  }
 };

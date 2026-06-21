@@ -9,8 +9,8 @@ supporting_ucs: [FIS2018]
 curriculum_year: bsc-y1s1
 primary_citation: newman2013
 primary_chapter: 4
-hook: 'Watch bubble sort and merge sort race the same shuffle; their comparison counts land exactly on the N^2 and N log N curves.'
-one_paragraph: 'The same seeded shuffle is sorted by an O(N^2) comparison sort and by merge sort, O(N log N), side by side and replayed from a recorded comparison/write event stream so the speed is decoupled from the physics. Every comparison is counted live. Each finished race drops a measured point on a lower panel, on top of the theoretical 1/2 N(N-1) and N log2 N curves; the points sit on the curves, so the abstract complexity plot is the mechanism the viewer just watched. A Sweep control runs the full set of N at once to fill the curve.'
+hook: 'Watch a real sort run one comparison at a time and count them; the measured totals land on the N^2 and N log N curves.'
+one_paragraph: 'A seeded shuffle is sorted by the chosen algorithm (bubble, insertion, or merge), replayed one comparison at a time from a recorded comparison/write event stream so the speed is decoupled from the algorithm, with every comparison highlighted and counted live. The bars settle into a sorted gradient and the run loops on a fresh shuffle. The diagnostic plots the measured comparison counts of all three sorts versus N on log-log axes: the two O(N^2) sorts ride a slope-2 line and merge sort a slope-1 line, so the abstract complexity plot is the mechanism the viewer just watched.'
 tags: [numerics, algorithms, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -95,14 +95,14 @@ Leiserson, Rivest and Stein, *Introduction to Algorithms*,
 Chapters 2 to 4.
 
 ## What it shows
-The same seeded shuffle of $[1..N]$ is sorted twice at once: an
-$O(N^2)$ comparison sort (bubble or insertion) on the left, merge sort
-$O(N\log_2 N)$ on the right. Both are replayed from a recorded event
-stream (compare / swap / write), so replay speed is independent of the
-algorithm. The lower panel accumulates one measured point per finished
-race on top of the theoretical $\tfrac{1}{2}N(N-1)$ and $N\log_2 N$
-curves. Measured comparison counts fall on the predicted curves: the
-asymptotic plot is the mechanism, not a separate abstraction.
+A seeded shuffle of $[1..N]$ is sorted by the chosen algorithm (bubble,
+insertion, or merge), replayed one comparison at a time from a recorded
+event stream so the speed is independent of the algorithm, with every
+comparison highlighted and counted live. The bars settle into a sorted
+gradient and the run loops on a fresh shuffle. The lower panel plots the
+measured comparison counts of all three sorts versus $N$ on log-log axes:
+the two $O(N^2)$ sorts ride a slope-2 line and merge sort a slope-1 line,
+so the asymptotic plot is the mechanism the viewer just watched.
 
 ## Method
 `recordSort(kind, arr)` instruments textbook bubble, insertion, and

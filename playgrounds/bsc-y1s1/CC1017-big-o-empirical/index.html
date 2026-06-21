@@ -1,26 +1,25 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-  <title>Big-O Empirical Scaling</title>
-  <link rel="stylesheet" href="../../../shared/css/tokens.css">
-  <link rel="stylesheet" href="../../../shared/css/base.css">
-  <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
-          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
-  <style>
-    .pg-controls { display: grid; grid-template-columns: 1fr; gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
-    .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 11ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
-    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+<title>Big-O Empirical Scaling</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
     .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-    .pg-buttons { display: flex; gap: var(--space-3); flex-wrap: wrap; }
-    .pg-buttons button { font: inherit; padding: 6px 14px; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
-  <link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
@@ -39,53 +38,39 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Big-O empirical scaling</h1>
+      <h1 class="t-title playground-title">Big-O you can watch</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">
-        <strong>What you are seeing:</strong> the same shuffled array sorted by
-        two algorithms at once. The left panel runs an $O(N^2)$ comparison
-        sort, the right panel runs merge sort, $O(N \log_2 N)$. Every
-        comparison is counted live. The lower panel plots each finished
-        race as a point on top of the theoretical $\tfrac{1}{2}N(N-1)$ and
-        $N \log_2 N$ curves: the measured counts land on the predicted
-        curves, so the abstract complexity plot is the mechanism you just
-        watched. Press <em>Sweep</em> to fill the curve across many $N$.
-      </p>
+      <p class="t-body">Big-O is usually a formula on a whiteboard. Here it is a thing you can watch happen. The scene runs a real sort on a shuffled array, one comparison at a time, and counts every comparison it makes. Bubble and insertion sort compare roughly $N^2/2$ pairs; merge sort splits and merges in about $N\log_2 N$. The diagnostic plots those measured comparison counts against N on log-log axes, where a power law is a straight line: the two quadratic sorts ride the steep $N^2$ line, merge sort the gentler $N\log N$ one. Doubling N quadruples the work for the first and barely more than doubles it for the second, which is the entire reason real software is built on the better curve.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="880" height="560" aria-label="Simulation canvas"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" aria-label="A sort running on a bar array with a live comparison counter, and measured comparison counts versus N on log-log axes."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption">
-      <span class="figure-number">Figure 1.</span> Empirical vs theoretical comparison-sort complexity. Method: instrumented bubble/insertion vs merge sort on a seeded shuffle; measured comparison counts overplotted on the asymptotic curves.</figcaption>
+      <span class="figure-number">Figure 1.</span> Empirical Big-O. Top: a real sort running on a shuffled bar array, comparisons highlighted and counted live. Bottom: measured comparison counts versus N on log-log axes, the quadratic sorts on the $N^2$ line and merge sort on $N\log N$. Method: instrumented bubble, insertion, and merge sort.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Simulation controls">
-        <div class="row"><span class="label">array size N</span><input aria-label="array size N" type="range" id="slider-N" min="8" max="256" step="4" value="128"><span class="value" id="value-N">128</span></div>
-        <div class="row"><span class="label">speed</span><input aria-label="replay speed, comparisons per frame" type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
-        <div class="row"><span class="label">O(N^2) sort</span><select aria-label="quadratic algorithm" id="select-algo"><option value="bubble">bubble sort</option><option value="insertion">insertion sort</option></select><span class="value" id="value-algo">bubble</span></div>
-        <div class="row pg-buttons" style="grid-template-columns: 1fr;">
-          <span>
-            <button id="btn-playpause" aria-pressed="false">Pause</button>
-            <button id="btn-reset">Reset</button>
-            <button id="btn-sweep">Sweep N</button>
-          </span>
-        </div>
+        <div class="row"><span class="label">array N</span><input aria-label="array size N" type="range" id="slider-N" min="8" max="120" step="4" value="48"><span class="value" id="value-N">48</span></div>
+        <div class="row"><span class="label">speed</span><input aria-label="replay speed" type="range" id="slider-speed" min="1" max="8" step="1" value="3"><span class="value" id="value-speed">3</span></div>
+        <div class="row"><span class="label">algorithm</span><select aria-label="algorithm" id="select-algo"><option value="bubble">bubble (N²)</option><option value="insertion">insertion (N²)</option><option value="merge">merge (N log N)</option></select><span class="value" id="value-algo">bubble</span></div>
+        <div class="row buttons"><button id="btn-playpause" type="button" aria-pressed="false">Pause</button><button id="btn-reset" type="button">Reset</button></div>
       </div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Press <em>Sweep N</em> to fill the complexity plot across many array sizes at once.</li>
-        <li class="t-body">Switch the $O(N^2)$ algorithm between bubble and insertion sort and compare the comparison counts.</li>
-        <li class="t-body">Raise $N$ and watch the gap between the quadratic and $N\log N$ curves widen.</li>
+        <li class="t-body">Watch a sort run and the comparison counter climb; when it finishes, the array reshuffles and runs again.</li>
+        <li class="t-body">Switch between bubble, insertion, and merge and read the final comparison count: the quadratic sorts cost far more than merge at the same N.</li>
+        <li class="t-body">On the lower plot, the measured points land on straight lines, the slope is the exponent: about 2 for the quadratic sorts, about 1 for merge.</li>
+        <li class="t-body">Raise N and watch the gap between the curves widen, the whole point of choosing a better algorithm.</li>
       </ul>
     </section>
 
