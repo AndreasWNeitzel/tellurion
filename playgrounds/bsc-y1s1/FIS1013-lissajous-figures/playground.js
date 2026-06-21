@@ -50,8 +50,8 @@ let galleryCells = [];
 function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [
-    { name: 'hero', weight: 3.0 },
-    { name: 'gallery', weight: 1.7 },
+    { name: 'hero', weight: 3.6 },
+    { name: 'gallery', weight: 1.55 },
   ]);
 }
 
@@ -86,8 +86,12 @@ function drawHero(col) {
   const pad = 12;
   const drvLeft = 60, drvTop = 56;
   const topUI = 30;
-  const figSize = Math.min(r.w - drvLeft - pad - 6, r.h - drvTop - topUI - pad - 6);
-  const figX = r.x + drvLeft + 4;
+  // Square figure sized to fill the panel height, then centred horizontally so
+  // the left margin carries the y-driver and the right margin matches it, with
+  // no wasted strip on either side.
+  const sideGut = 56;
+  const figSize = Math.min(r.h - drvTop - topUI - pad - 6, r.w - 2 * pad - 2 * sideGut);
+  const figX = r.x + (r.w - figSize) / 2;
   const figY = r.y + topUI + drvTop;
   const half = figSize / 2 - 8;
   const cxF = figX + figSize / 2, cyF = figY + figSize / 2;
