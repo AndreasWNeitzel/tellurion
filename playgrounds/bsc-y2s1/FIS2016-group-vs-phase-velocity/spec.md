@@ -9,8 +9,8 @@ supporting_ucs: []
 curriculum_year: bsc-y2s1
 primary_citation: crawford-waves
 primary_chapter: 6
-hook: 'Add two close frequencies and a fast carrier rides inside a slow-moving envelope; in a dispersive medium the two travel at genuinely different speeds.'
-one_paragraph: 'Superpose two waves of nearby frequency and you get a fast oscillation (the carrier, moving at the phase velocity omega/k) modulated by a slow beat envelope (moving at the group velocity d omega / d k). In a non-dispersive medium the two coincide; in a dispersive one they separate, and the envelope, which carries the energy and the information, can move slower or faster than the crests inside it. The playground animates the carrier and envelope as you change the dispersion, so you watch crests slide through the packet. This is why signal speed is the group velocity, not the phase velocity. Reference: Crawford, Waves (Berkeley Physics Course), Ch. 6.'
+hook: 'A wave packet has a fast carrier that rides inside a slow-moving envelope; in a dispersive medium the two travel at genuinely different speeds and the packet spreads as it goes.'
+one_paragraph: 'A localized wave packet is a band of wavenumbers added together: psi(x,t) = sum A(k) cos(k x - omega(k) t). Its carrier crests move at the phase velocity omega/k0 and its envelope at the group velocity d omega / d k. In a non-dispersive medium the two coincide and the packet keeps its shape; in a dispersive one they separate, crests are born at one edge of the packet and die at the other, and because the components travel at different phase speeds the packet spreads over time, which a pure two-tone beat can never show. The playground animates the real packet as you change the dispersion, with a companion dispersion curve omega(k) where the phase velocity is the slope of the chord from the origin and the group velocity is the slope of the tangent at k0. This is why signal and energy travel at the group velocity, not the phase velocity. Reference: Crawford, Waves (Berkeley Physics Course), Ch. 6.'
 tags: [waves, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -29,8 +29,10 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Deep water: crests race forward through the packet (v_p > v_g); Schrödinger: the packet outruns the crests (v_g > v_p).
+  - Light: chord and tangent coincide, v_p = v_g, no crest drift and no spreading.
+  - Anomalous branch: the tangent slopes down, v_g is negative, so crests and packet move opposite ways.
+  - Widen the bandwidth and the packet shortens and spreads faster.
 references:
   - "Crawford, Waves (Berkeley Physics Course Vol. 3), Ch. 6."
 ---
