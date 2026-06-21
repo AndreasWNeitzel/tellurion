@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Poynting Vector: a Plane EM Wave in 3D</title>
+<title>Poynting vector: how a light wave carries energy</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,19 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-  body { padding: var(--space-4); }
-  .pg-figure { max-width: 860px; position: relative; }
-  .pg-figure canvas { width: 100%; height: auto; background: #05060a; cursor: grab; display: block; }
-  .pg-figure canvas.dragging { cursor: grabbing; }
-  .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 12ch 10ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
-  figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 9ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"], .pg-controls select { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -45,32 +38,42 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Poynting Vector: a Plane EM Wave in 3D</h1>
+      <h1 class="t-title playground-title">How a light wave carries energy</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A plane electromagnetic wave shown in 3D: the electric field E (red/blue) and magnetic field B (orange) oscillate in phase, perpendicular to each other and to the direction of travel, with |E| = c|B|. The white arrows are the Poynting vector S = E x B / mu0, which points along the propagation axis and carries the wave's energy at speed c, and ghost wavefront planes march forward at c. Switching modes shows linear polarization, circular (the E tip traces a helix), elliptical, and a standing wave formed by two counter-propagating waves with fixed nodes; drag to orbit and see the field geometry from any angle.</p>
+      <p class="t-body">A light wave is a braid of two fields: an electric field and a magnetic field, oscillating at right angles to each other and to the direction the wave travels. Their cross product, the Poynting vector S = E x B, points the way the energy flows and measures how much. For a wave travelling forward, E and B rise and fall together, so S is always positive: energy is carried steadily in one direction, never backward, even though the fields themselves keep flipping sign. Averaged over a cycle it settles to half the peak, which is exactly the intensity your eye or a solar panel feels. Twist the polarization into a circle and the fields trace helices of constant length, so the flow is perfectly smooth. Trap the wave between mirrors into a standing wave and something striking happens: E and B fall out of step, the Poynting vector sloshes back and forth, and the net energy transport drops to zero. The scene shows the E and B fields propagating with the energy-flow arrows; the diagnostic plots the three quantities and the time-averaged flow.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="560"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A plane electromagnetic wave shown in pseudo-3D with the electric and magnetic fields at right angles and the Poynting energy-flow arrows. Below, the E, B and S quantities along the wave with the time-averaged Poynting flow."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. E, B and the Poynting vector of a plane wave, 3D.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      A plane electromagnetic wave and its Poynting vector. Top: the electric field E (red) and magnetic field B (blue) at right angles, propagating along z, with the energy-flow S = E x B arrows (gold). Bottom: the E and B components and the Poynting flow S along the wave, with the cycle-averaged flow (dashed). Method: closed-form plane-wave fields, S = E x B with c = 1.</figcaption>
 
     <section class="playground-controls">
-      <div id="controls" class="pg-controls"></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Wave controls">
+    <div class="row"><span class="label">wave</span><select aria-label="wave mode" id="select-mode"><option value="linear" selected="">linear</option><option value="circular">circular</option><option value="standing">standing</option></select><span class="value" id="value-mode">linear</span></div>
+    <div class="row"><span class="label">wavelength</span><input aria-label="wavenumber" type="range" id="slider-k" min="0.6" max="2.2" step="0.1" value="1.0"><span class="value" id="value-k">1.0</span></div>
+    <div class="row buttons">
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
       <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the linear wave: E and B peak together, and the gold energy-flow arrows stay forward, never reversing.</li>
+        <li class="t-body">Read the lower plot: the Poynting curve never dips below zero, and its dashed average sits at half the peak, the intensity.</li>
+        <li class="t-body">Switch to circular polarization: E and B trace constant-length helices and the energy flow is perfectly steady.</li>
+        <li class="t-body">Switch to a standing wave: E and B fall out of step, the Poynting flow sloshes both ways, and its average drops to zero.</li>
       </ul>
     </section>
 

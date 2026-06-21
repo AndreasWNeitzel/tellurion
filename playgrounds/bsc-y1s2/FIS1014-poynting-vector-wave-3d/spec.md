@@ -5,10 +5,10 @@ status: verified
 audience: portfolio
 created: 2026-05-17
 hook: 'E and B are not just out of phase by ninety degrees in time, they live in perpendicular planes, and their cross product is exactly where the energy goes.'
-one_paragraph: 'A plane electromagnetic wave shown in 3D: the electric field E (red/blue) and magnetic field B (orange) oscillate in phase, perpendicular to each other and to the direction of travel, with |E| = c|B|. The white arrows are the Poynting vector S = E x B / mu0, which points along the propagation axis and carries the wave''s energy at speed c, and ghost wavefront planes march forward at c. Switching modes shows linear polarization, circular (the E tip traces a helix), elliptical, and a standing wave formed by two counter-propagating waves with fixed nodes; drag to orbit and see the field geometry from any angle. Reference: Griffiths, Introduction to Electrodynamics, Chapter 9.'
-tags: [electromagnetism, 3d, animation, live-readout]
+one_paragraph: 'A plane electromagnetic wave shown in pseudo-3D: the electric field E (red) and magnetic field B (blue) oscillate in phase, perpendicular to each other and to the direction of travel, with |E| = c|B|. The gold arrows are the Poynting vector S = E x B, which points along the propagation axis and carries the wave''s energy; for a traveling wave it is always positive, so energy flows steadily forward. The diagnostic plots E, B and S along the wave with the cycle-averaged flow: a linear wave gives S = E0^2/2 (the intensity), circular polarization (the E tip traces a helix) a steady flow, and a standing wave a sloshing S that averages to zero. The wave mode and wavelength are selectable. Reference: Griffiths, Introduction to Electrodynamics, Chapter 9.'
+tags: [electromagnetism, animation, live-readout, interactive]
 difficulty: 3
-tier: advanced
+tier: hero
 hero_candidate: true
 renderer: canvas2d
 estimated_engagement_minutes: 4
@@ -115,22 +115,24 @@ Circular: `E = E0[cos(kz-wt) x + sin(kz-wt) y]`. Standing:
 
 ## Numerical method
 
-Closed-form evaluation; no integration. A yaw/pitch orthographic
-projection renders the field ribbons, Poynting arrows and moving
-wavefront planes. Per the Bible stop-condition the renderer is
-canvas2d (the physics is pure geometry, no GPU compute needed).
+Closed-form field evaluation; no integration. Rendering is plain
+Canvas2D: an orthographic projection draws the E and B field stems and
+tip-ribbons (E along the vertical transverse axis, B along the depth
+axis), the Poynting energy-flow arrows along the propagation axis, and
+the E / B / S diagnostic. The cycle-averaged S is a short numeric time
+average.
 
 ## Controls
 
-- mode selector (linear, circular, elliptical, standing).
-- wavelength, amplitude, polarisation-angle sliders; Reset, Pause.
-- drag to orbit the camera.
+- mode selector (linear, circular, standing).
+- wavelength slider.
+- Reset, Pause.
 
 ## Expected qualitative features
 
-- E and B ribbons always perpendicular; S along +z.
-- Circular: the E tip traces a helix.
-- Standing wave: fixed nodes and antinodes, no net flux.
+- E and B ribbons always perpendicular and in phase; S along +z.
+- Circular: the E tip traces a constant-radius helix; steady S.
+- Standing wave: fixed nodes, S sloshes, time-averaged flux zero.
 
 ## Invariants and acceptance thresholds
 
