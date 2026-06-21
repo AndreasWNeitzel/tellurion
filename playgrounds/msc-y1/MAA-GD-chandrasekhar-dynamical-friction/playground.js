@@ -13,6 +13,7 @@
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { fOfX, chandrasekharDecel } from './sim.js';
+import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -27,21 +28,32 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const readoutEl = document.getElementById('readout');
 const controlsEl = document.getElementById('controls');
 
-const W = canvas.width, H = canvas.height;
-const cx = W / 2, cy = H / 2 + 10, SCALE = Math.min(W, H) * 0.40;
+let view = { w: 800, h: 1000, dpr: 1 }, REG = null;
+let SCN = { cx: 400, cy: 320, scale: 280 };
+function relayout() {
+  view = setupCanvas(canvas, ctx);
+  REG = stack({ width: view.w, height: view.h }, [
+    { name: 'scene', weight: 1.7 },
+    { name: 'diag', weight: 1.0 },
+  ]);
+  const s = REG.scene, titleH = 22, stripH = 22;
+  const draw = { x: s.x, y: s.y + titleH, w: s.w, h: s.h - titleH - stripH };
+  SCN = { cx: draw.x + draw.w / 2, cy: draw.y + draw.h / 2, scale: Math.min(draw.w, draw.h) * 0.42, draw };
+}
 const INC = 1.05;                                  // view inclination (rad)
 const cI = Math.cos(INC), sI = Math.sin(INC);
 const V0 = 1.0, SIGMA = V0 / Math.SQRT2, LNL = 4, R0 = 1.0, RMIN = 0.05;
 const DEF_M = 2.0;
 const state = { M: DEF_M, t: 0 };
 let rng = makeRng(SEED), host = [], sat, trail, running = true;
-let last = performance.now();
+let rHistory = [];                                 // {t, r} inspiral track for the diagnostic
+let tSinkPrev = null;                              // last completed sink time, for reference
 
 // 3D (orbit plane = xy, z up) -> screen, tilted about x. Returns
 // [sx, sy, depth] with depth larger = nearer the viewer.
 function project(x, y, z) {
   const yt = y * cI - z * sI, zt = y * sI + z * cI;
-  return [cx + x * SCALE, cy - yt * SCALE, zt];
+  return [SCN.cx + x * SCN.scale, SCN.cy - yt * SCN.scale, zt];
 }
 
 function reset() {
@@ -55,6 +67,7 @@ function reset() {
   }
   sat = { r: R0, phi: 0 };
   trail = [];
+  rHistory = [{ t: 0, r: R0 }];
   state.t = 0;
 }
 reset();
@@ -73,18 +86,28 @@ function step() {
   trail.push({ r: sat.r, phi: sat.phi });
   if (trail.length > 520) trail.shift();
   state.t += dt;
-  if (sat.r <= RMIN + 1e-4) { reset(); }
+  rHistory.push({ t: state.t, r: sat.r });
+  if (rHistory.length > 4000) rHistory.shift();
+  if (sat.r <= RMIN + 1e-4) { tSinkPrev = state.t; reset(); }
 }
 
-function render() {
-  ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
+function panel(col, r, title) {
+  ctx.fillStyle = col; ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
+  if (title) { ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(title, r.x + 8, r.y + 7); }
+}
+
+function drawScene(r) {
+  panel('#05060c', r, 'A satellite sinks by dynamical friction: heavier means faster');
+  const cx = SCN.cx, cy = SCN.cy, SCALE = SCN.scale;
+  ctx.save(); clipTo(ctx, SCN.draw);
   // Soft host glow.
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, SCALE * 1.2);
   g.addColorStop(0, 'rgba(70,80,140,0.20)'); g.addColorStop(1, 'rgba(70,80,140,0)');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = g; ctx.fillRect(SCN.draw.x, SCN.draw.y, SCN.draw.w, SCN.draw.h);
 
   const sx = sat.r * Math.cos(sat.phi), sy = sat.r * Math.sin(sat.phi);
-  const [pSatX, pSatY, pSatD] = project(sx, sy, 0.0);
+  const [pSatX, pSatY] = project(sx, sy, 0.0);
 
   // Build a draw list: field stars, the wake clump, depth sorted so the
   // tilt reads as 3D (near stars larger and brighter).
@@ -131,17 +154,57 @@ function render() {
   ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(pSatX, pSatY, rad * 3, 0, 6.28); ctx.fill();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(pSatX, pSatY, rad, 0, 6.28); ctx.fill();
 
+  ctx.restore();
+
+  // readout strip (the live state).
   const X = V0 / (Math.SQRT2 * SIGMA);
   if (readoutEl) {
     readoutEl.innerHTML =
       `<span class="label">M_sat</span><span class="value">${state.M.toFixed(2)}</span>` +
-      `<span class="label">orbit r</span><span class="value">${sat.r.toFixed(3)} R₀</span>` +
-      `<span class="label">X=V/√2σ</span><span class="value">${X.toFixed(2)}</span>` +
+      `<span class="label">orbit r</span><span class="value">${sat.r.toFixed(3)} R0</span>` +
+      `<span class="label">X=V/sqrt2 sigma</span><span class="value">${X.toFixed(2)}</span>` +
       `<span class="label">f(X)</span><span class="value">${fOfX(X).toFixed(3)}</span>` +
       `<span class="label">t</span><span class="value">${state.t.toFixed(1)}</span>`;
   }
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('satellite sinking by dynamical friction; heavier ⇒ faster inspiral, bigger wake', 16, H - 14);
+  const items2 = [
+    [`M_sat ${state.M.toFixed(1)}`, '#ffd166'],
+    [`orbit r ${sat.r.toFixed(2)} R0`, '#7cc8ff'],
+    [`f(X) ${fOfX(X).toFixed(3)}`, '#9be8b0'],
+    [`t ${state.t.toFixed(1)}`, '#9aa0a6'],
+  ];
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.font = fontString(canvas, 'caption', 'mono', 700);
+  let widest = 0; for (const [t] of items2) widest = Math.max(widest, ctx.measureText(t).width);
+  if (widest > r.w / 4 - 8) ctx.font = fontString(canvas, 'tick', 'mono', 700);
+  items2.forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 12); });
+}
+
+// Diagnostic: the orbital radius r(t), which steepens as the satellite sinks
+// (r dr/dt is roughly constant, so r^2 falls linearly and the inspiral
+// accelerates toward the centre).
+function drawDiag(r) {
+  panel('#0a0c12', r, 'Inspiral: orbital radius r(t) decays, ever faster');
+  const inner = { x: r.x + 40, y: r.y + 28, w: r.w - 40 - 16, h: r.h - 28 - 32 };
+  const tMax = Math.max(rHistory.length ? rHistory[rHistory.length - 1].t : 1, tSinkPrev || 1, 1);
+  const xOf = (t) => inner.x + (t / tMax) * inner.w;
+  const yOf = (rr) => inner.y + inner.h - (rr / R0) * inner.h;
+  ctx.strokeStyle = 'rgba(255,255,255,0.09)'; ctx.lineWidth = 0.8; ctx.fillStyle = '#9aa0a6';
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const rr of [0, 0.5, 1.0]) { const y = yOf(rr); ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText(rr.toFixed(1), inner.x - 5, y); }
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  ctx.strokeStyle = '#7cc8ff'; ctx.lineWidth = 2.2; ctx.beginPath();
+  rHistory.forEach((q, i) => { const x = xOf(q.t), y = yOf(q.r); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
+  ctx.stroke();
+  if (rHistory.length) { const q = rHistory[rHistory.length - 1]; ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(xOf(q.t), yOf(q.r), 4, 0, 6.28); ctx.fill(); }
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('time t', inner.x + inner.w / 2, inner.y + inner.h + 8);
+  ctx.save(); ctx.translate(inner.x - 26, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('orbit r / R0', 0, 0); ctx.restore();
+}
+
+function render() {
+  if (!REG) relayout();
+  ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, view.w, view.h);
+  drawScene(REG.scene);
+  drawDiag(REG.diag);
 }
 
 // Cheap deterministic hash for wake jitter (stable per index, no rng
@@ -190,32 +253,23 @@ window.__physicsCheck = async () => {
 };
 
 
+window.addEventListener('resize', () => { relayout(); render(); });
+if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
+
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const X = V0 / (Math.SQRT2 * SIGMA);
-  const aDF = chandrasekharDecel(V0, SIGMA, 1.0, LNL);
   return { fields: [
-    { key: 'M-sat', label: 'satellite mass $M_{\text{sat}}$ (solar masses)', value: state.M.toFixed(2), format: 'string' },
-    { key: 'r-orbit', label: 'orbital radius $r$ (units of $R_0$)', value: sat.r.toFixed(3), format: 'string' },
-    { key: 'time', label: 'time $t$', value: state.t.toFixed(1), format: 'string' },
-    { key: 'f-X', label: 'Chandrasekhar $f(X)$', value: fOfX(X).toFixed(3), format: 'string' },
+    { key: 'M-sat', label: 'satellite mass (host units)', value: state.M, format: 'float' },
+    { key: 'r-orbit', label: 'orbital radius r / R0', value: sat.r, format: 'float' },
+    { key: 'time', label: 'time t', value: state.t, format: 'float' },
+    { key: 'f-X', label: 'Chandrasekhar f(X)', value: fOfX(X), format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  const X = V0 / (Math.SQRT2 * SIGMA);
   return [
-    {
-      key: 'orbit-decaying',
-      label: 'orbit $r$ decreases over time',
-      value: sat.r < R0 ? 'pass' : 'pending',
-      status: sat.r < R0 ? 'pass' : 'pending',
-    },
-    {
-      key: 'radius-positive',
-      label: '$r > r_{\min}$',
-      value: sat.r.toExponential(2),
-      status: sat.r > RMIN ? 'pass' : 'drift',
-    },
+    { key: 'orbit-decaying', label: 'orbit r decreases over time', value: sat.r < R0 ? 'pass' : 'pending', status: sat.r < R0 ? 'pass' : 'pending' },
+    { key: 'radius-positive', label: 'r stays above r_min', value: sat.r.toExponential(2), status: sat.r > RMIN ? 'pass' : 'drift' },
   ];
 };

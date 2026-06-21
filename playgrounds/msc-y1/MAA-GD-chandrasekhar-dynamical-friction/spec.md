@@ -28,8 +28,9 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Raise the perturber mass and watch the inspiral steepen sharply and the wake grow denser.
+  - Read the r(t) diagnostic: the curve bends downward and accelerates as the orbit shrinks.
+  - The luminous overdensity behind the satellite is the gravitational wake whose pull decelerates it.
 references:
   - "Binney, Tremaine, Galactic Dynamics, 2nd ed."
 ---
