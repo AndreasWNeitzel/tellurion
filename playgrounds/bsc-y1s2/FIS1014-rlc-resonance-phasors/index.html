@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Driven RLC Resonance and Phasors</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Driven RLC Resonance and Phasors</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Drive a series resistor, inductor and capacitor with an alternating voltage and the circuit answers most strongly at one special frequency. The impedance is $Z = R + i(\omega L - 1/\omega C)$: the inductor and capacitor reactances fight each other, and at $\omega_0 = 1/\sqrt{LC}$ they exactly cancel, leaving only $R$. There the current is largest, $V_0/R$, and it swings in phase with the drive. The phasor diagram tells the whole story: $V_R$ points along the current, $V_L$ leads it by 90 degrees, $V_C$ lags by 90 degrees, and they add tip-to-tail to the source voltage. The sharpness of the resonance is the quality factor $Q = (1/R)\sqrt{L/C}$, which is also how many times larger $V_L$ and $V_C$ grow than the source at resonance (they are equal and opposite, each $Q$ times $V_0$), and it sets the bandwidth $\Delta\omega = \omega_0/Q$. This single peak is how every radio tunes to one station.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="780" height="1020" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="The rotating phasor diagram of a driven series RLC circuit, and the resonance curve of current amplitude versus drive frequency."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Driven series RLC resonance. Top: the phasor diagram, V_R along the current, V_L and V_C ninety degrees ahead and behind, summing to the source. Bottom: the resonance curve of current amplitude versus drive frequency, peaking at f0 with the half-power band set by Q. Method: closed-form steady-state AC impedance. Source: Young and Freedman, University Physics, 14e, Ch. 31.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="RLC controls">
+    <div class="row"><span class="label">R (Ohm)</span><input aria-label="resistance R (Ohm)" type="range" id="slider-R" min="5" max="300" step="1" value="50"><span class="value" id="value-R">50</span></div>
+    <div class="row"><span class="label">L (mH)</span><input aria-label="inductance L (mH)" type="range" id="slider-L" min="1" max="50" step="0.5" value="10"><span class="value" id="value-L">10.0</span></div>
+    <div class="row"><span class="label">C (uF)</span><input aria-label="capacitance C (uF)" type="range" id="slider-C" min="0.1" max="10" step="0.1" value="1"><span class="value" id="value-C">1.00</span></div>
+    <div class="row"><span class="label">f (Hz)</span><input aria-label="drive frequency f (Hz)" type="range" id="slider-F" min="100" max="5000" step="10" value="1592"><span class="value" id="value-F">1592</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Sweep the drive frequency $f$ across the peak: the current marker climbs to the top of the resonance curve at $f_0$, and in the phasor diagram the reactive part shrinks to zero and the source lines up with $V_R$.</li>
+        <li class="t-body">Drop the resistance $R$: the peak gets taller and narrower, $Q$ rises, and $V_L$ and $V_C$ balloon far beyond the source voltage at resonance.</li>
+        <li class="t-body">Below $f_0$ the capacitor wins (the phase is negative, the circuit is capacitive); above $f_0$ the inductor wins (the phase is positive).</li>
+        <li class="t-body">Change $L$ or $C$ and watch $f_0 = 1/(2\pi\sqrt{LC})$ slide along the frequency axis.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
