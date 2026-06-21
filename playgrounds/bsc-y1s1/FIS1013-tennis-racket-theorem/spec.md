@@ -10,7 +10,7 @@ curriculum_year: bsc-y1s1
 primary_citation: goldstein-mech
 primary_chapter: 5
 hook: 'Spin a flat body about its middle axis and it flips, again and again, with energy and angular momentum perfectly conserved.'
-one_paragraph: 'A free rigid body integrates Euler equations with principal moments I1 < I2 < I3 and a quaternion for orientation. Rotation about the largest or smallest principal axis is stable; rotation about the intermediate axis is linearly unstable, so a tiny perturbation grows and the body periodically reverses, the tennis-racket / Dzhanibekov effect, while the kinetic energy and the angular-momentum magnitude stay exactly constant. The spin axis, spin rate and perturbation are adjustable; a decaying corner trace makes each flip obvious.'
+one_paragraph: 'A free rigid body integrates Euler equations with principal moments I1 < I2 < I3 and a quaternion for orientation. Rotation about the largest or smallest principal axis is stable; rotation about the intermediate axis is linearly unstable, so a tiny perturbation grows and the body periodically reverses, the tennis-racket / Dzhanibekov effect, while the kinetic energy and the angular-momentum magnitude stay exactly constant. The body is drawn in orthographic pseudo-3D (depth-sorted, lambert-shaded boxes) with its three principal axes and the fixed angular-momentum direction; the diagnostic plots the three body-frame spin rates, the middle one reversing sign at each flip, and a counter logs the flips.'
 tags: [mechanics, rigid-body, 3d, animation, live-readout]
 difficulty: 4
 tier: simple
@@ -119,12 +119,14 @@ RK4 on $\boldsymbol\omega$ at $\Delta t = 1/480\,$s; explicit
 quaternion update with renormalisation each step.
 
 ## Controls
-- `object`: T-handle / tennis racket / smartphone / hardback book
-  (each with its true principal moments computed from the geometry).
-- `spin axis`: major / intermediate / minor.
-- `spin rate` (3..10) and `perturbation` (0.005..0.12).
+- `object`: T-handle / book / phone / racket (built as depth-sorted
+  shaded boxes; the broad face carries a sticker colour so the flip
+  reads).
+- `spin axis`: major / middle / minor.
+- `spin rate` (3..10) and `nudge` (0.005..0.12).
 - Pause / Play, Reset.
-- Side panel: body-frame omega(t) with conserved I, E, |L|.
+- Diagnostic band: body-frame omega(t) with a live flip counter and
+  the conserved E and |L| readouts in the rail.
 
 ## Expected qualitative features
 1. Major- and minor-axis spins are visibly steady.
