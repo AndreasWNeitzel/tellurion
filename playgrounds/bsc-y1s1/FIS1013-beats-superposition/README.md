@@ -1,22 +1,25 @@
 # Beats from superposition
 
-The sum of two cosines at close frequencies, y(t) = cos(2 pi f_1 t) +
-cos(2 pi f_2 t), can be rewritten via the product-to-sum identity as
-2 cos(2 pi f_bar t) cos(2 pi f_b t), where f_bar = (f_1 + f_2) / 2 is the
-carrier and f_b = |f_1 - f_2| / 2 is the envelope rate. The audible beat
-rate (the rate of amplitude maxima) is twice that: |f_1 - f_2|. Everything
-here is closed form; no integrator is needed.
+Two waves of nearly equal frequency add to a fast carrier riding inside a
+slow group envelope. The top panel shows this in space: the same two
+frequencies travel through a dispersive medium (deep-water ripples,
+omega = sqrt(g k)), and the superposition becomes a moving wave group.
+Balls sit on the carrier crests and stream forward at the phase velocity
+v_p = omega_bar / k_bar, while the group envelope creeps along at the group
+velocity v_g = dω/dk. For deep water v_g = v_p / 2 exactly, so the crests
+appear at the rear of the group, sweep through it, and vanish at the front.
 
-Look for: with f_1 = 5.0 and f_2 = 4.7, the audible beat rate is 0.3 Hz,
-so the amplitude waxes and wanes with period 1 / 0.3 = 3.33 seconds. Slide
-f_2 toward f_1 and the envelope stretches without bound; at f_1 = f_2 the
-beats disappear. The spectrum panel below shows two bars at f_1 and f_2;
-the envelope is not at those frequencies but at their difference divided
-by 2.
+Listen at one fixed point instead and the same two tones give the temporal
+beat: cos(2 pi f_1 t) + cos(2 pi f_2 t) equals 2 cos(2 pi f_bar t)
+cos(2 pi f_b t), waxing and waning at the audible beat rate |f_1 - f_2|
+(twice the envelope rate). The middle panel is that signal at a point; the
+lower panels show the two-line spectrum and the envelope period. With
+f_1 = 5.0 and f_2 = 4.7 the beat rate is 0.3 Hz, a 3.33 s period.
 
-Use the f_1 and f_2 sliders to set the two frequencies. Speed controls
-how fast the time cursor sweeps across the waveform. Reset returns the
-cursor to t = 0.
+Use the f_1 and f_2 sliders to set the two frequencies; their difference
+sets both the beat and the spacing between phase and group velocity. Speed
+controls how fast the group travels and the time cursor sweeps. Reset
+returns to t = 0.
 
 ## Reference
 

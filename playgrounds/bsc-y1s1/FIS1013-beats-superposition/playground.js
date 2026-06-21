@@ -1,21 +1,24 @@
 // playground.js
-// Beats from superposition of two close-frequency cosines.
+// Beats from superposition of two close-frequency waves.
 //
 // Vertical 4:5 composition, top to bottom:
-//   1. HERO: the sum y1 + y2 inside a glowing envelope band whose colour
-//      tracks the instantaneous amplitude (viridis), so the beat reads as a
-//      swell-and-pinch even when the carrier is a dense hatch at small sizes.
-//   2. COMPONENTS: y1 and y2 drawn together so you watch them drift into and
-//      out of phase, tinted by the same envelope so "aligned" reads as "loud".
-//   3. DIAGNOSTICS: a frequency spectrum (two lines that separate as the
+//   1. HERO (space): the same two close frequencies travelling in a dispersive
+//      medium (deep-water ripples). The superposition is a moving wave group;
+//      balls ride the carrier crests at the phase velocity while the group
+//      envelope creeps at half that speed. Velocity arrows make the contrast
+//      explicit. This is where group vs phase velocity lives.
+//   2. COMPONENTS (time): y1 and y2 at a fixed point, drifting in and out of
+//      phase: what an ear at one spot hears.
+//   3. DIAGNOSTICS (time): a frequency spectrum (two lines that separate as the
 //      detuning grows) beside the |envelope| trace with the beat period marked.
 
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { stack, setupCanvas } from '../../../shared/js/render/vertical-layout.js';
-import { viridis } from '../../../shared/js/render/colormaps.js';
 import {
   y1, y2, ySum, envelope, envelopeFreq, beatRate, carrierFreq,
+  yField, envelopeField, phaseVel, groupVel,
+  carrierWavelength, beatWavelength, waveK, omega,
 } from './sim.js';
 
 const urlParams = new URLSearchParams(location.search);
@@ -44,7 +47,7 @@ const F_HI = parseFloat(sliderF1.max);
 const state = {
   f1: 5.0,
   f2: 4.7,
-  speed: 2,
+  speed: 3,
   tNow: 0,
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
@@ -104,133 +107,159 @@ function panel(col, r, title) {
   }
 }
 
-// ---- HERO: sum inside a glowing envelope band -----------------------------
-function drawHero(col, T) {
+// ---- HERO: a travelling beat in space, crests outrunning the group --------
+// The same two close frequencies in a dispersive medium (deep-water ripples).
+// Superposition makes a moving wave group: the carrier crests stream forward
+// at the phase velocity while the group envelope creeps at half that speed.
+function spatialWindow() {
+  const lc = carrierWavelength(state.f1, state.f2);
+  if (!isFinite(lc)) return 1;
+  const lb = beatWavelength(state.f1, state.f2);
+  const Lbeat = 2.1 * (isFinite(lb) ? lb : 30 * lc);
+  return clamp(Lbeat, 6 * lc, 30 * lc);
+}
+
+function drawHero(col) {
   const r = REG.sum;
   panel(col, r, null);
 
-  const padL = 10, padR = 10, padTop = 26, padBot = 10;
+  const padL = 12, padR = 12, padTop = 46, padBot = 30;
   const x0 = r.x + padL, x1 = r.x + r.w - padR, sw = x1 - x0;
   const yc = r.y + padTop + (r.h - padTop - padBot) / 2;
   const half = (r.h - padTop - padBot) / 2;
-  const AMAX = 2.15;
+  const AMAX = 2.25;
   const ay = (a) => yc - (a / AMAX) * half;
-  const tAt = (i) => state.tNow + (i / sw) * T;
+  const L = spatialWindow();
+  const t = state.tNow;
+  const xAt = (i) => (i / sw) * L;          // metres
+  const sxOf = (xm) => x0 + (xm / L) * sw;   // metres -> screen x
 
-  // Envelope band: one column per logical pixel, coloured by local amplitude.
-  for (let i = 0; i <= sw; i += 1) {
-    const env = Math.abs(envelope(tAt(i), state.f1, state.f2)); // 0..2
-    const c = viridis(clamp(env / 2, 0, 1));
-    ctx.fillStyle = rgba(c, 0.55);
-    const yTop = ay(env), yBot = ay(-env);
-    ctx.fillRect(x0 + i, yTop, 1, Math.max(1, yBot - yTop));
-  }
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(r.x + 1, r.y + padTop - 8, r.w - 2, (r.h - padTop - padBot) + 16);
+  ctx.clip();
 
   // Zero line.
-  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
   ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(x0, ay(0));
-  ctx.lineTo(x1, ay(0));
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0, ay(0)); ctx.lineTo(x1, ay(0)); ctx.stroke();
 
-  // Envelope outline (+/-), brighter than the band fill.
+  // Group envelope outline (+/-), muted so the sum and riders stay legible.
   for (const sign of [1, -1]) {
-    ctx.strokeStyle = rgba(viridis(0.9), 0.7);
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(170,196,222,0.40)';
+    ctx.lineWidth = 1.1;
     ctx.beginPath();
     for (let i = 0; i <= sw; i += 1) {
-      const env = Math.abs(envelope(tAt(i), state.f1, state.f2));
-      const px = x0 + i, py = ay(sign * env);
-      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      const e = Math.abs(envelopeField(xAt(i), t, state.f1, state.f2));
+      const py = ay(sign * e);
+      if (i === 0) ctx.moveTo(x0, py); else ctx.lineTo(x0 + i, py);
     }
     ctx.stroke();
   }
 
-  // The sum waveform threaded through the band.
+  // The travelling sum.
   ctx.strokeStyle = col.accent;
-  ctx.lineWidth = 1.6;
+  ctx.lineWidth = 1.8;
   ctx.beginPath();
   for (let i = 0; i <= sw; i += 1) {
-    const yv = clamp(ySum(tAt(i), state.f1, state.f2), -AMAX, AMAX);
-    const px = x0 + i, py = ay(yv);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    const yv = clamp(yField(xAt(i), t, state.f1, state.f2), -AMAX, AMAX);
+    if (i === 0) ctx.moveTo(x0, ay(yv)); else ctx.lineTo(x0 + i, ay(yv));
   }
   ctx.stroke();
 
-  // Rider dots bob on the sum and glow with the local amplitude: the motion
-  // that makes a still frame read as alive.
-  const nDots = Math.max(6, Math.round(sw / 60));
-  for (let k = 0; k <= nDots; k += 1) {
-    const i = (k / nDots) * sw;
-    const t = tAt(i);
-    const env = Math.abs(envelope(t, state.f1, state.f2));
-    const yv = clamp(ySum(t, state.f1, state.f2), -AMAX, AMAX);
-    const c = viridis(clamp(env / 2, 0, 1));
-    const rad = 1.6 + 2.4 * clamp(env / 2, 0, 1);
-    ctx.beginPath();
-    ctx.fillStyle = rgba(c, 0.95);
-    ctx.arc(x0 + i, ay(yv), rad, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // Mark the nearest beat node (the silence) inside the window.
-  const fb = beatRate(state.f1, state.f2);
-  if (fb > 1e-3) {
-    // envelope zeros where cos(pi*df*t) = 0 -> t = (2n+1)/(2*df)
-    const df = Math.abs(state.f1 - state.f2);
-    const nFirst = Math.ceil((2 * df * state.tNow - 1) / 2);
-    const tNode = (2 * nFirst + 1) / (2 * df);
-    const frac = (tNode - state.tNow) / T;
-    if (frac >= 0.04 && frac <= 0.96) {
-      const xN = x0 + frac * sw;
-      ctx.strokeStyle = 'rgba(255,255,255,0.30)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath();
-      ctx.moveTo(xN, r.y + padTop);
-      ctx.lineTo(xN, r.y + r.h - padBot);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.font = fontString(canvas, 'caption', 'sans');
-      ctx.fillStyle = 'rgba(255,255,255,0.55)';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText('beat node', xN, r.y + r.h - padBot - 2);
+  // Group marker: a translucent band on the envelope peak nearest the centre,
+  // travelling at the group velocity. Drawn before the riders so the balls sit
+  // on top.
+  const dk = waveK(state.f1) - waveK(state.f2);
+  const dw = omega(state.f1) - omega(state.f2);
+  if (Math.abs(dk) > 1e-9) {
+    const mCenter = (dk * (L / 2) - dw * t) / (2 * Math.PI);
+    let best = null;
+    for (const m of [Math.floor(mCenter), Math.ceil(mCenter)]) {
+      const xm = (2 * Math.PI * m + dw * t) / dk;
+      if (xm >= 0 && xm <= L) {
+        if (best === null || Math.abs(xm - L / 2) < Math.abs(best - L / 2)) best = xm;
+      }
+    }
+    if (best !== null) {
+      const xg = sxOf(best);
+      ctx.fillStyle = 'rgba(214,138,105,0.14)';
+      ctx.fillRect(xg - 10, r.y + padTop - 8, 20, (r.h - padTop - padBot) + 16);
+      ctx.strokeStyle = col.warm; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(xg, ay(2.2)); ctx.lineTo(xg, ay(-2.2)); ctx.stroke();
     }
   }
 
-  // Title.
+  // Phase riders: balls on carrier crests x_n = (2 pi n + wbar t)/kbar; they
+  // stream right at the phase velocity and bob as the envelope passes through.
+  const kbar = 0.5 * (waveK(state.f1) + waveK(state.f2));
+  const wbar = 0.5 * (omega(state.f1) + omega(state.f2));
+  if (kbar > 1e-9) {
+    const nLo = Math.ceil((-wbar * t) / (2 * Math.PI));
+    const nHi = Math.floor((kbar * L - wbar * t) / (2 * Math.PI));
+    let mid = null, midDist = Infinity;
+    for (let n = nLo; n <= nHi; n += 1) {
+      const xn = (2 * Math.PI * n + wbar * t) / kbar;
+      const d = Math.abs(xn - L / 2);
+      if (d < midDist) { midDist = d; mid = n; }
+    }
+    for (let n = nLo; n <= nHi; n += 1) {
+      const xn = (2 * Math.PI * n + wbar * t) / kbar;
+      const yv = envelopeField(xn, t, state.f1, state.f2);   // sits on the crest
+      const isPhase = (n === mid);
+      ctx.fillStyle = isPhase ? '#ffffff' : col.cool;
+      ctx.beginPath();
+      ctx.arc(sxOf(xn), ay(clamp(yv, -AMAX, AMAX)), isPhase ? 5 : 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+
+  // Title (top-left).
   ctx.font = fontString(canvas, 'heading', 'sans', 600);
   ctx.fillStyle = col.accent;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.fillText('y₁ + y₂', r.x + 8, r.y + 6);
+  ctx.fillText('y(x): a travelling beat', r.x + 8, r.y + 6);
 
-  // Compact readout (top-right), self-contained for a Reel crop.
-  const lines = [
-    `f₁ ${state.f1.toFixed(2)} Hz`,
-    `f₂ ${state.f2.toFixed(2)} Hz`,
-    `beat ${fb.toFixed(2)} Hz`,
-    `carrier ${carrierFreq(state.f1, state.f2).toFixed(2)} Hz`,
-  ];
+  // Velocity arrows from a common origin: phase crests stream forward; the
+  // group creeps at half the speed (the exact deep-water result). Phase on
+  // top in cool, group below in warm, so they match the riders and the band.
+  const vp = phaseVel(state.f1, state.f2), vg = groupVel(state.f1, state.f2);
+  const ax0 = r.x + 16;
+  const maxLen = Math.min(140, (r.w - 60) * 0.40);
+  const vmax = Math.max(vp, 1e-6);
+  const arrow = (yy, len, color, lab) => {
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2.6;
+    ctx.beginPath(); ctx.moveTo(ax0, yy); ctx.lineTo(ax0 + Math.max(6, len), yy); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ax0 + Math.max(6, len), yy);
+    ctx.lineTo(ax0 + Math.max(6, len) - 7, yy - 4);
+    ctx.lineTo(ax0 + Math.max(6, len) - 7, yy + 4);
+    ctx.closePath(); ctx.fill();
+    ctx.font = fontString(canvas, 'caption', 'mono', 700);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = color;
+    ctx.fillText(lab, ax0 + maxLen + 12, yy);
+  };
+  arrow(r.y + 27, maxLen * (vp / vmax), col.cool, `phase ${vp.toFixed(2)} m/s`);
+  arrow(r.y + 41, maxLen * (vg / vmax), col.warm, `group ${vg.toFixed(2)} m/s`);
+
+  // Compact f1/f2 readout (top-right) so a Reel crop of just the hero is
+  // self-contained.
+  const lines = [`f₁ ${state.f1.toFixed(2)} Hz`, `f₂ ${state.f2.toFixed(2)} Hz`];
   ctx.font = fontString(canvas, 'mono', 'mono');
-  const lh = 16;
   let bw = 0;
   for (const s of lines) bw = Math.max(bw, ctx.measureText(s).width);
   bw += 14;
-  const bh = lines.length * lh + 10;
   const bx = r.x + r.w - bw - 8, by = r.y + 6;
   ctx.fillStyle = 'rgba(8,10,18,0.78)';
-  ctx.fillRect(bx, by, bw, bh);
-  ctx.strokeStyle = col.border;
-  ctx.lineWidth = 1;
-  ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
-  ctx.fillStyle = col.accent;
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'top';
-  let dy = by + 6;
-  for (const s of lines) { ctx.fillText(s, bx + bw - 7, dy); dy += lh; }
+  ctx.fillRect(bx, by, bw, lines.length * 16 + 8);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1;
+  ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, lines.length * 16 + 7);
+  ctx.fillStyle = col.fg; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  let dy = by + 5;
+  for (const s of lines) { ctx.fillText(s, bx + bw - 7, dy); dy += 16; }
 }
 
 // ---- COMPONENTS: y1 and y2 drifting in and out of phase -------------------
@@ -245,15 +274,6 @@ function drawComponents(col, T) {
   const AMAX = 1.18;
   const ay = (a) => yc - (a / AMAX) * half;
   const tAt = (i) => state.tNow + (i / sw) * T;
-
-  // Faint envelope tint so loud regions (waves aligned) are visibly brighter.
-  const step = 3;
-  for (let i = 0; i <= sw; i += step) {
-    const env = Math.abs(envelope(tAt(i), state.f1, state.f2));
-    const c = viridis(clamp(env / 2, 0, 1));
-    ctx.fillStyle = rgba(c, 0.10);
-    ctx.fillRect(x0 + i, r.y + padTop, step, r.h - padTop - padBot);
-  }
 
   const drawWave = (fn, color) => {
     ctx.strokeStyle = color;
@@ -278,7 +298,7 @@ function drawComponents(col, T) {
   ctx.fillStyle = col.warm;
   ctx.fillText('y₂', r.x + 28, r.y + 7);
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
-  ctx.fillText('aligned → loud', r.x + 56, r.y + 7);
+  ctx.fillText('at one point, over time: in and out of phase', r.x + 56, r.y + 7);
 }
 
 // ---- DIAGNOSTICS: spectrum beside the |envelope| trace --------------------
@@ -403,13 +423,13 @@ function drawAll() {
   ctx.fillStyle = col.bg;
   ctx.fillRect(0, 0, view.w, view.h);
   const T = windowSpan();
-  drawHero(col, T);
+  drawHero(col);
   drawComponents(col, T);
   drawDiagnostics(col, T);
 }
 
 function tickN(n) {
-  for (let i = 0; i < n; i += 1) state.tNow += 0.002;
+  for (let i = 0; i < n; i += 1) state.tNow += 0.003;
 }
 
 // Control event listeners
@@ -491,9 +511,10 @@ window.playground.getState = function getState() {
     fields: [
       { key: 'f1', label: 'frequency f₁', value: state.f1, unit: 'Hz', format: 'fixed-2' },
       { key: 'f2', label: 'frequency f₂', value: state.f2, unit: 'Hz', format: 'fixed-2' },
-      { key: 'carrier', label: 'carrier f̄', value: carrierFreq(state.f1, state.f2), unit: 'Hz', format: 'fixed-3' },
-      { key: 'envelope', label: 'envelope f_b', value: envelopeFreq(state.f1, state.f2), unit: 'Hz', format: 'fixed-3' },
       { key: 'beat', label: 'audible beat', value: beatRate(state.f1, state.f2), unit: 'Hz', format: 'fixed-2' },
+      { key: 'vp', label: 'phase velocity', value: phaseVel(state.f1, state.f2), unit: 'm/s', format: 'fixed-3' },
+      { key: 'vg', label: 'group velocity', value: groupVel(state.f1, state.f2), unit: 'm/s', format: 'fixed-3' },
+      { key: 'ratio', label: 'v_p / v_g', value: groupVel(state.f1, state.f2) > 1e-9 ? phaseVel(state.f1, state.f2) / groupVel(state.f1, state.f2) : 0, format: 'fixed-2' },
     ],
   };
 };
@@ -505,7 +526,6 @@ window.playground.getInvariants = function getInvariants() {
   });
   return [
     mk('beat_rate', 'beat = |f₁ - f₂|', beatRate(f1, f2) - Math.abs(f1 - f2), 1e-9),
-    mk('carrier', 'carrier = (f₁+f₂)/2', carrierFreq(f1, f2) - (f1 + f2) / 2, 1e-9),
-    mk('envelope', 'envelope = |f₁-f₂|/2', envelopeFreq(f1, f2) - Math.abs(f1 - f2) / 2, 1e-9),
+    mk('group_half', 'v_group = v_phase / 2', groupVel(f1, f2) - 0.5 * phaseVel(f1, f2), 1e-6),
   ];
 };

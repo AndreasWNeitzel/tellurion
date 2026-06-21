@@ -43,17 +43,23 @@
 
     <section class="playground-intro">
       <p class="t-body">
-        <strong>What you are seeing:</strong> the sum of two cosines of nearby
-        frequencies, $y(t) = \cos(2\pi f_1 t) + \cos(2\pi f_2 t)$. By a standard
-        trig identity this equals $2 \cos(2\pi \bar{f} t) \cos(2\pi f_b t)$, where
-        $\bar{f} = (f_1 + f_2)/2$ is the carrier and $f_b = |f_1 - f_2| / 2$ is
-        the envelope rate. The audible beat rate is $|f_1 - f_2|$, twice the
-        envelope rate, because the ear hears amplitude modulation and a maximum
-        occurs every half-period of the envelope.
+        <strong>What you are seeing:</strong> two waves of nearly equal frequency
+        added together, $y = \cos(k_1 x - \omega_1 t) + \cos(k_2 x - \omega_2 t)$.
+        By a standard trig identity this is a fast carrier $\cos(\bar{k} x -
+        \bar{\omega} t)$ riding inside a slow group envelope. The top panel shows
+        the pattern travelling through space (deep-water ripples, $\omega =
+        \sqrt{g k}$): the balls sit on the carrier crests and stream forward at
+        the <em>phase velocity</em> $v_p = \bar{\omega}/\bar{k}$, while the whole
+        group creeps along at the <em>group velocity</em> $v_g = d\omega/dk$. For
+        deep water $v_g = v_p / 2$ exactly, so the crests visibly overtake the
+        group, appearing at its rear and dying at its front.
       </p>
       <p class="t-body">
-        Move the $f_2$ slider toward $f_1$ and the envelope stretches out. At
-        $f_1 = f_2$ the beats disappear and the sum collapses to $2\cos(2\pi f t)$.
+        Listen at one fixed point instead and you hear the temporal beat: the
+        middle and lower panels show $\cos(2\pi f_1 t) + \cos(2\pi f_2 t)$ swell
+        and fade at the audible beat rate $|f_1 - f_2|$. Move $f_2$ toward $f_1$
+        and the group stretches and slows; at $f_1 = f_2$ the beat vanishes and
+        phase and group move together.
       </p>
     </section>
 
@@ -63,20 +69,24 @@
       </button>
       <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0"
               data-plot-role="diagnostic"
-              aria-label="Beats superposition: two close-frequency cosines and their sum with envelope."></canvas>
+              aria-label="A travelling wave group from two close frequencies, with carrier crests moving at the phase velocity and the group at the group velocity, above the temporal beat at a fixed point with its spectrum and envelope."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption">
       <span class="figure-number">Figure 1.</span>
-      Beats from two nearby frequencies. Method: closed-form evaluation of
-      $\cos(2\pi f_1 t) + \cos(2\pi f_2 t)$ on a scrolling time window, with
-      the slow envelope drawn over the sum.</figcaption>
+      Beats and wave groups from two nearby frequencies. Top: the superposition
+      travelling in space through a dispersive medium, with carrier crests
+      (phase velocity) outrunning the group envelope (group velocity); for
+      deep-water dispersion $v_g = v_p/2$. Middle and bottom: the same two tones
+      at a fixed point in time, the audible beat at rate $|f_1 - f_2|$, with the
+      frequency spectrum and the envelope period. Method: closed-form
+      superposition; $\omega = \sqrt{g k}$.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Beats controls">
         <div class="row"><span class="label">$f_1$ (Hz)</span><input aria-label="f_1 (Hz)" type="range" id="slider-f1" min="3" max="7" step="0.05" value="5.0"><span class="value" id="value-f1">5.00</span></div>
         <div class="row"><span class="label">$f_2$ (Hz)</span><input aria-label="f_2 (Hz)" type="range" id="slider-f2" min="3" max="7" step="0.05" value="4.7"><span class="value" id="value-f2">4.70</span></div>
-        <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="6" step="1" value="2"><span class="value" id="value-speed">2</span></div>
+        <div class="row"><span class="label">speed</span><input aria-label="speed" type="range" id="slider-speed" min="1" max="6" step="1" value="3"><span class="value" id="value-speed">3</span></div>
         <div class="row buttons">
           <button id="btn-reset" type="button">Reset</button>
           <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
@@ -87,8 +97,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Move $f_2$ toward $f_1$ and watch the envelope stretch as the beat slows.</li>
-        <li class="t-body">Set $f_1 = f_2$ exactly: the beats vanish and the sum is a pure tone.</li>
+        <li class="t-body">Watch the balls on the crests race forward through the group, twice as fast as the group itself drifts: phase velocity against group velocity.</li>
+        <li class="t-body">Move $f_2$ toward $f_1$ and the group stretches out and slows; the audible beat in the lower panels slows with it.</li>
+        <li class="t-body">Set $f_1 = f_2$ exactly: the group fills the whole window, the beat vanishes, and phase and group move together.</li>
         <li class="t-body">Pull $f_1$ and $f_2$ far apart and see the spectrum bars separate while the beat speeds up.</li>
       </ul>
     </section>
