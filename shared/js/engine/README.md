@@ -32,6 +32,12 @@ Engines under this directory are imported by playgrounds and by `tests/engines/*
 | sph-2d.js | none | no |
 | pic-2d.js | particle-mesh.js | no |
 | gp-solver.js | none | no |
+| polytrope.js | none | yes |
+
+`polytrope.js` is a static structure solver (Lane-Emden RK4), not a
+time-stepper, so it exports `laneEmden`, `thetaAt`, `dthetaAt`,
+`soundSpeed2` rather than the `step`/`diagnostics` contract. Used by the
+stellar-oscillation-modes and p-g-mode-cavities playgrounds.
 
 ## Engines surfaced by the 40-entry ratified catalog
 

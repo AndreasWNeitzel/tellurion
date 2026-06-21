@@ -43,15 +43,15 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
+      <canvas class="playground-canvas" id="stage" width="800" height="1000"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Propagation diagram.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> p- and g-mode cavities of an n=3 polytrope. Top: a pulsating cross-section, the mode displacement field, large in the cavity where it propagates and evanescent elsewhere (red and blue are opposite phase). Bottom: the propagation diagram, the buoyancy frequency N(r) and the Lamb frequency S_l(r) of the real polytrope; the mode propagates above both (p-cavity, envelope) or below both (g-cavity, core), and is evanescent between. Method: Cowling-approximation dispersion k_r^2 = (omega^2 - S_l^2)(omega^2 - N^2)/(omega^2 c^2). Reference: Aerts, Christensen-Dalsgaard and Kurtz (2010), Ch. 3.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">ω (mode)</span><input aria-label="ω (mode)" type="range" id="slider-w" min="0.5" max="10" step="0.05" value="2"><span class="value" id="value-w">2.00</span></div>
-<div class="row"><span class="label">ℓ</span><input aria-label="ℓ" type="range" id="slider-l" min="1" max="4" step="1" value="1"><span class="value" id="value-l">1</span></div>
+<div class="row"><span class="label">ω (mode)</span><input aria-label="mode frequency omega" type="range" id="slider-w" min="0.4" max="4.5" step="0.02" value="2.4"><span class="value" id="value-w">2.40</span></div>
+<div class="row"><span class="label">ℓ</span><input aria-label="degree l" type="range" id="slider-l" min="1" max="3" step="1" value="1"><span class="value" id="value-l">1</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">cavities:</span><span class="value" id="readout-c">p+g</span></div></div>
@@ -60,8 +60,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Start low (omega near 1): the mode is a g-mode, trapped in the core where omega is below both N and S_l; the cross-section rings in the centre.</li>
+        <li class="t-body">Raise omega past about 3: it becomes a p-mode, trapped in the envelope where omega is above both frequencies; the ripples move to the outer shell.</li>
+        <li class="t-body">Stop in between (omega near 2.4): a mixed mode appears, with a g-cavity in the core and a p-cavity in the envelope coupled through the evanescent gap. Watch the energy split shift between them.</li>
+        <li class="t-body">Raise the degree l: S_l rises, so the p-cavity retreats toward the surface and the turning points move outward.</li>
       </ul>
     </section>
 

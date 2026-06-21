@@ -19,18 +19,19 @@ renderer: canvas2d
 estimated_engagement_minutes: 3
 share_state_keys: []
 invariants:
-  - key: runs
-    label: simulation advances each frame
-    tolerance: 1
-  - key: bounded
-    label: state stays finite
-    tolerance: 1
-  - key: deterministic
-    label: fixed seed reproduces the run
-    tolerance: 1
+  - key: pure-g
+    label: low omega is a pure g-mode trapped in the core
+    tolerance: 0
+  - key: pure-p
+    label: high omega is a pure p-mode in the envelope
+    tolerance: 0
+  - key: mixed
+    label: intermediate omega has both a core g-cavity and an envelope p-cavity
+    tolerance: 0
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Start at omega near 1: a g-mode trapped in the core where omega is below both N and S_l.
+  - Raise omega past about 3: a p-mode trapped in the envelope where omega is above both.
+  - Stop near omega = 2.4: a mixed mode with a core g-cavity and an envelope p-cavity coupled through the evanescent gap.
 references:
   - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
 ---
@@ -98,15 +99,15 @@ Kurtz, *Asteroseismology*, Chapter 3.
 
 ## Physical setup
 
-A stellar oscillation of angular frequency $\omega$ and degree $\ell$ propagates only where it is above the Lamb frequency $S_\ell$ and the buoyancy frequency $N$ is on the appropriate side: the acoustic (p) cavity requires $\omega > \max(N, S_\ell)$, the gravity (g) cavity requires $\omega < \min(N, S_\ell)$. A low-$\omega$ mode is trapped in the radiative core, a high-$\omega$ mode in the envelope, and an intermediate one is a mixed mode coupling both through the evanescent zone. Source: Aerts, Christensen-Dalsgaard and Kurtz Ch. 3.
+The model is the genuine $n_{\rm poly}=3$ Lane-Emden polytrope (shared engine `shared/js/engine/polytrope.js`). For a polytrope $c^2 = \Gamma_1 P/\rho \propto \theta$, so the Lamb frequency is $S_\ell^2 = \ell(\ell+1)c^2/r^2$ and the Brunt-Vaisala frequency is $N^2 = (n_{\rm poly}+1)\,\xi_1^2/\Gamma_1\,|(n_{\rm poly}+1)/\Gamma_1 - n_{\rm poly}|\,\theta'^2/\theta$ (units $c_0 = R = 1$, $\omega$ in $c_0/R$). $N$ is capped near the surface, where the zero-density polytrope edge makes it diverge. A mode of frequency $\omega$ and degree $\ell$ propagates where the acoustic (p) condition $\omega > \max(N, S_\ell)$ holds (the envelope) or the gravity (g) condition $\omega < \min(N, S_\ell)$ holds (the core); between them it is evanescent. Source: Aerts, Christensen-Dalsgaard and Kurtz Ch. 3.
 
 ## Numerical method
 
-sim.js (unchanged) supplies $N(r)$, $S_\ell(r)$ and `cavities()`. A schematic WKB eigenfunction is integrated: oscillatory with a local radial wavenumber that is high in the acoustic region and node-rich toward the centre in the buoyancy region, exponentially decaying in the forbidden zone. The cross-section renders the field $\xi(r)\cos(\ell\theta)\cos(\omega t)$ with the rdbu colormap; the energy split is $\int\xi^2$ over the `cavities()` segments.
+sim.js integrates the Lane-Emden equation (shared engine) and forms $N(r)$, $S_\ell(r)$, the cavities, and the turning points. The radial eigenfunction is built from the Cowling local wavenumber $k_r^2 = (\omega^2 - S_\ell^2)(\omega^2 - N^2)/(\omega^2 c^2)$: a JWKB phase $\int k_r\,dr$ where $k_r^2 > 0$ (so the node positions and cavity confinement are physical) and an exponential $\exp(-\int|k_r|\,dr)$ in the evanescent gap. The g-mode core wavenumber diverges, so $k_r$ is capped for the finite-resolution display. The cross-section renders the field $\xi(r)\cos(\ell\theta)\cos(\omega t)$ with the rdbu colormap; the energy split is $\int\xi^2$ over the cavity segments.
 
 ## Controls
 
-- Mode frequency $\omega$ (0.5 to 10) and degree $\ell$ (1 to 4).
+- Mode frequency $\omega$ (0.4 to 4.5) and degree $\ell$ (1 to 3).
 - Reset and Pause.
 
 ## Expected qualitative features

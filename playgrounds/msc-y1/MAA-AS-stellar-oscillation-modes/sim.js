@@ -25,53 +25,18 @@
 // Ch. 3 (asymptotic theory, eq. 3.215-3.234); Tassoul, ApJS 43 (1980) 469;
 // Unno et al., Nonradial Oscillations of Stars (1989).
 
+import { laneEmden as polytropeModel, thetaAt as polyTheta } from '../../../shared/js/engine/polytrope.js';
+
 export const N_POLY = 3;
 export const GAMMA1 = 5 / 3;
 export const SOLAR_DNU_UHZ = 135.0;     // large separation the l = 0 ladder is scaled to
 
-// --- Lane-Emden polytrope -------------------------------------------------
-// Solve theta'' + (2/xi) theta' + theta^N_POLY = 0, theta(0) = 1, theta'(0) = 0,
-// to the first zero xi_1. Stored on a uniform xi grid for interpolation.
-let LE = null;
-function solveLaneEmden() {
-  if (LE) return LE;
-  const h = 0.002;
-  // Series start near the centre to step off the 1/xi singularity.
-  let xi = 1e-4;
-  let theta = 1 - xi * xi / 6 + N_POLY * xi ** 4 / 120;
-  let dtheta = -xi / 3 + N_POLY * xi ** 3 / 30;
-  const xs = [0], th = [1], dth = [0];
-  // theta'' = -theta^N_POLY - (2/xi) theta'; integration starts at xi = 1e-4 so
-  // the 1/xi term is finite (theta' ~ -xi/3 there).
-  const deriv = (x, y, z) => { const src = y > 0 ? Math.pow(y, N_POLY) : 0; return [z, -src - (2 / x) * z]; };
-  while (theta > 0 && xi < 20) {
-    xs.push(xi); th.push(theta); dth.push(dtheta);
-    const [k1y, k1z] = deriv(xi, theta, dtheta);
-    const [k2y, k2z] = deriv(xi + h / 2, theta + h / 2 * k1y, dtheta + h / 2 * k1z);
-    const [k3y, k3z] = deriv(xi + h / 2, theta + h / 2 * k2y, dtheta + h / 2 * k2z);
-    const [k4y, k4z] = deriv(xi + h, theta + h * k3y, dtheta + h * k3z);
-    theta += h / 6 * (k1y + 2 * k2y + 2 * k3y + k4y);
-    dtheta += h / 6 * (k1z + 2 * k2z + 2 * k3z + k4z);
-    xi += h;
-  }
-  // Linear interpolation for the surface zero between the last two samples.
-  const xPrev = xs[xs.length - 1], thPrev = th[th.length - 1];
-  const xi1 = xPrev + h * thPrev / (thPrev - theta);
-  LE = { h, xs, th, dth, xi1 };
-  return LE;
-}
-
-// theta(xi) by linear interpolation on the stored grid (0 beyond the surface).
-function thetaAt(xi) {
-  const { h, th, xi1 } = solveLaneEmden();
-  if (xi <= 0) return 1;
-  if (xi >= xi1) return 0;
-  const i = Math.floor(xi / h);
-  const f = xi / h - i;
-  const a = th[i] ?? 0, b = th[i + 1] ?? 0;
-  return a + f * (b - a);
-}
-
+// --- Lane-Emden polytrope (shared engine) ---------------------------------
+// The structure is the n_poly = 3 Lane-Emden solution from
+// shared/js/engine/polytrope.js; thin wrappers keep the rest of this module
+// unchanged. For a polytrope c^2 = Gamma1 P/rho ~ theta(xi).
+function solveLaneEmden() { return polytropeModel(N_POLY); }
+function thetaAt(xi) { return polyTheta(solveLaneEmden(), xi); }
 export function laneEmden() { return solveLaneEmden(); }
 
 // Dimensionless sound speed c(xi) = sqrt(theta) (units c_0 = 1) and the squared
