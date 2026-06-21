@@ -43,7 +43,7 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="760" height="500"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" tabindex="0" aria-label="PV diagram of the selected engine cycle with a piston bar and an animated point tracing the loop, and an efficiency-by-cycle comparison plot below."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Four idealized engine cycles drawn on the PV plane.</figcaption>
@@ -67,8 +67,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Raise the compression ratio r on the Otto cycle: the loop fattens, the shaded work area grows, and the efficiency bar climbs toward (but never reaches) the dashed Carnot line.</li>
+        <li class="t-body">Switch cycles and watch the heat-addition step change shape: Otto adds heat at constant volume (vertical), Diesel at constant pressure (horizontal).</li>
+        <li class="t-body">Compare Carnot and Stirling in the lower plot: both reversible cycles sit on the same ceiling, 1 − Tc/Th, for the same reservoirs.</li>
       </ul>
     </section>
 

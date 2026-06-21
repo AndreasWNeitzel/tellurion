@@ -10,7 +10,7 @@ curriculum_year: bsc-y2s1
 primary_citation: callen
 primary_chapter: 4
 hook: 'Four classic heat engines drawn on the same pressure-volume plane; the area each loop encloses is the work it delivers per cycle.'
-one_paragraph: 'Every heat engine is a closed loop on the PV diagram, and the area it encloses is the net work per cycle. The playground draws the four textbook idealizations together: the Otto cycle (gasoline: two adiabats, two isochores), Diesel (constant-pressure heat addition), Carnot (two isotherms and two adiabats, the efficiency ceiling), and Stirling (isotherms with regenerative isochores). Changing the compression ratio reshapes each loop and its efficiency, and the Carnot bound always sits above the rest. It makes concrete why real engines trade some efficiency for power. Reference: Callen, Thermodynamics and an Introduction to Thermostatistics, Ch. 4-5.'
+one_paragraph: 'Every heat engine is a closed loop on the PV diagram, and the area it encloses is the net work per cycle. The playground draws the selected idealization (Otto: two adiabats, two isochores; Diesel: constant-pressure heat addition; Carnot: two isotherms and two adiabats; Stirling: isotherms with regenerative isochores) as an autoscaled, colour-coded loop with numbered corner states, a piston bar tied to the volume, and a point tracing the path. A second plot compares the efficiency of all four cycles so the reversible Carnot bound is plain. Changing the compression ratio reshapes the loop and its efficiency, making concrete why real engines trade some efficiency for power. Reference: Callen, Thermodynamics and an Introduction to Thermostatistics, Ch. 4-5.'
 tags: [thermodynamics, statistical-physics, animation, live-readout]
 difficulty: 3
 tier: simple
@@ -29,8 +29,9 @@ invariants:
     label: fixed seed reproduces the run
     tolerance: 1
 what_to_try:
-  - Vary each control and watch the rail readouts respond.
-  - Compare the diagnostic plot against the live scene.
+  - Raise the Otto compression ratio and watch the loop fatten and efficiency climb toward Carnot.
+  - Switch cycles and see the heat-addition step change from constant volume to constant pressure.
+  - Compare Carnot and Stirling efficiencies in the lower plot for the same reservoirs.
 references:
   - "Callen, Thermodynamics and an Introduction to Thermostatistics, Second ed., Ch. 4."
 ---
