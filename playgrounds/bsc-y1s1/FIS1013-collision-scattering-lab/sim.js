@@ -112,10 +112,17 @@ export function relTrajectory(b, p) {
     const Fr = -dV;
     return [Fr * px / r / p.mu, Fr * py / r / p.mu];
   };
+  // Velocity-Verlet: second order, so the displayed orbit conserves the
+  // asymptotic speed (elastic scattering) to far better than semi-implicit
+  // Euler, even through the close Coulomb approach.
+  let a = force(x, y);
   for (let i = 0; i < 20000; i += 1) {
-    const a = force(x, y);
-    vx += a[0] * dt; vy += a[1] * dt;
-    x += vx * dt; y += vy * dt;
+    x += vx * dt + 0.5 * a[0] * dt * dt;
+    y += vy * dt + 0.5 * a[1] * dt * dt;
+    const a2 = force(x, y);
+    vx += 0.5 * (a[0] + a2[0]) * dt;
+    vy += 0.5 * (a[1] + a2[1]) * dt;
+    a = a2;
     if (i % 3 === 0) pts.push([x, y]);
     if (x > r0 && i > 50) break;
   }

@@ -1,11 +1,11 @@
 ---
-title: Two-Body Collision: Lab and CM Frames
+title: Scattering off a Central Potential
 slug: collision-scattering-lab
 status: verified
 audience: portfolio
 created: 2026-05-17
-hook: 'The same collision looks like a glancing nudge in the lab and a clean back-to-back recoil in the centre-of-mass frame.'
-one_paragraph: 'Elastic two-body scattering reduced to one body of mass mu in a central potential. The centre-of-mass collision is the primary scene (particles meet and recoil back-to-back through the deflection angle chi); a compact lab-frame inset, a V(r) profile and a fixed-scale differential cross-section polar with the analytic Rutherford overlay are secondary panels. Hard sphere and Coulomb are closed-form; Yukawa is integrated.'
+hook: 'Fire a parallel beam at a fixed center and the deflection of each particle is set entirely by how far off-axis it was aimed.'
+one_paragraph: 'Elastic scattering of a parallel beam off a fixed central potential, reduced to one body of mass mu. The scene fires a beam, colored by impact parameter b, that fans out after the encounter (hard sphere, Coulomb, or screened Yukawa center), with one ray highlighted. The diagnostic plots the deflection function chi(b), the mapping from impact parameter to scattering angle that is the whole content of a scattering experiment: Coulomb backscatters the closest rays (the Rutherford result), the hard sphere cuts off at b = R, and Yukawa screening softens the long-range tail. Hard sphere and Coulomb are closed-form; Yukawa is integrated.'
 tags: [mechanics, animation, live-readout]
 difficulty: 3
 tier: medium
@@ -33,74 +33,64 @@ references:
   - "Marion, Thornton, Classical Dynamics of Particles and Systems, Fifth ed."
 ---
 
-# Two-Body Collision: Lab and CM Frames
+# Scattering off a Central Potential
 
 ## Explainer
 
 ### What you are looking at
 
-The same collision looks completely different depending on where you
-stand. In the lab a fast projectile hits a stationary target and both
-fly off forward; in the centre-of-mass frame the two simply approach,
-bounce, and recede symmetrically. The playground shows both views of
-one collision side by side, which is the key trick for analysing
-scattering.
+A parallel beam of identical particles is fired at a fixed scattering
+center. Each particle is aimed at a different sideways distance from
+the center, its impact parameter $b$. Particles aimed near the center
+swing through a large angle; particles aimed wide barely turn. The
+beam fans out, and the mapping from $b$ to the deflection angle $\chi$
+is the deflection function, the central object of any scattering
+experiment.
 
-### Conservation laws set the outcome
+### The deflection function
 
-A collision conserves total momentum always, and kinetic energy only
-if it is elastic. For a projectile $m_1$ at speed $v_0$ hitting a
-target $m_2$ at rest, momentum and (for elastic) energy give the 1D
-result
+For a central potential the encounter conserves energy and angular
+momentum, so the outgoing angle depends only on $b$ (and the energy).
+Three cases are built in. A hard sphere of radius $R$ reflects
+specularly, $\chi = \pi - 2\arcsin(b/R)$, and misses cleanly for
+$b > R$. An inverse-square (Coulomb) center gives
+$\cot(\chi/2) = 2bE/\alpha$, so the closest particles come almost
+straight back: this Rutherford backscattering is what revealed that an
+atom's positive charge sits in a tiny dense nucleus. A screened Yukawa
+center, $V = (\alpha/r)\,e^{-r/\lambda}$, behaves like Coulomb up
+close but its exponential screening kills the long-range tail, so
+wide-$b$ particles pass almost undeflected.
 
-$$v_1' = \frac{m_1 - m_2}{m_1 + m_2}\,v_0,
-  \qquad
-  v_2' = \frac{2 m_1}{m_1 + m_2}\,v_0.$$
+### Why energy and impact parameter set everything
 
-Equal masses: the projectile stops and the target leaves with $v_0$
-(Newton's cradle). Heavy onto light: the projectile barely slows,
-the target rockets off at up to $2v_0$. Light onto heavy: the
-projectile bounces back.
-
-### Why the CM frame is the natural one
-
-Transform to the centre-of-mass frame, moving at
-$V_\mathrm{cm} = m_1 v_0/(m_1+m_2)$. There the total momentum is zero,
-so the two particles always move oppositely, and in an elastic
-collision each simply reverses with its speed unchanged: the whole
-collision is a single scattering angle $\theta_\mathrm{cm}$. Every
-lab-frame quantity is then just that simple CM picture boosted back
-by $V_\mathrm{cm}$, which is why particle physics quotes
-cross-sections in the CM frame. The inelastic case keeps momentum but
-converts a fraction $1-e^2$ of the CM kinetic energy into heat (the
-coefficient of restitution $e$); a perfectly inelastic hit ($e=0$)
-loses the most while still conserving momentum. The playground lets
-you set the masses and $e$ and shows the lab and CM trajectories,
-velocities, and the energy ledger together.
+Raising the energy means each particle spends less time near the
+center, so every deflection shrinks. Raising the strength (or the
+sphere radius) does the opposite. The differential cross section,
+$d\sigma/d\Omega = (b/\sin\chi)\,|db/d\chi|$, is just the deflection
+function rewritten as the area of beam scattered into each angle, the
+quantity a detector actually measures.
 
 ### Things to try
 
-- Set $m_1=m_2$ elastic and watch the projectile stop dead while the
-  target leaves with the full speed.
-- Switch to the CM frame and see the symmetric approach/recede that
-  any elastic collision reduces to.
-- Lower the restitution $e$ toward 0 and watch CM kinetic energy
-  drain to heat while momentum stays exactly conserved.
+- Drag the impact parameter and watch the highlighted ray and the
+  cursor on $\chi(b)$ move together.
+- In Coulomb, push $b$ small and watch the ray come nearly straight
+  back ($\chi \to 180^\circ$).
+- Compare Yukawa with Coulomb at large $b$: screening leaves the wide
+  rays almost straight.
 
 ### Where this comes from
 
-The lab/CM transformation, elastic and inelastic collisions, and the
-reduced-mass reduction follow Kleppner and Kolenkow, *An Introduction
-to Mechanics*, Chapter 4, and Taylor, *Classical Mechanics*,
-Chapter 14.
+The deflection function, the cross section, and the Rutherford and
+Yukawa results follow Goldstein, *Classical Mechanics*, 3rd ed.,
+Ch. 3.7, and Landau and Lifshitz, *Mechanics*, Sec. 18-19.
 
 ## Physical setup
 
-A projectile of mass `m1` scatters off a target `m2` initially at
-rest. The two-body problem reduces to one body of reduced mass
-`mu = m1 m2 / (m1+m2)` in a central potential. The CM-frame encounter
-is the primary scene; the lab trajectory, the potential profile and
-the differential cross-section are secondary panels.
+A beam scatters off a fixed central potential. The two-body problem is
+reduced to one body of reduced mass `mu = m1 m2 / (m1+m2)` moving in
+the potential. The animated beam (one ray per impact parameter) is the
+primary scene; the deflection function `chi(b)` is the diagnostic.
 
 ## Governing equations
 
@@ -120,16 +110,20 @@ animated relative trajectory.
 
 ## Controls
 
-- mass ratio `m2/m1`, launch speed `v1`, impact parameter `b`.
-- potential selector (inverse-square, hard sphere, Yukawa);
-  Reset, Pause.
+- potential selector (hard sphere, Coulomb, Yukawa).
+- impact parameter `b` (highlights one ray and the cursor on the curve).
+- strength (`R` for the hard sphere, `alpha` for Coulomb and Yukawa).
+- energy `E`; Reset, Pause.
 
 ## Expected qualitative features
 
-- CM particles always recoil exactly back-to-back through `chi`.
-- Small `b` gives back-scatter; large `b` gives forward scatter.
-- Hard sphere cross section is isotropic; Coulomb is forward-peaked
-  and matches the dashed analytic Rutherford curve.
+- A parallel beam fans out, each ray bending by the amount its impact
+  parameter dictates; small `b` bends hard, large `b` barely turns.
+- Coulomb back-scatters the closest rays (chi -> 180 deg as b -> 0), the
+  Rutherford result; the deflection function chi(b) shows this decay.
+- Hard sphere bounces specularly and cuts off at `b = R`; Yukawa screening
+  kills the long-range tail so wide-b rays pass nearly undeflected.
+- Raising the energy shrinks every deflection (less time near the center).
 
 ## Invariants and acceptance thresholds
 

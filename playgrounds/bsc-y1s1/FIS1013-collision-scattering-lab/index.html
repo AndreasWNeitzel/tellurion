@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Two-Body Collision: Lab and CM Frames</title>
+<title>Scattering off a Central Potential</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -13,18 +13,14 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
-  body { padding: var(--space-4); }
-  .pg-figure { max-width: 860px; position: relative; }
-  .pg-figure canvas { width: 100%; height: auto; background: #06070b; display: block; }
-  .readout-panel { position: absolute; top: 12px; right: 14px; background: rgba(6,6,8,0.55); padding: 8px 10px; border-radius: 4px; display: grid; grid-template-columns: 12ch 10ch; column-gap: 8px; row-gap: 2px; color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; pointer-events: none; }
-  .readout-panel .value { color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
-  figcaption { font-size: 13px; color: var(--fg-muted); margin-top: var(--space-2); }
-  .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); margin-block: var(--space-4); }
-  .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 8ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
-  .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
-  .pg-controls input[type="range"], .pg-controls select { width: 100%; }
-  .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
-</style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: 10ch 1fr 7ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-template-columns: repeat(3, 1fr); grid-column: span 2; }
+    .pg-controls .row.buttons.two { grid-template-columns: 1fr 1fr; }
+    .pg-controls button[aria-pressed="true"] { border-color: var(--accent); color: var(--fg); }
+  </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
@@ -44,32 +40,36 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Two-Body Collision: Lab and CM Frames</h1>
+      <h1 class="t-title playground-title">Scattering off a central potential</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">Elastic two-body scattering reduced to one body of mass mu in a central potential. The centre-of-mass collision is the primary scene (particles meet and recoil back-to-back through the deflection angle chi); a compact lab-frame inset, a V(r) profile and a fixed-scale differential cross-section polar with the analytic Rutherford overlay are secondary panels. Hard sphere and Coulomb are closed-form; Yukawa is integrated.</p>
+      <p class="t-body">Fire a parallel beam at a fixed center and watch it fan out. How far a particle bends depends only on its impact parameter $b$, the sideways miss distance: aim near the center and it scatters hard, aim wide and it barely turns. That mapping from $b$ to the deflection angle $\chi$ is the deflection function, and it is the whole story of a scattering experiment. A hard sphere bounces specularly; an inverse-square (Coulomb) center backscatters the closest particles, the Rutherford result that revealed the nucleus; a screened Yukawa center is softer at long range. The scene shows the beam scattering; the diagnostic plots $\chi(b)$, with a cursor on the impact parameter you select.</p>
     </section>
 
     <div class="playground-canvas-frame">
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="900" height="560"></canvas>
+      <canvas class="playground-canvas" id="stage" width="760" height="950" data-plot-role="diagnostic" tabindex="0" aria-label="A parallel beam scattering off a central potential, fanning out by deflection angle; below, the deflection angle versus impact parameter."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Lab and CM frame trajectories with the live differential cross-section.</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Scattering off a central potential. Top: a parallel beam, colored by impact parameter, fanning out after the encounter. Bottom: the deflection function, scattering angle versus impact parameter, with a cursor at the selected b. Method: closed form for the hard sphere and Coulomb cases, velocity-Verlet for Yukawa.</figcaption>
+
 
     <section class="playground-controls">
-      <div id="controls" class="pg-controls"></div>
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Scattering controls"></div>
       <div class="v2-legacy" hidden><div id="readout" class="readout-panel" role="status" aria-live="polite"></div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Drag the impact parameter: the highlighted ray and the cursor on the deflection curve move together, small b bends hard, large b barely turns.</li>
+        <li class="t-body">Switch to Coulomb: the closest rays come almost straight back, the Rutherford backscattering that implied a tiny dense nucleus.</li>
+        <li class="t-body">Raise the energy: faster particles spend less time near the center, so every deflection shrinks and the beam fans out less.</li>
+        <li class="t-body">Compare Yukawa to Coulomb: screening kills the long-range tail, so wide-b particles pass nearly undeflected.</li>
       </ul>
     </section>
 
