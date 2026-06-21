@@ -137,6 +137,51 @@ a marquee topic is missing: bsc-y1s1 `FIS1013-rocket-variable-mass` and
 bsc-y3s1 `AST3014-magnetic-reconnection-toy`; Engineering-Physics applied track
 `FIS4026-photodiode-vs-led-band`, `MEF-thin-film-deposition-stress`.
 
+## Research validation (June 2026)
+
+A deep-research pass cross-checked this gap map against the real University of
+Porto programmes and the standard graduate canon, and a faithfulness audit
+checked the existing catalogue (see FAITHFULNESS_AUDIT.md).
+
+Graduate programme codes are confirmed: Mestrado em Física (curso 893), Mestrado
+em Astronomia e Astrofísica (curso 871), Mestrado em Física Médica (curso 894),
+delivered with IA/CAUP. The MAA track has confirmed units in observational
+cosmology, extragalactic astronomy, radiative processes, relativistic
+astrophysics, and data analysis; asteroseismology, stellar structure, galactic
+dynamics, and stellar atmospheres are research-led rather than separately titled
+courses, which matches our MAA-AS/SE/GD/SA folder grouping.
+
+Caveat on undergraduate codes: the sigarra course fiches are access-walled, so
+automated research could not reliably read them and returned course-name guesses
+that contradict our established taxonomy (for example mislabelling FIS1014 as
+mechanics rather than electromagnetism). The folder taxonomy in this repository
+is the ground truth; the research was used only for topic ideas, not for
+renaming courses. Refine against an official ficha if one becomes available.
+
+Coverage check against the high-value graduate candidate list: the catalogue
+already covers gravitational lensing, MCMC, nucleosynthesis, accretion-disk SED,
+exoplanet transits and radial velocity, rotational splitting, period spacings,
+N-body structure, Jeans collapse, and Bondi accretion. The catalogue is far more
+complete than the raw per-semester counts suggest. Genuine high-value gaps that
+survived the check:
+
+- HR diagram / colour-magnitude with live isochrone fitting on a real
+  Gaia-style sample. Canonical, and not present as a standalone interactive
+  (only referenced inside white-dwarf-cooling and the stellar-structure model).
+  High priority.
+- Gaia astrometry: parallax-to-distance with error propagation and 3D-dust
+  extinction. Partially covered by MAA-CO-cosmic-distance-ladder (parallax as one
+  rung); a dedicated astrometry playground is a softer gap. Relevant to the
+  galactic-archaeology thread. Medium priority.
+- Asteroseismic acoustic glitch (He II ionisation-zone signature in the
+  frequencies). Adjacent to mode-trapping but distinct. Medium priority.
+
+Faithfulness conclusion: the existing catalogue is faithful (the asteroseismology
+and stellar-structure sweep held up, and two agent-flagged "proxies" were false
+positives on inspection). The one corroborated rebuild target is
+MAA-AS-rotational-splitting-multiplets (the only un-rebuilt asteroseismology
+playground). Otherwise the productive direction is new builds, not rework.
+
 ## Method for building each new playground
 
 Same hero pipeline used in the current sweep:
