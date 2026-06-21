@@ -43,7 +43,12 @@ body:has(.playground-layout) {
   justify-content: center;
   max-width: calc(var(--col-center-max) + var(--col-rail-gap) + var(--col-rail-width));
   margin: 0 auto;
-  padding: 88px 24px 64px;
+  /* Top padding only needs to clear a comfortable margin: the fixed back
+     button (top: 24px) floats far to the left of the centered column on
+     desktop, so the title rides up to the same horizontal band without
+     reserving a full back-button-height gutter. Reclaims ~60px of dead
+     space above the title and lifts the whole simulation toward the fold. */
+  padding: 28px 24px 64px;
   position: relative;          /* anchor for the focus-mode absolute rail */
 }
 
@@ -94,8 +99,13 @@ body:has(.playground-layout) {
    (the toggle hide is declared further down, after the base rule,
    so source order beats the base specificity). */
 @media (max-width: 1023px) {
-  .playground-layout { padding: 72px 16px 48px; }
+  .playground-layout { padding: 18px 16px 48px; }
   .playground-canvas { max-width: 100%; }
+  /* The back button is a left-corner chevron chip in this regime and the
+     single column runs nearly full width, so the title shares the top row
+     with the chevron: indent the header past the chip instead of pushing
+     the whole page down to clear it. */
+  .playground-header { padding-left: 40px; min-height: 26px; }
 }
 
 /* Regime D: phone (<768px) — canvas-first reordered layout, compacted
@@ -112,7 +122,7 @@ body:has(.playground-layout) {
   html:has(.playground-layout) { overflow-x: clip; }
 
   .playground-layout {
-    padding: 56px 10px 28px;
+    padding: 14px 10px 28px;
     display: block;
     max-width: 100vw;
   }
@@ -277,7 +287,7 @@ body:has(.playground-layout) {
 
 /* Regime E: very narrow phone (<360px) — tighter still. */
 @media (max-width: 360px) {
-  .playground-layout { padding: 52px 6px 20px; }
+  .playground-layout { padding: 12px 6px 20px; }
   .playground-title  { font-size: 1.05rem; }
   .playground-intro p { font-size: 0.84rem; }
 }
