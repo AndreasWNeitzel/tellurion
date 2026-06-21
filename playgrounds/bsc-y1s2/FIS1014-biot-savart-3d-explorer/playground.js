@@ -22,38 +22,58 @@ const ctx = canvas.getContext('2d', { alpha: false });
 
 const selCoil = document.getElementById('select-coil');
 const sliderCurrent = document.getElementById('slider-current');
+const sliderRadius = document.getElementById('slider-radius');
+const sliderGeom = document.getElementById('slider-geom');
 const valueCoil = document.getElementById('value-coil');
 const valueCurrent = document.getElementById('value-current');
+const valueRadius = document.getElementById('value-radius');
+const valueGeom = document.getElementById('value-geom');
+const labelGeom = document.getElementById('label-geom');
 const btnPlay = document.getElementById('btn-playpause');
 const btnReset = document.getElementById('btn-reset');
 
-const Z = 2.6, R = 1;
+const Z = 2.6;
+let R = 1;                          // coil radius (slider)
+let geom = 1;                       // Helmholtz separation, or solenoid length factor
 let running = !DETERMINISTIC;
-let segs = [], rings = [];          // segs for field (I=1); rings = crossing markers
+let segs = [];
 let lines = [], heat = null, axial = [], bzMax = 1;
 let phase = 0;
 
 function current() { return parseFloat(sliderCurrent.value); }
+function readGeom() { R = parseFloat(sliderRadius.value); geom = parseFloat(sliderGeom.value); }
 
 // coarse coil geometry (I = 1) for fast field evaluation.
 function circle(z0, n = 72) { const pts = []; for (let i = 0; i <= n; i++) { const t = 2 * Math.PI * i / n; pts.push([R * Math.cos(t), R * Math.sin(t), z0]); } return { pts, I: 1 }; }
+function solenoidLen() { return (2 + 2 * geom) * R; }     // geom = 1 -> 4R (a long solenoid)
 function coilSegments(name) {
-  if (name === 'helmholtz') return [circle(-R / 2), circle(R / 2)];
-  if (name === 'solenoid') { const N = 28, L = 4 * R, out = []; for (let k = 0; k < N; k++) out.push(circle(-L / 2 + L * k / (N - 1))); return out; }
+  if (name === 'helmholtz') return [circle(-geom / 2), circle(geom / 2)];
+  if (name === 'solenoid') { const N = 28, L = solenoidLen(), out = []; for (let k = 0; k < N; k++) out.push(circle(-L / 2 + L * k / (N - 1))); return out; }
   return [circle(0)];
 }
 function ringZs(name) {
-  if (name === 'helmholtz') return [-R / 2, R / 2];
-  if (name === 'solenoid') { const N = 28, L = 4 * R, zs = []; for (let k = 0; k < N; k++) zs.push(-L / 2 + L * k / (N - 1)); return zs; }
+  if (name === 'helmholtz') return [-geom / 2, geom / 2];
+  if (name === 'solenoid') { const N = 28, L = solenoidLen(), zs = []; for (let k = 0; k < N; k++) zs.push(-L / 2 + L * k / (N - 1)); return zs; }
   return [0];
 }
 function Bplane(x, z) { const b = biotSavart(segs, [x, 0, z]); return [b[0], b[2]]; }
 
-function syncVals() { valueCoil.textContent = selCoil.value; valueCurrent.textContent = current().toFixed(1); }
+function syncVals() {
+  valueCoil.textContent = selCoil.value;
+  valueCurrent.textContent = current().toFixed(1);
+  valueRadius.textContent = R.toFixed(2);
+  valueGeom.textContent = geom.toFixed(2);
+  const c = selCoil.value;
+  labelGeom.textContent = c === 'solenoid' ? 'length' : 'separation';
+  sliderGeom.disabled = (c === 'loop');                 // a single loop has no second geometry parameter
+  sliderGeom.parentElement.style.opacity = (c === 'loop') ? '0.4' : '1';
+}
 selCoil.addEventListener('change', () => { syncVals(); rebuild(); render(); });
 sliderCurrent.addEventListener('input', () => { syncVals(); render(); });
+sliderRadius.addEventListener('input', () => { readGeom(); syncVals(); rebuild(); render(); });
+sliderGeom.addEventListener('input', () => { readGeom(); syncVals(); rebuild(); render(); });
 btnReset.addEventListener('click', () => {
-  selCoil.value = 'loop'; sliderCurrent.value = '1.5';
+  selCoil.value = 'loop'; sliderCurrent.value = '1.5'; sliderRadius.value = '1'; sliderGeom.value = '1'; readGeom();
   running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
   syncVals(); rebuild(); render();
 });
@@ -185,8 +205,8 @@ function drawScene(col, r) {
   // field lines.
   ctx.strokeStyle = col.line; ctx.lineWidth = 1.5;
   for (const ln of lines) { if (ln.length < 2) continue; ctx.beginPath(); ln.forEach((p, i) => { const X = WX(p[0]), Y = WY(p[1]); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke(); }
-  // marching arrowheads along field lines.
-  ctx.fillStyle = '#fff'; const spacing = 0.9;
+  // marching arrowheads along field lines (brighter with more current).
+  ctx.fillStyle = `rgba(255,255,255,${Math.min(1, 0.5 + 0.16 * current())})`; const spacing = 0.9;
   for (const ln of lines) {
     if (ln.length < 4) continue; const len = (ln.length - 1) * 0.05;
     for (let sdist = (phase % spacing); sdist < len - 0.05; sdist += spacing) {
@@ -269,12 +289,17 @@ function render() {
 let last = performance.now();
 function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
-  if (running) phase += 0.5 * dt;
+  if (running) phase += 1.7 * current() * dt;            // arrow speed grows with the current
   render();
   requestAnimationFrame(tick);
 }
 
-function bootSync() { syncVals(); relayout(); render(); }
+function bootSync() {
+  const pc = params.get('coil'); if (pc) selCoil.value = pc;
+  const pr = params.get('r'); if (pr) sliderRadius.value = pr;
+  const pg = params.get('geom'); if (pg) sliderGeom.value = pg;
+  readGeom(); syncVals(); relayout(); render();
+}
 
 window.addEventListener('load', bootSync);
 if (document.readyState !== 'loading') bootSync();
@@ -297,8 +322,9 @@ window.playground.getState = function () {
     fields: [
       { key: 'coil', label: 'coil', value: selCoil.value, format: 'text' },
       { key: 'I', label: 'current I', value: I, format: 'float' },
+      { key: 'R', label: 'coil radius R', value: R, format: 'float' },
+      { key: 'geom', label: selCoil.value === 'solenoid' ? 'solenoid length' : 'separation d', value: selCoil.value === 'solenoid' ? solenoidLen() : geom, format: 'float' },
       { key: 'Bc', label: 'axial field at centre', value: biotSavart(segs, [0, 0, 0])[2] * I, format: 'float' },
-      { key: 'lines', label: 'field lines', value: lines.length, format: 'int' },
     ],
   };
 };

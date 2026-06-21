@@ -58,7 +58,9 @@
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Biot-Savart controls">
     <div class="row"><span class="label">coil</span><select aria-label="coil type" id="select-coil"><option value="loop" selected="">single loop</option><option value="helmholtz">Helmholtz pair</option><option value="solenoid">solenoid</option></select><span class="value" id="value-coil">loop</span></div>
-    <div class="row"><span class="label">current</span><input aria-label="current" type="range" id="slider-current" min="0.5" max="3" step="0.1" value="1.5"><span class="value" id="value-current">1.5</span></div>
+    <div class="row"><span class="label">current I</span><input aria-label="current" type="range" id="slider-current" min="0.5" max="3" step="0.1" value="1.5"><span class="value" id="value-current">1.5</span></div>
+    <div class="row"><span class="label">radius R</span><input aria-label="coil radius" type="range" id="slider-radius" min="0.5" max="1.6" step="0.05" value="1"><span class="value" id="value-radius">1.00</span></div>
+    <div class="row"><span class="label" id="label-geom">separation</span><input aria-label="coil geometry" type="range" id="slider-geom" min="0.3" max="2" step="0.05" value="1"><span class="value" id="value-geom">1.00</span></div>
     <div class="row buttons">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
       <button id="btn-reset" type="button">Reset</button>
@@ -71,9 +73,10 @@
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
         <li class="t-body">Start with a single loop and see the bar-magnet pattern: lines up through the middle, around the outside, back in.</li>
-        <li class="t-body">Switch to the Helmholtz pair and watch the field lines straighten into a uniform patch in the gap, flat in the lower plot.</li>
-        <li class="t-body">Switch to the solenoid: the lines lock parallel down the inside and the lower plot shows a long flat plateau, near zero outside.</li>
-        <li class="t-body">Raise the current: the pattern is unchanged but the field strength (lower plot, colour map) scales up with it.</li>
+        <li class="t-body">Switch to the Helmholtz pair and slide the separation: at d = R (separation equals radius) the axial field flattens into the uniform Helmholtz plateau; pull the coils apart and a dip opens between them (the curve splits into two humps).</li>
+        <li class="t-body">Switch to the solenoid and stretch its length: the lines lock parallel down the inside and the plateau in the lower plot grows longer and flatter, near zero outside.</li>
+        <li class="t-body">Change the radius R: a wider coil spreads the field and lowers the central strength; a tighter coil concentrates it.</li>
+        <li class="t-body">Raise the current I: the field pattern keeps its shape (the geometry sets that) but the strength scales up and the field-line arrows speed up and brighten.</li>
       </ul>
     </section>
 
