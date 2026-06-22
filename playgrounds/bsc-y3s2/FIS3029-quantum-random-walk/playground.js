@@ -18,7 +18,8 @@ const W = canvas.width, H = canvas.height;
 const N = 101;
 const CENTER = (N - 1) / 2;
 
-const state = { steps: 50 };
+const state = { steps: 50, playing: false, phase: 1 };
+let stepsInput, stepsVal, btnPlay;
 
 function classical(steps) {
   const p = new Float64Array(N);
@@ -104,19 +105,41 @@ function buildControls() {
   controlsEl.innerHTML = '';
   const row = document.createElement('div'); row.className = 'row';
   const lab = document.createElement('label'); lab.className = 'label'; lab.htmlFor = 'qrw-steps'; lab.textContent = 'Steps N';
-  const inp = document.createElement('input'); inp.id = 'qrw-steps'; inp.type = 'range'; inp.min = '1'; inp.max = '50'; inp.value = String(state.steps);
-  inp.setAttribute('aria-label', 'Number of walk steps');
-  const val = document.createElement('span'); val.className = 'value'; val.textContent = String(state.steps);
-  inp.addEventListener('input', () => { state.steps = parseInt(inp.value, 10); val.textContent = String(state.steps); render(); });
-  row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
+  stepsInput = document.createElement('input'); stepsInput.id = 'qrw-steps'; stepsInput.type = 'range'; stepsInput.min = '1'; stepsInput.max = '50'; stepsInput.value = String(state.steps);
+  stepsInput.setAttribute('aria-label', 'Number of walk steps');
+  stepsVal = document.createElement('span'); stepsVal.className = 'value'; stepsVal.textContent = String(state.steps);
+  stepsInput.addEventListener('input', () => { state.steps = parseInt(stepsInput.value, 10); state.phase = (state.steps - 1) / 49; stepsVal.textContent = String(state.steps); state.playing = false; if (btnPlay) btnPlay.textContent = 'Play'; render(); });
+  row.appendChild(lab); row.appendChild(stepsInput); row.appendChild(stepsVal);
   controlsEl.appendChild(row);
+  const br = document.createElement('div'); br.className = 'row';
+  btnPlay = document.createElement('button'); btnPlay.type = 'button'; btnPlay.textContent = 'Pause'; btnPlay.style.gridColumn = '1 / -1';
+  btnPlay.addEventListener('click', () => { state.playing = !state.playing; btnPlay.textContent = state.playing ? 'Pause' : 'Play'; });
+  br.appendChild(btnPlay); controlsEl.appendChild(br);
+}
+
+// Auto-sweep the step count so the walk visibly spreads: the quantum
+// distribution fans out ballistically while the classical one diffuses.
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (state.playing) {
+    state.phase = (state.phase + dt / 9) % 1;
+    state.steps = 1 + Math.round(state.phase * 49);
+    stepsInput.value = String(state.steps); stepsVal.textContent = String(state.steps);
+    render();
+  }
+  requestAnimationFrame(tick);
 }
 
 buildControls();
 render();
 if (DETERMINISTIC) {
+  state.playing = false;
   window.__simulationReady = true;
   window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
+} else {
+  state.playing = true;
+  requestAnimationFrame(tick);
 }
 
 window.__physicsCheck = async () => {
