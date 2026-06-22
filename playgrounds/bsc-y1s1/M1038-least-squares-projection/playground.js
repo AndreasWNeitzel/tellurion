@@ -34,6 +34,12 @@ function panel(col, r, title) {
   ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1);
   ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(title, r.x + 8, r.y + 7);
 }
+function arrow(x0, y0, x1, y1, color, w, head) {
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+  const a = Math.atan2(y1 - y0, x1 - x0), h = head || 8;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - h * Math.cos(a - 0.42), y1 - h * Math.sin(a - 0.42)); ctx.lineTo(x1 - h * Math.cos(a + 0.42), y1 - h * Math.sin(a + 0.42)); ctx.closePath(); ctx.fill();
+}
 
 let SC = null;
 function drawScene(col, r) {
@@ -70,29 +76,51 @@ function drawScene(col, r) {
 }
 
 function drawDiag(col, r) {
-  panel(col, r, 'Sum of squared residuals vs slope: a parabola, least squares at its vertex');
-  const inner = { x: r.x + 48, y: r.y + 28, w: r.w - 48 - 16, h: r.h - 28 - 34 };
-  const mStar = lsSlope(pts); const mLo = mStar - 1.7, mHi = mStar + 1.7;
-  let top = -Infinity; for (let i = 0; i <= 60; i += 1) top = Math.max(top, ssrCentroid(pts, mLo + (mHi - mLo) * i / 60)); top *= 1.08;
-  const xOf = (m) => inner.x + (m - mLo) / (mHi - mLo) * inner.w;
-  const Y = (v) => inner.y + inner.h * (1 - v / top);
-  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
+  panel(col, r, 'Least squares as projection: b projects onto the column space, residual e perpendicular to it');
+  const inner = { x: r.x + 14, y: r.y + 28, w: r.w - 28, h: r.h - 28 - 12 };
+  const s = stats(pts), mStar = lsSlope(pts), dm = mDisp - mStar;
+  const perp = Math.sqrt(Math.max(0, ssrMin(pts)));        // irreducible residual, perpendicular to C(A)
+  const lean = dm * Math.sqrt(s.Sxx);                      // in-plane part of e, zero only at the fit
+  const atOpt = Math.abs(dm) < 1e-3;
+  // oblique-3D frame: the column space is the plane spanned by U (the ones column)
+  // and Vp (the x column); N is the normal direction, the residual axis.
+  const O = [inner.x + inner.w * 0.14, inner.y + inner.h * 0.74];
+  const PW = inner.w * 0.54, PD = inner.h * 0.46;
+  const Uvec = [PW, 0], Vvec = [PD * 0.74, -PD * 0.46];
+  const Nu = (() => { const v = [-0.14, -1], n = Math.hypot(v[0], v[1]); return [v[0] / n, v[1] / n]; })();
+  const Vlen = Math.hypot(Vvec[0], Vvec[1]), Vu = [Vvec[0] / Vlen, Vvec[1] / Vlen];
+  // fixed scale tied to the irreducible residual, so e visibly grows as the line is tilted off the fit.
+  const SCALE = Math.min(inner.h * 0.42 / Math.max(0.55, Math.sqrt(ssrMin(pts))), 90);
+  const add = (a, ...terms) => { let x = a[0], y = a[1]; for (let i = 0; i < terms.length; i += 2) { x += terms[i] * terms[i + 1][0]; y += terms[i] * terms[i + 1][1]; } return [x, y]; };
   ctx.save(); clipTo(ctx, inner);
-  // the parabola.
-  ctx.strokeStyle = col.parab; ctx.lineWidth = 2.6; ctx.beginPath();
-  for (let i = 0; i <= 120; i += 1) { const m = mLo + (mHi - mLo) * i / 120; const v = ssrCentroid(pts, m); const X = xOf(m), yy = Y(v); i ? ctx.lineTo(X, yy) : ctx.moveTo(X, yy); } ctx.stroke();
-  // minimum at m_star.
-  ctx.strokeStyle = col.ghost; ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(xOf(mStar), inner.y); ctx.lineTo(xOf(mStar), inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = col.ghost; ctx.beginPath(); ctx.arc(xOf(mStar), Y(ssrMin(pts)), 5, 0, 6.28); ctx.fill();
-  // current displayed slope ball.
-  ctx.fillStyle = col.line; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(xOf(mDisp), Y(ssrCentroid(pts, mDisp)), 6, 0, 6.28); ctx.fill(); ctx.stroke();
-  ctx.restore();
+  // the plane (column space).
+  const c0 = O, c1 = add(O, 1, Uvec), c2 = add(O, 1, Uvec, 1, Vvec), c3 = add(O, 1, Vvec);
+  ctx.fillStyle = 'rgba(78,168,255,0.10)'; ctx.beginPath(); ctx.moveTo(...c0); ctx.lineTo(...c1); ctx.lineTo(...c2); ctx.lineTo(...c3); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(78,168,255,0.5)'; ctx.lineWidth = 1.4; ctx.stroke();
+  const plab = add(O, 0.5, Uvec);
+  ctx.fillStyle = 'rgba(78,168,255,0.85)'; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('column space C(A) = all A x', plab[0], plab[1] + 5);
+  // foot p (the projection / fitted vector) in the plane.
+  const p = add(O, 0.42, Uvec, 0.5, Vvec);
+  // residual e from p: perpendicular part along N, in-plane lean along V.
+  const e = add(p, perp * SCALE, Nu, lean * SCALE, Vu);
+  // dashed in-plane component O -> p (the fit p = A x-hat lives in the plane).
+  ctx.strokeStyle = 'rgba(141,224,138,0.7)'; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(...O); ctx.lineTo(...p); ctx.stroke(); ctx.setLineDash([]);
+  // right-angle mark at p when e is perpendicular (the least-squares fit).
+  if (atOpt) { const m1 = add(p, 11, Vu), m2 = add(p, 11, Vu, 11, Nu), m3 = add(p, 11, Nu); ctx.strokeStyle = col.res; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(...m1); ctx.lineTo(...m2); ctx.lineTo(...m3); ctx.stroke(); }
+  // e = b - p (red), b (yellow), p (blue dot).
+  arrow(p[0], p[1], e[0], e[1], col.res, 2.6, 9);
+  arrow(O[0], O[1], e[0], e[1], col.pt, 2.4, 9);
+  ctx.fillStyle = col.line; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(p[0], p[1], 5, 0, 6.28); ctx.fill(); ctx.stroke();
   // labels.
-  ctx.fillStyle = col.ghost; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(`m* = ${mStar.toFixed(2)}`, xOf(mStar), inner.y + 4);
-  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (const m of [mLo, mStar, mHi]) ctx.fillText(m.toFixed(1), xOf(m), inner.y + inner.h + 6);
-  ctx.fillText('slope m', inner.x + inner.w / 2, inner.y + inner.h + 19);
-  ctx.save(); ctx.translate(r.x + 14, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('SSR', 0, 0); ctx.restore();
+  ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  ctx.fillStyle = col.pt; ctx.fillText('b (data)', e[0] + 8, e[1] - 4);
+  ctx.fillStyle = col.line; ctx.fillText('p = A x-hat', p[0] + 9, p[1] + 11);
+  ctx.fillStyle = col.res; ctx.fillText(`e, |e| = sqrt(SSR) = ${Math.sqrt(ssrCentroid(pts, mDisp)).toFixed(2)}`, (p[0] + e[0]) / 2 + 10, (p[1] + e[1]) / 2);
+  ctx.restore();
+  // the normal-equations annotation.
+  ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillStyle = atOpt ? col.cen : col.res;
+  ctx.fillText(atOpt ? 'fit: e perpendicular to C(A), A^T e = 0 (the normal equations)' : 'tilted off the fit: e not perpendicular, A^T e != 0, |e| larger', inner.x + 4, inner.y + inner.h + 8);
 }
 
 function render() {
@@ -124,7 +152,7 @@ function boot() {
 }
 function syncReady() {
   relayout(); render();
-  if (DETERMINISTIC) { mDisp = lsSlope(pts) + 0.45; render(); requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+  if (DETERMINISTIC) { mDisp = (params.get('tilt') ? lsSlope(pts) + 0.45 : lsSlope(pts)); render(); requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });

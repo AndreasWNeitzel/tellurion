@@ -39,7 +39,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">Fitting a line to scattered points is a projection in disguise. Stack the measured heights into a vector $\mathbf{b}$ and the model values $mx_i + c$ into the column space of $A = [\,\mathbf{x}\ \ \mathbf{1}\,]$: no line passes exactly through noisy data, so $\mathbf{b}$ lies off that plane, and the best fit is the point in the plane closest to it, the orthogonal projection. Closest means the residual $\mathbf{r} = \mathbf{b} - A\hat{\mathbf{x}}$ is perpendicular to the plane, $A^\top\mathbf{r} = 0$, which is exactly the normal equations $A^\top A\,\hat{\mathbf{x}} = A^\top\mathbf{b}$. For a line they solve to $\hat m = S_{xy}/S_{xx}$ through the centroid of the data. The red bars are the residuals being squared and summed; drag the blue handle to tilt the line off the best fit and watch every bar, and the total, grow. The panel below is that total as a function of slope, a parabola whose lowest point is the least-squares answer; the ball rolls to the bottom only when the residual is orthogonal. Drag the gold points to reshape the data and the fit re-solves at once.</p>
+      <p class="t-body">Fitting a line to scattered points is a projection in disguise. Stack the measured heights into a vector $\mathbf{b}$ and the model values $mx_i + c$ into the column space of $A = [\,\mathbf{x}\ \ \mathbf{1}\,]$: no line passes exactly through noisy data, so $\mathbf{b}$ lies off that plane, and the best fit is the point in the plane closest to it, the orthogonal projection. Closest means the residual $\mathbf{r} = \mathbf{b} - A\hat{\mathbf{x}}$ is perpendicular to the plane, $A^\top\mathbf{r} = 0$, which is exactly the normal equations $A^\top A\,\hat{\mathbf{x}} = A^\top\mathbf{b}$. For a line they solve to $\hat m = S_{xy}/S_{xx}$ through the centroid of the data. The red bars are the residuals; drag the blue handle to tilt the line off the best fit and watch every bar, and the total, grow. The panel below is the projection picture itself: the data vector b, its foot p in the column-space plane, and the residual e joining them, standing perpendicular to the plane only at the least-squares fit and leaning over as you tilt. Drag the gold points to reshape the data and the fit re-solves at once.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -48,11 +48,11 @@
       </button>
       <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
               data-plot-role="diagnostic"
-              aria-label="A scatter of draggable points with the least-squares best-fit line through the centroid, the vertical residuals, and a parabola of the sum of squared residuals against slope with the minimum marked."></canvas>
+              aria-label="A scatter of draggable points with the least-squares best-fit line through the centroid and the vertical residuals, and a projection diagram showing the data vector projected onto the column space with the residual perpendicular to it at the best fit."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Least squares as projection. Top: the data (gold), the best-fit line (blue) through the centroid (green cross) with the vertical residuals (red); tilting the line with its handle shows the optimal line as a green ghost. Bottom: the sum of squared residuals against slope, a parabola whose vertex is the least-squares fit. Method: the normal equations, slope = Sxy / Sxx. Source: Strang, Introduction to Linear Algebra, 5th ed., Sec. 4.3.</figcaption>
+      Least squares as projection. Top: the data (gold), the best-fit line (blue) through the centroid (green cross) with the vertical residuals (red); tilting the line with its handle shows the optimal line as a green ghost. Bottom: the same fit as a projection in the column space, the data vector b, its foot p = A x-hat in the plane, and the residual e = b - p, perpendicular to the plane exactly at the least-squares fit (A^T e = 0, the normal equations) and leaning, growing, when the line is tilted off it. Method: the normal equations, slope = Sxy / Sxx. Source: Strang, Introduction to Linear Algebra, 5th ed., Sec. 4.3.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Least squares controls">
@@ -66,8 +66,8 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Drag the blue handle to tilt the line off the best fit: the red residual bars and the total SSR grow, and the ball climbs out of the bottom of the parabola.</li>
-        <li class="t-body">Snap back to the best fit: the residual is orthogonal to the data columns ($\sum r_i x_i = 0$) and the ball sits at the vertex.</li>
+        <li class="t-body">Drag the blue handle to tilt the line off the best fit: the red residual bars and the total SSR grow, and in the panel below the residual e tips away from perpendicular and lengthens.</li>
+        <li class="t-body">Snap back to the best fit: e stands perpendicular to the column-space plane (the right-angle mark), which is $A^\top e = 0$, the normal equations.</li>
         <li class="t-body">Drag a gold point far from the others (an outlier) and watch the squared residual pull the whole line toward it.</li>
         <li class="t-body">Notice the line always passes through the green centroid, whatever the slope.</li>
       </ul>
