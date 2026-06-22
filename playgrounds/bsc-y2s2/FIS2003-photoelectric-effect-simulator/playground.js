@@ -36,9 +36,9 @@ const rngBase = makeRng(DEFAULT_SEED);
 const ph = []; for (let i = 0; i < 64; i += 1) ph.push([rngBase(), rngBase(), rngBase()]);
 
 // geometry
-const TX = 30, TY = 56, TW = 500, TH = 300;   // phototube scene
-const IVX = 556, IVY = 196, IVW = 316, IVH = 150;
-const ELX = 556, ELY = 384, ELW = 316, ELH = 150;
+const TX = 40, TY = 50, TW = canvas.width - 80, TH = Math.round(canvas.height * 0.34);   // phototube scene (top, full width)
+const IVX = 40, IVY = TY + TH + 52, IVW = Math.round((canvas.width - 120) / 2), IVH = canvas.height - (TY + TH + 52) - 46;   // I-V (bottom left)
+const ELX = 80 + Math.round((canvas.width - 120) / 2), ELY = IVY, ELW = IVW, ELH = IVH;   // electron energy (bottom right)
 
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, canvas.width, canvas.height);

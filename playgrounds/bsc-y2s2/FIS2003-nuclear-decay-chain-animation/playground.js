@@ -94,12 +94,13 @@ function nucleonLayout3D(Z, N) {
 }
 
 // Layout (px) on the 1200x680 canvas.
-const NX = 50, NY = 60, NW = 580, NH = 580;       // nucleus area (left)
+const NW = Math.min(canvas.width - 60, Math.round(canvas.height * 0.44)), NH = NW;
+const NX = Math.round((canvas.width - NW) / 2), NY = 40;       // nucleus area (top, centered)
 // Nucleus drawn at left-third of the panel so the alpha cluster has
 // horizontal room to eject to the right while staying in-frame.
 const cx = NX + NW * 0.36, cy = NY + NH / 2 - 22;
-const GX = NX + NW + 28, GY = NY, GW = 510, GH = 280;          // Geiger-Nuttall (top right)
-const CHX = NX + NW + 28, CHY = NY + 296, CHW = 510, CHH = 284; // Segre chart (bottom right)
+const GX = 40, GY = NY + NH + 44, GW = Math.round((canvas.width - 120) / 2), GH = canvas.height - (NY + NH + 44) - 40;          // Geiger-Nuttall (bottom left)
+const CHX = 80 + Math.round((canvas.width - 120) / 2), CHY = GY, CHW = GW, CHH = GH; // Segre chart (bottom right)
 
 function isoLabel(node) { return `${ELEMENT[node.Z] || 'Z' + node.Z}-${node.Z + node.N}`; }
 
