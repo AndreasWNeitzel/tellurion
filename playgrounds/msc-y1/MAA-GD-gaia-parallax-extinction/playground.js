@@ -127,9 +127,9 @@ function drawPosterior(col, r, post) {
   for (let d = 0; d <= dMax + step * 0.01; d += step) ctx.fillText(d.toFixed(dec), xOf(d), box.y + box.h + 5);
   ctx.fillText('distance (kpc)', box.x + box.w / 2, box.y + box.h + 19);
   ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillStyle = col.naive; ctx.fillText(`naive 1/pi = ${dn.toFixed(2)}`, box.x + 6, box.y + 4);
+  ctx.fillStyle = col.naive; ctx.fillText(`naive 1/ϖ = ${dn.toFixed(2)}`, box.x + 6, box.y + 4);
   ctx.fillStyle = col.median; ctx.fillText(`posterior ${post.median.toFixed(2)} (+${(post.hi - post.median).toFixed(2)}/-${(post.median - post.lo).toFixed(2)})`, box.x + 6, box.y + 18);
-  ctx.fillStyle = col.mc; ctx.fillText(`Monte Carlo of 1/pi (${nSamp} draws)`, box.x + 6, box.y + 32);
+  ctx.fillStyle = col.mc; ctx.fillText(`Monte Carlo of 1/ϖ (${nSamp} draws)`, box.x + 6, box.y + 32);
 }
 
 function drawMag(col, r, post) {
@@ -176,7 +176,7 @@ function drawBias(col, r) {
   ctx.strokeStyle = 'rgba(239,84,102,0.5)'; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(xOf(0.2), box.y); ctx.lineTo(xOf(0.2), box.y + box.h); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   for (const f of [0, 0.2, 0.4, 0.6]) ctx.fillText(`${(f * 100).toFixed(0)}`, xOf(f), box.y + box.h + 4);
-  ctx.fillText('fractional parallax error sigma/pi (%)', box.x + box.w / 2, box.y + box.h + 16);
+  ctx.fillText('fractional parallax error sigma/ϖ (%)', box.x + box.w / 2, box.y + box.h + 16);
   ctx.textAlign = 'left'; ctx.fillStyle = col.post; ctx.fillText('(posterior - naive) / naive', box.x + 6, box.y + 4);
 }
 
@@ -239,6 +239,6 @@ window.playground.getInvariants = function () {
   return [
     { key: 'norm', label: 'posterior normalised', value: area.toFixed(3), status: Math.abs(area - 1) < 0.05 ? 'pass' : 'drift' },
     { key: 'ci', label: '68% interval brackets median', value: `${post.lo.toFixed(2)}-${post.hi.toFixed(2)}`, status: post.lo < post.median && post.hi > post.median ? 'pass' : 'drift' },
-    { key: 'corr', label: 'Bayesian correction to 1/pi', value: `${(corr * 100).toFixed(0)} %`, status: 'pass' },
+    { key: 'corr', label: 'Bayesian correction to 1/ϖ', value: `${(corr * 100).toFixed(0)} %`, status: 'pass' },
   ];
 };
