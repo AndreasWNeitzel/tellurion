@@ -15,24 +15,42 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnPre = document.getElementById('btn-preset'), vPre = document.getElementById('value-preset');
+const selPre = document.getElementById('select-preset');
+const sA = document.getElementById('s-a'), sB = document.getElementById('s-b'), sC = document.getElementById('s-c'), sD = document.getElementById('s-d');
+const vA = document.getElementById('v-a'), vB = document.getElementById('v-b'), vC = document.getElementById('v-c'), vD = document.getElementById('v-d');
 const btnReset = document.getElementById('btn-reset');
 
 const KEYS = Object.keys(PRESETS);
 const W = 3;
 let preKey = 'stableSpiral';
 const st = { A: PRESETS[preKey].A.map((r) => [...r]), x0: [2.2, 1.4] };
+// a unit circle of tracers, carried by exp(A t) to make the matrix exponential
+// visible: it stretches into an ellipse (node), rotates (centre), or spirals.
+const CIRC0 = []; for (let i = 0; i < 60; i += 1) { const a = i / 60 * 6.2832; CIRC0.push([1.6 * Math.cos(a), 1.6 * Math.sin(a)]); }
+let flowT = 0;
 let markers = [], icT = 0, rngS = 0x1234;
 function rng() { rngS = (rngS + 0x6d2b79f5) | 0; let t = Math.imul(rngS ^ (rngS >>> 15), 1 | rngS); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.42 }, { name: 'diag', weight: 0.72 }]); }
-function syncVals() { vPre.textContent = `${PRESETS[preKey].label}`; }
+function matchPreset() { for (const k of KEYS) { const A = PRESETS[k].A; if (Math.abs(A[0][0] - st.A[0][0]) < 1e-6 && Math.abs(A[0][1] - st.A[0][1]) < 1e-6 && Math.abs(A[1][0] - st.A[1][0]) < 1e-6 && Math.abs(A[1][1] - st.A[1][1]) < 1e-6) return k; } return 'custom'; }
+function syncVals() {
+  sA.value = st.A[0][0]; vA.textContent = st.A[0][0].toFixed(2);
+  sB.value = st.A[0][1]; vB.textContent = st.A[0][1].toFixed(2);
+  sC.value = st.A[1][0]; vC.textContent = st.A[1][0].toFixed(2);
+  sD.value = st.A[1][1]; vD.textContent = st.A[1][1].toFixed(2);
+  selPre.value = matchPreset();
+}
 function seedMarker() { const a = rng() * 6.2832, r = 0.3 + rng() * (W * 1.15); return { p: [r * Math.cos(a), r * Math.sin(a)], age: rng() * 6 }; }
-function reseed() { markers = []; for (let i = 0; i < 40; i += 1) markers.push(seedMarker()); }
+function reseed() { markers = []; for (let i = 0; i < 34; i += 1) markers.push(seedMarker()); flowT = 0; }
 function pickPreset(k) { preKey = k; st.A = PRESETS[k].A.map((r) => [...r]); reseed(); syncVals(); }
-btnPre.addEventListener('click', () => { pickPreset(KEYS[(KEYS.indexOf(preKey) + 1) % KEYS.length]); });
-btnReset.addEventListener('click', () => { st.x0 = [2.2, 1.4]; pickPreset('stableSpiral'); });
+function setEntry(i, j, val) { st.A[i][j] = val; reseed(); syncVals(); render(); }
+sA.addEventListener('input', () => setEntry(0, 0, +sA.value));
+sB.addEventListener('input', () => setEntry(0, 1, +sB.value));
+sC.addEventListener('input', () => setEntry(1, 0, +sC.value));
+sD.addEventListener('input', () => setEntry(1, 1, +sD.value));
+selPre.addEventListener('change', () => { if (selPre.value !== 'custom') { pickPreset(selPre.value); render(); } });
+btnReset.addEventListener('click', () => { st.x0 = [2.2, 1.4]; pickPreset('stableSpiral'); render(); });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', axis: 'rgba(255,255,255,0.28)', field: 'rgba(120,150,200,0.25)', stream: 'rgba(120,150,200,0.32)', marker: '#4ea8ff', eig: '#ff9d3c', ic: '#8de08a', stable: 'rgba(141,224,138,0.09)', unstable: 'rgba(255,93,93,0.09)', lam: '#ffd166' };
@@ -58,9 +76,11 @@ function drawScene(col, r) {
   // vector field arrows.
   ctx.strokeStyle = col.field; ctx.fillStyle = col.field; ctx.lineWidth = 1;
   for (let gx = -W + 0.5; gx <= W; gx += 0.75) for (let gy = -W + 0.5; gy <= W; gy += 0.75) { const v = apply(st.A, [gx, gy]); const n = Math.hypot(v[0], v[1]) || 1; const L = 0.26; const p0 = w2s([gx, gy]), p1 = w2s([gx + v[0] / n * L, gy + v[1] / n * L]); ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke(); ctx.beginPath(); ctx.arc(p1[0], p1[1], 1.3, 0, 6.28); ctx.fill(); }
-  // streamlines.
-  ctx.strokeStyle = col.stream; ctx.lineWidth = 1.1;
-  for (let k = 0; k < 16; k += 1) { const ang = k / 16 * 6.2832; const seed = [2.7 * Math.cos(ang), 2.7 * Math.sin(ang)]; const pts = streamline(seed, w2s); ctx.beginPath(); pts.forEach((p, i) => { const sp = w2s(p); i ? ctx.lineTo(sp[0], sp[1]) : ctx.moveTo(sp[0], sp[1]); }); ctx.stroke(); }
+  // the unit circle carried by exp(A t): the matrix exponential deforming space.
+  ctx.strokeStyle = 'rgba(180,135,255,0.28)'; ctx.lineWidth = 1; ctx.beginPath();
+  CIRC0.forEach((c, i) => { const sp = w2s(c); i ? ctx.lineTo(sp[0], sp[1]) : ctx.moveTo(sp[0], sp[1]); }); ctx.closePath(); ctx.stroke();
+  ctx.strokeStyle = '#c08bff'; ctx.lineWidth = 2.4; ctx.beginPath();
+  CIRC0.forEach((c, i) => { const p = flow(st.A, c, flowT); const sp = w2s(p); i ? ctx.lineTo(sp[0], sp[1]) : ctx.moveTo(sp[0], sp[1]); }); ctx.closePath(); ctx.stroke();
   // eigenvector lines (real case).
   const evs = eigvecs(st.A);
   if (evs) for (const { l, v } of evs) { ctx.strokeStyle = col.eig; ctx.lineWidth = 1.8; ctx.setLineDash([7, 5]); const aa = w2s([-W * v[0], -W * v[1]]), bb = w2s([W * v[0], W * v[1]]); ctx.beginPath(); ctx.moveTo(aa[0], aa[1]); ctx.lineTo(bb[0], bb[1]); ctx.stroke(); ctx.setLineDash([]); }
@@ -74,8 +94,8 @@ function drawScene(col, r) {
   // fixed point.
   const o = w2s([0, 0]); ctx.fillStyle = col.fg; ctx.beginPath(); ctx.arc(o[0], o[1], 3, 0, 6.28); ctx.fill();
   ctx.restore();
-  ctx.fillStyle = col.ic; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-  ctx.fillText(`${PRESETS[preKey].label}   (white dot = exp(A t) x0 flowing from the green x0)`, r.x + r.w / 2, r.y + r.h - 9);
+  ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = col.muted; ctx.fillText('violet ring: the unit circle carried by exp(A t)', r.x + r.w / 2, r.y + r.h - 9);
 }
 
 function drawDiag(col, r) {
@@ -113,6 +133,9 @@ let running = true, last = 0;
 function advance(dt) {
   for (const m of markers) { const sp = Math.hypot(...apply(st.A, m.p)) || 1e-6; m.p = rk4(m.p, dt * 1.1); m.age += dt; const rr = Math.hypot(m.p[0], m.p[1]); if (rr > W * 1.4 || rr < 0.02 || m.age > 14) Object.assign(m, seedMarker()); }
   icT += dt; const xt = flow(st.A, st.x0, icT); const rr = Math.hypot(xt[0], xt[1]); if (rr > W * 1.5 || rr < 0.02 || icT > 18) icT = 0;
+  // advance the deforming circle; reset when it grows past the box or collapses.
+  flowT += dt; let mx = 0, mn = 1e9; for (const c of CIRC0) { const p = flow(st.A, c, flowT); const rc = Math.hypot(p[0], p[1]); if (rc > mx) mx = rc; if (rc < mn) mn = rc; }
+  if (mx > W * 1.3 || mn < 0.06 || flowT > 9) flowT = 0;
 }
 function tick(ts) { if (!last) last = ts; let dt = (ts - last) / 1000; last = ts; if (dt > 0.05) dt = 0.05; if (running) advance(dt); render(); requestAnimationFrame(tick); }
 

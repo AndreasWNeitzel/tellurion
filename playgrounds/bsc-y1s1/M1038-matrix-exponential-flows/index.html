@@ -16,6 +16,10 @@
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
     .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
     .pg-controls .row.wide .value { font-family: var(--font-mono); text-align: left; color: var(--text-primary); }
+    .pg-controls .row { display: grid; grid-template-columns: 3ch 1fr 5ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
+    .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
@@ -54,11 +58,15 @@
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      The matrix exponential as a flow. Top: the phase portrait of x' = A x with streamlines, markers flowing along exp(A t) (blue), the real eigenvector directions (orange dashed), and the draggable initial condition (green) with its exact exp(A t) x0 (white). Bottom: the eigenvalues in the complex plane, stable to the left and unstable to the right, classifying the fixed point. Method: closed-form 2x2 matrix exponential, RK4 streamlines. Source: Strang, Introduction to Linear Algebra, 5th ed., Sec. 6.3.</figcaption>
+      The matrix exponential as a flow. Top: the phase portrait of x' = A x with the vector field, markers flowing along exp(A t) (blue), the real eigenvector directions (orange dashed), the draggable initial condition (green) with its exact exp(A t) x0 (white), and the unit circle carried by exp(A t) (violet), which stretches into an ellipse for a node, rotates for a centre, and spirals for a spiral. Set the four matrix entries with the sliders or pick a preset. Bottom: the eigenvalues in the complex plane, stable to the left and unstable to the right, classifying the fixed point. Method: closed-form 2x2 matrix exponential. Source: Strang, Introduction to Linear Algebra, 5th ed., Sec. 6.3.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Flow controls">
-    <div class="row wide"><button id="btn-preset" type="button">Next system</button><span class="value" id="value-preset">stable spiral</span></div>
+    <div class="row wide"><label class="label" for="select-preset">preset</label><select id="select-preset" aria-label="system preset"><option value="stableNode">stable node</option><option value="unstableNode">unstable node</option><option value="saddle">saddle</option><option value="centre">centre</option><option value="stableSpiral" selected>stable spiral</option><option value="unstableSpiral">unstable spiral</option><option value="custom">custom</option></select></div>
+    <div class="row"><span class="label">a</span><input type="range" id="s-a" min="-2.5" max="2.5" step="0.05" value="-0.35"><span class="value" id="v-a">-0.35</span></div>
+    <div class="row"><span class="label">b</span><input type="range" id="s-b" min="-2.5" max="2.5" step="0.05" value="-1.3"><span class="value" id="v-b">-1.30</span></div>
+    <div class="row"><span class="label">c</span><input type="range" id="s-c" min="-2.5" max="2.5" step="0.05" value="1.3"><span class="value" id="v-c">1.30</span></div>
+    <div class="row"><span class="label">d</span><input type="range" id="s-d" min="-2.5" max="2.5" step="0.05" value="-0.35"><span class="value" id="v-d">-0.35</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
     </div>
@@ -68,10 +76,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
+        <li class="t-body">Dial the four matrix entries a, b, c, d (or pick a preset) and watch the violet unit circle deform under $e^{At}$: it stretches into an ellipse for a node, shears hyperbolically for a saddle, rotates for a centre, and spirals for a spiral.</li>
         <li class="t-body">Drag the green initial point: the white dot rides its exact $e^{At}$ trajectory, spiralling in, racing out, or looping depending on the eigenvalues.</li>
-        <li class="t-body">Cycle to the saddle: the flow comes in along one orange eigendirection and leaves along the other, the invariant manifolds.</li>
-        <li class="t-body">Cycle to the centre: the eigenvalues sit on the imaginary axis and the orbits close into loops that neither grow nor decay.</li>
-        <li class="t-body">Compare the spirals: moving the eigenvalue pair across the imaginary axis flips winding-in to winding-out.</li>
+        <li class="t-body">Push the eigenvalues across the imaginary axis (set the trace through zero with a and d): stable flips to unstable, and the violet ring switches from shrinking to growing.</li>
+        <li class="t-body">Set b = c and watch the eigenvalues become real (symmetric A), turning a spiral into a node or saddle.</li>
       </ul>
     </section>
 
