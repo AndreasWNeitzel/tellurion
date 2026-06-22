@@ -18,10 +18,9 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnFunc = document.getElementById('btn-func'), vFunc = document.getElementById('value-func');
+const selFunc = document.getElementById('select-func');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(FUNCS);
 const EXT = 2.2;
 const st = { func: 'four', px: 1, py: -1 };
 function fn() { return FUNCS[st.func]; }
@@ -32,8 +31,8 @@ function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.42 }, { name: 'diag', weight: 0.82 }]);
 }
-function syncVals() { vFunc.textContent = fn().label; }
-btnFunc.addEventListener('click', () => { st.func = KEYS[(KEYS.indexOf(st.func) + 1) % KEYS.length]; const c = fn().crit[0]; st.px = c[0]; st.py = c[1]; syncVals(); render(); });
+function syncVals() { selFunc.value = st.func; }
+selFunc.addEventListener('change', () => { st.func = selFunc.value; const c = fn().crit[0]; st.px = c[0]; st.py = c[1]; syncVals(); render(); });
 btnReset.addEventListener('click', () => { st.func = 'four'; st.px = 1; st.py = -1; syncVals(); render(); });
 
 function colors() {

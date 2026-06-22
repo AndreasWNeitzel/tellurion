@@ -15,19 +15,18 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnFn = document.getElementById('btn-fn'), vFn = document.getElementById('value-fn');
+const selFn = document.getElementById('select-fn');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(FUNCS);
 const st = { fn: 'square', z0: [0.7, 0.5] };
 function fn() { return FUNCS[st.fn]; }
 let wECache = {};
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.28 }, { name: 'diag', weight: 0.84 }]); }
-function syncVals() { vFn.textContent = fn().label; }
+function syncVals() { selFn.value = st.fn; }
 function pickFn(k) { st.fn = k; st.z0 = [0.7, 0.5]; syncVals(); }
-btnFn.addEventListener('click', () => { pickFn(KEYS[(KEYS.indexOf(st.fn) + 1) % KEYS.length]); render(); });
+selFn.addEventListener('change', () => { pickFn(selFn.value); render(); });
 btnReset.addEventListener('click', () => { pickFn('square'); render(); });
 
 function colors() {

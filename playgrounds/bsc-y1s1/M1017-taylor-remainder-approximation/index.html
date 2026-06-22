@@ -18,6 +18,7 @@
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
     .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; }
     .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
@@ -60,7 +61,7 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Taylor controls">
-    <div class="row wide"><button id="btn-fn" type="button">Next function</button><span class="value" id="value-fn">sin x</span></div>
+    <div class="row wide"><label class="label" for="select-fn">function</label><select id="select-fn" aria-label="function"><option value="sin">sin x</option><option value="exp">e^x</option><option value="log1p">ln(1 + x)</option><option value="geom">1 / (1 - x)</option></select></div>
     <div class="row"><label for="s-n">max degree</label><input type="range" id="s-n" min="1" max="14" step="1" value="7"><span class="value" id="v-n">7</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>

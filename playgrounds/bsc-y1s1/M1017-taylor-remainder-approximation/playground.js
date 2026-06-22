@@ -16,11 +16,10 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnFn = document.getElementById('btn-fn'), vFn = document.getElementById('value-fn');
+const selFn = document.getElementById('select-fn');
 const sN = document.getElementById('s-n'), vN = document.getElementById('v-n');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(FUNCS);
 const DEF = { fn: 'sin', a: 0, maxDeg: 7, xEval: 4.2 };
 const st = { fn: DEF.fn, a: DEF.a, maxDeg: DEF.maxDeg, xEval: DEF.xEval };
 let nShown = 0;
@@ -29,9 +28,9 @@ function fn() { return FUNCS[st.fn]; }
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.32 }, { name: 'diag', weight: 0.9 }]); }
 function clampDom(x) { const d = fn().dom; return Math.max(d[0], Math.min(d[1], x)); }
-function syncVals() { vFn.textContent = fn().label; sN.value = st.maxDeg; vN.textContent = `${st.maxDeg}`; }
+function syncVals() { selFn.value = st.fn; sN.value = st.maxDeg; vN.textContent = `${st.maxDeg}`; }
 function pickFn(key) { st.fn = key; st.a = 0; st.xEval = clampDom(key === 'geom' ? -1.8 : key === 'log1p' ? 1.8 : key === 'exp' ? 2.2 : 4.2); nShown = 0; syncVals(); }
-btnFn.addEventListener('click', () => { pickFn(KEYS[(KEYS.indexOf(st.fn) + 1) % KEYS.length]); });
+selFn.addEventListener('change', () => { pickFn(selFn.value); render(); });
 btnReset.addEventListener('click', () => { pickFn('sin'); st.maxDeg = DEF.maxDeg; st.a = DEF.a; st.xEval = DEF.xEval; nShown = 0; syncVals(); });
 sN.addEventListener('input', () => { st.maxDeg = +sN.value; if (nShown > st.maxDeg) nShown = 0; syncVals(); });
 
