@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>The Stern-Gerlach Experiment</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; }
+    .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The Stern-Gerlach Experiment</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Send a beam of atoms through a magnet whose field is stronger on one side than the other and the field grabs each atom by its magnetic moment, tugging it sideways by an amount set by how the moment is tilted. A classical spinning charge could point any way at all, so the beam should fan out into a continuous smear, a vertical streak on the far screen. In 1922 Stern and Gerlach saw something else: the beam split cleanly into two, two sharp spots with a gap between them and nothing in the middle. The tilt of the moment is quantised. A spin-1/2 atom has only two allowed orientations, $m_s = \pm\tfrac{1}{2}$, so only two deflections, and in general a spin-$s$ beam fractures into exactly $2s+1$ spots, which is how the experiment weighs the spin: count the spots. The top panel fires atoms one at a time, each picking a random allowed state and deflecting by it, and watches the discrete spots build up dot by dot inside the faint band where the classical smear would have landed. The bottom panel is the screen read as an intensity profile, the quantum delta-like peaks standing where a flat classical density would have spread. Dial the field gradient to spread the spots, and switch the spin to watch the spot count change.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A beam of atoms through an inhomogeneous magnet splitting into discrete spots on a screen, inside the faint band of the expected classical smear, with the screen intensity profile showing sharp quantum peaks against a flat classical density."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      The Stern-Gerlach experiment. Top: atoms from the oven pass the inhomogeneous magnet (N wedge, S flat) and deflect by their quantised m_s into 2s+1 spots on the screen, inside the faint blue band a classical moment would smear across. Bottom: the screen intensity profile, sharp quantum peaks against the flat classical band. Method: discrete m_s sampling, deflection proportional to m_s. Source: Griffiths, Introduction to Quantum Mechanics, 2nd ed., Sec. 4.4.1.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Stern-Gerlach controls">
+    <div class="row wide"><button id="btn-spin" type="button">Next spin</button><span class="value" id="value-spin">s = 1/2</span></div>
+    <div class="row"><label for="s-g">gradient</label><input type="range" id="s-g" min="0.2" max="1" step="0.02" value="0.6"><span class="value" id="v-g">0.60</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Watch the spots build dot by dot: discrete clusters form with empty gaps, never the continuous streak the classical picture predicts.</li>
+        <li class="t-body">Switch the spin: a spin-1/2 beam gives two spots, spin-1 gives three, spin-3/2 gives four, the count is $2s+1$.</li>
+        <li class="t-body">Raise the field gradient to push the spots farther apart; the deflection is proportional to it.</li>
+        <li class="t-body">Compare with the faint classical band: the quantum spots sit inside where the continuous smear would have landed.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
