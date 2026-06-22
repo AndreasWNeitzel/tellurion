@@ -16,11 +16,11 @@ primary_citation: ryden-cosmology
 primary_chapter: 5
 hook: 'No galaxy is the centre, yet they all fly apart; switch on dark energy and the lattice thins to nothing, or close the universe and watch it crunch.'
 one_paragraph: 'A lattice of galaxies whose separations grow with the scale factor a(t) of the Friedmann equation, integrated live from the density you choose. Every galaxy recedes from every other in proportion to distance (Hubble law) with no special centre. Matter alone decelerates the expansion; enough matter closes the universe so it expands, halts, and recollapses to a Big Crunch; dark energy makes the expansion accelerate and the lattice thin out forever. Click a galaxy to send a light pulse to you and read its redshift, which is exactly the ratio of scale factors between emission and now.'
-tags: [cosmology, animation, live-readout, webgl2, hero]
+tags: [cosmology, animation, live-readout, canvas2d, hero]
 difficulty: 5
 tier: single
 hero_candidate: true
-renderer: webgl2
+renderer: canvas2d
 estimated_engagement_minutes: 7
 share_state_keys: [Om, OL, H0]
 invariants:
