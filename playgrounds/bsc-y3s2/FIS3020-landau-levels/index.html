@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Landau Levels</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Landau Levels</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A charged particle in a magnetic field has no choice but to go in circles. Classically it traces a cyclotron orbit at the frequency $\omega_c = eB/m$, tighter and faster the stronger the field. Quantize that circular motion and something striking happens to the energy: instead of the smooth continuum of a free particle, only a ladder of discrete values is allowed, the Landau levels $E_n = (n+\tfrac12)\hbar\omega_c$, evenly spaced rungs whose separation grows in direct proportion to $B$. Each rung is not a single state but an enormous bundle of them, with a degeneracy that also climbs with the field, so turning up $B$ both spreads the levels apart and packs more electrons onto each one. The scene shows the orbit shrinking toward the magnetic length $\ell_B = \sqrt{\hbar/eB}$ as the field rises, beside the energy ladder filled up to the Fermi level. The lower panel is where the consequences show up in real metals: the Landau fan, the energies $E_n$ plotted against $B$, a set of straight lines splaying out from the origin. As the field increases each line climbs and one by one they cross the Fermi energy and empty out, and that periodic depopulation is the microscopic origin of the de Haas-van Alphen and Shubnikov-de Haas oscillations, the tool experimentalists use to map the Fermi surfaces of metals.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A cyclotron orbit of a charged particle in a magnetic field beside the Landau energy ladder filled to the Fermi level, and a Landau fan diagram of energy against magnetic field with lines crossing the Fermi energy."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Landau levels. Left: the cyclotron orbit (it tightens as B grows), in a field out of the page. Right: the Landau ladder E_n = (n+1/2) hbar omega_c, filled (blue) up to E_F (orange). Bottom: the Landau fan, E_n against B, the lines sweeping past E_F as B increases. Method: Landau level energies and degeneracy. Source: Ashcroft and Mermin, Solid State Physics, Ch. 14.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Landau controls">
+    <div class="row"><label for="s-b">magnetic field B</label><input type="range" id="s-b" min="0.3" max="4" step="0.02" value="1.5"><span class="value" id="v-b">1.50</span></div>
+    <div class="row"><label for="s-f">Fermi energy E_F</label><input type="range" id="s-f" min="3" max="12" step="0.1" value="8"><span class="value" id="v-f">8.0</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Raise the field $B$: the cyclotron orbit tightens and speeds up, and the Landau levels spread apart.</li>
+        <li class="t-body">Keep raising it: filled levels climb past $E_F$ one by one and empty out, the count of filled levels dropping.</li>
+        <li class="t-body">Read the Landau fan: each line is one level $E_n(B)$, and the dots on the current-field line below $E_F$ are the occupied levels.</li>
+        <li class="t-body">Move $E_F$: more or fewer rungs sit below it, mimicking a change in electron density.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
