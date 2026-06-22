@@ -33,10 +33,13 @@ what_to_try:
   - Step m: m=0 stays at nu0, m>0 drifts prograde and m<0 retrograde, splitting to opposite sides.
   - Switch to a g-mode and the Ledoux constant shrinks the splitting relative to the rigid m*Omega comb.
 references:
-  - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3."
+  - "Aerts, Christensen-Dalsgaard, Kurtz, Asteroseismology, Ch. 3.8 (Ledoux 1951)."
+  - "Gizon and Solanki, ApJ 589, 1009 (2003): mode visibilities E_lm(i) = (l-|m|)!/(l+|m|)! [P_l^|m|(cos i)]^2."
 ---
 # Rotational splitting
 Rigid rotation splits a $(2\ell+1)$-fold multiplet by $m(1-C)\Omega$. Source: Aerts et al. Ch. 3.8.
+
+The full multiplet, all $2\ell+1$ components excited with equal amplitude and phase, is a fixed surface pattern $F(\theta,\phi-st)$ that pulsates at $\nu_0$ and rotates rigidly in azimuth at the splitting rate $s=(1-C_{n\ell})\Omega$; at $\Omega=0$ it is degenerate and pulsates in place. The observed component amplitudes are set by the inclination through $E_{\ell m}(i)=\frac{(\ell-|m|)!}{(\ell+|m|)!}[P_\ell^{|m|}(\cos i)]^2$ (pole-on shows only $m=0$, equator-on suppresses it). Source: Gizon and Solanki 2003.
 
 ## Explainer
 

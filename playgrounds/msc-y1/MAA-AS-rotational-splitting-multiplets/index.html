@@ -36,7 +36,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> the actual oscillation pattern on the star, a single spherical harmonic $Y_\ell^m$, and the multiplet it produces. The surface oscillates: each patch moves out (red) and in (blue) at the mode frequency while the pattern travels in azimuth. In a non-rotating star the $2\ell+1$ values of $m$ share one frequency (degenerate), so the multiplet is a single peak. Rotation breaks the symmetry between prograde and retrograde waves through the Coriolis force, advecting the pattern around the star and shifting each component to $\nu_0 + m(1-C_{n\ell})\Omega$; a fixed observer then sees the $m$ pattern carried around at that shifted rate. That azimuthal drift is the splitting itself. The $m=0$ (zonal) pattern does not drift and stays at $\nu_0$; prograde ($m\gt 0$) and retrograde ($m\lt 0$) patterns drift in opposite senses and split to opposite sides. p-modes have Ledoux $C\to 0$ and split by the full $m\Omega$; g-modes have $C = 1/\ell(\ell+1)$ and split less. Step through $m$ with the selector and watch the matching peak light up in the spectrum.</p>
+      <p class="t-body"><strong>What you are seeing:</strong> the oscillating surface of the star and the multiplet it produces. The body bulges out (red) and caves in (blue) in the mode pattern. By default the star shows the <em>full multiplet</em>: all $2\ell+1$ components excited together. With equal amplitudes that superposition is a fixed pattern $F(\theta,\phi-st)$ that pulsates at $\nu_0$ and <em>rigidly rotates</em> in azimuth at the splitting rate $s=(1-C_{n\ell})\Omega$. Set $\Omega=0$ and the $2\ell+1$ components are degenerate (one frequency): the pattern pulsates in place and does not rotate. Turn rotation on and it starts to circle the axis, and that circulation is the splitting itself, $\nu_m=\nu_0+m(1-C_{n\ell})\Omega$. The $m=0$ component stays at $\nu_0$; prograde ($m\gt0$) and retrograde ($m\lt0$) split to opposite sides. The $+m\Omega$ part is rigid advection by rotation; the $-mC_{n\ell}\Omega$ part is the Coriolis force in the corotating frame ($C\to0$ for p modes, $1/\ell(\ell+1)$ for g modes). The <em>peak heights</em> are set by the inclination $i$ between the rotation axis and the line of sight, through the visibility $E_{\ell m}(i)=\frac{(\ell-|m|)!}{(\ell+|m|)!}\,[P_\ell^{|m|}(\cos i)]^2$: pole-on ($i=0$) shows only $m=0$, equator-on ($i=90^\circ$) suppresses it. Switch "show on star" to a single component to isolate one $m$.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -46,12 +46,18 @@
       <canvas class="playground-canvas" id="stage" width="800" height="1020" tabindex="0" data-plot-role="diagnostic" aria-label="Top: a star carrying a single spherical-harmonic oscillation pattern that drifts in azimuth under rotation, the visible form of the rotational frequency shift. Bottom: the observed multiplet of 2l+1 peaks split by m(1-C)Omega, with the selected m highlighted."></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Rotational splitting of an oscillation multiplet. Left: the spherical-harmonic pattern Y_l^m, carried around in azimuth by rotation (the drift rate is the frequency shift m(1-C)Ω). Right: the 2l+1 peaks of the observed multiplet. Method: travelling-wave surface pattern; component frequencies ν0 + m(1-C_nl)Ω (Aerts, Christensen-Dalsgaard and Kurtz 2010, Sec. 3.8).</figcaption>
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span> Rotational splitting of an oscillation multiplet. Top: the star pulsating in the (full multiplet or single m) surface pattern; the full-multiplet superposition rotates rigidly at the splitting rate (1-C_nl)Ω. Bottom: the observed 2l+1 peaks at ν0 + m(1-C_nl)Ω, with heights set by the inclination visibility E_lm(i). Method: first-order perturbation theory; component frequencies and Ledoux constant from Aerts, Christensen-Dalsgaard and Kurtz 2010, Sec. 3.8 (Ledoux 1951); mode visibilities from Gizon and Solanki 2003.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
 <div class="row"><span class="label">Ω (μHz)</span><input aria-label="Ω (μHz)" type="range" id="slider-O" min="0" max="3" step="0.05" value="0.5"><span class="value" id="value-O">0.50</span></div>
 <div class="row"><span class="label">ℓ</span><input aria-label="ℓ" type="range" id="slider-l" min="1" max="4" step="1" value="2"><span class="value" id="value-l">2</span></div>
+<div class="row"><span class="label">inclination i</span><input aria-label="inclination i" type="range" id="slider-i" min="0" max="90" step="1" value="60"><span class="value" id="value-i">60°</span></div>
+<div class="row"><span class="label">show on star</span><select aria-label="what to show on the star" id="select-disp" style="grid-column: span 2;">
+    <option value="multi">full multiplet (all m)</option>
+    <option value="single">single component m</option>
+  </select>
+</div>
 <div class="row"><span class="label">azimuthal m</span><select aria-label="azimuthal order m" id="select-az"></select><span class="value" id="value-az">+2</span></div>
 <div class="row"><span class="label">mode</span><select aria-label="mode" id="select-m" style="grid-column: span 2;">
     <option value="p">p-mode (C=0)</option>
@@ -66,10 +72,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Set Ω = 0: the pattern stops drifting and the multiplet collapses to one degenerate peak. Turn rotation up and the pattern drifts while the peaks fan out.</li>
-        <li class="t-body">Step the azimuthal order m: m = 0 (zonal bands) stays put at ν₀, positive m drifts prograde and negative m retrograde, splitting to opposite sides. The selected peak lights up in the spectrum.</li>
-        <li class="t-body">Switch to a g-mode: the Ledoux constant C slows the drift and shrinks the splitting relative to the dashed rigid m·Ω comb.</li>
-        <li class="t-body">Raise ℓ: more sectors appear on the star and more components in the multiplet (2ℓ+1 of them).</li>
+        <li class="t-body">Set Ω = 0: the full-multiplet pattern pulsates in place and the peaks collapse onto one degenerate frequency. Turn rotation up and the whole pattern rotates while the 2ℓ+1 peaks fan out by (1−C)Ω.</li>
+        <li class="t-body">Sweep the inclination i: pole-on (i = 0) leaves only the m = 0 peak; equator-on (i = 90°) suppresses m = 0 and lifts the outer components. This is how a measured multiplet pins down the stellar inclination.</li>
+        <li class="t-body">Switch "show on star" to a single component and step m: each m is a wave running at ν₀ + m(1−C)Ω. m = 0 is zonal and pulsates in place.</li>
+        <li class="t-body">Switch to a g-mode: the Ledoux constant C shrinks the splitting and slows the pattern rotation relative to the dashed rigid m·Ω comb. Raise ℓ for more components (2ℓ+1).</li>
       </ul>
     </section>
 
