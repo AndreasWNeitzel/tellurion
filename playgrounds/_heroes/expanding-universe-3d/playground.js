@@ -26,8 +26,10 @@ const CAPTURE_FRAC = parseFloat(params.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d');
 const W = canvas.width, H = canvas.height;
-const plot = document.getElementById('plot');
-const pctx = plot.getContext('2d');
+// One portrait canvas: the 3D scene fills the top region, the a(t) + density-era
+// diagnostic fills the bottom region.
+const SCENE_H = Math.round(H * 0.63);
+const PLOT = { x: 0, y: SCENE_H, w: W, h: H - SCENE_H };
 const controlsEl = document.getElementById('controls');
 
 const FOV = 55;
@@ -100,7 +102,7 @@ const SPRITES = Array.from({ length: NRAMP }, (_, k) => {
 const STARS = (() => {
   let s = 0xBEEF1234 >>> 0;
   const rnd = () => { s = (s + 0x6d2b79f5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-  return Array.from({ length: 220 }, () => ({ x: rnd() * W, y: rnd() * H, b: 0.1 + 0.5 * rnd(), big: rnd() < 0.05 }));
+  return Array.from({ length: 260 }, () => ({ x: rnd() * W, y: rnd() * SCENE_H, b: 0.1 + 0.5 * rnd(), big: rnd() < 0.05 }));
 })();
 
 // =========================================================================
@@ -115,7 +117,7 @@ function makeCamBasis() {
   let rx = -f[2], ry = 0, rz = f[0];
   const rl = Math.hypot(rx, ry, rz) || 1; rx /= rl; ry /= rl; rz /= rl;
   const ux = ry * f[2] - rz * f[1], uy = rz * f[0] - rx * f[2], uz = rx * f[1] - ry * f[0];
-  return { eye, f, r: [rx, ry, rz], u: [ux, uy, uz], tanHalfFov: Math.tan(FOV * Math.PI / 180 / 2), aspect: W / H };
+  return { eye, f, r: [rx, ry, rz], u: [ux, uy, uz], tanHalfFov: Math.tan(FOV * Math.PI / 180 / 2), aspect: W / SCENE_H };
 }
 function w2s(p, cam) {
   const dx = p[0] - cam.eye[0], dy = p[1] - cam.eye[1], dz = p[2] - cam.eye[2];
@@ -125,7 +127,7 @@ function w2s(p, cam) {
   const yu = dx * cam.u[0] + dy * cam.u[1] + dz * cam.u[2];
   const xn = xr / (zf * cam.tanHalfFov * cam.aspect);
   const yn = yu / (zf * cam.tanHalfFov);
-  return { x: (xn * 0.5 + 0.5) * W, y: (1 - (yn * 0.5 + 0.5)) * H, depth: zf };
+  return { x: (xn * 0.5 + 0.5) * W, y: (1 - (yn * 0.5 + 0.5)) * SCENE_H, depth: zf };
 }
 
 // =========================================================================
@@ -264,9 +266,9 @@ function drawScene() {
   const a = scaleAt(sol, ui.time);
   const cam = makeCamBasis();
   // Background: deep-space vertical gradient.
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  const bg = ctx.createLinearGradient(0, 0, 0, SCENE_H);
   bg.addColorStop(0, '#04060f'); bg.addColorStop(1, '#020308');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, SCENE_H);
   for (const s of STARS) { ctx.fillStyle = `rgba(200,216,255,${s.b.toFixed(3)})`; ctx.fillRect(s.x, s.y, s.big ? 2 : 1, s.big ? 2 : 1); }
 
   const Hnow = hubble(a, sol.Om, ui.H0);
@@ -392,28 +394,29 @@ function drawHUD(a, Hnow) {
 // original; physically the most informative companion to the scene).
 // =========================================================================
 function drawPlot() {
-  const PW = plot.width, PH = plot.height;
-  pctx.fillStyle = '#07080b'; pctx.fillRect(0, 0, PW, PH);
+  const PW = PLOT.w, PH = PLOT.h;
+  ctx.save(); ctx.translate(PLOT.x, PLOT.y);
+  ctx.fillStyle = '#07080b'; ctx.fillRect(0, 0, PW, PH);
   const topH = Math.round(PH * 0.60);
   const botH = PH - topH - 4;
   const t0 = sol.t[0], t1 = sol.t[sol.t.length - 1];
   let aMax = 0; for (const v of sol.a) aMax = Math.max(aMax, v);
   const xOf = (t) => 40 + (t - t0) / (t1 - t0) * (PW - 60);
   const yOf = (av) => topH - 22 - (av / aMax) * (topH - 40);
-  pctx.strokeStyle = '#23252a'; pctx.beginPath(); pctx.moveTo(40, yOf(0)); pctx.lineTo(PW - 20, yOf(0)); pctx.stroke();
-  pctx.strokeStyle = '#9b8cff'; pctx.lineWidth = 1.8; pctx.beginPath();
-  for (let i = 0; i < sol.t.length; i += 2) { const X = xOf(sol.t[i]), Y = yOf(sol.a[i]); if (i === 0) pctx.moveTo(X, Y); else pctx.lineTo(X, Y); }
-  pctx.stroke();
+  ctx.strokeStyle = '#23252a'; ctx.beginPath(); ctx.moveTo(40, yOf(0)); ctx.lineTo(PW - 20, yOf(0)); ctx.stroke();
+  ctx.strokeStyle = '#9b8cff'; ctx.lineWidth = 1.8; ctx.beginPath();
+  for (let i = 0; i < sol.t.length; i += 2) { const X = xOf(sol.t[i]), Y = yOf(sol.a[i]); if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
+  ctx.stroke();
   const cx = xOf(Math.max(t0, Math.min(t1, ui.time)));
-  pctx.strokeStyle = '#ffd166'; pctx.beginPath(); pctx.moveTo(cx, 18); pctx.lineTo(cx, PH - 18); pctx.stroke();
-  pctx.fillStyle = '#7a818c'; pctx.font = fontString(canvas, 'caption', 'mono'); pctx.textAlign = 'left';
-  pctx.fillText('scale factor a(t)   (yellow = now; t=0 is today)', 8, 14);
+  ctx.strokeStyle = '#ffd166'; ctx.beginPath(); ctx.moveTo(cx, 18); ctx.lineTo(cx, PH - 18); ctx.stroke();
+  ctx.fillStyle = '#7a818c'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('scale factor a(t)   (yellow = now; t=0 is today)', 8, 14);
 
   const py0 = topH + 4, py1 = topH + botH;
-  pctx.fillStyle = 'rgba(15, 22, 36, 0.85)'; pctx.fillRect(40, py0, PW - 60, py1 - py0);
-  pctx.strokeStyle = 'rgba(220, 230, 255, 0.20)'; pctx.strokeRect(40 + 0.5, py0 + 0.5, PW - 61, py1 - py0 - 1);
-  pctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; pctx.font = fontString(canvas, 'caption', 'mono', 600);
-  pctx.fillText('density fractions  r / m / Lambda   (log a)', 44, py0 + 12);
+  ctx.fillStyle = 'rgba(15, 22, 36, 0.85)'; ctx.fillRect(40, py0, PW - 60, py1 - py0);
+  ctx.strokeStyle = 'rgba(220, 230, 255, 0.20)'; ctx.strokeRect(40 + 0.5, py0 + 0.5, PW - 61, py1 - py0 - 1);
+  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = fontString(canvas, 'caption', 'mono', 600);
+  ctx.fillText('density fractions  r / m / Lambda   (log a)', 44, py0 + 12);
   const aLo = -8, aHi = 0;
   const xOfLogA = (la) => 50 + ((la - aLo) / (aHi - aLo)) * (PW - 70);
   const NSTEPS = 80, bandY = py0 + 20, bandH = py1 - py0 - 26;
@@ -421,25 +424,26 @@ function drawPlot() {
     const la = aLo + (i / (NSTEPS - 1)) * (aHi - aLo);
     const f = densityFractions(Math.pow(10, la), { Om: ui.Om, OL: ui.OL });
     const x = xOfLogA(la), wstep = (PW - 70) / NSTEPS + 1;
-    pctx.fillStyle = '#5bc0eb'; pctx.fillRect(x, bandY + (1 - f.r) * bandH, wstep, f.r * bandH);
-    pctx.fillStyle = '#ffd166'; pctx.fillRect(x, bandY + (1 - f.r - f.m) * bandH, wstep, f.m * bandH);
-    pctx.fillStyle = '#ef476f'; pctx.fillRect(x, bandY, wstep, f.l * bandH);
+    ctx.fillStyle = '#5bc0eb'; ctx.fillRect(x, bandY + (1 - f.r) * bandH, wstep, f.r * bandH);
+    ctx.fillStyle = '#ffd166'; ctx.fillRect(x, bandY + (1 - f.r - f.m) * bandH, wstep, f.m * bandH);
+    ctx.fillStyle = '#ef476f'; ctx.fillRect(x, bandY, wstep, f.l * bandH);
   }
   const aEq_mr = aEqMatterRadiation({ Om: ui.Om });
   const aEq_mL = aEqMatterLambda({ Om: ui.Om, OL: Math.max(1e-6, ui.OL) });
-  pctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.font = fontString(canvas, 'caption', 'mono');
   if (aEq_mr > Math.pow(10, aLo) && aEq_mr < 1) {
     const xx = xOfLogA(Math.log10(aEq_mr));
-    pctx.strokeStyle = 'rgba(255,255,255,0.85)'; pctx.setLineDash([3, 3]); pctx.beginPath(); pctx.moveTo(xx, bandY); pctx.lineTo(xx, bandY + bandH); pctx.stroke(); pctx.setLineDash([]);
-    pctx.fillStyle = '#fff'; pctx.fillText('m=r', xx + 2, bandY + 10);
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(xx, bandY); ctx.lineTo(xx, bandY + bandH); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#fff'; ctx.fillText('m=r', xx + 2, bandY + 10);
   }
   if (aEq_mL > Math.pow(10, aLo) && aEq_mL < 1) {
     const xx = xOfLogA(Math.log10(aEq_mL));
-    pctx.strokeStyle = 'rgba(255,255,255,0.85)'; pctx.setLineDash([3, 3]); pctx.beginPath(); pctx.moveTo(xx, bandY); pctx.lineTo(xx, bandY + bandH); pctx.stroke(); pctx.setLineDash([]);
-    pctx.fillStyle = '#fff'; pctx.fillText('m=L', xx + 2, bandY + 22);
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(xx, bandY); ctx.lineTo(xx, bandY + bandH); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#fff'; ctx.fillText('m=L', xx + 2, bandY + 22);
   }
-  pctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
-  for (let la = aLo; la <= aHi; la += 2) { pctx.fillText(`10^${la}`, xOfLogA(la) - 10, py1 - 2); }
+  ctx.fillStyle = 'rgba(200, 210, 240, 0.85)';
+  for (let la = aLo; la <= aHi; la += 2) { ctx.fillText(`10^${la}`, xOfLogA(la) - 10, py1 - 2); }
+  ctx.restore();
 }
 
 // =========================================================================
