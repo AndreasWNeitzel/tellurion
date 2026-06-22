@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>The Variational Method</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; gap: var(--space-3); }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The Variational Method</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Most quantum systems cannot be solved exactly, but there is a remarkably simple way to bound the ground-state energy from above: guess a wavefunction. The variational theorem guarantees that for any normalized trial state, the expectation $\langle H\rangle$ is greater than or equal to the true ground-state energy $E_0$, with equality only if your guess happens to be the exact ground state. So you build a trial wavefunction with an adjustable knob, compute the energy, and slide the knob to push $\langle H\rangle$ as low as it will go; the minimum is your best estimate, and you know it is an honest upper bound. This playground does it for the hydrogen atom using a Gaussian trial $e^{-a r^2}$, the same shape that underlies the Gaussian basis sets of every quantum-chemistry code. The catch is visible in the scene: the true ground state $e^{-r}$ has a sharp cusp at the nucleus, a kink that a smooth Gaussian simply cannot reproduce. Because of that mismatch the best Gaussian lands at $\langle H\rangle = -0.424$ Hartree, a respectable but clearly imperfect approximation to the exact $-0.5$. The lower panel plots $\langle H\rangle$ against the trial width $a$: the curve dips to a minimum at $a^\ast = 8/9\pi$ and, no matter how you tune the parameter, never crosses the forbidden line at $E_0$. That floor is the whole content of the variational principle.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="The Gaussian trial wavefunction compared with the exact hydrogen ground state showing the missing cusp, an energy level indicator, and the variational curve of expectation energy against trial width with the exact energy as a floor."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      The variational method. Left: the trial Gaussian (blue) against the exact 1s state (orange), which has a cusp at the nucleus the Gaussian cannot match. Right: the energy <H> against the exact floor E0 = -0.5 Ha, split into kinetic and potential parts. Bottom: the variational curve <H>(a), minimized at a* = 8/9 pi and never crossing E0. Method: the energy functional <H>(a) = (3/2)a - 2 sqrt(2a/pi). Source: Griffiths, Introduction to Quantum Mechanics, 3rd ed., Ch. 7.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Variational controls">
+    <div class="row"><label for="s-a">trial width a</label><input type="range" id="s-a" min="0.05" max="1" step="0.005" value="0.283"><span class="value" id="v-a">0.283</span></div>
+    <div class="row buttons">
+      <button id="btn-sweep" type="button" aria-pressed="true">Sweep a: on</button>
+      <button id="btn-opt" type="button">Best a*</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Sweep the width $a$: the energy $\langle H\rangle$ slides along its curve but never drops below $E_0$.</li>
+        <li class="t-body">Jump to the best $a^\ast$: the minimum sits at $-0.424$ Ha, the closest a single Gaussian can get.</li>
+        <li class="t-body">Look at $r=0$: the exact state has a cusp the Gaussian flattens, which is exactly why the bound is not tight.</li>
+        <li class="t-body">Watch the kinetic and potential split: at the optimum the virial relation $2\langle T\rangle = -\langle V\rangle$ holds.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
