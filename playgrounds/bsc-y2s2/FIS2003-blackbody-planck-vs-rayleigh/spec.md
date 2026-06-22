@@ -16,7 +16,7 @@ tier: simple
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 4
-share_state_keys: [T, axis]
+share_state_keys: [T, axis, probe]
 invariants:
   - key: limit
     label: Planck reduces to Rayleigh-Jeans at long wavelength
@@ -28,8 +28,9 @@ invariants:
     label: the total power follows Stefan-Boltzmann (doubling T multiplies it by 16)
     tolerance: 1e-3
 what_to_try:
-  - Raise the temperature: the Planck peak slides to shorter wavelengths and the curve grows, while Rayleigh-Jeans always diverges.
-  - The two curves agree at long wavelengths and part ways toward the ultraviolet, where the classical law diverges.
+  - Raise the temperature: the Planck peak slides to shorter wavelengths, the curve grows, and the colour swatch shifts from red through white to blue (the perceived blackbody colour).
+  - Drag the probe: in the visible band and beyond it the RJ/Planck ratio is huge (the ultraviolet catastrophe), but it falls to 1 at long wavelength where the classical law is exact.
+  - Switch the x axis to frequency: the visible band is now shaded there too (violet at high frequency), and Rayleigh-Jeans diverges toward high frequency instead of short wavelength.
   - The total radiated power follows a slope-four line on log-log axes (Stefan-Boltzmann).
 references:
   - "Eisberg and Resnick, Quantum Physics of Atoms, Molecules, Solids, Nuclei and Particles, 2nd ed., Ch. 1."
@@ -62,7 +63,7 @@ numerically against sigma T^4.
 
 ## Controls
 
-- Temperature T; a toggle between wavelength and frequency axes. Reset.
+- Temperature T (with a live perceived-colour swatch); a dropdown selecting the wavelength or frequency axis; a probe dragged across the spectrum that reads both curves and their ratio. Reset.
 
 ## Expected qualitative features
 

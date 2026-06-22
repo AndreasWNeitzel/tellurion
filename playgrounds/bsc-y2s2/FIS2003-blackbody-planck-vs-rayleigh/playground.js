@@ -8,7 +8,7 @@
 
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
-import { planckLambda, rayleighJeansLambda, planckNu, rayleighJeansNu, wienPeakLambda, wienPeakNu, stefanBoltzmann } from './sim.js';
+import { C, planckLambda, rayleighJeansLambda, planckNu, rayleighJeansNu, wienPeakLambda, wienPeakNu, stefanBoltzmann } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -17,21 +17,34 @@ const CAPTURE_NAME = params.get('capture');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const sT = document.getElementById('slider-T'), vT = document.getElementById('value-T');
-const btnAxis = document.getElementById('btn-axis'), vAxis = document.getElementById('value-axis');
+const selAxis = document.getElementById('select-axis');
 const btnReset = document.getElementById('btn-reset');
 
-const st = { T: 5778, axis: 'lambda' };
+const st = { T: 5778, axis: 'lambda', probe: 0.5 };
 const LAM_HI = 2.5e-6, NU_HI = 1.5e15;     // plot extents
+const VLO = 380e-9, VHI = 750e-9;          // visible wavelength range
 
-let view = { w: 820, h: 1020, dpr: 1 }, REG = null;
+// Approximate perceived RGB of a blackbody at temperature T (Tanner Helland fit,
+// valid ~1000-40000 K); used only for the colour swatch.
+function blackbodyRGB(T) {
+  const u = Math.max(1000, Math.min(40000, T)) / 100;
+  let r, g, b;
+  r = u <= 66 ? 255 : 329.698727 * Math.pow(u - 60, -0.1332047592);
+  g = u <= 66 ? 99.4708025861 * Math.log(u) - 161.1195681661 : 288.1221695283 * Math.pow(u - 60, -0.0755148492);
+  b = u >= 66 ? 255 : (u <= 19 ? 0 : 138.5177312231 * Math.log(u - 10) - 305.0447927307);
+  const cl = (v) => Math.max(0, Math.min(255, Math.round(v)));
+  return [cl(r), cl(g), cl(b)];
+}
+
+let view = { w: 820, h: 1020, dpr: 1 }, REG = null, SC = null;
 function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.32 }, { name: 'diag', weight: 0.9 }]);
 }
-function syncVals() { vT.textContent = `${st.T} K`; vAxis.textContent = st.axis === 'lambda' ? 'wavelength' : 'frequency'; }
+function syncVals() { vT.textContent = `${st.T} K`; selAxis.value = st.axis; }
 sT.addEventListener('input', () => { st.T = parseInt(sT.value, 10); syncVals(); render(); });
-btnAxis.addEventListener('click', () => { st.axis = st.axis === 'lambda' ? 'nu' : 'lambda'; syncVals(); render(); });
-btnReset.addEventListener('click', () => { st.T = 5778; st.axis = 'lambda'; sT.value = '5778'; syncVals(); render(); });
+selAxis.addEventListener('change', () => { st.axis = selAxis.value; syncVals(); render(); });
+btnReset.addEventListener('click', () => { st.T = 5778; st.axis = 'lambda'; st.probe = 0.5; sT.value = '5778'; syncVals(); render(); });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.09)', planck: '#ffd166', rj: '#ef5466', peak: '#67d98c', sb: '#5b9bd5' };
@@ -44,6 +57,17 @@ function panel(col, r, title) {
 // approximate visible-wavelength colour (nm) for the spectrum strip.
 function visGradient(g) {
   g.addColorStop(0, '#6a0dad'); g.addColorStop(0.18, '#2a2af0'); g.addColorStop(0.36, '#19d3e6'); g.addColorStop(0.52, '#2ecc40'); g.addColorStop(0.66, '#ffe000'); g.addColorStop(0.82, '#ff7b00'); g.addColorStop(1, '#e0102a');
+}
+// Shade the visible band (380-750 nm) in either axis. Violet sits at short
+// wavelength, which is the high-frequency end, so the gradient reverses with the axis.
+function drawVisibleBand(col, box, xOf, lam) {
+  const xV = lam ? xOf(VLO) : xOf(C / VLO);   // violet edge (380 nm)
+  const xR = lam ? xOf(VHI) : xOf(C / VHI);   // red edge (750 nm)
+  const g = ctx.createLinearGradient(xV, 0, xR, 0); visGradient(g);
+  const x0 = Math.min(xV, xR), w = Math.abs(xR - xV);
+  ctx.globalAlpha = 0.17; ctx.fillStyle = g; ctx.fillRect(x0, box.y, w, box.h); ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('visible', x0 + w / 2, box.y + box.h - 2);
 }
 
 function drawScene(col, r) {
@@ -58,11 +82,8 @@ function drawScene(col, r) {
   const xOf = (x) => box.x + x / xHi * box.w;
   const yOf = (y) => box.y + box.h - Math.min(1.15, y / ymax) * box.h;
   ctx.save(); clipTo(ctx, box);
-  // visible-light band (wavelength mode, 380-750 nm).
-  if (lam) {
-    const g = ctx.createLinearGradient(xOf(380e-9), 0, xOf(750e-9), 0); visGradient(g);
-    ctx.globalAlpha = 0.16; ctx.fillStyle = g; ctx.fillRect(xOf(380e-9), box.y, xOf(750e-9) - xOf(380e-9), box.h); ctx.globalAlpha = 1;
-  }
+  // visible-light band in either axis (380-750 nm).
+  drawVisibleBand(col, box, xOf, lam);
   // Planck curve, filled (the area is the total power).
   ctx.fillStyle = 'rgba(255,209,102,0.16)'; ctx.beginPath(); ctx.moveTo(xOf(0), yOf(0));
   for (let i = 1; i <= 400; i += 1) { const x = xHi * i / 400; ctx.lineTo(xOf(x), yOf(Pf(x, st.T))); }
@@ -77,6 +98,12 @@ function drawScene(col, r) {
   // Wien peak marker.
   ctx.strokeStyle = col.peak; ctx.lineWidth = 1.4; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(xOf(peak), yOf(Pf(peak, st.T))); ctx.lineTo(xOf(peak), box.y + box.h); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = col.peak; ctx.beginPath(); ctx.arc(xOf(peak), yOf(Pf(peak, st.T)), 4, 0, 6.28); ctx.fill();
+  // draggable probe: a vertical line reading both curves at one x.
+  const xp = Math.max(xHi * 0.004, st.probe * xHi), Xp = xOf(xp);
+  const pPlanck = Pf(xp, st.T), pRJ = RJf(xp, st.T);
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.2; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(Xp, box.y); ctx.lineTo(Xp, box.y + box.h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = col.planck; ctx.beginPath(); ctx.arc(Xp, yOf(pPlanck), 4.5, 0, 6.28); ctx.fill();
+  ctx.fillStyle = col.rj; ctx.beginPath(); ctx.arc(Xp, yOf(pRJ), 4.5, 0, 6.28); ctx.fill();
   ctx.restore();
   // axis labels.
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
@@ -87,6 +114,17 @@ function drawScene(col, r) {
   ctx.fillStyle = col.rj; ctx.fillText('Rayleigh-Jeans (classical)', box.x + 6, box.y + 18);
   ctx.fillStyle = col.peak; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
   ctx.fillText(lam ? `${(peak * 1e9).toFixed(0)} nm` : `${(peak / 1e14).toFixed(2)}e14 Hz`, xOf(peak), box.y + box.h - 4);
+  // blackbody colour swatch (the perceived colour of a blackbody at T).
+  const [rr, gg, bb] = blackbodyRGB(st.T);
+  const swW = 50, swH = 16, swX = box.x + box.w - swW - 6, swY = box.y + 4;
+  ctx.fillStyle = `rgb(${rr},${gg},${bb})`; ctx.fillRect(swX, swY, swW, swH);
+  ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(swX + 0.5, swY + 0.5, swW - 1, swH - 1);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText('colour at T', swX - 4, swY + 3);
+  // probe readout: the ratio is the ultraviolet-catastrophe factor.
+  const ratio = pPlanck > 0 ? pRJ / pPlanck : Infinity;
+  ctx.fillStyle = '#e8e8e8'; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`probe ${lam ? (xp * 1e9).toFixed(0) + ' nm' : (xp / 1e14).toFixed(2) + 'e14 Hz'}:  RJ/Planck = ${ratio < 100 ? ratio.toFixed(2) : ratio.toExponential(1)}`, box.x + 6, box.y + 32);
+  SC = { box, xHi };
 }
 
 function drawDiag(col, r) {
@@ -118,9 +156,18 @@ function render() {
   drawScene(col, REG.scene); drawDiag(col, REG.diag);
 }
 
+// drag the probe across the spectrum panel.
+let dragging = false;
+function ptr(e) { const rect = canvas.getBoundingClientRect(); return [(e.clientX - rect.left) * (view.w / rect.width), (e.clientY - rect.top) * (view.h / rect.height)]; }
+function setProbe(px) { if (!SC) return; st.probe = Math.max(0, Math.min(1, (px - SC.box.x) / SC.box.w)); render(); }
+canvas.addEventListener('pointerdown', (e) => { const [px, py] = ptr(e); if (!REG || !SC || py < SC.box.y || py > SC.box.y + SC.box.h) return; dragging = true; setProbe(px); });
+canvas.addEventListener('pointermove', (e) => { if (!dragging) return; const [px] = ptr(e); setProbe(px); });
+window.addEventListener('pointerup', () => { dragging = false; });
+
 function boot() {
   if (Number.isFinite(parseInt(params.get('T'), 10))) st.T = parseInt(params.get('T'), 10);
   if (params.get('axis') === 'nu') st.axis = 'nu';
+  if (Number.isFinite(parseFloat(params.get('probe')))) st.probe = Math.max(0, Math.min(1, parseFloat(params.get('probe'))));
   syncVals(); relayout(); render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
