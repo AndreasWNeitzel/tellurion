@@ -7,7 +7,7 @@
 
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
-import { stats, lsSlope, lsIntercept, ssr, ssrCentroid, ssrMin, residuals, normalSums, rSquared, PRESET } from './sim.js';
+import { stats, lsSlope, lsIntercept, ssr, ssrCentroid, ssrMin, residuals, normalSums, rSquared, PRESET, DATASETS } from './sim.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -16,15 +16,23 @@ const CAPTURE_NAME = params.get('capture');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const btnReset = document.getElementById('btn-reset'), btnBest = document.getElementById('btn-best');
+const btnPlay = document.getElementById('btn-play'), selData = document.getElementById('select-data');
 
-let pts = PRESET.map((p) => ({ ...p }));
+const TILT_AMP = 0.62, TILT_SECONDS = 9;     // auto-tilt swing about the optimum
+let dataKey = 'linear';
+let pts = DATASETS[dataKey].pts.map((p) => ({ ...p }));
 let mDisp = lsSlope(pts); // displayed slope (optimal unless tilted)
+let playing = !DETERMINISTIC, phase = 0;
 const WX = [-3.6, 3.6], WY = [-3.2, 3.2];
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.3 }, { name: 'diag', weight: 0.92 }]); }
-btnReset.addEventListener('click', () => { pts = PRESET.map((p) => ({ ...p })); mDisp = lsSlope(pts); render(); });
-btnBest.addEventListener('click', () => { mDisp = lsSlope(pts); render(); });
+function setPlaying(on) { playing = on; btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); }
+function loadData(key) { dataKey = key; pts = DATASETS[key].pts.map((p) => ({ ...p })); phase = 0; mDisp = lsSlope(pts); }
+btnReset.addEventListener('click', () => { loadData(dataKey); setPlaying(true); render(); });
+btnBest.addEventListener('click', () => { mDisp = lsSlope(pts); phase = 0; setPlaying(false); render(); });
+btnPlay.addEventListener('click', () => setPlaying(!playing));
+selData.addEventListener('change', () => { loadData(selData.value); setPlaying(true); render(); });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)', axis: 'rgba(255,255,255,0.3)', line: '#4ea8ff', ghost: 'rgba(141,224,138,0.7)', res: '#ff5d5d', pt: '#ffd166', cen: '#8de08a', parab: '#b487ff' };
@@ -136,8 +144,8 @@ function w2(sx, sy) { return [WX[0] + (sx - SC.inner.x) / SC.inner.w * (WX[1] - 
 canvas.addEventListener('pointerdown', (e) => {
   if (!SC) return; const [sx, sy] = ptr(e); if (sy > REG.scene.y + REG.scene.h) return;
   const s = stats(pts); const hx = WX[1] * 0.82, hsx = SC.xOf(hx), hsy = SC.yOf(s.ybar + mDisp * (hx - s.xbar));
-  if (Math.hypot(sx - hsx, sy - hsy) < 14) { drag = { kind: 'slope' }; return; }
-  for (let i = 0; i < pts.length; i += 1) if (Math.hypot(sx - SC.xOf(pts[i].x), sy - SC.yOf(pts[i].y)) < 14) { drag = { kind: 'pt', i }; return; }
+  if (Math.hypot(sx - hsx, sy - hsy) < 14) { drag = { kind: 'slope' }; setPlaying(false); return; }
+  for (let i = 0; i < pts.length; i += 1) if (Math.hypot(sx - SC.xOf(pts[i].x), sy - SC.yOf(pts[i].y)) < 14) { drag = { kind: 'pt', i }; setPlaying(false); return; }
 });
 canvas.addEventListener('pointermove', (e) => {
   if (!drag) return; const [sx, sy] = ptr(e); const [wx, wy] = w2(sx, sy);
@@ -147,12 +155,32 @@ canvas.addEventListener('pointermove', (e) => {
 });
 window.addEventListener('pointerup', () => { drag = null; });
 
-function boot() {
-  syncReady();
+// Auto-tilt the displayed line about the least-squares optimum on a sine swing:
+// the residual bars and SSR grow as it leans away and the projected residual e
+// snaps perpendicular each time it passes through the fit. Any drag, Snap, or
+// dataset change interrupts it.
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (playing) {
+    phase = (phase + dt / TILT_SECONDS) % 1;
+    mDisp = lsSlope(pts) + TILT_AMP * Math.sin(phase * 2 * Math.PI);
+    render();
+  }
+  requestAnimationFrame(tick);
 }
-function syncReady() {
-  relayout(); render();
-  if (DETERMINISTIC) { mDisp = (params.get('tilt') ? lsSlope(pts) + 0.45 : lsSlope(pts)); render(); requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+
+function boot() {
+  if (params.get('data') && DATASETS[params.get('data')]) { loadData(params.get('data')); selData.value = params.get('data'); }
+  relayout();
+  if (DETERMINISTIC) {
+    setPlaying(false);
+    mDisp = params.get('tilt') ? lsSlope(pts) + 0.45 : lsSlope(pts);
+    render();
+    requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  } else {
+    setPlaying(true); render(); requestAnimationFrame(tick);
+  }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });

@@ -14,7 +14,9 @@
 <script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
 <style>
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
-    .pg-controls .row.buttons { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); grid-column: span 2; }
+    .pg-controls .row.wide { grid-column: span 2; display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
+    .pg-controls .row.buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-3); grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -56,7 +58,15 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Least squares controls">
+    <div class="row wide"><label for="select-data">dataset</label><select id="select-data" aria-label="dataset">
+      <option value="linear">clean linear trend</option>
+      <option value="noisy">noisy linear</option>
+      <option value="outlier">one high-leverage outlier</option>
+      <option value="weak">weak correlation</option>
+      <option value="steep">steep trend</option>
+    </select></div>
     <div class="row buttons">
+      <button id="btn-play" type="button">Pause</button>
       <button id="btn-best" type="button">Snap to best fit</button>
       <button id="btn-reset" type="button">Reset data</button>
     </div>

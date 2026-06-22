@@ -37,3 +37,26 @@ export const PRESET = [
   { x: -2.6, y: -1.7 }, { x: -1.8, y: -1.5 }, { x: -1.0, y: -0.4 }, { x: -0.3, y: -0.7 },
   { x: 0.4, y: 0.3 }, { x: 1.1, y: 0.6 }, { x: 1.7, y: 1.4 }, { x: 2.5, y: 1.2 },
 ];
+
+// Illustrative teaching datasets (a UI demo, not a scientific measurement). Each
+// shows the projection from a different angle: a clean trend, scatter, a single
+// high-leverage outlier, a near-uncorrelated cloud, and a steep trend.
+export const DATASETS = {
+  linear: { label: 'clean linear trend', pts: PRESET },
+  noisy: { label: 'noisy linear', pts: [
+    { x: -2.6, y: -1.1 }, { x: -1.8, y: -1.9 }, { x: -1.0, y: 0.2 }, { x: -0.3, y: -1.2 },
+    { x: 0.4, y: 1.0 }, { x: 1.1, y: -0.1 }, { x: 1.7, y: 1.9 }, { x: 2.5, y: 0.7 },
+  ] },
+  outlier: { label: 'one high-leverage outlier', pts: [
+    { x: -2.6, y: -1.6 }, { x: -1.8, y: -1.2 }, { x: -1.0, y: -0.6 }, { x: -0.3, y: -0.2 },
+    { x: 0.4, y: 0.3 }, { x: 1.1, y: 0.7 }, { x: 1.7, y: 1.1 }, { x: 0.1, y: 2.9 },
+  ] },
+  weak: { label: 'weak correlation', pts: [
+    { x: -2.6, y: 0.6 }, { x: -1.8, y: -1.4 }, { x: -1.0, y: 1.1 }, { x: -0.3, y: -0.8 },
+    { x: 0.4, y: 1.3 }, { x: 1.1, y: -0.6 }, { x: 1.7, y: 0.9 }, { x: 2.5, y: -0.3 },
+  ] },
+  steep: { label: 'steep trend', pts: [
+    { x: -2.4, y: -2.8 }, { x: -1.7, y: -2.0 }, { x: -1.0, y: -1.0 }, { x: -0.4, y: -0.6 },
+    { x: 0.3, y: 0.5 }, { x: 1.0, y: 1.3 }, { x: 1.6, y: 2.1 }, { x: 2.3, y: 2.9 },
+  ] },
+};
