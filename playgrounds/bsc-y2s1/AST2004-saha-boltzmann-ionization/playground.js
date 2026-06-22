@@ -8,7 +8,6 @@ import { fontString } from '../../../shared/js/canvas-type.js';
 // as "most atoms neutral AND in n=2". sim.js core is unchanged.
 
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import {
   ionizationFraction, ionizationTemp, boltzmannFraction, balmerStrength,
 } from './sim.js';
@@ -27,15 +26,22 @@ const sliderLogN = document.getElementById('slider-logn');
 const sliderT = document.getElementById('slider-T');
 const valueLogN = document.getElementById('value-logn');
 const valueT = document.getElementById('value-T');
+const btnPlay = document.getElementById('btn-play');
+const btnReset = document.getElementById('btn-reset');
 
 const W = canvas.width, H = canvas.height;
 const TMIN = 2500, TMAX = 42000;
-const st = { logN: parseFloat(sliderLogN.value), T: parseFloat(sliderT.value), tokenR: [] };
+const SWEEP_LO = 2600, SWEEP_HI = 41000, SWEEP_PERIOD = 17;
+const st = { logN: parseFloat(sliderLogN.value), T: parseFloat(sliderT.value), tokenR: [], phase: 0, playing: !DETERMINISTIC };
 
 function buildTokens() {
   const rng = makeRng(SEED);
   st.tokenR = [];
-  for (let i = 0; i < 156; i += 1) st.tokenR.push(rng());
+  // Each token carries its population draw r plus a thermal-wiggle phase so the
+  // gas jitters continuously; ionized atoms get a faster wiggle (lighter, hotter).
+  for (let i = 0; i < 156; i += 1) {
+    st.tokenR.push({ r: rng(), phx: rng() * 6.283, phy: rng() * 6.283, spd: 2.4 + rng() * 2.6 });
+  }
 }
 
 const SPECTRAL = [
@@ -104,16 +110,20 @@ function drawGas() {
   const cols = 13, rows = Math.ceil(st.tokenR.length / cols);
   const cw = bw / cols, chh = bh / rows;
   let nIon = 0, nExc = 0;
+  const vth = Math.sqrt(Math.max(0.2, st.T / 8000));            // thermal speed scale
+  const amp0 = Math.min(cw, chh) * 0.26;
   for (let i = 0; i < st.tokenR.length; i += 1) {
-    const r = st.tokenR[i];
+    const tk = st.tokenR[i];
+    const r = tk.r;
     const ci = i % cols, ri = (i / cols) | 0;
-    const jx = (((r * 997) % 1) - 0.5) * cw * 0.3;
-    const jy = (((r * 613) % 1) - 0.5) * chh * 0.3;
-    const px = x0 + (ci + 0.5) * cw + jx, py = y0 + (ri + 0.5) * chh + jy;
     let kind;
     if (r < x) kind = 'ion';
     else if (r < x + (1 - x) * Math.min(1, f2 * 60)) kind = 'exc';
     else kind = 'gnd';
+    const amp = Math.min(1.7 * amp0, amp0 * vth * (kind === 'ion' ? 1.6 : 1));
+    const jx = amp * Math.cos(st.phase * tk.spd + tk.phx);
+    const jy = amp * Math.sin(st.phase * tk.spd * 1.07 + tk.phy);
+    const px = x0 + (ci + 0.5) * cw + jx, py = y0 + (ri + 0.5) * chh + jy;
     if (kind === 'ion') {
       nIon += 1;
       ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(px - 3, py, 3.4, 0, 2 * Math.PI); ctx.fill();
@@ -149,8 +159,34 @@ function render() {
   readoutTion.textContent = String(Math.round(tion));
 }
 
+function setPlaying(on) {
+  st.playing = on;
+  if (btnPlay) { btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); }
+}
 sliderLogN.addEventListener('input', () => { st.logN = parseFloat(sliderLogN.value); valueLogN.textContent = st.logN.toFixed(2); render(); });
-sliderT.addEventListener('input', () => { st.T = parseFloat(sliderT.value); valueT.textContent = String(Math.round(st.T)); render(); });
+sliderT.addEventListener('input', () => { setPlaying(false); st.T = parseFloat(sliderT.value); valueT.textContent = String(Math.round(st.T)); render(); });
+if (btnPlay) btnPlay.addEventListener('click', () => setPlaying(!st.playing));
+if (btnReset) btnReset.addEventListener('click', () => {
+  st.logN = 20; sliderLogN.value = '20'; valueLogN.textContent = '20.00';
+  st.T = 8000; sliderT.value = '8000'; valueT.textContent = '8000';
+  setPlaying(true); render();
+});
+
+let lastFrame = performance.now();
+function tick(now) {
+  const dt = Math.min((now - lastFrame) / 1000, 0.05); lastFrame = now;
+  st.phase += dt;
+  if (st.playing) {
+    // Smoothly sweep the temperature across the M to B range, dwelling at the
+    // ends, so the Balmer peak near the A class plays out on its own.
+    const frac = 0.5 - 0.5 * Math.cos(st.phase * 2 * Math.PI / SWEEP_PERIOD);
+    st.T = SWEEP_LO + frac * (SWEEP_HI - SWEEP_LO);
+    sliderT.value = String(Math.round(st.T));
+    valueT.textContent = String(Math.round(st.T));
+  }
+  render();
+  requestAnimationFrame(tick);
+}
 
 function bootSync() {
   buildTokens();
@@ -163,10 +199,13 @@ function bootSync() {
   valueT.textContent = String(Math.round(st.T));
   render();
   if (DETERMINISTIC) {
+    setPlaying(false);
     requestAnimationFrame(() => requestAnimationFrame(() => {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null, seed: SEED } }));
     }));
+  } else {
+    requestAnimationFrame(tick);
   }
 }
 

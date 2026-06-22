@@ -19,6 +19,9 @@
     .pg-controls .row { display: grid; grid-template-columns: 14ch 1fr 9ch; gap: var(--space-3); align-items: center; font-size: 13px; color: var(--fg-muted); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--fg); }
     .pg-controls input[type="range"] { width: 100%; }
+    .pg-controls .row.buttons { grid-column: span 2; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+    .pg-controls .row.buttons button { font-family: var(--font-mono); font-size: 13px; padding: 6px 10px; background: var(--surface-2, #11141c); color: var(--fg); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; cursor: pointer; }
+    .pg-controls .row.buttons button:hover { border-color: rgba(255,255,255,0.4); }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -76,6 +79,10 @@
       <div class="controls pg-controls" id="controls" role="group" aria-label="Saha controls">
     <div class="row"><span class="label">log10 n (1/m^3)</span><input aria-label="log10 n (1/m^3)" type="range" id="slider-logn" min="18" max="28" step="0.05" value="20"><span class="value" id="value-logn">20.00</span></div>
     <div class="row"><span class="label">T (K)</span><input aria-label="T (K)" type="range" id="slider-T" min="2000" max="100000" step="100" value="8000"><span class="value" id="value-T">8000</span></div>
+    <div class="row buttons">
+      <button id="btn-play" type="button">Pause</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
   </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">x at T:</span><span class="value" id="readout-x">0</span>
