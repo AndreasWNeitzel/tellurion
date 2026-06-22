@@ -34,7 +34,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const st = { pot: 'harmonic', E: 0.6, w0: 1.0, ramp: 0, running: !prefersReducedMotion() };
 let q = 0, p = 0, th = 0, t = 0, J0 = 0, jHist = [];
-const LCX = 210, RCX = 560, CY = H / 2 + 6, SC = 92;
+const LCX = Math.round(W / 2), RCX = Math.round(W / 2), CY = Math.round(H * 0.30), CY2 = Math.round(H * 0.72), SC = 92;
 
 // For Kepler the energy slider maps to a bound radial energy Ek < 0
 // and the omega0 slider to the angular momentum L, kept inside the
@@ -129,7 +129,7 @@ function render() {
   ctx.beginPath(); ctx.moveTo(LCX - 150, CY); ctx.lineTo(LCX + 150, CY);
   ctx.moveTo(LCX, CY - 138); ctx.lineTo(LCX, CY + 138); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText(st.pot === 'kepler' ? 'radial phase orbit  (r, p_r)' : 'phase orbit  (q, p)', LCX, H - 14);
+  ctx.fillText(st.pot === 'kepler' ? 'radial phase orbit  (r, p_r)' : 'phase orbit  (q, p)', LCX, CY + 158);
   // centre the orbit on its own interval so Kepler (r in [r-,r+])
   // is not pushed off-axis
   const tp = turningPoints(st.pot, Ecur, wE);
@@ -154,10 +154,10 @@ function render() {
 
   // right panel: the action-angle loop (a circle for the harmonic)
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(RCX - 150, CY); ctx.lineTo(RCX + 150, CY);
-  ctx.moveTo(RCX, CY - 138); ctx.lineTo(RCX, CY + 138); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(RCX - 150, CY2); ctx.lineTo(RCX + 150, CY2);
+  ctx.moveTo(RCX, CY2 - 138); ctx.lineTo(RCX, CY2 + 138); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center';
-  ctx.fillText('action-angle  (θ winds uniformly)', RCX, H - 14);
+  ctx.fillText('action-angle  (θ winds uniformly)', RCX, CY2 + 158);
   // The whole point of action-angle variables: the canonical
   // transform turns ANY 1-DOF bound orbit into a circle of radius
   // sqrt(2 J) swept at the constant rate omega, for Kepler exactly
@@ -166,12 +166,12 @@ function render() {
   // Kepler a wrong, weird blob).
   const rJpx = Math.sqrt(2 * Math.max(0, Jnow)) * SC * 0.7;
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.2;
-  ctx.beginPath(); ctx.arc(RCX, CY, rJpx, 0, 2 * Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(RCX, CY2, rJpx, 0, 2 * Math.PI); ctx.stroke();
   const rr = rJpx || 1;
   ctx.strokeStyle = 'rgba(255,209,102,0.85)'; ctx.lineWidth = 1.6;
-  ctx.beginPath(); ctx.moveTo(RCX, CY); ctx.lineTo(RCX + rr * Math.cos(-th), CY + rr * Math.sin(-th)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(RCX, CY2); ctx.lineTo(RCX + rr * Math.cos(-th), CY2 + rr * Math.sin(-th)); ctx.stroke();
   ctx.fillStyle = '#ffd166';
-  ctx.beginPath(); ctx.arc(RCX + rr * Math.cos(-th), CY + rr * Math.sin(-th), 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(RCX + rr * Math.cos(-th), CY2 + rr * Math.sin(-th), 5, 0, 2 * Math.PI); ctx.fill();
 
   rJ.textContent = Number.isFinite(Jnow) ? Jnow.toFixed(4) : 'inf';
   rE.textContent = Ecur.toFixed(4);
