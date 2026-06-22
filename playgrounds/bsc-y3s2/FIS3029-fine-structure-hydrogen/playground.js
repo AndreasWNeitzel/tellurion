@@ -38,7 +38,7 @@ function render() {
   for (let n = 1; n <= st.nMax; n += 1) for (let l = 0; l < n; l += 1) for (const j of [Math.abs(l - 0.5), l + 0.5]) if (j >= 0.5) maxFS = Math.max(maxFS, Math.abs(fineStructureDelta(n, j)));
   for (let n = 1; n <= st.nMax; n += 1) {
     const E = bohrEnergy(n);
-    const xCol = pad.l + 50 + (n - 1) * 140;
+    const xCol = pad.l + 40 + (n - 0.5) * (W - pad.l - pad.r - 40) / st.nMax;   // spread columns across the full width
     ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(xCol - 30, yToPx(E)); ctx.lineTo(xCol + 30, yToPx(E)); ctx.stroke();
     ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
