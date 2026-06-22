@@ -32,9 +32,11 @@ const btnReset = document.getElementById('btn-reset');
 const SEC_PER_MYR = 3.156e13;
 const BOX_PC = 8;            // the rendered region is 8 pc across
 const NSIDE = 44;            // particle grid (NSIDE^2 gas tracers)
-const DMAX_U = 1.05;         // collapse displacement cap: hold at peak accumulation (cores pile up) just before shell-crossing disperses them
+const DMAX_U = 1.05;         // collapse displacement at which the cores have piled up (just before shell-crossing would disperse them)
+const PHI_CAP = Math.acosh(1 + DMAX_U / 0.16);  // collapse phase where D reaches that cap (~2.71)
+const PHI_END = PHI_CAP + 1.0;                   // loop restarts here; the scene fades over [PHI_CAP, PHI_END] so the restart is invisible
 let running = !DETERMINISTIC;
-let phi = 0, hold = 0;
+let phi = 0;
 
 // A small Gaussian-random-field of plane-wave modes at random orientations
 // (seeded, fixed) makes the collapse fragment into natural filaments and nodes
@@ -66,10 +68,16 @@ function initParticles() {
     i += 1;
   }
 }
-// Growth/oscillation factor D(t): grows (collapse) for omega^2<0, oscillates
-// (sound wave) for omega^2>0. phi is the dimensionless evolved time.
-function currentD(unstable) {
-  return unstable ? Math.min(DMAX_U, 0.16 * (Math.cosh(phi) - 1)) : 0.85 * Math.sin(phi);
+// Growth/oscillation state at the current phase phi. Unstable: D grows like
+// cosh (linear-theory collapse) and the cloud opacity fades out as the cores
+// saturate, so the loop restart is masked and the motion never freezes.
+// Stable: D oscillates as a standing sound wave.
+function evolve(unstable) {
+  if (!unstable) return { D: 0.85 * Math.sin(phi), alpha: 1 };
+  const D = Math.min(1.7, 0.16 * (Math.cosh(phi) - 1));
+  const fadeOut = phi > PHI_CAP ? Math.max(0, 1 - (phi - PHI_CAP) / (PHI_END - PHI_CAP)) : 1;
+  const fadeIn = phi < 0.45 ? phi / 0.45 : 1;
+  return { D, alpha: Math.min(fadeOut, fadeIn) };
 }
 
 function tempK() { return parseFloat(sliderTemp.value); }
@@ -85,9 +93,9 @@ function syncVals() {
   valueN.textContent = `1e${parseFloat(sliderN.value).toFixed(1)}`;
   valueLam.textContent = `${lamPc().toFixed(1)} pc`;
 }
-[sliderTemp, sliderN, sliderLam].forEach((el) => el.addEventListener('input', () => { syncVals(); phi = 0; hold = 0; render(); }));
+[sliderTemp, sliderN, sliderLam].forEach((el) => el.addEventListener('input', () => { syncVals(); phi = 0; render(); }));
 btnReset.addEventListener('click', () => {
-  sliderTemp.value = '10'; sliderN.value = '3'; sliderLam.value = '5'; phi = 0; hold = 0;
+  sliderTemp.value = '10'; sliderN.value = '3'; sliderLam.value = '5'; phi = 0;
   running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false');
   syncVals(); render();
 });
@@ -143,7 +151,7 @@ function drawScene(col, r) {
   const draw = { x: r.x, y: r.y + titleH, w: r.w, h: r.h - titleH - stripH };
   const S = Math.min(draw.w, draw.h) - 14;
   const bx = draw.x + (draw.w - S) / 2, by = draw.y + (draw.h - S) / 2;
-  const D = currentD(unstable);
+  const { D, alpha: sceneAlpha } = evolve(unstable);
   const nClump = Math.max(0.5, BOX_PC / lamPc());
   const kf = 2 * Math.PI * nClump;
   const wrap = (u) => u - Math.floor(u);
@@ -164,7 +172,7 @@ function drawScene(col, r) {
   const amp = (D / kf) * 1.7 / Math.sqrt(NMODES);
   const rad = Math.max(1.6, S / 220);
   ctx.globalCompositeOperation = 'lighter';
-  ctx.fillStyle = unstable ? 'rgba(255,168,84,0.42)' : 'rgba(110,170,255,0.36)';
+  ctx.fillStyle = unstable ? `rgba(255,168,84,${(0.42 * sceneAlpha).toFixed(3)})` : 'rgba(110,170,255,0.36)';
   for (let i = 0; i < qx.length; i += 1) {
     let dxs = 0, dys = 0;
     for (let m = 0; m < mk.length; m += 1) { const s = Math.sin(mk[m].kx * qx[i] + mk[m].ky * qy[i] + mk[m].ph); dxs += mk[m].ux * s; dys += mk[m].uy * s; }
@@ -270,10 +278,10 @@ function tick(now) {
     const rateRef = Math.sqrt(4 * Math.PI * G_SI * rho());
     const vr = Math.min(1.4, Math.sqrt(Math.abs(ww)) / rateRef);
     if (unstable) {
-      // grow the collapse until the cores pile up at the caustic, hold so the
-      // accumulation is visible, then reset and re-collapse so it runs forever.
-      if (currentD(true) < DMAX_U - 1e-6) { phi += vr * 1.5 * dt; hold = 0; }
-      else { hold += dt; if (hold > 1.6) { phi = 0; hold = 0; } }
+      // collapse continuously; at PHI_END the (already faded-out) scene loops
+      // back to a fresh smooth cloud, so the motion never stalls.
+      phi += vr * 1.15 * dt;
+      if (phi >= PHI_END) phi = 0;
     } else { phi += vr * 2.4 * dt; }   // stable: keep oscillating (a sound wave)
   }
   render();
@@ -285,7 +293,8 @@ function bootSync() {
   if (Number.isFinite(parseFloat(params.get('n')))) sliderN.value = params.get('n');
   if (Number.isFinite(parseFloat(params.get('lam')))) sliderLam.value = params.get('lam');
   initParticles(); syncVals(); relayout();
-  phi = CAPTURE_NAME ? (w2() < 0 ? 0.4 + (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 3.4 : (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 6.0) : 1.2;
+  const cf = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
+  phi = CAPTURE_NAME ? (w2() < 0 ? 0.4 + cf * (PHI_CAP - 0.4) : cf * 6.0) : 1.2;
   render();
   if (CAPTURE_NAME && DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } })); }));
 }
