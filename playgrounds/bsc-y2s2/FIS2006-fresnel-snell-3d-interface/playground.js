@@ -34,9 +34,9 @@ const st = { thi: 56.3, n1: 1.0, n2: 1.5, pol: 'p', t: 0, running: 1 };
 
 // scene geometry: medium 1 is the TOP half, medium 2 the BOTTOM half,
 // the interface is the horizontal mid-line, the normal is vertical.
-const SX = 28, SY = 50, SW = 540, SH = 470;
+const SW = 480, SH = 480, SX = Math.round((canvas.width - 480) / 2), SY = 36;
 const OX = SX + SW / 2, OY = SY + SH / 2;
-const PX = 596, PW = 282, PYp = 196, PHp = 250;
+const PHp = canvas.height - (SY + SH + 44) - 40, PW = PHp, PX = Math.round((canvas.width - PHp) / 2), PYp = SY + SH + 44;
 const LAMBDA0 = 46, K0 = 2 * Math.PI / LAMBDA0, OMEGA = K0 * 2.4;
 
 // half-resolution wave-field buffer, allocated once

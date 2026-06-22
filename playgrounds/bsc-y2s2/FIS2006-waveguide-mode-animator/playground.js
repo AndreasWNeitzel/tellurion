@@ -49,9 +49,9 @@ function aM() { return st.aMM / 1000; }
 function bM() { return B_MM / 1000; }
 
 // geometry
-const XX = 30, XY = 56, XW = 360, XH = 200;      // cross-section map
-const LX = 30, LY = 300, LW = 540, LH = 150;     // longitudinal strip
-const PX = 596, PW = 286, PYp = 196, PHp = 300;  // cutoff spectrum
+const XX = 40, XY = 50, XW = canvas.width - 80, XH = 240;      // cross-section map (top)
+const LX = 40, LY = XY + XH + 40, LW = canvas.width - 80, LH = 180;     // longitudinal strip (middle)
+const PX = 40, PW = canvas.width - 80, PYp = LY + LH + 44, PHp = canvas.height - (LY + LH + 44) - 40;  // cutoff spectrum (bottom)
 const GN = 96;
 let imgData = new ImageData(GN, Math.round(GN * (B_MM / 22.86)));
 const offc = document.createElement('canvas');

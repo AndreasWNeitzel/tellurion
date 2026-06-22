@@ -38,9 +38,9 @@ function powerW() {
 }
 
 // geometry
-const SX = 30, SY = 50, SW = 540, SH = 470;                   // 3D scene
+const SW = 480, SH = 480, SX = Math.round((canvas.width - 480) / 2), SY = 36;                   // 3D scene (top)
 const cx3 = SX + SW / 2, cy3 = SY + SH / 2;
-const PX = 596, PW = 280, PYp = 196, PHp = 250;               // polar panel
+const PHp = canvas.height - (SY + SH + 44) - 40, PW = PHp, PX = Math.round((canvas.width - PHp) / 2), PYp = SY + SH + 44;               // polar panel (bottom)
 
 // rotate (x,y,z) by yaw (about z) then pitch (about x), project ortho
 function project(x, y, z, yaw, pitch, scale) {
