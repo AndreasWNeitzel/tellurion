@@ -37,7 +37,9 @@ const NBIN = 80;
 let hist = new Float64Array(NBIN), histMax = 0, nSamp = 0, histDmax = 8;
 
 function sigma() { return st.f * st.plx; }
-function resetMC() { hist = new Float64Array(NBIN); histMax = 0; nSamp = 0; }
+// Reset the Monte Carlo and lock the histogram range to the current posterior, so
+// draws are always binned against the same distance axis the panel is drawn with.
+function resetMC() { hist = new Float64Array(NBIN); histMax = 0; nSamp = 0; histDmax = plotDmax(currentPost()); }
 
 function applyStar(i) {
   const s = GAIA_STARS[((i % GAIA_STARS.length) + GAIA_STARS.length) % GAIA_STARS.length];
@@ -59,8 +61,8 @@ function syncVals() {
 }
 sPlx.addEventListener('input', () => { st.plx = parseFloat(sPlx.value); resetMC(); syncVals(); });
 sF.addEventListener('input', () => { st.f = parseFloat(sF.value); resetMC(); syncVals(); });
-sL.addEventListener('input', () => { st.L = parseFloat(sL.value); syncVals(); });
-btnPrior.addEventListener('click', () => { st.prior = st.prior === 'edsd' ? 'flat' : 'edsd'; syncVals(); });
+sL.addEventListener('input', () => { st.L = parseFloat(sL.value); resetMC(); syncVals(); });
+btnPrior.addEventListener('click', () => { st.prior = st.prior === 'edsd' ? 'flat' : 'edsd'; resetMC(); syncVals(); });
 btnStar.addEventListener('click', () => { applyStar(st.star + 1); syncVals(); });
 btnReset.addEventListener('click', () => { applyStar(0); st.prior = 'edsd'; st.L = 1.35; sL.value = '1.35'; running = true; btnPlay.textContent = 'Pause'; syncVals(); });
 btnPlay.addEventListener('click', () => { running = !running; btnPlay.textContent = running ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!running)); });
@@ -75,6 +77,21 @@ function panel(col, r, title) {
 }
 
 function currentPost() { return posterior(st.plx, sigma(), { mode: st.prior, L: st.L }); }
+
+// Adaptive distance-axis upper bound: the 98th percentile of the posterior, framed
+// with the naive estimate. A sharp nearby posterior then fills the panel instead of
+// hugging the far left, while a broad high-error posterior still shows its skewed tail.
+function plotDmax(post) {
+  const dd = post.d[1] - post.d[0]; let cum = 0, p98 = post.d[post.d.length - 1];
+  for (let i = 0; i < post.d.length; i += 1) { cum += post.p[i] * dd; if (cum >= 0.98) { p98 = post.d[i]; break; } }
+  const naive = naiveDistanceKpc(st.plx);
+  return Math.min(60, Math.max(0.05, p98 * 1.18, post.hi * 1.25, naive > 0 && Number.isFinite(naive) ? naive * 1.4 : 0));
+}
+// A round tick step giving ~5 ticks across the range.
+function niceStep(range) {
+  const raw = range / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / mag;
+  return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * mag;
+}
 
 function drawPosterior(col, r, post) {
   panel(col, r, 'Distance from a noisy parallax: naive inversion (histogram) vs the Bayesian posterior');
@@ -104,9 +121,10 @@ function drawPosterior(col, r, post) {
   const dn = naiveDistanceKpc(st.plx);
   ctx.strokeStyle = col.naive; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(xOf(dn), box.y); ctx.lineTo(xOf(dn), box.y + box.h); ctx.stroke(); ctx.setLineDash([]);
   ctx.restore();
-  // axis + labels.
+  // axis + labels (adaptive tick step, so a zoomed-in nearby posterior is still legible).
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (let d = 0; d <= dMax + 0.01; d += dMax <= 4 ? 1 : 2) ctx.fillText(`${d}`, xOf(d), box.y + box.h + 5);
+  const step = niceStep(dMax), dec = step < 0.1 ? 2 : step < 1 ? 1 : 0;
+  for (let d = 0; d <= dMax + step * 0.01; d += step) ctx.fillText(d.toFixed(dec), xOf(d), box.y + box.h + 5);
   ctx.fillText('distance (kpc)', box.x + box.w / 2, box.y + box.h + 19);
   ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.fillStyle = col.naive; ctx.fillText(`naive 1/pi = ${dn.toFixed(2)}`, box.x + 6, box.y + 4);
@@ -176,14 +194,22 @@ function render() {
   const col = colors();
   ctx.fillStyle = col.bg; ctx.fillRect(0, 0, view.w, view.h);
   const post = currentPost();
-  histDmax = Math.max(4, Math.min(40, post.dMax));
+  histDmax = plotDmax(post);
   drawPosterior(col, REG.post, post); drawMag(col, REG.mag, post); drawBias(col, REG.bias);
 }
 function tick() { if (running) advance(); render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 function boot() {
-  applyStar(0); syncVals(); relayout();
-  if (CAPTURE_NAME) { st.plx = 0.4; st.f = 0.3; sPlx.value = '0.4'; sF.value = '0.3'; syncVals(); resetMC(); for (let i = 0; i < 160; i += 1) advance(); }
+  applyStar(0);
+  if (params.get('plx')) st.plx = parseFloat(params.get('plx'));
+  if (params.get('f')) st.f = parseFloat(params.get('f'));
+  if (params.get('prior') === 'flat') st.prior = 'flat';
+  sPlx.value = String(st.plx); sF.value = String(st.f); resetMC();
+  syncVals(); relayout();
+  if (CAPTURE_NAME) {
+    if (!params.get('plx')) { st.plx = 0.4; st.f = 0.3; sPlx.value = '0.4'; sF.value = '0.3'; }
+    syncVals(); resetMC(); for (let i = 0; i < 160; i += 1) advance();
+  }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }

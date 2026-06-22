@@ -28,6 +28,7 @@ invariants:
     label: the EDSD posterior applies a non-trivial correction to the naive 1/parallax at large error
     tolerance: 0.0
 what_to_try:
+  - Pick a nearby star (large parallax, small error): the distance panel zooms in so the sharp posterior fills the panel instead of hugging the left edge, and the naive estimate and the posterior nearly coincide.
   - Raise the fractional error and the Monte Carlo histogram of 1/parallax skews to a heavy tail; the naive distance drifts from the posterior median.
   - Toggle the prior: a flat prior lets the tail run away at high error, the EDSD prior tames it.
   - Below about 20 percent fractional error the correction is small; above it the bias grows quickly.
