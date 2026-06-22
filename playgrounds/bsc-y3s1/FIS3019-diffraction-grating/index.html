@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>The Diffraction Grating</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 6ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The Diffraction Grating</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A grating is a comb of many fine slits, and shining light through it sharpens the gentle fringes of two slits into a row of needle-thin bright orders, the basis of nearly every spectrometer. The intensity is a product of two patterns: the broad single-slit envelope $(\sin\beta/\beta)^2$ from each slit's own width, multiplied by the many-slit interference factor that spikes wherever all $N$ slits radiate exactly in phase. That happens at the grating equation $d\sin\theta = m\lambda$, the principal maxima, the same condition as two slits but now reinforced by $N$ of them. The new magic is in the sharpness. Between each pair of orders the interference factor passes through $N-1$ perfect zeros and $N-2$ feeble secondary maxima, so the more slits you add the narrower each principal peak becomes, its width shrinking like $1/N$. The scene paints the pattern as you would see it on a screen, a strip of coloured orders above the intensity profile and its envelope, with the orders labelled and a draggable cursor that reads the angle off any point. The bottom panel zooms into the first order so you can count the secondary maxima and watch the peak knife in as $N$ rises. That narrowing is the resolving power $R = mN$, the reason a grating with thousands of lines can split spectral lines a prism would smear together. Slide the slit count, the spacing, and the wavelength, and watch the orders march, spread, and shift in colour.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="The Fraunhofer diffraction pattern of an N-slit grating, a coloured strip of bright orders above the intensity profile and envelope, and a zoom of one principal maximum showing the secondary maxima and the 1/N sharpening."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      The diffraction grating. Top: the pattern, a strip of bright orders coloured by wavelength above the intensity profile (white) and single-slit envelope (orange dashed), the orders labelled, with a draggable cursor. Bottom: a zoom of the first order showing the N-2 secondary maxima and the peak width shrinking as 1/N. Method: the Fraunhofer N-slit intensity in closed form. Source: Hecht, Optics, 5th ed., Sec. 10.2.7.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Grating controls">
+    <div class="row"><label for="s-N">slits N</label><input type="range" id="s-N" min="2" max="24" step="1" value="6"><span class="value" id="v-N">6</span></div>
+    <div class="row"><label for="s-d">spacing d</label><input type="range" id="s-d" min="1" max="5" step="0.1" value="2.5"><span class="value" id="v-d">2.5 um</span></div>
+    <div class="row"><label for="s-l">wavelength</label><input type="range" id="s-l" min="0.4" max="0.7" step="0.01" value="0.55"><span class="value" id="v-l">550 nm</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Raise the slit count $N$: the principal orders knife in, their width shrinking like $1/N$, and the secondary maxima between them ($N-2$ of them) fade.</li>
+        <li class="t-body">Change the spacing $d$: the orders crowd together or spread apart, satisfying $d\sin\theta = m\lambda$.</li>
+        <li class="t-body">Slide the wavelength: each order shifts to a new angle, the dispersion a grating uses to make a spectrum.</li>
+        <li class="t-body">Drag the cursor to read the angle and intensity at any point; note where the orange envelope dims an order.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
