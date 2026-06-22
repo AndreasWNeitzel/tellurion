@@ -61,7 +61,7 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="HR diagram controls">
-    <div class="row"><span class="label">age</span><input aria-label="stellar age" type="range" id="slider-age" min="0" max="12.4" step="0.01" value="9"><span class="value" id="value-age">9.00 Gyr</span></div>
+    <div class="row"><span class="label">evolution</span><input aria-label="evolutionary progress" type="range" id="slider-age" min="0" max="1" step="0.002" value="0.5"><span class="value" id="value-age">9.00 Gyr</span></div>
     <div class="row wide"><button id="btn-view" type="button">Switch plane</button><span class="value" id="value-view">Kiel (Teff, logg)</span></div>
     <div class="row wide"><button id="btn-color" type="button">Colour stars</button><span class="value" id="value-color">metallicity [M/H]</span></div>
     <div class="row buttons">
@@ -74,8 +74,8 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Press Pause then drag the age slider: the white marker crawls along the main sequence for the first 9 Gyr, then accelerates up the giant branch in under a Gyr. Watch how slowly it moves where the real stars are densest.</li>
-        <li class="t-body">Find the green turn-off circle: that is the moment core hydrogen runs out (age about 9 Gyr for a Sun-like star), the bend where the main sequence ends and the star becomes a giant.</li>
+        <li class="t-body">Play or drag the evolution slider: it steps by distance travelled in the diagram, not by age, so the subgiant and giant phases (under 1 Gyr of real time) finally get their share of screen time instead of flashing past. The age readout still shows the true age, which races ahead once the star leaves the main sequence.</li>
+        <li class="t-body">Compare the orange 1 Msun model with the violet Gaia ridge (the running median of the real stars): the model runs cooler, because a magnitude-limited giant sample is dominated by more massive, hotter stars than the Sun. Find the green turn-off circle where core hydrogen runs out (about 9 Gyr).</li>
         <li class="t-body">Read the bottom plot on a log scale: the model speed is lowest on the main sequence and spikes by orders of magnitude during the post-main-sequence and white-dwarf transitions, the quantitative reason the giant phases are fleeting.</li>
         <li class="t-body">Switch the plane to the observational colour-magnitude diagram (the raw Gaia measurements), and switch the star colour between metallicity and plain population density.</li>
       </ul>

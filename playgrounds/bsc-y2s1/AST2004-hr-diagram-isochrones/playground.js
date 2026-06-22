@@ -36,13 +36,60 @@ let ZAMS_IDX = 0; { let zg = -9; for (let i = 0; i < MESA_TRACK.length; i += 1) 
 const AGE_MAX = MESA_TRACK[MESA_TRACK.length - 1][0];
 const AGE_MIN = MESA_TRACK[0][0];
 
-const st = { age: TO_AGE ?? 6, view: 'kiel', color: 'metal' };
+const st = { u: 0, age: TO_AGE ?? 6, view: 'kiel', color: 'metal' };
 let running = !DETERMINISTIC;
 
 // Kiel axes (Teff reversed: hot left; logg reversed: dwarfs at bottom).
 const KX = [7400, 3000], KY = [0.1, 5.7];
 // CMD axes (BP-RP; M_G reversed: bright at top).
 const CX = [0.5, 4.0], CY = [-4.2, 10.2];
+
+// Evolutionary-progress reparametrization. The star crawls along the main sequence
+// for ~9 Gyr and then races through the subgiant and giant phases in under 1 Gyr, so
+// stepping the marker by age leaves the post-turn-off evolution an invisible blink.
+// Instead build a cumulative arc length in the (normalised Teff, logg) plane along
+// the visible track, and step a uniform parameter u in [0,1] through it: equal u
+// covers equal screen distance, giving the fast giant phases their share of time.
+const TEFF_SPAN = KX[0] - KX[1], LOGG_SPAN = KY[1] - KY[0];
+const inVisBox = (teff, logg) => teff >= KX[1] && teff <= 6700 && logg >= KY[0] && logg <= KY[1];
+const REPARAM = (() => {
+  const idxs = [];
+  for (let i = ZAMS_IDX; i < MESA_TRACK.length; i += 1) { const teff = teffFromLog(MESA_TRACK[i][2]), logg = MESA_TRACK[i][4]; if (inVisBox(teff, logg)) idxs.push(i); else if (idxs.length) break; }
+  const cum = [0], ages = [MESA_TRACK[idxs[0]][0]];
+  for (let k = 1; k < idxs.length; k += 1) {
+    const a = MESA_TRACK[idxs[k - 1]], b = MESA_TRACK[idxs[k]];
+    const dx = (teffFromLog(b[2]) - teffFromLog(a[2])) / TEFF_SPAN, dy = (b[4] - a[4]) / LOGG_SPAN;
+    cum.push(cum[k - 1] + Math.hypot(dx, dy)); ages.push(b[0]);
+  }
+  return { cum, ages, total: cum[cum.length - 1] || 1 };
+})();
+function ageAtFrac(u) {
+  const target = Math.max(0, Math.min(1, u)) * REPARAM.total, { cum, ages } = REPARAM;
+  for (let k = 1; k < cum.length; k += 1) if (target <= cum[k]) { const f = (target - cum[k - 1]) / ((cum[k] - cum[k - 1]) || 1); return ages[k - 1] + f * (ages[k] - ages[k - 1]); }
+  return ages[ages.length - 1];
+}
+function fracAtAge(age) {
+  const { cum, ages, total } = REPARAM;
+  if (age <= ages[0]) return 0; if (age >= ages[ages.length - 1]) return 1;
+  for (let k = 1; k < ages.length; k += 1) if (age <= ages[k]) { const f = (age - ages[k - 1]) / ((ages[k] - ages[k - 1]) || 1); return (cum[k - 1] + f * (cum[k] - cum[k - 1])) / total; }
+  return 1;
+}
+
+// The observed ridge line: the running median Teff of the real Gaia stars in each
+// logg bin (a statistic of real measurements, not a model). The 1 Msun solar track
+// sits cooler than this ridge because a magnitude-limited sample of giants is
+// dominated by more massive, hotter stars than the Sun.
+const GAIA_RIDGE = (() => {
+  const bins = [], step = 0.35;
+  for (let g = 0.7; g <= 4.8; g += step) {
+    const c = g + step / 2;
+    const t = GAIA_CMD.filter((s) => Math.abs(s[3] - c) <= step / 2).map((s) => s[2]).sort((a, b) => a - b);
+    if (t.length >= 10) bins.push({ logg: c, teff: t[Math.floor(t.length / 2)] });
+  }
+  return bins;
+})();
+
+st.u = fracAtAge(st.age);   // initial evolutionary-progress slider position (now that REPARAM exists)
 
 let view = { w: 900, h: 1040, dpr: 1 }, REG = null;
 function relayout() {
@@ -55,15 +102,15 @@ function syncVals() {
   vView.textContent = st.view === 'kiel' ? 'Kiel (Teff, logg)' : 'CMD (M_G, BP-RP)';
   vColor.textContent = st.color === 'metal' ? 'metallicity [M/H]' : 'population density';
 }
-sAge.addEventListener('input', () => { st.age = parseFloat(sAge.value); running = false; btnPlay.textContent = 'Play'; syncVals(); render(); });
+sAge.addEventListener('input', () => { st.u = parseFloat(sAge.value); st.age = ageAtFrac(st.u); running = false; btnPlay.textContent = 'Play'; syncVals(); render(); });
 btnPlay.addEventListener('click', () => { running = !running; btnPlay.textContent = running ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!running)); });
-btnReset.addEventListener('click', () => { st.age = AGE_MIN; running = true; btnPlay.textContent = 'Pause'; sAge.value = String(AGE_MIN); syncVals(); render(); });
+btnReset.addEventListener('click', () => { st.u = 0; st.age = ageAtFrac(0); running = true; btnPlay.textContent = 'Pause'; sAge.value = '0'; syncVals(); render(); });
 btnView.addEventListener('click', () => { st.view = st.view === 'kiel' ? 'cmd' : 'kiel'; syncVals(); render(); });
 btnColor.addEventListener('click', () => { st.color = st.color === 'metal' ? 'density' : 'metal'; syncVals(); render(); });
 
 function colors() {
   const css = getComputedStyle(document.body);
-  return { bg: css.getPropertyValue('--bg').trim() || '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)', track: '#ff9d3c', marker: '#ffffff', toLine: '#67d98c', star: 'rgba(150,180,230,0.5)', speed: '#5bc0eb', dens: '#ef8b56' };
+  return { bg: css.getPropertyValue('--bg').trim() || '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)', track: '#ff9d3c', marker: '#ffffff', toLine: '#67d98c', star: 'rgba(150,180,230,0.5)', speed: '#5bc0eb', dens: '#ef8b56', ridge: '#c08bff' };
 }
 function panel(col, r, title) {
   ctx.fillStyle = col.panel; ctx.fillRect(r.x, r.y, r.w, r.h);
@@ -106,6 +153,14 @@ function drawHR(col, r) {
     else ctx.fillStyle = col.star;
     ctx.beginPath(); ctx.arc(X, Y, 1.9, 0, 6.28); ctx.fill();
   }
+  // observed ridge: the running median Teff of the real stars per logg bin.
+  if (kiel && GAIA_RIDGE.length > 1) {
+    ctx.strokeStyle = col.ridge; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath();
+    GAIA_RIDGE.forEach((b, i) => { const X = xOf(b.teff), Y = yOf(b.logg); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke(); ctx.setLineDash([]);
+    const top = GAIA_RIDGE[GAIA_RIDGE.length - 1];
+    ctx.fillStyle = col.ridge; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.fillText('Gaia ridge (median)', xOf(top.teff) - 6, yOf(top.logg));
+  }
   // MESA track (Kiel only). Break the polyline where the track leaves the
   // observable box (the post-AGB excursion reaches ~80000 K and the white dwarf
   // logg ~ 8, both far off this scale).
@@ -142,6 +197,12 @@ function drawHR(col, r) {
         ctx.fillText(`${st.age.toFixed(2)} Gyr: white-dwarf cooling (off scale: hot and faint)`, box.x + 8, box.y + box.h - 16);
       }
     }
+    // model identity and the honest model-vs-observed offset (upper-left, sparse corner).
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = fontString(canvas, 'tick', 'mono', 700);
+    ctx.fillStyle = col.track; ctx.fillText('1 Msun solar model', box.x + 6, box.y + 4);
+    ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = col.muted;
+    ctx.fillText('cooler than the Gaia ridge', box.x + 6, box.y + 17);
+    ctx.fillText('(sample favours hotter giants)', box.x + 6, box.y + 29);
   } else {
     ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.fillText('(model track shown on the Kiel view; no synthetic Gaia photometry)', box.x + box.w / 2, box.y + 8);
@@ -182,9 +243,10 @@ function drawDiag(col, r) {
 
 function advance() {
   if (!running) return;
-  st.age += AGE_MAX / 600;          // full evolution in ~10 s
-  if (st.age > AGE_MAX) st.age = AGE_MIN;
-  sAge.value = String(st.age); vAge.textContent = `${st.age.toFixed(2)} Gyr`;
+  st.u += 1 / 720;                  // ~12 s for the full visible track, at constant screen speed
+  if (st.u > 1) st.u = 0;
+  st.age = ageAtFrac(st.u);
+  sAge.value = String(st.u); vAge.textContent = `${st.age.toFixed(2)} Gyr`;
 }
 function render() {
   if (!REG) relayout();
@@ -195,12 +257,13 @@ function render() {
 function tick() { advance(); render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 function boot() {
-  if (params.get('age')) st.age = Math.max(AGE_MIN, Math.min(AGE_MAX, parseFloat(params.get('age'))));
+  if (params.get('age')) { st.age = Math.max(AGE_MIN, Math.min(AGE_MAX, parseFloat(params.get('age')))); st.u = fracAtAge(st.age); }
+  if (params.get('u')) { st.u = Math.max(0, Math.min(1, parseFloat(params.get('u')))); st.age = ageAtFrac(st.u); }
   if (params.get('view') === 'cmd') st.view = 'cmd';
   if (params.get('color') === 'density') st.color = 'density';
-  sAge.min = String(AGE_MIN); sAge.max = String(AGE_MAX); sAge.step = '0.01'; sAge.value = String(st.age);
+  sAge.min = '0'; sAge.max = '1'; sAge.step = '0.002'; sAge.value = String(st.u);
   syncVals(); relayout();
-  if (CAPTURE_NAME) { running = false; st.age = 10.6; sAge.value = '10.6'; syncVals(); }
+  if (CAPTURE_NAME && !params.get('age') && !params.get('u')) { running = false; st.age = 10.6; st.u = fracAtAge(10.6); sAge.value = String(st.u); syncVals(); }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }

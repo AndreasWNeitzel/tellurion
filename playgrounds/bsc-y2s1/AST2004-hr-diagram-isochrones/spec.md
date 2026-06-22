@@ -16,7 +16,7 @@ tier: simple
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 5
-share_state_keys: [age, view, color]
+share_state_keys: [u, view, color]
 invariants:
   - key: turnoff
     label: the main-sequence turn-off age is ~9 Gyr for a 1 Msun model
