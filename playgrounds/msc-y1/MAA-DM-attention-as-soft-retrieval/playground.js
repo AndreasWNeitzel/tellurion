@@ -25,8 +25,8 @@ const btnReset      = document.getElementById('btn-reset');
 const btnShuffle    = document.getElementById('btn-shuffle');
 
 const W = canvas.width, H = canvas.height;
-const KEY = { x: 40, y: 40, w: 360, h: 420, xmin: -3, xmax: 3, ymin: -3, ymax: 3 };
-const VAL = { x: 440, y: 40, w: 280, h: 420 };
+const KEY = { x: Math.round((W - 480) / 2), y: 30, w: 480, h: 480, xmin: -3, xmax: 3, ymin: -3, ymax: 3 };
+const VAL = { x: 60, y: 540, w: W - 120, h: H - 540 - 30 };
 
 const N_KEYS = 6;
 const D = 2;
