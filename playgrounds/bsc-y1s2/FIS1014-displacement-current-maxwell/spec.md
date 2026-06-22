@@ -17,7 +17,7 @@ tier: simple
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 3
-share_state_keys: []
+share_state_keys: [R, C]
 invariants:
   - key: equal
     label: the displacement current equals the conduction current at every instant

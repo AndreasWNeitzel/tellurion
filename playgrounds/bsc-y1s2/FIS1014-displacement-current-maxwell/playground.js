@@ -163,17 +163,19 @@ function drawScene(col, r) {
 
 function drawDiag(col, r) {
   panel(col, r, 'I_cond and I_disp coincide; E rises as the capacitor charges');
-  const inner = { x: r.x + 44, y: r.y + 28, w: r.w - 44 - 16, h: r.h - 28 - 32 };
+  const inner = { x: r.x + 44, y: r.y + 28, w: r.w - 44 - 34, h: r.h - 28 - 32 };
   const tMax = Math.max(5 * tau(), hist.length ? hist[hist.length - 1].t : 1, 1e-3);
   const Imax = V / st.R * 1.1;
+  const Efinal = st.C * V, Emax = Efinal * 1.05;          // E asymptotes to Q_max/(eps0 A) = C V, not V
   const xOf = (t) => inner.x + t / tMax * inner.w;
   const yI = (I) => inner.y + inner.h - I / Imax * inner.h;
-  const yE = (E) => inner.y + inner.h - E / V * inner.h;
+  const yE = (E) => inner.y + inner.h - E / Emax * inner.h;
 
   ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8; ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   for (let k = 0; k <= 4; k += 1) { const I = Imax * k / 4; const y = yI(I); ctx.beginPath(); ctx.moveTo(inner.x, y); ctx.lineTo(inner.x + inner.w, y); ctx.stroke(); ctx.fillText(I.toFixed(1), inner.x - 5, y); }
   ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
-  // E(t) rising (gold, on the same box, scaled to V).
+  ctx.save(); clipTo(ctx, inner);
+  // E(t) rising (gold), on its own scale: E goes 0 to C V as the capacitor charges.
   ctx.strokeStyle = 'rgba(255,209,102,0.7)'; ctx.lineWidth = 1.8; ctx.beginPath();
   for (let i = 0; i <= 200; i += 1) { const t = tMax * i / 200; const X = xOf(t), Y = yE(eField(V, st.C, t, tau())); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
   ctx.stroke();
@@ -185,13 +187,17 @@ function drawDiag(col, r) {
   ctx.strokeStyle = col.disp; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath();
   for (let i = 0; i <= 200; i += 1) { const t = tMax * i / 200; const X = xOf(t), Y = yI(displacementCurrent(V, st.C, t, tau())); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
   ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore();
   // current-time marker.
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(xOf(st.t), inner.y); ctx.lineTo(xOf(st.t), inner.y + inner.h); ctx.stroke(); ctx.setLineDash([]);
+  // right axis for E (gold): E rises from 0 to C V as the capacitor charges.
+  ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  for (let k = 0; k <= 4; k += 1) { const E = Efinal * k / 4; ctx.fillText(E.toFixed(1), inner.x + inner.w + 4, yE(E)); }
 
   ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillStyle = col.cond; ctx.fillText('I_cond', inner.x + inner.w - 120, inner.y + 4);
-  ctx.fillStyle = col.disp; ctx.fillText('I_disp (dashed)', inner.x + inner.w - 120, inner.y + 18);
-  ctx.fillStyle = col.efield; ctx.fillText('E', inner.x + inner.w - 120, inner.y + 32);
+  ctx.fillStyle = col.cond; ctx.fillText('I_cond', inner.x + inner.w - 124, inner.y + 4);
+  ctx.fillStyle = col.disp; ctx.fillText('I_disp (dashed)', inner.x + inner.w - 124, inner.y + 18);
+  ctx.fillStyle = col.efield; ctx.fillText('E (right axis)', inner.x + inner.w - 124, inner.y + 32);
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   ctx.fillText('time t', inner.x + inner.w / 2, inner.y + inner.h + 8);
   ctx.save(); ctx.translate(inner.x - 28, inner.y + inner.h / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('current', 0, 0); ctx.restore();
@@ -214,6 +220,8 @@ function render() {
 function tick() { if (running) advance(); render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 
 function boot() {
+  if (params.get('R')) { st.R = Math.max(0.5, Math.min(5, parseFloat(params.get('R')))); sR.value = String(st.R); }
+  if (params.get('C')) { st.C = Math.max(0.5, Math.min(3, parseFloat(params.get('C')))); sC.value = String(st.C); }
   syncVals(); relayout();
   if (CAPTURE_NAME) { st.t = 0.7 * tau(); st.loop = 0.5; sLoop.value = '0.5'; syncVals(); for (let i = 0; i < 30; i += 1) hist.push({ t: i }); }
   render();
