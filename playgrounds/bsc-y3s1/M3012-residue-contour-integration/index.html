@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>The Residue Theorem</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; }
+    .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The Residue Theorem</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Integrating a complex function around a closed loop sounds like it should depend on every twist of the path, but for an analytic function it depends on almost nothing: only on which poles the loop happens to encircle. That is the residue theorem, $\oint_C f(z)\,dz = 2\pi i \sum \mathrm{Res}(f, z_k)$ summed over the poles inside $C$, and it is the workhorse that turns hopeless real integrals into a quick tally of residues. The scene colours the plane by the phase of $f$, the hue cycling through every value around each pole so the singularities glow as little pinwheels, and marks each pole with its residue. Drag the contour around and resize it: the integral printed below is computed numerically from the loop, yet it always lands exactly on $2\pi i$ times the residues you have lassoed, and on nothing else. Slide the radius outward from zero and the integral sits flat while the loop is between poles, then jumps in a single step by $2\pi i\,\mathrm{Res}$ the instant a pole crosses the boundary, which the bottom panel records as a staircase. Enclose no poles and the loop integrates to zero; enclose every pole of a proper rational function and the residues cancel back to zero. Cycle the functions to watch the staircase rearrange itself around poles on the real axis, on the imaginary axis, and at the origin.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="The complex plane coloured by the phase of f with poles marked by their residues, a draggable resizable contour, and a staircase plot of the contour integral against radius jumping by 2 pi i times each residue."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      The residue theorem. Top: the plane coloured by arg f (bright at poles), each pole marked with its residue, and the draggable contour (green) whose enclosed poles turn green. Bottom: the integral (real blue, imaginary orange) against contour radius, flat between poles and jumping by 2 pi i Res at each crossing. Method: numeric contour integral matching 2 pi i times the residue sum. Source: Ablowitz and Fokas, Complex Variables, 2nd ed., Ch. 4.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Residue controls">
+    <div class="row wide"><button id="btn-fn" type="button">Next function</button><span class="value" id="value-fn">f = z / ((z-1)(z+2))</span></div>
+    <div class="row"><label for="s-R">radius R</label><input type="range" id="s-R" min="0.2" max="4.2" step="0.05" value="1.5"><span class="value" id="v-R">1.50</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Grow the radius from zero: the integral is flat, then jumps by $2\pi i\,\mathrm{Res}$ the instant the loop swallows a pole (the staircase below).</li>
+        <li class="t-body">Drag the contour so it encloses no pole: the integral collapses to zero, whatever the path.</li>
+        <li class="t-body">Enclose every pole of a proper rational function: the residues cancel and the integral returns to zero.</li>
+        <li class="t-body">Read the printed integral; computed straight from the loop, it always equals $2\pi i$ times the enclosed residues.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
