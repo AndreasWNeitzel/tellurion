@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Bound States of the Finite Square Well</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Bound States of the Finite Square Well</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Trap a quantum particle in a box with walls of finite height and only a handful of energies are allowed. Inside the well the wavefunction oscillates, outside it leaks into the classically forbidden region as a decaying exponential, and a state can only exist if these pieces join smoothly, matching in value and slope at both walls. That smoothness is a strict condition, satisfied at just a discrete set of energies: the bound states. Writing $z = kL/2$ and $z_0 = \frac{L}{2}\sqrt{2mV_0}/\hbar$, the matching collapses to two transcendental equations, $z\tan z = \sqrt{z_0^2 - z^2}$ for the even states and $z\cot z = -\sqrt{z_0^2 - z^2}$ for the odd ones, and the panel below solves them the way you would by hand: the even and odd branches climb while a circle of radius $z_0$ falls, and every crossing is an allowed level. Deepen or widen the well and the circle grows, sweeping past more branches and admitting more states, the count being $\lfloor z_0/(\pi/2)\rfloor + 1$. No matter how shallow, there is always at least one. The top panel draws the levels inside the well with their wavefunctions, the ground state nodeless and even, each higher one adding a node and flipping parity. Click a level to follow it in both panels.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A finite square well with its discrete energy levels and wavefunctions decaying into the forbidden region, and the graphical transcendental solution where even and odd branches meet a circle at the bound-state energies."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Bound states of the finite square well. Top: the well with the discrete levels and their wavefunctions (even blue, odd orange), oscillating inside and decaying into the forbidden region. Bottom: the graphical solution, the even (z tan z) and odd (-z cot z) branches meeting the circle of radius z0 at the bound states. Method: numerical roots of the matching conditions, energies E_n/V0 = (z_n/z0)^2. Source: Griffiths, Introduction to Quantum Mechanics, 2nd ed., Sec. 2.6.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Square well controls">
+    <div class="row"><label for="s-V">depth V0</label><input type="range" id="s-V" min="2" max="80" step="1" value="30"><span class="value" id="v-V">30</span></div>
+    <div class="row"><label for="s-L">width L</label><input type="range" id="s-L" min="0.8" max="4" step="0.1" value="2.4"><span class="value" id="v-L">2.4</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Click each level: in the bottom panel the matching crossing lights up, even (blue) and odd (orange) alternating up the ladder.</li>
+        <li class="t-body">Deepen or widen the well: the circle grows and sweeps past more branches, so new bound states appear, the count being $\lfloor z_0/(\pi/2)\rfloor + 1$.</li>
+        <li class="t-body">Shrink the well toward nothing: states drop out one by one, but one even state always survives.</li>
+        <li class="t-body">Look at the tails: every wavefunction leaks into the forbidden region, more so for the higher, less bound levels.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
