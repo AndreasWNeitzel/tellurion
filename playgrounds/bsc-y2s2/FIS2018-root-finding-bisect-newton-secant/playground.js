@@ -30,6 +30,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 
 const DEF = { x0: 1, x1: 2.5, fn: 'x2-2', method: 'bisect' };
 const st = { ...DEF }; let running = true;
+let revealK = 1, revealLast = (typeof performance !== 'undefined' ? performance.now() : 0), lastTrailLen = 1;
 
 sX0.addEventListener('input', () => { st.x0 = parseFloat(sX0.value); vX0.textContent = st.x0.toFixed(2); render(); });
 sX1.addEventListener('input', () => { st.x1 = parseFloat(sX1.value); vX1.textContent = st.x1.toFixed(2); render(); });
@@ -75,6 +76,8 @@ function render() {
   else if (st.method === 'newton') result = newton(f, df, st.x0);
   else { sameSign = f(st.x0) * f(st.x1) > 0; result = secant(f, st.x0, st.x1); }
   const iters = result.trail.map((t) => (t.m !== undefined ? t.m : t.x));
+  lastTrailLen = iters.length;
+  const nShow = DETERMINISTIC ? iters.length : (running ? Math.max(1, Math.min(iters.length, Math.floor(revealK))) : iters.length);
   const brackets = st.method !== 'newton';
 
   ctx.save();
@@ -102,17 +105,17 @@ function render() {
   }
 
   if (st.method === 'newton') {
-    for (let i = 0; i < iters.length - 1; i += 1) {
+    for (let i = 0; i < Math.min(nShow, iters.length) - 1; i += 1) {
       ctx.strokeStyle = 'rgba(91,192,235,0.45)'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(X(iters[i]), Y(f(iters[i]))); ctx.lineTo(X(iters[i + 1]), Y(0)); ctx.stroke();
     }
   } else if (st.method === 'secant') {
-    for (let i = 0; i < iters.length - 1; i += 1) {
+    for (let i = 0; i < Math.min(nShow, iters.length) - 1; i += 1) {
       ctx.strokeStyle = 'rgba(91,192,235,0.40)'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(X(iters[i]), Y(f(iters[i]))); ctx.lineTo(X(iters[i + 1]), Y(f(iters[i + 1]))); ctx.stroke();
     }
   } else {
-    for (let i = 0; i < result.trail.length; i += 1) {
+    for (let i = 0; i < Math.min(nShow, result.trail.length); i += 1) {
       const tr = result.trail[i]; if (tr.a === undefined) continue;
       const yy = pad.t + 8 + i * Math.min(11, (H - pad.t - pad.b - 16) / Math.max(1, result.trail.length));
       ctx.strokeStyle = 'rgba(6,214,160,0.5)'; ctx.lineWidth = 2;
@@ -120,7 +123,7 @@ function render() {
     }
   }
 
-  const n = iters.length;
+  const n = nShow;
   for (let i = 0; i < n; i += 1) {
     const x = iters[i];
     ctx.fillStyle = `hsla(${150 + i * 6}, 70%, 60%, ${0.25 + 0.7 * (i / Math.max(1, n - 1))})`;
@@ -195,7 +198,10 @@ function render() {
 }
 
 let rafOn = false;
-function tick() { render(); if (running && !CAPTURE_NAME) requestAnimationFrame(tick); else rafOn = false; }
+function tick() {
+  if (running) { const now = (typeof performance !== 'undefined' ? performance.now() : 0); revealK += Math.min((now - revealLast) / 1000, 0.05) * 3; revealLast = now; if (revealK > lastTrailLen + 4) revealK = 1; }
+  render(); if (running && !CAPTURE_NAME) requestAnimationFrame(tick); else rafOn = false;
+}
 function startLoop() { if (!rafOn && !CAPTURE_NAME) { rafOn = true; requestAnimationFrame(tick); } }
 btnP.addEventListener('click', startLoop);
 btnR.addEventListener('click', startLoop);

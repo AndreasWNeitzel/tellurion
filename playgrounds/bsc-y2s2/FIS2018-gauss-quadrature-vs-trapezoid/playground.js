@@ -28,6 +28,7 @@ const FN_NAMES = ['cos', 'gaussian', 'runge', 'sqrt-abs'];
 
 const state = {
   n: 8,
+  accN: 8,
   fnIdx: 0,
   speed: 2,
   sweepDir: 1,
@@ -202,23 +203,23 @@ function drawAll() {
 
 function tickN(k) {
   for (let i = 0; i < k; i += 1) {
-    state.n += state.sweepDir * 0.1;
-    if (state.n >= 16) { state.n = 16; state.sweepDir = -1; }
-    if (state.n <= 2)  { state.n = 2;  state.sweepDir = 1; }
+    state.accN += state.sweepDir * 0.1;
+    if (state.accN >= 16) { state.accN = 16; state.sweepDir = -1; }
+    if (state.accN <= 2)  { state.accN = 2;  state.sweepDir = 1; }
   }
-  const ni = Math.round(state.n);
-  valueN.textContent = String(ni);
-  sliderN.value = String(ni);
+  state.n = Math.round(state.accN);
+  valueN.textContent = String(state.n);
+  sliderN.value = String(state.n);
 }
 
-sliderN.addEventListener('input', () => { state.n = parseInt(sliderN.value, 10); valueN.textContent = String(state.n); drawAll(); });
+sliderN.addEventListener('input', () => { state.n = parseInt(sliderN.value, 10); state.accN = state.n; valueN.textContent = String(state.n); drawAll(); });
 sliderFn.addEventListener('input', () => {
   state.fnIdx = parseInt(sliderFn.value, 10);
   valueFn.textContent = FN_NAMES[state.fnIdx];
   drawAll();
 });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click', () => { state.n = 8; state.sweepDir = 1; sliderN.value = '8'; valueN.textContent = '8'; drawAll(); });
+btnReset.addEventListener('click', () => { state.n = 8; state.accN = 8; state.sweepDir = 1; sliderN.value = '8'; valueN.textContent = '8'; drawAll(); });
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
@@ -229,6 +230,7 @@ function bootSync() {
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     state.n = 2 + Math.round(frac * 14);
+    state.accN = state.n;
     sliderN.value = String(state.n); valueN.textContent = String(state.n);
     drawAll();
     if (DETERMINISTIC) {
@@ -249,7 +251,6 @@ function tick() {
   if (state.playing) {
     if (state.speed > 0) {
       tickN(state.speed);
-      state.n = Math.round(state.n);
     }
     drawAll();
   }

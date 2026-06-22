@@ -27,6 +27,7 @@ const W = canvas.width, H = canvas.height;
 
 const state = {
   n: 12,
+  accN: 12,
   speed: 2,
   sweepDir: 1,
   playing: !(DETERMINISTIC || prefersReducedMotion()),
@@ -175,18 +176,18 @@ function drawAll() {
 
 function tickN(k) {
   for (let i = 0; i < k; i += 1) {
-    state.n += state.sweepDir * 0.1;
-    if (state.n >= 30) { state.n = 30; state.sweepDir = -1; }
-    if (state.n <= 4)  { state.n = 4;  state.sweepDir = 1; }
+    state.accN += state.sweepDir * 0.1;
+    if (state.accN >= 30) { state.accN = 30; state.sweepDir = -1; }
+    if (state.accN <= 4)  { state.accN = 4;  state.sweepDir = 1; }
   }
-  const ni = Math.round(state.n);
-  valueN.textContent = String(ni);
-  sliderN.value = String(ni);
+  state.n = Math.round(state.accN);
+  valueN.textContent = String(state.n);
+  sliderN.value = String(state.n);
 }
 
-sliderN.addEventListener('input', () => { state.n = parseInt(sliderN.value, 10); valueN.textContent = String(state.n); drawAll(); });
+sliderN.addEventListener('input', () => { state.n = parseInt(sliderN.value, 10); state.accN = state.n; valueN.textContent = String(state.n); drawAll(); });
 sliderSpeed.addEventListener('input', () => { state.speed = parseInt(sliderSpeed.value, 10); valueSpeed.textContent = String(state.speed); });
-btnReset.addEventListener('click', () => { state.n = 12; state.sweepDir = 1; sliderN.value = '12'; valueN.textContent = '12'; drawAll(); });
+btnReset.addEventListener('click', () => { state.n = 12; state.accN = 12; state.sweepDir = 1; sliderN.value = '12'; valueN.textContent = '12'; drawAll(); });
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
@@ -197,6 +198,7 @@ function bootSync() {
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     state.n = Math.max(4, Math.round(4 + frac * 26));
+    state.accN = state.n;
     sliderN.value = String(state.n); valueN.textContent = String(state.n);
     drawAll();
     if (DETERMINISTIC) {
@@ -217,7 +219,6 @@ function tick() {
   if (state.playing) {
     if (state.speed > 0) {
       tickN(state.speed);
-      state.n = Math.round(state.n);
     }
     drawAll();
   }
