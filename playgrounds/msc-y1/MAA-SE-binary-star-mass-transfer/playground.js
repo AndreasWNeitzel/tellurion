@@ -198,10 +198,13 @@ function drawStability(x, y, w, h) {
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  const half = (W - 52) / 2;
-  drawRoche(20, 20, half, H - 34);
-  drawEvolution(20 + half + 12, 20, half, (H - 46) / 2);
-  drawStability(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
+  // Portrait stack: the corotating Roche frame (hero scene) on top, the
+  // separation and stability plots side by side below it.
+  const sceneH = Math.round(H * 0.56);
+  drawRoche(16, 16, W - 32, sceneH - 16);
+  const by = sceneH + 6, bh = H - by - 14, half = (W - 40) / 2;
+  drawEvolution(16, by, half, bh);
+  drawStability(16 + half + 8, by, half, bh);
   const s = current();
   rQ.textContent = s.q.toFixed(2);
   rFill.textContent = fillFrac().toFixed(2);
@@ -210,8 +213,18 @@ function draw() {
   rState.textContent = cls.state;
 }
 
+const DM_MAX = 80;   // transferred-dM slider maximum (x100 -> 0.80 Msun)
+function fillFromPhase(ph) { return ph < 0.26 ? Math.round(72 + (ph / 0.26) * 28) : 100; }
+function dmFromPhase(ph) { return ph < 0.26 ? 0 : Math.round(((ph - 0.26) / 0.74) * DM_MAX); }
 function tick() {
-  if (st.running) st.ph = (st.ph + 1 / 90) % 1;
+  if (st.running) {
+    // ~16 s loop: the donor swells to fill its Roche lobe, then overflows and
+    // transfers mass conservatively, sweeping the orbit through the q -> 1
+    // minimum-separation turning point and back out.
+    st.ph = (st.ph + 1 / 960) % 1;
+    st.fill = fillFromPhase(st.ph); st.dm = dmFromPhase(st.ph);
+    slF.value = String(st.fill); slD.value = String(st.dm); sync();
+  }
   draw();
   requestAnimationFrame(tick);
 }
@@ -221,7 +234,7 @@ function sync() {
   vF.textContent = (st.fill / 100).toFixed(2); vD.textContent = (st.dm / 100).toFixed(2);
 }
 for (const [sl, key] of [[slM1, 'm1'], [slM2, 'm2'], [slF, 'fill'], [slD, 'dm']]) {
-  sl.addEventListener('input', () => { st[key] = parseInt(sl.value, 10); sync(); draw(); });
+  sl.addEventListener('input', () => { st.running = false; bP.textContent = 'Play'; bP.setAttribute('aria-pressed', 'true'); st[key] = parseInt(sl.value, 10); sync(); draw(); });
 }
 bR.addEventListener('click', () => {
   Object.assign(st, DEF); st.running = true;
@@ -248,7 +261,7 @@ function boot() {
   sync();
   if (CAPTURE_NAME) {
     const fr = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
-    st.ph = fr; draw();
+    st.ph = fr; st.fill = fillFromPhase(fr); st.dm = dmFromPhase(fr); sync(); draw();
   } else { draw(); }
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
