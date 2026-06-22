@@ -227,8 +227,9 @@ function render() {
   drawReadout();
 }
 
-sliderG.addEventListener('input', () => { st.gamma = parseFloat(sliderG.value); valueG.textContent = st.gamma.toFixed(1); if (!st.playing) render(); });
-sliderA.addEventListener('input', () => { st.alpha = parseFloat(sliderA.value); valueA.textContent = st.alpha.toFixed(1); if (!st.playing) render(); });
+function pausePlay() { st.playing = false; btnPlayPause.textContent = 'Play'; btnPlayPause.setAttribute('aria-pressed', 'true'); }
+sliderG.addEventListener('input', () => { pausePlay(); st.gamma = parseFloat(sliderG.value); valueG.textContent = st.gamma.toFixed(1); render(); });
+sliderA.addEventListener('input', () => { pausePlay(); st.alpha = parseFloat(sliderA.value); valueA.textContent = st.alpha.toFixed(1); render(); });
 btnPlayPause.addEventListener('click', () => {
   st.playing = !st.playing;
   btnPlayPause.textContent = st.playing ? 'Pause' : 'Play';
@@ -255,9 +256,19 @@ function bootSync() {
   render();
 }
 
-function tick() {
-  // Auto-rotation removed: the camera is now user-controlled (drag);
-  // we just re-render every frame so slider changes show immediately.
+// Sweep the Lorentz factor when playing so the beaming story runs on load:
+// the emission goes from a near-isotropic sphere at gamma ~ 1 to a tight
+// forward pencil beam at high gamma. The camera stays user-controlled
+// (drag); dragging the gamma slider pauses the sweep.
+let gammaDir = 1, lastT = 0;
+function tick(now) {
+  if (st.playing) {
+    const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+    st.gamma += gammaDir * dt * 1.8;                      // ~15 s round trip over 1.2..15
+    if (st.gamma >= 15) { st.gamma = 15; gammaDir = -1; } else if (st.gamma <= 1.2) { st.gamma = 1.2; gammaDir = 1; }
+    sliderG.value = String(st.gamma); valueG.textContent = st.gamma.toFixed(1);
+  }
+  lastT = now;
   render();
   requestAnimationFrame(tick);
 }

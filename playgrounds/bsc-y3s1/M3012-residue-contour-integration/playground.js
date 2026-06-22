@@ -7,6 +7,7 @@
 
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { FUNCS, cabs, csub, contourIntegral, residueAt } from './sim.js';
 
 const params = new URLSearchParams(location.search);
@@ -29,9 +30,26 @@ function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view
 function syncVals() { selFn.value = st.fn; sR.value = st.R; vR.textContent = st.R.toFixed(2); }
 function residues() { if (!resCache[st.fn]) resCache[st.fn] = fn().poles.map((p) => residueAt(fn(), p)); return resCache[st.fn]; }
 function pickFn(k) { st.fn = k; st.center = [0, 0]; st.R = 1.5; syncVals(); }
+// Auto-grow the contour radius so the residue theorem plays on load: the
+// circle expands, poles light up green as they fall inside, and the
+// diagnostic marker climbs the 2 pi i Res staircase. Any slider input or a
+// drag of the contour centre pauses it; reset restarts.
+let playing = false, raf = 0, rDir = 1, last = 0;
+const rLo = parseFloat(sR.min) || 0.3, rHi = parseFloat(sR.max) || 4.2;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  st.R += rDir * dt * ((rHi - rLo) / 12);                 // ~24 s round trip
+  if (st.R >= rHi) { st.R = rHi; rDir = -1; } else if (st.R <= rLo) { st.R = rLo; rDir = 1; }
+  syncVals(); render();
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) { playing = on; if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+function pause() { if (playing) setPlaying(false); }
+
 selFn.addEventListener('change', () => { pickFn(selFn.value); render(); });
-btnReset.addEventListener('click', () => { pickFn('twoPoles'); render(); });
-sR.addEventListener('input', () => { st.R = +sR.value; syncVals(); render(); });
+btnReset.addEventListener('click', () => { pickFn('twoPoles'); if (!prefersReducedMotion()) setPlaying(true); else render(); });
+sR.addEventListener('input', () => { pause(); st.R = +sR.value; syncVals(); render(); });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', axis: 'rgba(255,255,255,0.4)', contour: '#8de08a', pole: '#ffffff', poleIn: '#8de08a', re: '#4ea8ff', im: '#ff9d3c' };
@@ -122,7 +140,7 @@ function render() {
 
 let drag = false;
 function ptr(e) { const rect = canvas.getBoundingClientRect(); return [(e.clientX - rect.left) * (view.w / rect.width), (e.clientY - rect.top) * (view.h / rect.height)]; }
-canvas.addEventListener('pointerdown', (e) => { if (!SC) return; const [sx, sy] = ptr(e); if (sx > SC.bx && sx < SC.bx + SC.side && sy > SC.by && sy < SC.by + SC.side) { drag = true; st.center = SC.s2w(sx, sy); render(); } });
+canvas.addEventListener('pointerdown', (e) => { if (!SC) return; const [sx, sy] = ptr(e); if (sx > SC.bx && sx < SC.bx + SC.side && sy > SC.by && sy < SC.by + SC.side) { pause(); drag = true; st.center = SC.s2w(sx, sy); render(); } });
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; const [sx, sy] = ptr(e); st.center = SC.s2w(sx, sy); render(); });
 window.addEventListener('pointerup', () => { drag = false; });
 
@@ -131,6 +149,7 @@ function boot() {
   if (params.get('R')) st.R = Math.max(0.2, Math.min(4.5, +params.get('R')));
   syncVals(); relayout(); render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  else if (!prefersReducedMotion()) { st.R = rLo; setPlaying(true); }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });

@@ -6,6 +6,7 @@ import { fontString } from '../../../shared/js/canvas-type.js';
 import {
   comptonForward, icMaxEnergy, icTypicalThomson, isThomsonRegime,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -22,8 +23,11 @@ const valueLogG  = document.getElementById('value-logG');
 
 let logE = parseFloat(sliderLogE.value);
 let logG = parseFloat(sliderLogG.value);
-sliderLogE.addEventListener('input', () => { logE = parseFloat(sliderLogE.value); valueLogE.textContent = logE.toFixed(2); });
-sliderLogG.addEventListener('input', () => { logG = parseFloat(sliderLogG.value); valueLogG.textContent = logG.toFixed(2); });
+let playing = !(DETERMINISTIC || prefersReducedMotion());
+let gDir = 1, lastT = 0;
+const gMin = parseFloat(sliderLogG.min) || 0, gMax = parseFloat(sliderLogG.max) || 8;
+sliderLogE.addEventListener('input', () => { playing = false; logE = parseFloat(sliderLogE.value); valueLogE.textContent = logE.toFixed(2); });
+sliderLogG.addEventListener('input', () => { playing = false; logG = parseFloat(sliderLogG.value); valueLogG.textContent = logG.toFixed(2); });
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -114,7 +118,17 @@ function render() {
   ctx.beginPath(); ctx.moveTo(xFor(logE), yIn); ctx.lineTo(xFor(Math.log10(Eup)), yUp); ctx.stroke();
 }
 
-function loop() {
+// Auto-sweep the electron Lorentz factor so the inverse-Compton boost plays
+// on load: the IC-max marker climbs the energy axis (E_out ~ gamma^2 E_in)
+// while the forward-Compton point barely moves. Any slider input pauses it.
+function loop(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+    logG += gDir * dt * ((gMax - gMin) / 14);             // ~14 s round trip
+    if (logG >= gMax) { logG = gMax; gDir = -1; } else if (logG <= gMin) { logG = gMin; gDir = 1; }
+    sliderLogG.value = String(logG); valueLogG.textContent = logG.toFixed(2);
+  }
+  lastT = now;
   render();
   requestAnimationFrame(loop);
 }
