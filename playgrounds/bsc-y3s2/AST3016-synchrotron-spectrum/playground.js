@@ -29,8 +29,11 @@ let scenePhase = 0;            // electron-gyration animation clock (s)
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  const mainW = W * 0.6, rightW = W * 0.4;
   const padL = 60, padR = 15, padT = 30, padB = 50;
+  const mainW = W;                       // spectrum spans the full width (top)
+  const specBot = Math.round(H * 0.48);  // spectrum occupies the top portion
+  const rTop = specBot + 34;              // emission + N(gamma) panels stack below
+  const rightW = W - padL - padR;
   const B = Math.pow(10, st.logB) * 1e-4;
   const nu_peak = nu_c(st.gamma, B);
   const alpha = spectralIndex(st.p);
@@ -39,13 +42,13 @@ function render() {
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 0.5;
   ctx.beginPath();
   ctx.moveTo(padL, padT);
-  ctx.lineTo(padL, H - padB);
-  ctx.lineTo(mainW - padR, H - padB);
+  ctx.lineTo(padL, specBot);
+  ctx.lineTo(mainW - padR, specBot);
   ctx.stroke();
 
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('log F', 8, padT + 10);
-  ctx.fillText('log ν (Hz)', padL + (mainW - padL - padR) / 2 - 28, H - padB + 32);
+  ctx.fillText('log ν (Hz)', padL + (mainW - padL - padR) / 2 - 28, specBot + 32);
 
   // Build the spectrum on a log-nu grid. Single mode: one electron's
   // F(nu/nu_c). Ensemble mode: the physically correct integral of the
@@ -83,14 +86,14 @@ function render() {
   const DR = 8;
   const yToPx = (v) => {
     let u = (v - (lmax - DR)) / DR; if (u < 0) u = 0; else if (u > 1) u = 1;
-    return H - padB - u * (H - padT - padB);
+    return specBot - u * (specBot - padT);
   };
   // Decade grid + labels on the frequency axis.
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   for (let d = Math.ceil(lnumin); d <= Math.floor(lnumax); d += 1) {
     const px = xToPx(d);
-    ctx.strokeStyle = '#1b1b1f'; ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, H - padB); ctx.stroke();
-    if (d % 2 === 0) { ctx.fillStyle = '#6b7077'; ctx.fillText(`10^${d}`, px, H - padB + 14); }
+    ctx.strokeStyle = '#1b1b1f'; ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, specBot); ctx.stroke();
+    if (d % 2 === 0) { ctx.fillStyle = '#6b7077'; ctx.fillText(`10^${d}`, px, specBot + 14); }
   }
   ctx.textAlign = 'left';
   // The spectrum.
@@ -116,7 +119,7 @@ function render() {
   }
   const lcut = Math.log10(st.mode === 'single' ? nu_peak : nu_c(gMax, B));
   ctx.strokeStyle = '#ef476f'; ctx.setLineDash([3, 3]);
-  ctx.beginPath(); ctx.moveTo(xToPx(lcut), padT); ctx.lineTo(xToPx(lcut), H - padB); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(xToPx(lcut), padT); ctx.lineTo(xToPx(lcut), specBot); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = '#ef476f'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`ν_c = ${Math.pow(10, lcut).toExponential(1)} Hz`, Math.min(xToPx(lcut) + 4, mainW - 120), padT + 12);
@@ -127,15 +130,15 @@ function render() {
   // narrow cone sweeps past, and a sharp pulse Fourier-transforms to the
   // broad power law on the left). Bottom = N(gamma) ~ gamma^-p.
   if (st.mode === 'ensemble') {
-    const rPadL = mainW + 8, rPadR = 8;
-    const splitY = padT + (H - padT - padB) * 0.46;
+    const rPadL = padL, rPadR = 8;
+    const splitY = rTop + (H - rTop - padB) * 0.46;
     // Emission animation sub-panel.
-    const ecx = (rPadL + W - rPadR) / 2, ecy = (padT + splitY) / 2;
-    const orbR = Math.min((W - rPadR - rPadL), (splitY - padT)) * 0.30;
+    const ecx = (rPadL + W - rPadR) / 2, ecy = (rTop + splitY) / 2;
+    const orbR = Math.min((W - rPadR - rPadL), (splitY - rTop)) * 0.30;
     ctx.strokeStyle = '#2c2f36'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(ecx, ecy, orbR, 0, 2 * Math.PI); ctx.stroke();
     ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-    ctx.fillText('relativistic electron + 1/γ beam', rPadL, padT + 10);
+    ctx.fillText('relativistic electron + 1/γ beam', rPadL, rTop + 10);
     // Gyrofrequency ~ B / gamma; beam half-angle ~ 1/gamma.
     const gyro = 0.7 + 0.5 * (st.logB + 5);
     const ang = (scenePhase * gyro / (1 + st.gamma / 1500)) % (2 * Math.PI);
@@ -166,8 +169,8 @@ function render() {
     ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(rPadL, rPadT2); ctx.lineTo(rPadL, H - padB); ctx.lineTo(W - rPadR, H - padB); ctx.stroke();
     ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText('log N', mainW + 4, rPadT2 + 10);
-    ctx.fillText('log γ', mainW + rightW * 0.4, H - padB + 16);
+    ctx.fillText('log N', rPadL + 4, rPadT2 + 10);
+    ctx.fillText('log γ', rPadL + rightW * 0.4, H - padB + 16);
     const lgmin = 0, lgmax = 4.5;
     const xDist = (lg) => rPadL + (lg - lgmin) / (lgmax - lgmin) * (W - rPadR - rPadL);
     const yDist = (ln) => H - padB - (ln + 6) / 6 * (H - rPadT2 - padB);
