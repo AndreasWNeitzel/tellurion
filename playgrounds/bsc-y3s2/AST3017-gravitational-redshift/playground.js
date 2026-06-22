@@ -63,7 +63,7 @@ function drawAll() {
   const PW = W - padL - padR;
 
   // Top: redshift factor curve
-  const topY = 60, topH = 220;
+  const topY = 60, topH = 340;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(padL, topY, PW, topH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
@@ -113,45 +113,60 @@ function drawAll() {
   }
   ctx.fillText('r_em / 2M', padL + PW / 2, topY + topH + 14);
 
-  // Bottom: source and observer wavelength bars
-  const botY = topY + topH + 40;
-  const botH = 70;
+  // Bottom: the spectral line shifting along the visible spectrum as the
+  // photon climbs out of the gravity well (fills what was empty canvas).
   const LAMBDA_EM = 530;
   const lambdaObs = Math.min(2000, LAMBDA_EM / Math.max(f, 1e-6));
-  // Source swatch (left)
+  const specY = topY + topH + 56;
+  const LAM_MIN = 380, LAM_MAX = 920;
+  const lamPx = (lam) => padL + (Math.max(LAM_MIN, Math.min(LAM_MAX, lam)) - LAM_MIN) / (LAM_MAX - LAM_MIN) * PW;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('the climbing photon loses energy, so its wavelength stretches toward the red', padL, specY - 14);
+
+  // visible-to-near-IR rainbow strip
+  const stripY = specY + 28, stripH = 150;
+  for (let px = 0; px < PW; px += 1) {
+    const lam = LAM_MIN + (LAM_MAX - LAM_MIN) * px / PW;
+    const [rr, gg, bb] = wavelengthToRGB(lam);
+    ctx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
+    ctx.fillRect(padL + px, stripY, 1, stripH);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1; ctx.strokeRect(padL + 0.5, stripY + 0.5, PW - 1, stripH - 1);
+
+  // emitted and observed spectral lines
+  const emX = lamPx(LAMBDA_EM), obX = lamPx(lambdaObs);
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(emX, stripY - 6); ctx.lineTo(emX, stripY + stripH + 6); ctx.stroke();
+  ctx.strokeStyle = '#f1d28a'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(obX, stripY - 6); ctx.lineTo(obX, stripY + stripH + 6); ctx.stroke();
+  // redshift arrow along the strip
+  const ay = stripY + stripH / 2;
+  if (obX > emX + 14) {
+    ctx.strokeStyle = '#f1d28a'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(emX + 4, ay); ctx.lineTo(obX - 10, ay); ctx.stroke();
+    ctx.fillStyle = '#f1d28a'; ctx.beginPath(); ctx.moveTo(obX - 10, ay); ctx.lineTo(obX - 20, ay - 7); ctx.lineTo(obX - 20, ay + 7); ctx.closePath(); ctx.fill();
+  }
+  // labels
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffffff'; ctx.fillText(`emitted ${LAMBDA_EM} nm`, Math.min(PW + padL - 70, Math.max(padL + 70, emX)), stripY - 12);
+  ctx.fillStyle = '#f1d28a'; ctx.fillText(lambdaObs > 780 ? `observed ${lambdaObs.toFixed(0)} nm (IR)` : `observed ${lambdaObs.toFixed(0)} nm`, Math.min(PW + padL - 80, Math.max(padL + 80, obX)), stripY + stripH + 22);
+  // wavelength axis
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'tick', 'mono');
+  for (const lam of [400, 500, 600, 700, 800, 900]) ctx.fillText(`${lam}`, lamPx(lam), stripY + stripH + 44);
+  ctx.fillText('wavelength (nm)', padL + PW / 2, stripY + stripH + 60);
+
+  // large emitted vs observed colour swatches
+  const swY = stripY + stripH + 82, swH = H - swY - 24, swW = 230;
   const [r0, g0, b0] = wavelengthToRGB(LAMBDA_EM);
-  ctx.fillStyle = `rgb(${r0}, ${g0}, ${b0})`;
-  ctx.fillRect(padL, botY, 100, botH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
-  ctx.strokeRect(padL + 0.5, botY + 0.5, 99, botH - 1);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillText(`source: ${LAMBDA_EM} nm`, padL, botY - 6);
-  // Observed swatch (right)
+  ctx.fillStyle = `rgb(${r0}, ${g0}, ${b0})`; ctx.fillRect(padL, swY, swW, swH);
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.strokeRect(padL + 0.5, swY + 0.5, swW - 1, swH - 1);
   const [r1, g1, b1] = wavelengthToRGB(Math.min(780, lambdaObs));
-  ctx.fillStyle = `rgb(${r1}, ${g1}, ${b1})`;
-  ctx.fillRect(W - padR - 100, botY, 100, botH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
-  ctx.strokeRect(W - padR - 100 + 0.5, botY + 0.5, 99, botH - 1);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  if (lambdaObs > 780) ctx.fillText(`observed: ${lambdaObs.toFixed(0)} nm (infrared)`, W - padR - 100, botY - 6);
-  else                 ctx.fillText(`observed: ${lambdaObs.toFixed(0)} nm`, W - padR - 100, botY - 6);
-  // Arrow between
-  ctx.strokeStyle = '#f1d28a';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(padL + 105, botY + botH / 2);
-  ctx.lineTo(W - padR - 105, botY + botH / 2);
-  ctx.stroke();
-  ctx.fillStyle = '#f1d28a';
-  ctx.beginPath();
-  ctx.moveTo(W - padR - 105, botY + botH / 2);
-  ctx.lineTo(W - padR - 113, botY + botH / 2 - 5);
-  ctx.lineTo(W - padR - 113, botY + botH / 2 + 5);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = `rgb(${r1}, ${g1}, ${b1})`; ctx.fillRect(W - padR - swW, swY, swW, swH);
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.strokeRect(W - padR - swW + 0.5, swY + 0.5, swW - 1, swH - 1);
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('source colour', padL + swW / 2, swY - 8);
+  ctx.fillText('observed colour', W - padR - swW / 2, swY - 8);
 }
 
 function tickN(n) {
