@@ -173,17 +173,30 @@ function draw() {
   rPe.textContent = cache.peakE.toFixed(1);
 }
 
-function tick() {
-  if (st.running) st.ph = (st.ph + 1 / 240) % 1;
+// Sweep the proton energy so the Bragg peak marches through the patient
+// (deeper range at higher energy); st.ph was advanced but draw() never read
+// it. The energy / SOBP-width sliders pause the sweep.
+let _edir = 1, _elast = (typeof performance !== 'undefined' ? performance.now() : 0), _ef = st.e;
+const _eLo = parseInt(slE.min, 10) || 70, _eHi = parseInt(slE.max, 10) || 230;
+function tick(now) {
+  if (st.running) {
+    const dt = Math.min(0.05, (now - _elast) / 1000 || 0);
+    _ef += _edir * dt * ((_eHi - _eLo) / 12);
+    if (_ef >= _eHi) { _ef = _eHi; _edir = -1; } else if (_ef <= _eLo) { _ef = _eLo; _edir = 1; }
+    const ei = Math.round(_ef);
+    if (ei !== st.e) { st.e = ei; slE.value = String(ei); vE.textContent = String(ei); rebuild(); }
+  }
+  _elast = now;
   draw();
   requestAnimationFrame(tick);
 }
 
 function sync() { vE.textContent = String(st.e); vP.textContent = String(st.pw); }
-slE.addEventListener('input', () => { vE.textContent = slE.value; });
-slE.addEventListener('change', () => { st.e = parseInt(slE.value, 10); rebuild(); draw(); });
+function pauseBragg() { st.running = false; bP.textContent = 'Play'; bP.setAttribute('aria-pressed', 'true'); }
+slE.addEventListener('input', () => { pauseBragg(); st.e = parseInt(slE.value, 10); _ef = st.e; vE.textContent = slE.value; rebuild(); draw(); });
+slE.addEventListener('change', () => { st.e = parseInt(slE.value, 10); _ef = st.e; rebuild(); draw(); });
 selM.addEventListener('change', () => { st.mode = selM.value; draw(); });
-slP.addEventListener('input', () => { vP.textContent = slP.value; });
+slP.addEventListener('input', () => { pauseBragg(); vP.textContent = slP.value; });
 slP.addEventListener('change', () => { st.pw = parseInt(slP.value, 10); rebuild(); draw(); });
 bR.addEventListener('click', () => {
   Object.assign(st, DEF); st.running = true;
