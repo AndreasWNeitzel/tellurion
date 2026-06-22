@@ -53,8 +53,8 @@ function Xmax() { return hadronicXmax(E_GeV(), Avalue()); }
 function Nmax() { return emShowerMax(E_GeV()); }
 
 // Scene: left 60% = 3D atmosphere column, right 40% = Gaisser-Hillas profile.
-const SCENE = { x: 0, y: 0, w: 0.55 * W, h: H };
-const PROF = { x: 0.58 * W, y: 30, w: W - 0.58 * W - 14, h: H - 60 };
+const SCENE = { x: 0, y: 0, w: W, h: Math.round(H * 0.63) };
+const PROF = { x: 40, y: Math.round(H * 0.63) + 34, w: W - 80, h: H - (Math.round(H * 0.63) + 34) - 18 };
 
 // Atmosphere extent: from 0 km (sea level) to 40 km top.
 const ALT_TOP_KM = 40;
