@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>The Coherent State</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; gap: var(--space-3); }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The Coherent State</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A free wavepacket spreads as it travels, but the harmonic oscillator has one family of states that never do: the coherent states. Displace the ground state of the oscillator and let it go, and you get a Gaussian that keeps the exact ground-state width $\sigma_0=\sqrt{\hbar/2m\omega}$ for all time while its centre slides back and forth along the classical trajectory, $\langle x\rangle(t)=x_0\cos\omega t$. It is the closest a quantum state comes to a classical particle: a minimum-uncertainty blob that oscillates in the well without ever blurring. The scene shows the parabolic potential, the energy level, and the live packet $|\psi|^2$ riding on it, with the real part of the wavefunction wiggling fastest as the packet whips through the centre (where its momentum is largest) and going smooth at the turning points (where it stops). The lower panel plots the phase-space point $(\langle x\rangle,\langle p\rangle)$ tracing its energy ellipse, the same closed orbit a classical oscillator follows, and splits the energy into kinetic and potential parts that trade off as the packet swings while their sum stays fixed. Raise the amplitude $x_0$ and the packet becomes small against its swing, the classical limit; raise the frequency $\omega$ and the well stiffens, squeezing the packet narrower.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A coherent-state Gaussian wavepacket oscillating in a parabolic well without spreading, with its real part, and a phase-space orbit of mean position against mean momentum with the kinetic and potential energy split."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      The coherent state. Top: the parabolic well (gray), the energy level (violet), and the packet |psi|^2 (blue, with Re psi in cyan) sloshing between the turning points at fixed width sigma_0. Bottom: the phase-space orbit of the mean position and momentum on its energy ellipse, and the kinetic / potential / zero-point energy split. Method: exact closed-form coherent state, hbar = m = 1. Source: Griffiths, Introduction to Quantum Mechanics, 3rd ed., Problem 3.35.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Coherent-state controls">
+    <div class="row"><label for="s-x0">amplitude x0</label><input type="range" id="s-x0" min="0.2" max="3" step="0.05" value="2.2"><span class="value" id="v-x0">2.20</span></div>
+    <div class="row"><label for="s-om">frequency omega</label><input type="range" id="s-om" min="0.6" max="1.8" step="0.05" value="1"><span class="value" id="v-om">1.00</span></div>
+    <div class="row buttons">
+      <button id="btn-re" type="button" aria-pressed="true">Re(psi): on</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Watch the packet cross the centre: it never spreads, the same width at every point of the swing.</li>
+        <li class="t-body">Follow the real part: dense wiggles at the centre where momentum is largest, smooth near the turning points where it stops.</li>
+        <li class="t-body">Raise the amplitude $x_0$: the packet shrinks against its swing, approaching a classical point particle.</li>
+        <li class="t-body">Raise the frequency $\omega$: the well stiffens and the packet is squeezed narrower, $\sigma_0=\sqrt{1/2\omega}$.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
