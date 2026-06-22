@@ -28,7 +28,9 @@ const EXT = 3;
 // an asymmetric motif (an "F") on the unit square, carried into the parallelogram
 // so the orientation flip at det < 0 is visible as a mirror image.
 const FMOTIF = [[[0.30, 0.22], [0.30, 0.80]], [[0.30, 0.80], [0.64, 0.80]], [[0.30, 0.54], [0.56, 0.54]]];
-const st = { preset: 'custom', a: 1, b: 0.4, c: -0.5, d: 1.3 };   // columns v1=(a,b), v2=(c,d)
+const st = { preset: 'custom', a: 1, b: 0.4, c: -0.5, d: 1.3, playing: false, phase: 0 };   // columns v1=(a,b), v2=(c,d)
+const btnPlay = document.getElementById('btn-play');
+function setPlaying(on) { st.playing = on; if (btnPlay) { btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); } }
 function applyPreset(k) { const p = PRESETS[k]; st.preset = k; st.a = p.a; st.b = p.b; st.c = p.c; st.d = p.d; }
 function matchPreset() { for (const k of KEYS) { const p = PRESETS[k]; if (Math.abs(p.a - st.a) < 1e-6 && Math.abs(p.b - st.b) < 1e-6 && Math.abs(p.c - st.c) < 1e-6 && Math.abs(p.d - st.d) < 1e-6) return k; } return 'custom'; }
 
@@ -45,10 +47,10 @@ function syncVals() {
   st.preset = matchPreset(); selPreset.value = st.preset;
 }
 function setEntry(k, val) { st[k] = val; syncVals(); render(); }
-sA.addEventListener('input', () => setEntry('a', +sA.value));
-sB.addEventListener('input', () => setEntry('b', +sB.value));
-sC.addEventListener('input', () => setEntry('c', +sC.value));
-sD.addEventListener('input', () => setEntry('d', +sD.value));
+sA.addEventListener('input', () => { setPlaying(false); setEntry('a', +sA.value); });
+sB.addEventListener('input', () => { setPlaying(false); setEntry('b', +sB.value); });
+sC.addEventListener('input', () => { setPlaying(false); setEntry('c', +sC.value); });
+sD.addEventListener('input', () => { setPlaying(false); setEntry('d', +sD.value); });
 selPreset.addEventListener('change', () => { if (selPreset.value !== 'custom' && PRESETS[selPreset.value]) { applyPreset(selPreset.value); syncVals(); render(); } });
 btnReset.addEventListener('click', () => { st.a = 1; st.b = 0.4; st.c = -0.5; st.d = 1.3; syncVals(); render(); });
 
@@ -157,14 +159,25 @@ canvas.addEventListener('pointerdown', (e) => {
   const d1 = Math.hypot(sx - X(st.a), sy - Y(st.b)), d2 = Math.hypot(sx - X(st.c), sy - Y(st.d));
   if (Math.min(d1, d2) < 26) { drag = d1 <= d2 ? 1 : 2; setVec(sx, sy); render(); }
 });
-function setVec(sx, sy) { const wx = Math.max(-EXT, Math.min(EXT, SCN.wX(sx))), wy = Math.max(-EXT, Math.min(EXT, SCN.wY(sy))); if (drag === 1) { st.a = wx; st.b = wy; } else { st.c = wx; st.d = wy; } syncVals(); }
+function setVec(sx, sy) { setPlaying(false); const wx = Math.max(-EXT, Math.min(EXT, SCN.wX(sx))), wy = Math.max(-EXT, Math.min(EXT, SCN.wY(sy))); if (drag === 1) { st.a = wx; st.b = wy; } else { st.c = wx; st.d = wy; } syncVals(); }
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; const [sx, sy] = ptr(e); setVec(sx, sy); render(); });
 window.addEventListener('pointerup', () => { drag = null; });
+
+// Sweep the second column so the determinant runs through zero: the
+// parallelogram shears, collapses to a line (area 0), then flips orientation.
+let lastT = performance.now();
+function tick(now) {
+  const dt = Math.min((now - lastT) / 1000, 0.05); lastT = now;
+  if (st.playing) { st.phase = (st.phase + dt * 0.4) % 1; st.c = 3.4 * Math.sin(st.phase * 2 * Math.PI); syncVals(); render(); }
+  requestAnimationFrame(tick);
+}
+if (btnPlay) btnPlay.addEventListener('click', () => setPlaying(!st.playing));
 
 function boot() {
   if (params.get('preset') && PRESETS[params.get('preset')]) applyPreset(params.get('preset'));
   syncVals(); relayout(); render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  if (DETERMINISTIC) { setPlaying(false); requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+  else { setPlaying(true); requestAnimationFrame(tick); }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });

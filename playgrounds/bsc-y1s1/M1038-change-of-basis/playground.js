@@ -25,12 +25,14 @@ const PRESETS = [
   { label: 'sheared', b1: [1, 0], b2: [0.9, 1] },
 ];
 let pre = 0;
-const st = { b1: [...PRESETS[0].b1], b2: [...PRESETS[0].b2], v: [1.7, 1.25] };
+const st = { b1: [...PRESETS[0].b1], b2: [...PRESETS[0].b2], v: [1.7, 1.25], playing: false, phase: 0, baseB2: [...PRESETS[0].b2] };
+const btnPlay = document.getElementById('btn-play');
+function setPlaying(on) { if (on && !st.playing) { st.baseB2 = [...st.b2]; st.phase = 0; } st.playing = on; if (btnPlay) { btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); } }
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.42 }, { name: 'diag', weight: 0.82 }]); }
 function syncVals() { selPre.value = pre >= 0 ? String(pre) : 'custom'; }
-selPre.addEventListener('change', () => { if (selPre.value === 'custom') return; pre = +selPre.value; st.b1 = [...PRESETS[pre].b1]; st.b2 = [...PRESETS[pre].b2]; syncVals(); render(); });
+selPre.addEventListener('change', () => { setPlaying(false); if (selPre.value === 'custom') return; pre = +selPre.value; st.b1 = [...PRESETS[pre].b1]; st.b2 = [...PRESETS[pre].b2]; syncVals(); render(); });
 btnReset.addEventListener('click', () => { pre = 0; st.b1 = [...PRESETS[0].b1]; st.b2 = [...PRESETS[0].b2]; st.v = [1.7, 1.25]; syncVals(); render(); });
 
 function colors() {
@@ -129,11 +131,29 @@ canvas.addEventListener('pointerdown', (e) => {
 });
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; const [sx, sy] = ptr(e); setFrom(sx, sy); });
 window.addEventListener('pointerup', () => { drag = null; });
-function setFrom(sx, sy) { const wx = (sx - SC.cx) / SC.S, wy = (SC.cy - sy) / SC.S; const p = [Math.max(-5, Math.min(5, wx)), Math.max(-5, Math.min(5, wy))]; if (drag === 'b1') { st.b1 = p; pre = -1; selPre.value = 'custom'; } else if (drag === 'b2') { st.b2 = p; pre = -1; selPre.value = 'custom'; } else st.v = p; render(); }
+function setFrom(sx, sy) { setPlaying(false); const wx = (sx - SC.cx) / SC.S, wy = (SC.cy - sy) / SC.S; const p = [Math.max(-5, Math.min(5, wx)), Math.max(-5, Math.min(5, wy))]; if (drag === 'b1') { st.b1 = p; pre = -1; selPre.value = 'custom'; } else if (drag === 'b2') { st.b2 = p; pre = -1; selPre.value = 'custom'; } else st.v = p; render(); }
+
+// Gently rock the green basis vector so the basis grid skews and the same
+// vector's coordinates in that basis change live.
+let lastT = performance.now();
+function tick(now) {
+  const dt = Math.min((now - lastT) / 1000, 0.05); lastT = now;
+  if (st.playing) {
+    st.phase += dt * 0.5;
+    const ang = 0.55 * Math.sin(st.phase), c = Math.cos(ang), si = Math.sin(ang);
+    const bx = st.baseB2[0], by = st.baseB2[1];
+    st.b2 = [bx * c - by * si, bx * si + by * c];
+    pre = -1; if (selPre) selPre.value = 'custom';
+    syncVals(); render();
+  }
+  requestAnimationFrame(tick);
+}
+if (btnPlay) btnPlay.addEventListener('click', () => setPlaying(!st.playing));
 
 function boot() {
   syncVals(); relayout(); render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  if (DETERMINISTIC) { setPlaying(false); requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+  else { setPlaying(true); requestAnimationFrame(tick); }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });

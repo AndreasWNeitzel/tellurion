@@ -20,7 +20,7 @@
     .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
     .pg-controls .row.wide { grid-column: span 2; grid-template-columns: 9ch 1fr; gap: var(--space-3); }
     .pg-controls .row.wide .value { text-align: left; }
-    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -66,6 +66,7 @@
     <div class="row wide"><label class="label" for="select-rule">rule</label><select id="select-rule" aria-label="integration rule"><option value="left">left endpoint</option><option value="right">right endpoint</option><option value="midpoint">midpoint</option><option value="trapezoid">trapezoid</option></select></div>
     <div class="row wide"><label class="label" for="select-func">function</label><select id="select-func" aria-label="integrand"><option value="quad">f = x^2 on [0, 2]</option><option value="sine">f = sin x on [0, pi]</option><option value="exp">f = e^x on [0, 1.5]</option><option value="arctan">f = 1/(1+x^2) on [-2, 2]</option></select></div>
     <div class="row buttons">
+      <button id="btn-play" type="button">Pause</button>
       <button id="btn-reset" type="button">Reset</button>
     </div>
   </div>

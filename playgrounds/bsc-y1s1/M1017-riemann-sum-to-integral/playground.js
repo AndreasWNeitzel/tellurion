@@ -21,7 +21,9 @@ const selFunc = document.getElementById('select-func');
 const selRule = document.getElementById('select-rule');
 const btnReset = document.getElementById('btn-reset');
 
-const st = { func: 'quad', rule: 'left', n: 8 };
+const st = { func: 'quad', rule: 'left', n: 8, playing: false, phase: 0 };
+const btnPlay = document.getElementById('btn-play');
+function setPlaying(on) { st.playing = on; if (btnPlay) { btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); } }
 function fn() { return FUNCS[st.func]; }
 
 let view = { w: 820, h: 1020, dpr: 1 }, REG = null;
@@ -30,7 +32,7 @@ function relayout() {
   REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.35 }, { name: 'diag', weight: 0.86 }]);
 }
 function syncVals() { vN.textContent = String(st.n); selFunc.value = st.func; selRule.value = st.rule; }
-sN.addEventListener('input', () => { st.n = parseInt(sN.value, 10); syncVals(); render(); });
+sN.addEventListener('input', () => { setPlaying(false); st.n = parseInt(sN.value, 10); syncVals(); render(); });
 selFunc.addEventListener('change', () => { st.func = selFunc.value; syncVals(); render(); });
 selRule.addEventListener('change', () => { st.rule = selRule.value; syncVals(); render(); });
 btnReset.addEventListener('click', () => { st.func = 'quad'; st.rule = 'left'; st.n = 8; sN.value = '8'; syncVals(); render(); });
@@ -118,11 +120,27 @@ function render() {
   drawScene(col, REG.scene); drawDiag(col, REG.diag);
 }
 
+// Sweep the rectangle count up and down so the sum visibly tightens onto the
+// exact integral and the error plot marches down its power law.
+let lastT = performance.now();
+function tick(now) {
+  const dt = Math.min((now - lastT) / 1000, 0.05); lastT = now;
+  if (st.playing) {
+    st.phase = (st.phase + dt * 0.45) % 1;
+    const tri = st.phase < 0.5 ? st.phase * 2 : 2 - st.phase * 2;
+    st.n = 1 + Math.round(tri * 99);
+    sN.value = String(st.n); syncVals(); render();
+  }
+  requestAnimationFrame(tick);
+}
+if (btnPlay) btnPlay.addEventListener('click', () => setPlaying(!st.playing));
+
 function boot() {
   if (params.get('func') && FUNCS[params.get('func')]) st.func = params.get('func');
   if (params.get('rule') && RULES.includes(params.get('rule'))) st.rule = params.get('rule');
   syncVals(); relayout(); render();
-  if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  if (DETERMINISTIC) { setPlaying(false); requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+  else { setPlaying(true); requestAnimationFrame(tick); }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });
