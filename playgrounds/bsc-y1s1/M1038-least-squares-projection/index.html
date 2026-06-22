@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Least Squares as Projection</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row.buttons { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Least Squares as Projection</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Fitting a line to scattered points is a projection in disguise. Stack the measured heights into a vector $\mathbf{b}$ and the model values $mx_i + c$ into the column space of $A = [\,\mathbf{x}\ \ \mathbf{1}\,]$: no line passes exactly through noisy data, so $\mathbf{b}$ lies off that plane, and the best fit is the point in the plane closest to it, the orthogonal projection. Closest means the residual $\mathbf{r} = \mathbf{b} - A\hat{\mathbf{x}}$ is perpendicular to the plane, $A^\top\mathbf{r} = 0$, which is exactly the normal equations $A^\top A\,\hat{\mathbf{x}} = A^\top\mathbf{b}$. For a line they solve to $\hat m = S_{xy}/S_{xx}$ through the centroid of the data. The red bars are the residuals being squared and summed; drag the blue handle to tilt the line off the best fit and watch every bar, and the total, grow. The panel below is that total as a function of slope, a parabola whose lowest point is the least-squares answer; the ball rolls to the bottom only when the residual is orthogonal. Drag the gold points to reshape the data and the fit re-solves at once.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A scatter of draggable points with the least-squares best-fit line through the centroid, the vertical residuals, and a parabola of the sum of squared residuals against slope with the minimum marked."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Least squares as projection. Top: the data (gold), the best-fit line (blue) through the centroid (green cross) with the vertical residuals (red); tilting the line with its handle shows the optimal line as a green ghost. Bottom: the sum of squared residuals against slope, a parabola whose vertex is the least-squares fit. Method: the normal equations, slope = Sxy / Sxx. Source: Strang, Introduction to Linear Algebra, 5th ed., Sec. 4.3.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Least squares controls">
+    <div class="row buttons">
+      <button id="btn-best" type="button">Snap to best fit</button>
+      <button id="btn-reset" type="button">Reset data</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Drag the blue handle to tilt the line off the best fit: the red residual bars and the total SSR grow, and the ball climbs out of the bottom of the parabola.</li>
+        <li class="t-body">Snap back to the best fit: the residual is orthogonal to the data columns ($\sum r_i x_i = 0$) and the ball sits at the vertex.</li>
+        <li class="t-body">Drag a gold point far from the others (an outlier) and watch the squared residual pull the whole line toward it.</li>
+        <li class="t-body">Notice the line always passes through the green centroid, whatever the slope.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
