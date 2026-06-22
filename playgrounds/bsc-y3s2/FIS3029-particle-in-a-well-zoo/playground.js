@@ -35,6 +35,17 @@ const state = {
   a: 1.0,
 };
 
+// Auto-climb the eigenstate ladder: the selected level sweeps up and down
+// through the bound states of the current well, so the wavefunction gains and
+// sheds nodes and travels the full energy axis. Any control pauses it.
+let _nf = 1, nDir = 1, _last = (typeof performance !== 'undefined' ? performance.now() : 0);
+let playing = !(DETERMINISTIC || prefersReducedMotion());
+function maxNForWell() {
+  if (state.well === 'infinite') return 8;
+  if (state.well === 'harmonic') return 9;
+  return Math.max(1, finiteWellLevels(state.a, state.V0).length);
+}
+
 function cssVar(name, fallback) {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return v || fallback;
@@ -222,7 +233,9 @@ selWell.addEventListener('change', () => {
   drawAll();
 });
 sliderN.addEventListener('input', () => {
+  playing = false;                                       // user picked a level; stop the climb
   state.n = parseInt(sliderN.value, 10);
+  _nf = state.n;
   valueN.textContent = String(state.n);
   drawAll();
 });
@@ -266,10 +279,23 @@ function bootSync() {
   }
 }
 
+function tick(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    const nMax = maxNForWell();
+    _nf += nDir * dt * 1.1;                               // ~0.9 s per level
+    if (_nf >= nMax) { _nf = nMax; nDir = -1; } else if (_nf <= 1) { _nf = 1; nDir = 1; }
+    const n = Math.round(_nf);
+    if (n !== state.n) { state.n = n; sliderN.value = String(n); valueN.textContent = String(n); }
+  }
+  _last = now;
+  drawAll();
+  requestAnimationFrame(tick);
+}
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick);
 }
 
 

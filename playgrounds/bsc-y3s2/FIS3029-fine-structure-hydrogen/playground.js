@@ -10,15 +10,16 @@ const rF = document.getElementById('readout-f');
 const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
 const sM = document.getElementById('slider-m'), vM = document.getElementById('value-m');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { nMax: 3, mag: 3000 }; let running = true;
+let st = { nMax: 3, mag: 3000 }; let running = !(DETERMINISTIC || prefersReducedMotion());
 // Reference capture: this is a static diagram (no time evolution), so the five
 // golden frames must differ by the pedagogically central variable. Sweep the
 // fine-structure magnification from nearly-unresolved to wide-open so the
 // alpha^2 j-splitting fans apart frame by frame. Render-neutral to live use
 // (only active when ?capture= is set).
 if (CAPTURE_NAME) { st.mag = Math.round(1000 + CAPTURE_FRAC * 8000); }
-sN.addEventListener('input', () => { st.nMax = parseInt(sN.value); vN.textContent = st.nMax; });
-sM.addEventListener('input', () => { st.mag = parseInt(sM.value); vM.textContent = st.mag; });
+function pausePlay() { running = false; btnP.textContent = 'Play'; btnP.setAttribute('aria-pressed', 'true'); }
+sN.addEventListener('input', () => { pausePlay(); st.nMax = parseInt(sN.value); vN.textContent = st.nMax; });
+sM.addEventListener('input', () => { pausePlay(); st.mag = parseInt(sM.value); vM.textContent = st.mag; });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 function render() {
@@ -60,7 +61,20 @@ function render() {
   ctx.fillText(`FS magnification x${st.mag}, max ΔE_FS ≈ ${(maxFS * 1e6).toFixed(0)} μeV`, 12, H - 14);
   rF.textContent = `${(maxFS * 1e6).toFixed(0)} μeV`;
 }
-function tick() { render(); requestAnimationFrame(tick); }
+// Sweep the fine-structure magnification when playing: the alpha^2 j-split
+// sublevels fan apart from nearly-degenerate to wide-open. Sliders pause it.
+let magDir = 1, _last = performance.now();
+const magLo = parseFloat(sM.min) || 1000, magHi = parseFloat(sM.max) || 9000;
+function tick(now) {
+  if (running) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    st.mag += magDir * dt * ((magHi - magLo) / 11);
+    if (st.mag >= magHi) { st.mag = magHi; magDir = -1; } else if (st.mag <= magLo) { st.mag = magLo; magDir = 1; }
+    sM.value = String(Math.round(st.mag)); vM.textContent = String(Math.round(st.mag));
+  }
+  _last = now;
+  render(); requestAnimationFrame(tick);
+}
 function bootSync() { render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 

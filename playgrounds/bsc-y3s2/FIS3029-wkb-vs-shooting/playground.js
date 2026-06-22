@@ -164,16 +164,34 @@ function drawAll() {
   }
 }
 
+// Auto-sweep the potential power so the well morphs from harmonic (p=2)
+// toward a box (high p) on load, and the WKB-vs-exact level agreement evolves
+// with it. Either slider pauses the sweep.
+let playing = !(DETERMINISTIC || prefersReducedMotion()), pDir = 1, _last = performance.now();
+const pLo = parseFloat(sliderP.min) || 1.5, pHi = parseFloat(sliderP.max) || 6;
 sliderP.addEventListener('input', () => {
+  playing = false;
   state.p = parseFloat(sliderP.value);
   valueP.textContent = state.p.toFixed(2);
   drawAll();
 });
 sliderNmax.addEventListener('input', () => {
+  playing = false;
   state.nMax = parseInt(sliderNmax.value, 10);
   valueNmax.textContent = String(state.nMax);
   drawAll();
 });
+function tick(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    state.p += pDir * dt * ((pHi - pLo) / 12);
+    if (state.p >= pHi) { state.p = pHi; pDir = -1; } else if (state.p <= pLo) { state.p = pLo; pDir = 1; }
+    sliderP.value = state.p.toFixed(2); valueP.textContent = state.p.toFixed(2);
+  }
+  _last = now;
+  drawAll();
+  requestAnimationFrame(tick);
+}
 
 function bootSync() {
   drawAll();
@@ -197,9 +215,9 @@ function bootSync() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick);
 }
 
 
