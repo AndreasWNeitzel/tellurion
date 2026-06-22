@@ -53,8 +53,9 @@ function currentV() {
 }
 
 // geometry
-const CX = 44, CY = 36, CW = 300, CH = 528;             // cylinder interior
-const PX = 432, PY = 182, PW = 404, PH = 358;           // p-V plot rect (clears the HUD)
+// Portrait: piston cylinder (inherently vertical) and the p-V plot as two full-height columns.
+const CX = 30, CY = 26, CW = 300, CH = canvas.height - 52;             // cylinder interior
+const PX = 360, PY = 64, PW = canvas.width - 360 - 28, PH = canvas.height - 110;           // p-V plot rect
 const P_PMAX = 1.6, lnVmin = Math.log(0.38), lnVmax = Math.log(9);
 const vX = (V) => PX + ((Math.log(V) - lnVmin) / (lnVmax - lnVmin)) * PW;
 const pY = (p) => PY + PH - (Math.max(0, Math.min(P_PMAX, p)) / P_PMAX) * PH;
