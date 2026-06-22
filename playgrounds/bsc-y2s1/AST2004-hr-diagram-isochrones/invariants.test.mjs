@@ -41,23 +41,23 @@ describe('Data Integrity', () => {
     }
   });
 
-  it('GAIA_CMD fields are in physically sensible ranges (GSP-Spec sample)', () => {
+  it('GAIA_CMD fields are in physically sensible ranges (100 pc volume-limited GSP-Phot sample)', () => {
     const extents = gaiaExtents();
-    // BP-RP colour
-    expect(extents.bprpMin).toBeGreaterThanOrEqual(0.6);
-    expect(extents.bprpMax).toBeLessThanOrEqual(4.0);
-    // M_G absolute magnitude
-    expect(extents.mgMin).toBeGreaterThanOrEqual(-4.0);
-    expect(extents.mgMax).toBeLessThanOrEqual(10.0);
-    // Teff (GSP-Spec)
-    expect(extents.teffMin).toBeGreaterThanOrEqual(3000);
-    expect(extents.teffMax).toBeLessThanOrEqual(7500);
-    // logg (GSP-Spec, uncapped: spans giants to dwarfs)
-    expect(extents.loggMin).toBeGreaterThanOrEqual(0.0);
+    // BP-RP colour: hot blue stars to red M dwarfs
+    expect(extents.bprpMin).toBeGreaterThanOrEqual(-0.4);
+    expect(extents.bprpMax).toBeLessThanOrEqual(5.0);
+    // M_G absolute magnitude: bright down to the faint lower main sequence
+    expect(extents.mgMin).toBeGreaterThanOrEqual(-2.0);
+    expect(extents.mgMax).toBeLessThanOrEqual(16.0);
+    // Teff (GSP-Phot)
+    expect(extents.teffMin).toBeGreaterThanOrEqual(2400);
+    expect(extents.teffMax).toBeLessThanOrEqual(11000);
+    // logg (GSP-Phot): the local sample is dwarf-dominated with a few giants
+    expect(extents.loggMin).toBeGreaterThanOrEqual(2.0);
     expect(extents.loggMax).toBeLessThanOrEqual(5.6);
-    // [M/H]
+    // [M/H] (GSP-Phot, QC-trimmed)
     expect(extents.mhMin).toBeGreaterThanOrEqual(-2.6);
-    expect(extents.mhMax).toBeLessThanOrEqual(0.8);
+    expect(extents.mhMax).toBeLessThanOrEqual(0.9);
   });
 
   it('MESA_TRACK endpoints are at ZAMS and white dwarf', () => {
@@ -235,9 +235,9 @@ describe('Track Extents', () => {
 describe('Gaia Extents', () => {
   it('returns expected field ranges', () => {
     const ext = gaiaExtents();
-    expect(ext.teffMin).toBeGreaterThanOrEqual(3000);
-    expect(ext.teffMax).toBeLessThanOrEqual(7500);
-    expect(ext.loggMin).toBeGreaterThanOrEqual(0.0);
+    expect(ext.teffMin).toBeGreaterThanOrEqual(2400);
+    expect(ext.teffMax).toBeLessThanOrEqual(11000);
+    expect(ext.loggMin).toBeGreaterThanOrEqual(2.0);
     expect(ext.loggMax).toBeLessThanOrEqual(5.6);
   });
 });

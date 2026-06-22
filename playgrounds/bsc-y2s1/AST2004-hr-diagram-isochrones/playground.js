@@ -42,10 +42,10 @@ let running = !DETERMINISTIC;
 // Kiel axes (Teff reversed: hot left; logg reversed: dwarfs at bottom). The giant
 // region runs down to logg ~ 0 and Teff ~ 2800 K so the RGB tip and the cool AGB
 // stay on scale.
-const KX = [7400, 2800], KY = [-0.3, 5.7];
-// CMD axes (BP-RP clipped to the bulk; a handful of very red outliers reach ~3.7 and
-// would otherwise waste most of the axis). M_G reversed: bright at top.
-const CX = [0.5, 2.8], CY = [-4.2, 10.2];
+const KX = [8500, 2600], KY = [-0.3, 5.7];
+// CMD axes span the full local main sequence: hot blue stars to red M dwarfs,
+// bright down to the faint lower main sequence. M_G reversed: bright at top.
+const CX = [-0.2, 4.5], CY = [-2, 15.5];
 
 // Evolutionary-progress reparametrization. The star crawls along the main sequence
 // for ~9 Gyr and then races through the subgiant and giant phases in under 1 Gyr, so
@@ -140,10 +140,10 @@ function drawHR(col, r) {
 
   // grid + ticks.
   ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8; ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textBaseline = 'top'; ctx.textAlign = 'center';
-  const xticks = kiel ? [7000, 6000, 5000, 4000, 3000] : [1, 1.5, 2, 2.5];
+  const xticks = kiel ? [8000, 7000, 6000, 5000, 4000, 3000] : [0, 1, 2, 3, 4];
   for (const t of xticks) { const X = xOf(t); ctx.beginPath(); ctx.moveTo(X, box.y); ctx.lineTo(X, box.y + box.h); ctx.stroke(); ctx.fillText(kiel ? `${t}` : t.toFixed(1), X, box.y + box.h + 5); }
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  const yticks = kiel ? [1, 2, 3, 4, 5] : [-2, 0, 2, 4, 6, 8];
+  const yticks = kiel ? [1, 2, 3, 4, 5] : [0, 3, 6, 9, 12, 15];
   for (const t of yticks) { const Y = yOf(t); ctx.beginPath(); ctx.moveTo(box.x, Y); ctx.lineTo(box.x + box.w, Y); ctx.stroke(); ctx.fillText(kiel ? t.toFixed(1) : `${t}`, box.x - 6, Y); }
   // axis labels.
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';

@@ -6,10 +6,13 @@
  * DOM or canvas dependencies. Used by playground.js and test suites.
  *
  * Data sources (no fabricated values):
- * - Gaia DR3: ~3000 real stars with parallax_over_error > 10, RUWE < 1.4,
- *   parallax > 1 mas; M_G = G + 5*log10(parallax_mas) - 10. Teff/logg/[M/H] are
- *   the spectroscopic GSP-Spec values (logg uncapped, unlike GSP-Phot which
- *   saturates at 4.0). Gaia Collaboration 2023, A&A 674, A1.
+ * - Gaia DR3: 4000 real stars, volume-limited within 100 pc (parallax > 10 mas,
+ *   RUWE < 1.4, parallax_over_error > 20), an unbiased subset via random_index
+ *   with no magnitude cut, so the faint lower main sequence is sampled rather
+ *   than the bright giants a magnitude- or spectroscopy-limited sample favours.
+ *   M_G = G + 5*log10(parallax_mas) - 10. Teff/logg/[M/H] are GSP-Phot
+ *   astrophysical parameters (which reach the faint M dwarfs that the
+ *   bright-star-only GSP-Spec sample missed). Gaia Collaboration 2023, A&A 674, A1.
  * - MESA 1 Msun solar metallicity track: 725 real evolutionary model points
  *   from ZAMS to white dwarf.
  *   Paxton et al. 2011, ApJS 192, 3 (and later instrument papers).
