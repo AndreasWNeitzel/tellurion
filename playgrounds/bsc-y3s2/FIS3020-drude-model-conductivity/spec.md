@@ -16,7 +16,7 @@ tier: simple
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 5
-share_state_keys: [E, tau]
+share_state_keys: [E, tau, n]
 invariants:
   - key: ohm
     label: the current is linear in the field, j = sigma E
@@ -28,10 +28,10 @@ invariants:
     label: the simulated drift converges to -E tau
     tolerance: 0.25
 what_to_try:
-  - Raise E; the drift and current climb in proportion.
-  - Raise tau (cleaner metal); both drift and conductivity grow.
-  - Compare the theory and simulated current; the random dynamics reproduce v_d = -E tau.
-  - Watch the AC rolloff move with tau.
+  - Raise E; the field arrows intensify, the average electron drifts faster, and the current climbs in proportion.
+  - Raise tau (cleaner metal); the trails lengthen (longer mean free path), drift and conductivity grow, and the AC rolloff knee at 1/tau moves left.
+  - Raise the carrier density n; more electrons fill the cloud and the Ohm line tilts steeper (sigma = n tau), while the drift speed v_d is unchanged.
+  - Follow the bright average electron: its steady march is the net drift, the current that random thermal motion hides.
 references:
   - "Ashcroft and Mermin, Solid State Physics, Holt-Saunders, 1976, Ch. 1."
   - "Kittel, Introduction to Solid State Physics, 8th ed., Ch. 6."
