@@ -102,7 +102,7 @@ function drawStar(c, s) {
   const cutA = -0.42, cutB = 0.42;
 
   // Filled density disc, shaded as a sphere (light from upper-left).
-  const STEPS = 150;
+  const STEPS = 110;   // shading steps; smooth but lighter now the disc fills the panel
   for (let k = STEPS; k >= 1; k -= 1) {
     const fr = k / STEPS;                       // fractional radius
     const xi = fr * xiD;
