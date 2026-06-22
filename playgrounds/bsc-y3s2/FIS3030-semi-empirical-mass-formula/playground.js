@@ -140,7 +140,7 @@ function buildControls() {
     inp.min = '0'; inp.max = String(max); inp.step = String(step); inp.value = '0';
     inp.setAttribute('aria-label', label);
     const val = document.createElement('span'); val.className = 'value'; val.textContent = '0.00';
-    inp.addEventListener('input', () => { guess[key] = parseFloat(inp.value); val.textContent = guess[key].toFixed(2); });
+    inp.addEventListener('input', () => { autoFit = false; guess[key] = parseFloat(inp.value); val.textContent = guess[key].toFixed(2); });
     row.appendChild(lab); row.appendChild(inp); row.appendChild(val);
     controlsEl.appendChild(row);
   }
@@ -155,9 +155,29 @@ function buildControls() {
   row.appendChild(hint); controlsEl.appendChild(row);
 }
 
+// Auto-fit demo: ramp the guessed coefficients from zero up to the canonical
+// Wapstra values and back, so the SEMF terms visibly assemble the binding-
+// energy curve (chi^2 falls to MATCH, then climbs again) on load. Touching
+// any slider takes over (pauses the demo).
+let autoFit = !(DETERMINISTIC || prefersReducedMotion());
+let fitPhase = 0, fitDir = 1, _last = (typeof performance !== 'undefined' ? performance.now() : 0);
+
 buildControls();
 let raf;
-function loop() { render(); raf = requestAnimationFrame(loop); }
+function loop(now) {
+  if (autoFit) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    fitPhase += fitDir * dt * 0.18;                      // ~5.5 s each way
+    if (fitPhase >= 1) { fitPhase = 1; fitDir = -1; } else if (fitPhase <= 0) { fitPhase = 0; fitDir = 1; }
+    for (const k of Object.keys(guess)) {
+      guess[k] = fitPhase * TARGET[k];
+      const inp = document.getElementById('s-' + k);
+      if (inp) { inp.value = String(guess[k]); const val = inp.parentElement && inp.parentElement.querySelector('.value'); if (val) val.textContent = guess[k].toFixed(2); }
+    }
+  }
+  _last = now;
+  render(); raf = requestAnimationFrame(loop);
+}
 if (DETERMINISTIC) {
   // Reference capture sweeps the guessed coefficients from zero toward
   // the canonical Wapstra values, so the five golden frames are
