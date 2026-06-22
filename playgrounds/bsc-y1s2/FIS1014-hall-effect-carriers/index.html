@@ -16,8 +16,9 @@
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
     .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 7ch; }
-    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: 9ch 1fr; }
     .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
@@ -60,7 +61,7 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Hall effect controls">
-    <div class="row wide"><button id="btn-carrier" type="button">Toggle carrier</button><span class="value" id="value-carrier">electrons (negative)</span></div>
+    <div class="row wide"><label class="label" for="select-carrier">carrier</label><select id="select-carrier" aria-label="charge carrier"><option value="electron">electrons (negative)</option><option value="hole">holes (positive)</option></select></div>
     <div class="row"><label for="s-B">B</label><input type="range" id="s-B" min="-1" max="1" step="0.02" value="0.4"><span class="value" id="v-B">+0.40 T</span></div>
     <div class="row"><label for="s-I">I</label><input type="range" id="s-I" min="1" max="10" step="0.1" value="5"><span class="value" id="v-I">5.0 mA</span></div>
     <div class="row wide"><label for="s-n">n</label><input type="range" id="s-n" min="1" max="20" step="1" value="4"><span class="value" id="v-n">4 x10^21 /m^3</span></div>
@@ -73,7 +74,7 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Toggle between holes and electrons: the carriers deflect to the same edge, but the edge charges and the voltmeter sign reverse. That sign is how the Hall effect tells the carriers apart.</li>
+        <li class="t-body">Switch the carrier between holes and electrons: both deflect to the same edge, but the edge charges and the voltmeter sign reverse. That sign is how the Hall effect tells the carriers apart.</li>
         <li class="t-body">Sweep the field $B$ through zero: the deflection, the edge charge, and $V_H$ all flip with it, and $V_H$ rides up and down the straight line in the panel below.</li>
         <li class="t-body">Raise the current $I$ to deflect harder and grow $V_H$; raise the carrier density $n$ and $V_H$ shrinks (more carriers share the load).</li>
         <li class="t-body">Watch the buildup after a change: the carriers swing toward the edge, then straighten out once the Hall field has grown to cancel the magnetic force.</li>
