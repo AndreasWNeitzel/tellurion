@@ -257,11 +257,25 @@ if (btnPlayPause) {
     if (!paused) userOverride = false;
   });
 }
-// No lambda auto-cycle: it overwrote the wavelength slider until the
-// user happened to touch a control (so the slider read as doing
-// nothing) and its sinusoid was a large per-frame noise source. The PSF
-// is now purely slider-driven; every handler already calls drawAll().
-function tick() { requestAnimationFrame(tick); }
+// Gentle aperture sweep so the diffraction rings breathe (wider for a small
+// aperture, tighter for a large one), making the D dependence live. It is
+// gated on userOverride, so the moment the user touches any slider the sweep
+// stops and the pattern is purely slider-driven; Play re-enables it.
+let aSweep = 0, aLast = performance.now();
+function tick(now) {
+  if (now === undefined) now = performance.now();
+  if (!paused && !userOverride && !DETERMINISTIC) {
+    const dt = Math.min((now - aLast) / 1000, 0.05);
+    aSweep += dt * 0.45;
+    const tri = 0.5 - 0.5 * Math.cos(aSweep);              // smooth 0..1
+    state.D = (0.5 + tri * 3.5) * 1e-3;                    // sweep aperture 0.5 -> 4.0 mm
+    sliderD.value = (state.D * 1e3).toFixed(1);
+    const vD = document.getElementById('value-d'); if (vD) vD.textContent = (state.D * 1e3).toFixed(1);
+    drawAll();
+  }
+  aLast = now;
+  requestAnimationFrame(tick);
+}
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true });
