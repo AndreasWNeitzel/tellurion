@@ -32,14 +32,34 @@ const selM = document.getElementById('select-m');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const NU0 = 100;
-// The surface oscillates at the mode frequency omega_m = omega_base + m(1-C)Omega:
-// omega_base stands in for the (much faster) intrinsic mode frequency so the
-// pulsation is visible, and the m(1-C)Omega term is the rotational splitting that
-// makes prograde (m>0) and retrograde (m<0) components oscillate and drift at
-// different rates while m=0 (zonal) stays unshifted.
-const OMEGA_BASE = 2.1;   // visible base oscillation rate (rad/s)
-const SPLIT_VIS = 1.25;   // visual scale of the rotational frequency shift
-const LIMB_AMP = 0.05;    // radial surface deformation (fraction of the disc radius)
+// The surface displacement of the (l, m) mode is
+//   xi_r(theta, phi, t) = N P_l^|m|(cos theta) cos(|m| phi - omega_d t) cos(omega_p t),
+// a standing non-radial pulsation cos(omega_p t) in the Y_l^m pattern that, once
+// the star rotates, drifts in azimuth at the rate omega_d = m (1 - C) Omega. With
+// Omega = 0 the drift vanishes and the 2l+1 components are degenerate (one
+// frequency, a pattern that pulses in place). Rotation lifts the drift: prograde
+// (m>0) and retrograde (m<0) patterns march in opposite senses, and that drift IS
+// the observed splitting delta_nu = m (1 - C) Omega. The Coriolis force supplies
+// the -mC Omega part (slower for g modes, C = 1/l(l+1)); rigid advection supplies
+// the +m Omega part (the dashed comb in the spectrum).
+const OMEGA_P = 2.0;      // visible non-radial pulsation rate (rad/s)
+const SPLIT_VIS = 0.8;    // visual scale of the rotational azimuthal drift
+const AMP = 0.17;         // exaggerated radial surface displacement (fraction of R)
+const INC = 0.46, ROLL = 0.30;                                  // viewing tilt of the rotation axis
+const cI = Math.cos(INC), sI = Math.sin(INC), cR = Math.cos(ROLL), sR = Math.sin(ROLL);
+const LX = -0.32, LY = 0.46, LZ = 0.83;                         // light direction (upper-left, toward viewer)
+const NTH = 24, NPH = 48;                                       // surface mesh resolution
+const MESH = { sinT: [], cosT: [], sinP: [], cosP: [] };
+(function buildMesh() {
+  for (let i = 0; i <= NTH; i += 1) { const th = Math.PI * i / NTH; MESH.sinT.push(Math.sin(th)); MESH.cosT.push(Math.cos(th)); }
+  for (let j = 0; j <= NPH; j += 1) { const ph = 2 * Math.PI * j / NPH; MESH.sinP.push(Math.sin(ph)); MESH.cosP.push(Math.cos(ph)); }
+})();
+// Rotate a model point (rotation axis = +y) into view space: tip by INC about the
+// screen x axis (so a pole leans toward the viewer), then roll by ROLL in the screen.
+function toView(x, y, z) {
+  const y1 = y * cI - z * sI, z1 = y * sI + z * cI;
+  return [x * cR - y1 * sR, x * sR + y1 * cR, z1];           // [X right, Y up, Z toward viewer]
+}
 const st = { Omega: 0.5, l: 2, m: 2, isG: false, t: 0 };
 let running = true, last = performance.now();
 
@@ -75,58 +95,89 @@ selM.addEventListener('change', () => { st.isG = selM.value === 'g'; if (!runnin
 btnR.addEventListener('click', () => { st.Omega = 0.5; st.l = 2; st.m = 2; st.isG = false; st.t = 0; sO.value = '0.5'; sL.value = '2'; selM.value = 'p'; vO.textContent = '0.50'; vL.textContent = '2'; populateAz(); recomputeNorm(); running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); startLoop(); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); startLoop(); });
 
-const TILT = 0.5, cT = Math.cos(TILT), sT = Math.sin(TILT);
-
-// Surface radial-displacement amplitude of the (l, m) mode at a point on the
-// sphere whose unit normal projects to (nx, ny, nz), at time t. The temporal
-// factor cos(m*phi - omega_m*t) makes a fixed point oscillate at omega_m: the
-// surface visibly moves out (red) and in (blue), and the m pattern travels in
-// azimuth, prograde or retrograde according to the rotational splitting.
-function modeAmp(l, m, omega_m, nx, ny, nz, t) {
-  const cterm = clamp(ny * cT + nz * sT, -1, 1);                 // cos(colatitude) about tilted axis
-  const phi = Math.atan2(ny * sT - nz * cT, nx);                 // longitude about tilted axis
-  return (plm(l, m, cterm) / plmNorm) * Math.cos(m * phi - omega_m * t);
-}
+// The (l, m) surface displacement amplitude on the tilted sphere, separated into a
+// standing pulsation cos(omega_p t) and an azimuthal drift omega_d that rotation adds.
+function ampAt(Pi, cosAz) { return Pi * cosAz; }
 
 function drawMode(cx, cy, RST, t) {
-  const l = st.l, m = st.m, C = ledoux(l, st.isG);
-  const omega_m = OMEGA_BASE + m * (1 - C) * st.Omega * SPLIT_VIS;   // mode frequency incl. rotational shift
-  const step = Math.max(3, Math.round(RST / 64));
-  for (let py = -RST; py <= RST; py += step) {
-    for (let px = -RST; px <= RST; px += step) {
-      const nx = px / RST, ny = -py / RST, rr = nx * nx + ny * ny;   // ny up
-      if (rr > 1) continue;
-      const nz = Math.sqrt(1 - rr);
-      const A = modeAmp(l, m, omega_m, nx, ny, nz, t);              // -1..1, oscillating in time
-      const limb = 0.30 + 0.70 * nz;
-      const a = clamp(A, -1, 1);
-      let r, g, b;
-      if (a >= 0) { r = (40 + 215 * a) * limb; g = (44 + 110 * a) * limb; b = (52 + 18 * a) * limb; }
-      else { const mm = -a; r = (40 + 20 * mm) * limb; g = (44 + 120 * mm) * limb; b = (52 + 200 * mm) * limb; }
-      ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
-      ctx.fillRect(cx + px, cy + py, step, step);
+  const l = st.l, m = st.m, k = Math.abs(m), C = ledoux(l, st.isG);
+  const omega_d = m * (1 - C) * st.Omega * SPLIT_VIS;           // signed azimuthal drift (the splitting)
+  const cosPulse = Math.cos(OMEGA_P * t);                        // standing non-radial pulsation
+  const drift = omega_d * t;
+  // Per-colatitude Legendre row P_l^|m|(cos theta), normalised to unit peak.
+  const Prow = new Array(NTH + 1);
+  for (let i = 0; i <= NTH; i += 1) Prow[i] = plm(l, m, MESH.cosT[i]) / plmNorm;
+  // Displace every mesh vertex radially by the mode and transform to view space.
+  const VX = new Array((NTH + 1) * (NPH + 1)), VY = new Array(VX.length), VZ = new Array(VX.length), VA = new Array(VX.length);
+  for (let i = 0; i <= NTH; i += 1) {
+    const sT = MESH.sinT[i], cTh = MESH.cosT[i], Pi = Prow[i];
+    for (let j = 0; j <= NPH; j += 1) {
+      const idx = i * (NPH + 1) + j;
+      const A = ampAt(Pi, Math.cos(k * (2 * Math.PI * j / NPH) - drift)) * cosPulse;   // -1..1
+      const rho = 1 + AMP * A;
+      const x = rho * sT * MESH.cosP[j], y = rho * cTh, z = rho * sT * MESH.sinP[j];
+      const v = toView(x, y, z); VX[idx] = v[0]; VY[idx] = v[1]; VZ[idx] = v[2]; VA[idx] = A;
     }
   }
-  // Oscillating deformed limb: the surface bulges out and in by the mode, so the
-  // non-radial pulsation is visible on the outline (radius perturbed by LIMB_AMP).
-  ctx.strokeStyle = 'rgba(255,210,150,0.85)'; ctx.lineWidth = 1.6; ctx.beginPath();
-  for (let k = 0; k <= 96; k += 1) {
-    const psi = k / 96 * 2 * Math.PI, nx = Math.cos(psi), ny = Math.sin(psi);
-    const amp = modeAmp(l, m, omega_m, nx, ny, 0, t);            // limb point (nz ~ 0)
-    const rr = RST * (1 + LIMB_AMP * amp);
-    const X = cx + rr * nx, Y = cy - rr * ny;
-    k === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+  // Build front-facing quads, depth-sort (painter's), shade by surface normal and
+  // colour by displacement: warm where the surface bulges out, cool where it caves in.
+  const quads = [];
+  for (let i = 0; i < NTH; i += 1) {
+    for (let j = 0; j < NPH; j += 1) {
+      const a = i * (NPH + 1) + j, b = i * (NPH + 1) + (j + 1), c = (i + 1) * (NPH + 1) + (j + 1), d = (i + 1) * (NPH + 1) + j;
+      const ccx = (VX[a] + VX[b] + VX[c] + VX[d]) / 4, ccy = (VY[a] + VY[b] + VY[c] + VY[d]) / 4, ccz = (VZ[a] + VZ[b] + VZ[c] + VZ[d]) / 4;
+      if (ccz <= 0) continue;                                    // cull the far hemisphere
+      let nx = (VY[b] - VY[a]) * (VZ[d] - VZ[a]) - (VZ[b] - VZ[a]) * (VY[d] - VY[a]);
+      let ny = (VZ[b] - VZ[a]) * (VX[d] - VX[a]) - (VX[b] - VX[a]) * (VZ[d] - VZ[a]);
+      let nz = (VX[b] - VX[a]) * (VY[d] - VY[a]) - (VY[b] - VY[a]) * (VX[d] - VX[a]);
+      if (nx * ccx + ny * ccy + nz * ccz < 0) { nx = -nx; ny = -ny; nz = -nz; }   // outward
+      const nl = Math.hypot(nx, ny, nz) || 1;
+      const diff = Math.max(0, (nx * LX + ny * LY + nz * LZ) / nl);
+      const shade = clamp(0.32 + 0.78 * diff, 0, 1.18);
+      const A = (VA[a] + VA[b] + VA[c] + VA[d]) / 4;
+      quads.push({ z: ccz, a, b, c, d, shade, A });
+    }
   }
-  ctx.closePath(); ctx.stroke();
-  // rotation axis (tilted) + spin sense.
-  ctx.strokeStyle = 'rgba(220,225,235,0.6)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
-  ctx.beginPath(); ctx.moveTo(cx - sT * (RST + 16), cy - cT * (RST + 16)); ctx.lineTo(cx + sT * (RST + 16), cy + cT * (RST + 16)); ctx.stroke(); ctx.setLineDash([]);
+  quads.sort((p, q) => p.z - q.z);
+  for (const q of quads) {
+    const t2 = clamp(Math.abs(q.A), 0, 1), sm = t2 * t2 * (3 - 2 * t2);
+    let r, g, bl;
+    if (q.A >= 0) { r = 222 + (255 - 222) * sm; g = 196 - (196 - 132) * sm; bl = 158 - (158 - 78) * sm; }
+    else { r = 222 - (222 - 96) * sm; g = 196 - (196 - 168) * sm; bl = 158 + (255 - 158) * sm; }
+    const col = `rgb(${(r * q.shade) | 0},${(g * q.shade) | 0},${(bl * q.shade) | 0})`;
+    ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx + RST * VX[q.a], cy - RST * VY[q.a]);
+    ctx.lineTo(cx + RST * VX[q.b], cy - RST * VY[q.b]);
+    ctx.lineTo(cx + RST * VX[q.c], cy - RST * VY[q.c]);
+    ctx.lineTo(cx + RST * VX[q.d], cy - RST * VY[q.d]);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  // Rotation axis through the poles, drawn behind/front by depth, with N/S markers
+  // and a curved spin arrow: this is the axis the m pattern drifts around.
+  const np = toView(0, 1.34, 0), sp = toView(0, -1.34, 0);
+  ctx.strokeStyle = 'rgba(150,200,255,0.85)'; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(cx + RST * sp[0], cy - RST * sp[1]); ctx.lineTo(cx + RST * np[0], cy - RST * np[1]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(150,200,255,0.95)'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'center'; ctx.fillText('Ω', cx + RST * np[0], cy - RST * np[1] - 8);
+  // equatorial drift arrow: direction = prograde/retrograde, length ~ |m(1-C)Ω|.
+  if (st.Omega > 0 && m !== 0) {
+    const dir = Math.sign(omega_d);
+    const eq = []; for (let a = -0.6; a <= 0.6; a += 0.08) { const ang = dir > 0 ? a : -a; eq.push(toView(Math.cos(ang) * 1.16, 0, Math.sin(ang) * 1.16)); }
+    ctx.strokeStyle = m > 0 ? '#ff9f43' : '#4cc9f0'; ctx.lineWidth = 2.2; ctx.beginPath();
+    eq.forEach((p, i) => { const X = cx + RST * p[0], Y = cy - RST * p[1]; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+    const tip = eq[eq.length - 1], pen = eq[eq.length - 2];
+    const ax = tip[0] - pen[0], ay = -(tip[1] - pen[1]); const al = Math.hypot(ax, ay) || 1; const ux = ax / al, uy = ay / al;
+    const TX = cx + RST * tip[0], TY = cy - RST * tip[1];
+    ctx.fillStyle = m > 0 ? '#ff9f43' : '#4cc9f0'; ctx.beginPath(); ctx.moveTo(TX, TY);
+    ctx.lineTo(TX - 9 * ux + 5 * uy, TY + 9 * uy + 5 * ux); ctx.lineTo(TX - 9 * ux - 5 * uy, TY + 9 * uy - 5 * ux); ctx.closePath(); ctx.fill();
+  }
   ctx.fillStyle = '#dcdde2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`ℓ=${l}, m=${m > 0 ? '+' + m : m}, ${st.isG ? 'g' : 'p'}-mode`, cx, cy + RST + 26);
   const sense = m === 0 ? 'm=0 zonal: pulsates in place, unshifted by rotation'
-    : (m > 0 ? 'prograde wave' : 'retrograde wave') + (st.Omega > 0 ? ', advected by rotation' : '');
+    : (m > 0 ? 'prograde drift' : 'retrograde drift') + `: pattern circles the axis at m(1−C)Ω`;
   ctx.fillStyle = m > 0 ? '#ff9f43' : m < 0 ? '#4cc9f0' : '#9aa0a6';
-  ctx.fillText(st.Omega > 0 ? sense : 'Ω = 0: 2ℓ+1 components degenerate (one frequency)', cx, cy + RST + 44);
+  ctx.fillText(st.Omega > 0 ? sense : 'Ω = 0: pulsates in place, 2ℓ+1 components degenerate', cx, cy + RST + 44);
   ctx.textAlign = 'left';
 }
 
