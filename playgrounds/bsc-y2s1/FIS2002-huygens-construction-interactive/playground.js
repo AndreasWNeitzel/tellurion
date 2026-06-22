@@ -43,8 +43,10 @@ function rebuild() {
 rebuild();
 
 // geometry
-const FX = 16, FY = 16, FPX = 560, CELL = FPX / GN;
-const PX = 596, PW = 256, PY = 210, PH = 330;
+// Portrait stack: square wavefront scene on top, profile plot full-width below.
+const FPX = Math.min(canvas.width - 40, Math.round(canvas.height * 0.5));
+const FX = Math.round((canvas.width - FPX) / 2), FY = 20, CELL = FPX / GN;
+const PX = 60, PW = canvas.width - 120, PY = FY + FPX + 40, PH = canvas.height - (FY + FPX + 40) - 34;
 const wx = (X) => FX + (X / WX) * FPX;
 const wy = (Y) => FY + ((Y + WY) / (2 * WY)) * FPX;
 

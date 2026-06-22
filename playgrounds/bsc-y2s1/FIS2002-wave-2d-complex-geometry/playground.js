@@ -53,8 +53,10 @@ function rebuild(toStep = st.nstep) {
 }
 
 // geometry
-const FX = 16, FY = 16, FPX = 560, CELL = FPX / N;
-const PX = 596, PW = 256, PY = 214, PH = 326;
+// Portrait stack: square 2D-wave scene on top, screen-profile plot full-width below.
+const FPX = Math.min(canvas.width - 40, Math.round(canvas.height * 0.5));
+const FX = Math.round((canvas.width - FPX) / 2), FY = 20, CELL = FPX / N;
+const PX = 60, PW = canvas.width - 120, PY = FY + FPX + 40, PH = canvas.height - (FY + FPX + 40) - 34;
 
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, canvas.width, canvas.height);

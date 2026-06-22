@@ -64,8 +64,10 @@ function rebuild(toStep = st.nstep) {
 }
 
 // geometry
-const FX = 16, FY = 16, FPX = 560, CELL = FPX / GN;
-const PX = 596, PW = 256, PY = 212, PH = 330;
+// Portrait stack: square wave-field scene on top, dispersion plot full-width below.
+const FPX = Math.min(canvas.width - 40, Math.round(canvas.height * 0.5));
+const FX = Math.round((canvas.width - FPX) / 2), FY = 20, CELL = FPX / GN;
+const PX = 60, PW = canvas.width - 120, PY = FY + FPX + 40, PH = canvas.height - (FY + FPX + 40) - 34;
 let imgData = new ImageData(GN, GN);
 const off = document.createElement('canvas'); off.width = GN; off.height = GN;
 const offCtx = off.getContext('2d');

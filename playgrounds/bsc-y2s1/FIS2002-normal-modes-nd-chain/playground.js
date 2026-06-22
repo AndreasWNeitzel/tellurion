@@ -44,8 +44,9 @@ function modeInfo() {
 function modeMax() { return st.lattice === 'monatomic' ? st.N : 2 * Math.max(1, Math.floor(st.N / 2)); }
 
 // geometry
-const CHX = 40, CHY = 60, CHW = 636, CHH = 250;          // chain band (ends clear of the top-right HUD)
-const PXX = 40, PXY = 372, PXW = 470, PXH = 196;         // dispersion panel
+// Portrait stack: chain band on top, dispersion panel full-width below.
+const CHX = 40, CHY = 70, CHW = canvas.width - 80, CHH = Math.round(canvas.height * 0.33);          // chain band
+const PXX = 40, PXY = CHY + CHH + 56, PXW = canvas.width - 80, PXH = canvas.height - (CHY + CHH + 56) - 46;         // dispersion panel
 const LGX = 540, LGW = 300;                              // legend / mode info
 
 function omegaOf() {
