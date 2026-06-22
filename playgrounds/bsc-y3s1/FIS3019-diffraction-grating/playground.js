@@ -8,6 +8,7 @@
 
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { envelope, intensity, orders, resolvingPower, wavelengthRGB } from './sim.js';
 
 const params = new URLSearchParams(location.search);
@@ -28,10 +29,26 @@ function aw() { return st.d * 0.3; } // slit width
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.22 }, { name: 'diag', weight: 1.0 }]); }
 function syncVals() { sN.value = st.N; vN.textContent = `${st.N}`; sD.value = st.d; vD.textContent = `${st.d.toFixed(1)} um`; sL.value = st.lam; vL.textContent = `${(st.lam * 1000).toFixed(0)} nm`; }
-btnReset.addEventListener('click', () => { Object.assign(st, DEF); syncVals(); });
-sN.addEventListener('input', () => { st.N = +sN.value; syncVals(); });
-sD.addEventListener('input', () => { st.d = +sD.value; syncVals(); });
-sL.addEventListener('input', () => { st.lam = +sL.value; syncVals(); });
+
+// Auto-sweep the wavelength across the visible band so dispersion plays on
+// load: the orders slide out (d sin theta = m lambda) and the strip changes
+// colour. Any control input pauses it; reset restarts.
+let playing = false, raf = 0, lamDir = 1, last = 0;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  st.lam += lamDir * dt * 0.045;                          // ~13 s round trip over 400-700 nm
+  if (st.lam >= 0.70) { st.lam = 0.70; lamDir = -1; } else if (st.lam <= 0.40) { st.lam = 0.40; lamDir = 1; }
+  syncVals(); render();
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) { playing = on; if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+function pause() { if (playing) setPlaying(false); }
+
+btnReset.addEventListener('click', () => { Object.assign(st, DEF); syncVals(); if (!prefersReducedMotion()) setPlaying(true); else render(); });
+sN.addEventListener('input', () => { pause(); st.N = +sN.value; syncVals(); render(); });
+sD.addEventListener('input', () => { pause(); st.d = +sD.value; syncVals(); render(); });
+sL.addEventListener('input', () => { pause(); st.lam = +sL.value; syncVals(); render(); });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', axis: 'rgba(255,255,255,0.28)', curve: '#e8e8e8', env: 'rgba(255,157,60,0.6)', cursor: '#8de08a' };
@@ -96,7 +113,7 @@ function render() {
 
 let drag = false;
 function ptr(e) { const rect = canvas.getBoundingClientRect(); return [(e.clientX - rect.left) * (view.w / rect.width), (e.clientY - rect.top) * (view.h / rect.height)]; }
-canvas.addEventListener('pointerdown', (e) => { const sc = REG.scene; const [sx, sy] = ptr(e); if (sy < sc.y || sy > sc.y + sc.h) return; const inx = sc.x + 18, inw = sc.w - 36; drag = true; st.cursor = Math.max(-1, Math.min(1, -1 + 2 * (sx - inx) / inw)); render(); });
+canvas.addEventListener('pointerdown', (e) => { const sc = REG.scene; const [sx, sy] = ptr(e); if (sy < sc.y || sy > sc.y + sc.h) return; pause(); const inx = sc.x + 18, inw = sc.w - 36; drag = true; st.cursor = Math.max(-1, Math.min(1, -1 + 2 * (sx - inx) / inw)); render(); });
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; const sc = REG.scene; const [sx] = ptr(e); const inx = sc.x + 18, inw = sc.w - 36; st.cursor = Math.max(-1, Math.min(1, -1 + 2 * (sx - inx) / inw)); render(); });
 window.addEventListener('pointerup', () => { drag = false; });
 
@@ -106,6 +123,7 @@ function boot() {
   if (params.get('l')) st.lam = Math.max(0.4, Math.min(0.7, +params.get('l')));
   syncVals(); relayout(); render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  else if (!prefersReducedMotion()) setPlaying(true);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });

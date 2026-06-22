@@ -11,6 +11,7 @@ import {
   occ, gDOS, numberIntegral, fermiEnergy, tauC, solveMu,
   condensateFraction, NTOT,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -32,10 +33,13 @@ const bCool = document.getElementById('btn-cool'), bR = document.getElementById(
 
 const EF = fermiEnergy(), TC = tauC();
 const TAU_HOT = 2.0, TAU_COLD = 0.12;
-const st = { tau: 0.9, stat: 'all', occupied: true, cooling: false };
+const st = { tau: 0.9, stat: 'all', occupied: true, cooling: false, auto: false };
 
-// plot box (curves) on the left, cells cartoon on the right
-const PX0 = 205, PX1 = W - 210, PY0 = 40, PY1 = H - 50;
+// Portrait composition: wide occupation curves across the top, the
+// occupation-cells cartoon full width below (was a tall 405 px curve
+// column with the cells crammed into a narrow right strip).
+const PX0 = 70, PX1 = W - 24, PY0 = 70, PY1 = 500;
+const CELLS = { x0: 70, x1: W - 24, y0: 566, y1: 968 };
 const EMAX = 3.2;
 const xOf = (e) => PX0 + (e / EMAX) * (PX1 - PX0);
 let NMAX = 1.2;
@@ -76,7 +80,8 @@ function cellEnergies() {
 function drawCells(tau) {
   const stats = st.stat === 'all' ? ['MB', 'FD', 'BE'] : [st.stat];
   const es = cellEnergies();
-  const XC0 = PX1 + 22, XC1 = W - 12, region = XC1 - XC0;
+  const XC0 = CELLS.x0, XC1 = CELLS.x1, region = XC1 - XC0;
+  const CY0 = CELLS.y0, CY1 = CELLS.y1;
   const colW = region / stats.length, dotsMax = stats.length === 1 ? 8 : 5;
 
   // shared scale: the largest finite occupied weight across every
@@ -94,16 +99,14 @@ function drawCells(tau) {
   }
 
   ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.fillStyle = COL.axis; ctx.textAlign = 'center';
-  ctx.fillText('occupation cells', (XC0 + XC1) / 2, 18);
-  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = 'rgba(150,160,180,0.62)';
-  ctx.fillText('row eps_k, dot = particle', (XC0 + XC1) / 2, PY1 + 44);
+  ctx.fillText('occupation cells  (row eps_k, dot = particle)', (XC0 + XC1) / 2, CY0 - 12);
 
   stats.forEach((s, ci) => {
     const cx0 = XC0 + ci * colW;
     ctx.fillStyle = COL[s]; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'center';
-    ctx.fillText(s, cx0 + colW / 2, PY0 - 6);
+    ctx.fillText(s, cx0 + colW / 2, CY0 + 8);
     for (let k = 0; k < CELL_LV; k += 1) {
-      const y = PY1 - (k / (CELL_LV - 1)) * (PY1 - PY0);
+      const y = CY1 - (k / (CELL_LV - 1)) * (CY1 - CY0);
       ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(cx0 + 4, y); ctx.lineTo(cx0 + colW - 6, y); ctx.stroke();
       const dots = Math.max(0, Math.min(dotsMax, Math.round(dotsMax * wgt[s][k] / scale)));
@@ -115,7 +118,7 @@ function drawCells(tau) {
     }
     // E_F level marker on the Fermi column
     if (s === 'FD') {
-      const yF = PY1 - (EF / EMAX) * (PY1 - PY0);
+      const yF = CY1 - (EF / EMAX) * (CY1 - CY0);
       ctx.strokeStyle = 'rgba(91,192,235,0.7)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(cx0 + 2, yF); ctx.lineTo(cx0 + colW - 4, yF); ctx.stroke(); ctx.setLineDash([]);
     }
@@ -123,9 +126,9 @@ function drawCells(tau) {
     if (s === 'BE' && tau < TC) {
       const cf = condensateFraction(tau);
       ctx.fillStyle = COL.BE; ctx.font = fontString(canvas, 'tick', 'mono', 600); ctx.textAlign = 'center';
-      ctx.fillText('BEC ground', cx0 + colW / 2, PY1 + 18);
-      ctx.fillRect(cx0 + 4, PY1 + 24, (colW - 10) * cf, 9);
-      ctx.strokeStyle = COL.axis; ctx.lineWidth = 1; ctx.strokeRect(cx0 + 4, PY1 + 24, colW - 10, 9);
+      ctx.fillText('BEC ground', cx0 + colW / 2, CY1 + 18);
+      ctx.fillRect(cx0 + 4, CY1 + 24, (colW - 10) * cf, 9);
+      ctx.strokeStyle = COL.axis; ctx.lineWidth = 1; ctx.strokeRect(cx0 + 4, CY1 + 24, colW - 10, 9);
     }
   });
 }
@@ -151,7 +154,7 @@ function render() {
   ctx.strokeStyle = COL.axis; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
   ctx.fillStyle = COL.axis; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'center'; ctx.fillText('energy  eps', (PX0 + PX1) / 2, H - 16);
+  ctx.textAlign = 'center'; ctx.fillText('energy  eps', (PX0 + PX1) / 2, PY1 + 40);
   ctx.save(); ctx.translate(22, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText(st.occupied ? 'occupied  g(eps) n(eps)' : 'occupation  n(eps)', 0, 0); ctx.restore();
   ctx.textAlign = 'right';
@@ -225,22 +228,30 @@ function render() {
 }
 
 let lastT = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+let autoDir = -1;       // -1 = cooling (tau falling), +1 = warming
 function tick(now) {
   const dt = Math.min((now - lastT) / 1000, 0.05); lastT = now;
   if (st.cooling) {
     st.tau -= dt * 0.35;
     if (st.tau <= TAU_COLD) { st.tau = TAU_COLD; st.cooling = false; bCool.textContent = 'Cool through Tc'; }
     sT.value = String(st.tau);
+  } else if (st.auto) {
+    // Loop the cooling/warming sweep so the gas crosses Tc back and forth
+    // on load: the BEC spike grows below Tc and melts above it.
+    st.tau += autoDir * dt * 0.30;
+    if (st.tau <= TAU_COLD) { st.tau = TAU_COLD; autoDir = 1; }
+    else if (st.tau >= TAU_HOT) { st.tau = TAU_HOT; autoDir = -1; }
+    sT.value = String(st.tau);
   }
   render();
   requestAnimationFrame(tick);
 }
 
-sT.addEventListener('input', () => { st.tau = parseFloat(sT.value); st.cooling = false; bCool.textContent = 'Cool through Tc'; render(); });
+sT.addEventListener('input', () => { st.tau = parseFloat(sT.value); st.cooling = false; st.auto = false; bCool.textContent = 'Cool through Tc'; render(); });
 selS.addEventListener('change', () => { st.stat = selS.value; render(); });
 tgOcc.addEventListener('change', () => { st.occupied = tgOcc.checked; render(); });
-bCool.addEventListener('click', () => { st.cooling = !st.cooling; if (st.cooling && st.tau <= TAU_COLD + 1e-6) st.tau = TAU_HOT; bCool.textContent = st.cooling ? 'Stop' : 'Cool through Tc'; });
-bR.addEventListener('click', () => { st.tau = 0.9; st.stat = 'all'; st.occupied = true; st.cooling = false; selS.value = 'all'; tgOcc.checked = true; sT.value = '0.9'; bCool.textContent = 'Cool through Tc'; render(); });
+bCool.addEventListener('click', () => { st.auto = false; st.cooling = !st.cooling; if (st.cooling && st.tau <= TAU_COLD + 1e-6) st.tau = TAU_HOT; bCool.textContent = st.cooling ? 'Stop' : 'Cool through Tc'; });
+bR.addEventListener('click', () => { st.tau = 0.9; st.stat = 'all'; st.occupied = true; st.cooling = false; st.auto = !prefersReducedMotion(); selS.value = 'all'; tgOcc.checked = true; sT.value = '0.9'; bCool.textContent = 'Cool through Tc'; render(); });
 
 function bootSync() {
   vT.textContent = st.tau.toFixed(2);
@@ -248,6 +259,8 @@ function bootSync() {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     st.tau = TAU_HOT + f * (TAU_COLD - TAU_HOT);     // hot to cold sweep across Tc
     sT.value = String(st.tau);
+  } else if (!prefersReducedMotion()) {
+    st.auto = true;                                  // loop the cooling sweep on load
   }
   render();
   if (DETERMINISTIC) {

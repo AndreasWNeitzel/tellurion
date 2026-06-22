@@ -236,15 +236,34 @@ function pointerToParams(e) {
   const u = Math.max(0.001, Math.min(0.999, uOfX(px)));
   return { K: kOfU(u), h: Math.max(-1.5, Math.min(1.5, hOfY(py))) };
 }
-canvas.addEventListener('pointerdown', (e) => { const p = pointerToParams(e); if (p) { dragging = true; setStart(p.K, p.h); } });
+canvas.addEventListener('pointerdown', (e) => { const p = pointerToParams(e); if (p) { auto = false; dragging = true; setStart(p.K, p.h); } });
 canvas.addEventListener('pointermove', (e) => { if (!dragging) return; const p = pointerToParams(e); if (p) setStart(p.K, p.h); });
 window.addEventListener('pointerup', () => { dragging = false; });
 
-sK.addEventListener('input', () => { st.K0 = parseFloat(sK.value); vK.textContent = st.K0.toFixed(2); render(); });
-sH.addEventListener('input', () => { st.h0 = parseFloat(sH.value); vH.textContent = st.h0.toFixed(2); render(); });
-sN.addEventListener('input', () => { st.N = parseInt(sN.value, 10); vN.textContent = String(st.N); render(); });
-selV.addEventListener('change', () => { st.view = selV.value; render(); });
-bR.addEventListener('click', () => { st.view = 'flow'; selV.value = 'flow'; setStart(3.0, 0.0); st.N = 9; sN.value = '9'; vN.textContent = '9'; render(); });
+sK.addEventListener('input', () => { auto = false; st.K0 = parseFloat(sK.value); vK.textContent = st.K0.toFixed(2); render(); });
+sH.addEventListener('input', () => { auto = false; st.h0 = parseFloat(sH.value); vH.textContent = st.h0.toFixed(2); render(); });
+sN.addEventListener('input', () => { auto = false; st.N = parseInt(sN.value, 10); vN.textContent = String(st.N); render(); });
+selV.addEventListener('change', () => { st.view = selV.value; render(); });   // sweep continues across views
+bR.addEventListener('click', () => { st.view = 'flow'; selV.value = 'flow'; setStart(3.0, 0.0); st.N = 9; sN.value = '9'; vN.textContent = '9'; auto = !prefersReducedMotion(); stepF = st.N; render(); });
+
+// Auto-sweep the RG step count so the cascade marches into the disordered
+// sink and back on load (the coupling renormalizing toward K* = 0), in
+// whichever view is shown. Any direct input (drag, K/h/N sliders) pauses it.
+let auto = false, stepF = 9, stepDir = 1, lastT = 0;
+const N_SWEEP_MAX = 12;
+function frame(now) {
+  if (auto) {
+    const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+    stepF += stepDir * dt * 1.5;                          // RG steps per second
+    if (stepF >= N_SWEEP_MAX) { stepF = N_SWEEP_MAX; stepDir = -1; }
+    else if (stepF <= 1) { stepF = 1; stepDir = 1; }
+    const n = Math.round(stepF);
+    if (n !== st.N) { st.N = n; sN.value = String(n); vN.textContent = String(n); }
+  }
+  lastT = now;
+  render();
+  requestAnimationFrame(frame);
+}
 
 function bootSync() {
   vK.textContent = st.K0.toFixed(2); vH.textContent = st.h0.toFixed(2); vN.textContent = String(st.N);
@@ -252,6 +271,8 @@ function bootSync() {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     st.N = Math.round(f * 14);            // the trajectory marches into the sink
     sN.value = String(st.N);
+  } else if (!prefersReducedMotion()) {
+    auto = true; stepF = st.N;
   }
   render();
   if (DETERMINISTIC) {
@@ -263,10 +284,10 @@ function bootSync() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(function loop() { render(); requestAnimationFrame(loop); }); }, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(frame); }, { once: true });
 } else {
   bootSync();
-  if (!CAPTURE_NAME) requestAnimationFrame(function loop() { render(); requestAnimationFrame(loop); });
+  if (!CAPTURE_NAME) requestAnimationFrame(frame);
 }
 
 

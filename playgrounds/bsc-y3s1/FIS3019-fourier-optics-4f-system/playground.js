@@ -38,8 +38,12 @@ let diagThru = 0;   // latest power throughput (image/object), updated each rend
 // 4f system), so the control is hidden there rather than left inert.
 function applyVis() { rowRc.style.display = st.filter === 'none' ? 'none' : ''; }
 
-const PANE = 232, GAP = 16, TOP = 40;
-const X0 = 24, X1 = X0 + PANE + GAP, X2 = X1 + PANE + GAP;
+// Portrait composition: the object -> Fourier -> image row across the top,
+// a central line-profile comparison (object vs filtered image) filling the
+// lower half (was a 232 px row at y=40 with the bottom two thirds empty).
+const PANE = 248, GAP = 13, TOP = 84;
+const X0 = Math.round((W - (3 * PANE + 2 * GAP)) / 2), X1 = X0 + PANE + GAP, X2 = X1 + PANE + GAP;
+const PROF = { x: 64, y: TOP + PANE + 120, w: W - 128, h: 420 };
 
 const off = document.createElement('canvas'); off.width = N; off.height = N;
 const offCtx = off.getContext('2d');
@@ -79,6 +83,38 @@ function label(x0, text) {
   ctx.fillText(text, x0 + PANE / 2, TOP - 12);
 }
 
+// Central horizontal cut through the object and the filtered image, so the
+// effect of the spatial filter on the signal is read quantitatively: a
+// low-pass smooths the profile, a high-pass leaves only the edges.
+function drawProfile(obj, image) {
+  const { x, y, w, h } = PROF;
+  const j = (N >> 1) * N;
+  let omax = 1e-12, imax = 1e-12;
+  for (let i = 0; i < N; i += 1) { if (obj[j + i] > omax) omax = obj[j + i]; if (image[j + i] > imax) imax = image[j + i]; }
+
+  ctx.fillStyle = 'rgba(91,192,235,0.04)'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('central line profile  (each normalised to its own peak)', x + 8, y - 9);
+
+  const PX = (i) => x + 6 + i / (N - 1) * (w - 12);
+  const PY = (v) => y + h - 10 - v * (h - 28);
+  const curve = (arr, mx, color) => {
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i < N; i += 1) { const px = PX(i), py = PY(arr[j + i] / mx); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+    ctx.stroke();
+  };
+  curve(obj, omax, 'rgba(150,160,180,0.85)');
+  curve(image, imax, '#5bc0eb');
+
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.fillText('object', x + w - 150, y + 18);
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText('filtered image', x + w - 150, y + 36);
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center';
+  ctx.fillText('x (object plane)', x + w / 2, y + h + 16);
+}
+
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   const obj = makeObject(st.object, N);
@@ -95,21 +131,43 @@ function render() {
   ctx.fillText('lens 1: FFT', X0 + PANE + GAP / 2, TOP + PANE + 18);
   ctx.fillText('lens 2: FFT^-1', X1 + PANE + GAP / 2, TOP + PANE + 18);
 
+  drawProfile(obj, image);
+
   let so = 0, si = 0, sd = 0;
   for (let i = 0; i < N * N; i += 1) { so += obj[i] * obj[i]; si += image[i]; sd += (image[i] - obj[i] * obj[i]) ** 2; }
   rFilter.textContent = st.filter;
-  rRc.textContent = st.filter === 'none' ? 'n/a' : String(st.rc);
+  rRc.textContent = st.filter === 'none' ? 'n/a' : String(Math.round(st.rc));
   diagThru = si / (so || 1);
   rThru.textContent = diagThru.toFixed(3);
   rRms.textContent = Math.sqrt(sd / (N * N)).toExponential(1);
 }
 
-selO.addEventListener('change', () => { st.object = selO.value; render(); });
-selF.addEventListener('change', () => { st.filter = selF.value; applyVis(); render(); });
-sRc.addEventListener('input', () => { st.rc = parseInt(sRc.value, 10); vRc.textContent = String(st.rc); render(); });
+// Auto-sweep the filter cutoff so the spatial-filtering effect plays on
+// load: the aperture on the Fourier plane opens and closes and the image
+// sharpens or blurs in step. Any control input pauses it.
+let playing = false, raf = 0, rcDir = 1, last = 0;
+function animate(now) {
+  if (!playing) return;
+  if (st.filter !== 'none') {
+    const dt = Math.min(0.05, (now - last) / 1000 || 0);
+    st.rc += rcDir * dt * 8.5;                            // ~5 s each way over 2..44 px
+    if (st.rc >= 44) { st.rc = 44; rcDir = -1; } else if (st.rc <= 2) { st.rc = 2; rcDir = 1; }
+    sRc.value = String(Math.round(st.rc)); vRc.textContent = String(Math.round(st.rc));
+    render();
+  }
+  last = now;
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) { playing = on; if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+function pause() { if (playing) setPlaying(false); }
+
+selO.addEventListener('change', () => { pause(); st.object = selO.value; render(); });
+selF.addEventListener('change', () => { pause(); st.filter = selF.value; applyVis(); render(); });
+sRc.addEventListener('input', () => { pause(); st.rc = parseInt(sRc.value, 10); vRc.textContent = String(st.rc); render(); });
 bR.addEventListener('click', () => {
   st.object = 'grating'; st.filter = 'low'; st.rc = 10;
-  selO.value = 'grating'; selF.value = 'low'; sRc.value = '10'; vRc.textContent = '10'; applyVis(); render();
+  selO.value = 'grating'; selF.value = 'low'; sRc.value = '10'; vRc.textContent = '10'; applyVis();
+  if (!prefersReducedMotion()) setPlaying(true); else render();
 });
 
 function bootSync() {
@@ -125,6 +183,8 @@ function bootSync() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     }));
+  } else if (!prefersReducedMotion()) {
+    setPlaying(true);
   }
 }
 

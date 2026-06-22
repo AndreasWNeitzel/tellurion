@@ -8,6 +8,7 @@ import { fontString } from '../../../shared/js/canvas-type.js';
 import {
   airyT, phase, reflFinesse, fsrNm, resolvingPower, resolves, NA_D2,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -171,12 +172,29 @@ function render() {
 }
 
 function syncLabels() { vR.textContent = st.R.toFixed(2); vD.textContent = String(st.d_um); vDL.textContent = st.dl.toFixed(2); }
-sR.addEventListener('input', () => { st.R = parseFloat(sR.value); syncLabels(); render(); });
-sD.addEventListener('input', () => { st.d_um = parseInt(sD.value, 10); syncLabels(); render(); });
-sDL.addEventListener('input', () => { st.dl = parseFloat(sDL.value); syncLabels(); render(); });
+
+// Auto-sweep the mirror reflectance so the finesse story plays on load: the
+// Airy peaks sharpen, the etalon shows more interfering beams, the rings
+// tighten, and the sodium doublet resolves. Any control input pauses it.
+let playing = false, raf = 0, rDir = 1, last = 0;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  st.R += rDir * dt * 0.14;                               // ~6 s each way over 0.1..0.95
+  if (st.R >= 0.95) { st.R = 0.95; rDir = -1; } else if (st.R <= 0.1) { st.R = 0.1; rDir = 1; }
+  sR.value = st.R.toFixed(2); syncLabels(); render();
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) { playing = on; if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+function pause() { if (playing) setPlaying(false); }
+
+sR.addEventListener('input', () => { pause(); st.R = parseFloat(sR.value); syncLabels(); render(); });
+sD.addEventListener('input', () => { pause(); st.d_um = parseInt(sD.value, 10); syncLabels(); render(); });
+sDL.addEventListener('input', () => { pause(); st.dl = parseFloat(sDL.value); syncLabels(); render(); });
 bR.addEventListener('click', () => {
   st.R = 0.6; st.d_um = 80; st.dl = 0.60;
-  sR.value = '0.6'; sD.value = '80'; sDL.value = '0.6'; syncLabels(); render();
+  sR.value = '0.6'; sD.value = '80'; sDL.value = '0.6'; syncLabels();
+  if (!prefersReducedMotion()) setPlaying(true); else render();
 });
 
 function bootSync() {
@@ -193,6 +211,8 @@ function bootSync() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     }));
+  } else if (!prefersReducedMotion()) {
+    setPlaying(true);
   }
 }
 
