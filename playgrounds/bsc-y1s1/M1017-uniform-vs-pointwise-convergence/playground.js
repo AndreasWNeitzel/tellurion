@@ -15,20 +15,19 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnFn = document.getElementById('btn-fn'), vFn = document.getElementById('value-fn');
+const selFn = document.getElementById('select-fn');
 const sN = document.getElementById('s-n'), vN = document.getElementById('v-n');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(FUNCS);
 const st = { fn: 'power', nmax: 30, x0: 0.5 };
 let nShown = 1, supCache = null, supKey = '';
 function fn() { return FUNCS[st.fn]; }
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.3 }, { name: 'diag', weight: 0.92 }]); }
-function syncVals() { vFn.textContent = fn().label; sN.value = st.nmax; vN.textContent = `${st.nmax}`; }
+function syncVals() { selFn.value = st.fn; sN.value = st.nmax; vN.textContent = `${st.nmax}`; }
 function pickFn(k) { st.fn = k; const d = FUNCS[k].dom; st.x0 = (d[0] + d[1]) * 0.4; nShown = 1; supCache = null; syncVals(); }
-btnFn.addEventListener('click', () => { pickFn(KEYS[(KEYS.indexOf(st.fn) + 1) % KEYS.length]); });
+selFn.addEventListener('change', () => { pickFn(selFn.value); });
 btnReset.addEventListener('click', () => { st.nmax = 30; pickFn('power'); });
 sN.addEventListener('input', () => { st.nmax = +sN.value; if (nShown > st.nmax) nShown = 1; supCache = null; syncVals(); });
 
