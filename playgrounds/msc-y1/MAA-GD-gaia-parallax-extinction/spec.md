@@ -40,27 +40,61 @@ references:
 
 # Gaia parallaxes: distance, bias, and extinction
 
+## Explainer
+
+A star's parallax $\varpi$ is the tiny angle its apparent position sweeps as the
+Earth circles the Sun, and it sets the distance directly: $d = 1/\varpi$, with
+$\varpi$ in arcseconds giving $d$ in parsecs. The trouble is that Gaia measures
+$\varpi$ with noise, $\varpi \sim \mathcal{N}(1/d, \sigma)$, and dividing one by a
+noisy number is not innocent. Because $1/\varpi$ is nonlinear, the distance you
+read off is biased and skewed once the fractional error $f = \sigma/\varpi$ stops
+being small, and a noisy draw can even land $\varpi < 0$, where $1/\varpi$ means
+nothing at all.
+
+The honest route to a distance is to ask which distances are probable given this
+measurement. That is Bayes' rule: multiply the Gaussian likelihood of the
+parallax, $\mathcal{N}(\varpi; 1/d, \sigma)$, by a prior on distance, and the
+normalised product is the posterior $p(d \mid \varpi, \sigma)$. The prior matters
+most exactly when the data are weak. A flat prior lets the posterior tail run away
+to absurd distances; the exponentially decreasing space-density prior of
+Bailer-Jones (2015), $\mathrm{prior}(d) \propto d^2 e^{-d/L}$, stays normalisable
+and pulls the tail back, which is why Gaia distance catalogues adopt it. Its
+single scale $L$ fixes where the prior peaks, at $d = 2L$.
+
+The top panel runs both pictures side by side: a live Monte Carlo of the naive
+estimator (draw $\varpi \sim \mathcal{N}(\varpi_\mathrm{obs}, \sigma)$, form
+$1/\varpi$, discard non-positive draws, histogram the rest) against the analytic
+posterior with its 68 percent credible interval. Raise the fractional error and
+the naive histogram grows a long tail toward large distances while the posterior
+stays controlled. The lower panels carry the distance through to an absolute
+magnitude, $M_G = G - 5\log_{10}(d_\mathrm{pc}) + 5 - A_G$, where dust extinction
+$A_G$ adds a second bias, and they sweep the fractional error to show the
+correction is negligible below about 20 percent and severe above it. The example
+stars are real Gaia DR3 measurements; the sliders set a hypothetical parallax and
+error.
+
 ## Physical setup
 
-A measured parallax pi is a noisy estimate of 1/d (d the distance), pi ~
-Normal(1/d, sigma). Inverting it naively, d = 1/pi, is biased because the
-transformation is nonlinear; the proper distance is a Bayesian inference.
+A measured parallax $\varpi$ is a noisy estimate of $1/d$ ($d$ the distance),
+$\varpi \sim \mathcal{N}(1/d, \sigma)$. Inverting it naively, $d = 1/\varpi$, is
+biased because the transformation is nonlinear; the proper distance is a Bayesian
+inference.
 
 ## Equations and method
 
-With parallax in mas and distance in kpc, 1/d (kpc) is the model parallax in mas.
+With parallax in mas and distance in kpc, $1/d$ (kpc) is the model parallax in mas.
 The posterior is
 
-$$ p(d \mid \pi, \sigma) \propto \mathrm{prior}(d)\; \mathcal{N}(\pi; 1/d, \sigma), $$
+$$ p(d \mid \varpi, \sigma) \propto \mathrm{prior}(d)\; \mathcal{N}(\varpi; 1/d, \sigma), $$
 
 with either a flat prior or the exponentially-decreasing space-density prior
 $\mathrm{prior}(d) \propto d^2 e^{-d/L}$ (Bailer-Jones 2015), whose mode is at
 $d = 2L$. The posterior is evaluated on a distance grid adapted to the likelihood
 width (so a sharp, well-measured likelihood and a broad one are both resolved),
 and the mode, median, and 16th/84th percentiles are read off. A live Monte Carlo
-draws pi ~ Normal(pi_obs, sigma), inverts to d = 1/pi, drops non-positive draws,
-and histograms the result, exhibiting the skew and heavy tail of the naive
-estimator. The distance feeds the absolute magnitude
+draws $\varpi \sim \mathcal{N}(\varpi_\mathrm{obs}, \sigma)$, inverts to
+$d = 1/\varpi$, drops non-positive draws, and histograms the result, exhibiting
+the skew and heavy tail of the naive estimator. The distance feeds the absolute magnitude
 $M_G = G - 5\log_{10}(d_\mathrm{pc}) + 5 - A_G$, so neglecting the extinction
 $A_G$ makes the star look intrinsically fainter.
 
@@ -77,7 +111,7 @@ measurements; the parallax and error sliders set a hypothetical measurement.
 
 ## Expected qualitative features
 
-1. The Monte Carlo histogram of 1/pi skews to a heavy tail as the error grows.
+1. The Monte Carlo histogram of $1/\varpi$ skews to a heavy tail as the error grows.
 2. The EDSD posterior tames the tail that a flat prior leaves running away.
 3. The Bayesian correction to the naive distance is small below ~20 percent
    fractional error and grows above it.
@@ -86,7 +120,7 @@ measurements; the parallax and error sliders set a hypothetical measurement.
 
 - The posterior integrates to one over the grid.
 - The 68 percent credible interval brackets the median.
-- The EDSD posterior median differs from the naive 1/pi by a non-trivial amount
+- The EDSD posterior median differs from the naive $1/\varpi$ by a non-trivial amount
   at large fractional error.
 
 ## Citations
