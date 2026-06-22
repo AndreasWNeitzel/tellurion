@@ -11,7 +11,7 @@
 
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
-import { naiveDistanceKpc, posterior, sampleNaive, distanceModulus, absMagG } from './sim.js';
+import { naiveDistanceKpc, posterior, sampleNaive, distanceModulus, absMagG, priorEDSD, priorFlat, likelihood } from './sim.js';
 import { GAIA_STARS } from './data-stars.js';
 
 const params = new URLSearchParams(location.search);
@@ -109,6 +109,20 @@ function drawPosterior(col, r, post) {
       ctx.fillRect(x0, box.y + box.h - h * box.h, w, h * box.h);
     }
   }
+  // prior and likelihood shapes (each normalised to its own peak) so the update
+  // posterior = prior x likelihood is visible: the gold posterior is their product.
+  const pri = post.d.map((d) => (st.prior === 'flat' ? priorFlat() : priorEDSD(d, st.L)));
+  const lik = post.d.map((d) => likelihood(st.plx, sigma(), d));
+  let priMax = 0; for (const v of pri) if (v > priMax) priMax = v;
+  let likMax = 0; for (const v of lik) if (v > likMax) likMax = v;
+  const drawShape = (arr, mx, style, dash) => {
+    if (mx <= 0) return;
+    ctx.strokeStyle = style; ctx.lineWidth = 1.3; ctx.setLineDash(dash); ctx.beginPath();
+    for (let i = 0; i < post.d.length; i += 1) { const X = xOf(post.d[i]), Y = box.y + box.h - (arr[i] / mx) * box.h * 0.84; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+  drawShape(pri, priMax, 'rgba(180,140,255,0.6)', [4, 3]);
+  drawShape(lik, likMax, 'rgba(120,200,255,0.55)', [2, 3]);
   // analytic posterior curve (scaled to the box).
   let pMax = 0; for (const v of post.p) if (v > pMax) pMax = v;
   ctx.strokeStyle = col.post; ctx.lineWidth = 2.4; ctx.beginPath();
@@ -130,6 +144,10 @@ function drawPosterior(col, r, post) {
   ctx.fillStyle = col.naive; ctx.fillText(`naive 1/ϖ = ${dn.toFixed(2)}`, box.x + 6, box.y + 4);
   ctx.fillStyle = col.median; ctx.fillText(`posterior ${post.median.toFixed(2)} (+${(post.hi - post.median).toFixed(2)}/-${(post.median - post.lo).toFixed(2)})`, box.x + 6, box.y + 18);
   ctx.fillStyle = col.mc; ctx.fillText(`Monte Carlo of 1/ϖ (${nSamp} draws)`, box.x + 6, box.y + 32);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(180,140,255,0.92)'; ctx.fillText('prior', box.x + box.w - 6, box.y + 4);
+  ctx.fillStyle = 'rgba(120,200,255,0.92)'; ctx.fillText('likelihood', box.x + box.w - 6, box.y + 18);
+  ctx.fillStyle = col.post; ctx.fillText('posterior = prior x likelihood', box.x + box.w - 6, box.y + 32);
 }
 
 function drawMag(col, r, post) {
