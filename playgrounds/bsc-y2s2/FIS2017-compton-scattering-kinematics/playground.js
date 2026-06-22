@@ -210,8 +210,12 @@ function render() {
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  drawDiagram(c, 0, 0, W * 0.5, H);
-  drawShiftPlot(c, W * 0.5, 0, W * 0.5, H);
+  // Portrait composition: the scattering diagram (square-ish) on top, the
+  // wavelength-shift plot (landscape) below, each full width. Stacking avoids
+  // the tall narrow ribbons the old side-by-side split produced at 820x1040.
+  const sceneH = Math.round(H * 0.52);
+  drawDiagram(c, 0, 0, W, sceneH);
+  drawShiftPlot(c, 0, sceneH, W, H - sceneH);
 }
 
 function updateReadout() {
