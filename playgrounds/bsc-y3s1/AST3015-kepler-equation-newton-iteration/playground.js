@@ -173,8 +173,10 @@ function render() {
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  drawOrbit(c, 0, 0, W * 0.5, H);
-  drawConvergence(c, W * 0.5, 0, W * 0.5, H);
+  // Portrait stack: orbit/eccentric-anomaly scene on top, Newton convergence below.
+  const sceneH = Math.round(H * 0.52);
+  drawOrbit(c, 0, 0, W, sceneH);
+  drawConvergence(c, 0, sceneH, W, H - sceneH);
 }
 
 function updateReadout() {
