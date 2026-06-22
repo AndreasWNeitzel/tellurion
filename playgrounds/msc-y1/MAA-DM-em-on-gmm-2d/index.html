@@ -21,6 +21,8 @@
     .pg-controls input[type="range"] { width: 100%; }
     .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; }
     .pg-controls .row.buttons button { font-size: 11px; padding: 4px 8px; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: 10ch 1fr; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: 13px; background: var(--surface-2, #11141c); color: var(--fg); border: 1px solid rgba(255,255,255,0.16); border-radius: 6px; padding: 4px 8px; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -77,6 +79,14 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="EM controls">
+    <div class="row wide"><label class="label" for="select-data">dataset</label><select id="select-data" aria-label="dataset">
+      <option value="three">three clusters (default)</option>
+      <option value="separated">three well-separated blobs</option>
+      <option value="overlap">two overlapping clusters</option>
+      <option value="elongated">three elongated clusters</option>
+      <option value="unequal">unequal weights (60/30/10)</option>
+      <option value="four">four clusters</option>
+    </select></div>
     <div class="row"><span class="label">K</span><input aria-label="K" type="range" id="slider-K" min="2" max="5" step="1" value="3"><span class="value" id="value-K">3</span></div>
     <div class="row"><span class="label">init seed</span><input aria-label="init seed" type="range" id="slider-seed" min="0" max="20" step="1" value="1"><span class="value" id="value-seed">1</span></div>
     <div class="row buttons">

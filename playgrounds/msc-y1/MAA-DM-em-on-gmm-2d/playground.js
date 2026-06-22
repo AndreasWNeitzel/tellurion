@@ -32,13 +32,17 @@ const N_POINTS = 600;
 const VIEW = { xmin: -5, xmax: 5, ymin: -5, ymax: 5 };
 const COLORS = ['#69a8d6', '#d68a69', '#7ec27e', '#d6c869', '#b07cd1'];
 
-const TRUE_MEANS = [[-2.5, -1.2], [2.0, 1.5], [-0.5, 2.7]];
-const TRUE_COVS = [
-  [0.45, 0.20, 0.20, 0.30],
-  [0.70, -0.30, -0.30, 0.55],
-  [0.30, 0.05, 0.05, 0.40],
-];
-const TRUE_WEIGHTS = [0.35, 0.35, 0.30];
+// Ground-truth mixtures to fit (synthetic; a labelled teaching demo). Covariances
+// are [xx, xy, xy, yy]. The dataset selector switches between them.
+const DATASETS = {
+  three:     { K: 3, means: [[-2.5, -1.2], [2.0, 1.5], [-0.5, 2.7]], covs: [[0.45, 0.20, 0.20, 0.30], [0.70, -0.30, -0.30, 0.55], [0.30, 0.05, 0.05, 0.40]], weights: [0.35, 0.35, 0.30] },
+  separated: { K: 3, means: [[-3, -2.2], [3, 2], [0.2, 3]], covs: [[0.4, 0, 0, 0.4], [0.4, 0, 0, 0.4], [0.4, 0, 0, 0.4]], weights: [0.34, 0.33, 0.33] },
+  overlap:   { K: 2, means: [[-0.9, 0], [0.9, 0]], covs: [[1.1, 0.2, 0.2, 1.1], [1.1, -0.2, -0.2, 1.1]], weights: [0.5, 0.5] },
+  elongated: { K: 3, means: [[-2, -1], [2, 1], [0, 2.6]], covs: [[1.7, 1.25, 1.25, 1.05], [1.5, -1.05, -1.05, 0.95], [0.3, 0, 0, 1.9]], weights: [0.34, 0.33, 0.33] },
+  unequal:   { K: 3, means: [[-2.6, -1.6], [2.1, 1.6], [0, 3]], covs: [[0.5, 0, 0, 0.5], [0.6, 0, 0, 0.6], [0.28, 0, 0, 0.28]], weights: [0.6, 0.3, 0.1] },
+  four:      { K: 4, means: [[-2.6, -2.6], [2.6, -2.6], [-2.6, 2.6], [2.6, 2.6]], covs: [[0.45, 0, 0, 0.45], [0.45, 0, 0, 0.45], [0.45, 0, 0, 0.45], [0.45, 0, 0, 0.45]], weights: [0.25, 0.25, 0.25, 0.25] },
+};
+let truth = DATASETS.three;
 
 const state = {
   K: 3,
@@ -61,7 +65,7 @@ function toPx(x, y) {
 
 function generateData() {
   const { data, labels } = sampleGMM({
-    N: N_POINTS, K: 3, means: TRUE_MEANS, covs: TRUE_COVS, weights: TRUE_WEIGHTS,
+    N: N_POINTS, K: truth.K, means: truth.means, covs: truth.covs, weights: truth.weights,
     seed: SEED,
   });
   state.data = data;
@@ -123,8 +127,8 @@ function drawAll() {
   ctx.setLineDash([3, 3]);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
   ctx.lineWidth = 1.0;
-  for (let k = 0; k < TRUE_MEANS.length; k += 1) {
-    const pts = ellipsePoints(TRUE_MEANS[k], TRUE_COVS[k], 2);
+  for (let k = 0; k < truth.means.length; k += 1) {
+    const pts = ellipsePoints(truth.means[k], truth.covs[k], 2);
     ctx.beginPath();
     for (let i = 0; i < pts.length; i += 2) {
       const p = toPx(pts[i], pts[i + 1]);
@@ -226,6 +230,14 @@ function applyControlsChanged() {
 
 sliderK.addEventListener('change', applyControlsChanged);
 sliderSeed.addEventListener('change', applyControlsChanged);
+
+const selData = document.getElementById('select-data');
+if (selData) selData.addEventListener('change', () => {
+  truth = DATASETS[selData.value] || DATASETS.three;
+  state.K = truth.K;
+  sliderK.value = String(truth.K); valueK.textContent = String(truth.K);
+  generateData(); initParams(); drawAll();
+});
 
 btnStep.addEventListener('click', () => {
   step(); drawAll();
