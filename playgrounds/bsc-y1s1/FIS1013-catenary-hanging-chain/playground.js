@@ -147,7 +147,10 @@ function tick(now) {
   const dt = Math.min((now - lastT) / 1000, 0.05); lastT = now;
   if (state.playing) {
     state.phase += dt * 0.6;
-    state.L = chord() * (1.7 + 0.55 * Math.sin(state.phase));
+    // Keep the breathing length inside the slider range (chord*[1.03, 1.87],
+    // L up to ~6) so the deepest sag still fits the panel instead of
+    // overshooting the slider max and spilling out of bounds.
+    state.L = chord() * (1.45 + 0.42 * Math.sin(state.phase));
     if (sliderA) { const t = 0.4 + (state.L / chord() - 1.02) * 2.6 / 0.9; sliderA.value = String(Math.max(0.3, Math.min(3, t))); valueA.textContent = state.L.toFixed(2); }
     render();
   }
