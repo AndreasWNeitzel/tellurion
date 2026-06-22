@@ -169,3 +169,17 @@ window.playground.getInvariants = function () {
     { key: 'order', label: 'error ~ distance^2 (ratio 4)', value: ratio.toFixed(2), status: Math.abs(ratio - 4) < 0.5 || e2 < 1e-10 ? 'pass' : 'pending' },
   ];
 };
+
+// Auto-orbit the probe so the local quantity is always in motion; drag to take over.
+let __aphase = 0, __alast = performance.now();
+function __autoOrbit(now) {
+  const dt = Math.min((now - __alast) / 1000, 0.05); __alast = now;
+  if (!DETERMINISTIC && typeof dragging !== 'undefined' && !dragging) {
+    __aphase += dt * 0.45;
+    st.x0 = 0 + 1.3 * Math.cos(__aphase);
+    st.y0 = 0 + 1 * Math.sin(__aphase * 1.3);
+    render();
+  }
+  requestAnimationFrame(__autoOrbit);
+}
+if (!DETERMINISTIC) requestAnimationFrame(__autoOrbit);

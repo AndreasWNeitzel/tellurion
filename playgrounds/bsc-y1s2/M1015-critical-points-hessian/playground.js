@@ -179,3 +179,17 @@ window.playground.getInvariants = function () {
     { key: 'eig', label: 'lambda1 lambda2 = det H', value: (cl.l1 * cl.l2).toFixed(3), status: Math.abs(cl.l1 * cl.l2 - cl.det) < 1e-6 ? 'pass' : 'drift' },
   ];
 };
+
+// Auto-orbit the probe so the local quantity is always in motion; drag to take over.
+let __aphase = 0, __alast = performance.now();
+function __autoOrbit(now) {
+  const dt = Math.min((now - __alast) / 1000, 0.05); __alast = now;
+  if (!DETERMINISTIC && typeof dragging !== 'undefined' && !dragging) {
+    __aphase += dt * 0.45;
+    st.px = 0 + 1.4 * Math.cos(__aphase);
+    st.py = 0 + 1 * Math.sin(__aphase * 1.3);
+    render();
+  }
+  requestAnimationFrame(__autoOrbit);
+}
+if (!DETERMINISTIC) requestAnimationFrame(__autoOrbit);
