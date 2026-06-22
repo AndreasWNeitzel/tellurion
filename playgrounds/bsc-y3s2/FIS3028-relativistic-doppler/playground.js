@@ -194,8 +194,10 @@ function render() {
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  drawCartesian(c, 0, 0, W * 0.5, H);
-  drawPolar(c, W * 0.5, 0, W * 0.5, H);
+  // Portrait stack: polar source/aberration scene on top, Doppler-factor curve below.
+  const sceneH = Math.round(H * 0.52);
+  drawPolar(c, 0, 0, W, sceneH);
+  drawCartesian(c, 0, sceneH, W, H - sceneH);
 }
 
 function updateReadout() {
