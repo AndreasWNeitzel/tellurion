@@ -8,7 +8,7 @@ primary_uc: AST2004
 curriculum_year: bsc-y2s1
 primary_citation: gaiadr3
 primary_chapter: 1
-hook: "Plot 4000 real Gaia stars on the HR diagram and thread a real stellar-evolution model through them: a Sun-like star creeps along the main sequence for nine billion years, then races through the giant phases."
+hook: "Plot 4316 real Gaia stars on the HR diagram and thread a real stellar-evolution model through them: a Sun-like star creeps along the main sequence for nine billion years, then races up the red giant branch."
 one_paragraph: "The Kiel diagram (effective temperature vs surface gravity, both axes reversed) carries the real Gaia DR3 stars and a real MESA solar-metallicity evolution track on the same plane with no transformation. A marker walks the track by stellar age from the zero-age main sequence, through the subgiant and red giant branches, helium burning, the AGB, and off the diagram to the white dwarf. The diagnostic plots the model evolutionary speed against age: the star spends about 9 Gyr (most of its life) creeping along the main sequence and then races through the giant phases in a few hundred Myr, the quantitative reason the main sequence is the most populated region of any unbiased stellar census. The data are real (no fabricated values); this Gaia spectroscopic sample is itself rich in luminous giants, so its red giant branch and red clump are especially well drawn."
 tags: [astrophysics, stellar-evolution, gaia, hr-diagram, animation, live-readout]
 difficulty: 2
@@ -47,7 +47,7 @@ references:
 
 The Hertzsprung-Russell diagram places stars by temperature and luminosity (or,
 equivalently, by surface gravity in the Kiel plane). A star is a point that moves
-across the diagram as it ages. This playground shows 4000 real Gaia DR3
+across the diagram as it ages. This playground shows 4316 real Gaia DR3
 stars and the real evolutionary path of a Sun-like model star on the same plane.
 
 ## Equations and method
@@ -73,16 +73,17 @@ unaffected by how the observed sample was selected.
 
 The general principle that a star is seen most often where it lingers longest
 (the number density on the diagram scales as dN proportional to dt/ds) holds for
-a volume-complete, unbiased census. The Gaia sample used here is exactly that: a
-sample volume-limited within 100 pc (parallax > 10 mas, RUWE < 1.4,
-parallax_over_error > 20), selected on proximity and astrometric quality rather
-than brightness, and drawn as an unbiased subset through random_index. It is
-therefore dominated by faint, low-mass main-sequence stars and contains very few
-giants, just as the evolutionary timescales predict, so its density does trace
-the lifetimes. Teff, log g, and [M/H] are the GSP-Phot astrophysical parameters,
-which (unlike the bright-star-only GSP-Spec catalogue) reach the faint M dwarfs
-that make up the bulk of the local census; the diagnostic still reports the model
-timescale directly, but the observed main-sequence density now matches it.
+a volume-complete census, and the main sequence stays the most populated region
+because stars live longest there. The Gaia sample used here is magnitude-limited
+rather than volume-limited: the luminous giants come from a bright query
+(G in [5.5, 12], parallax in [0.5, 14] mas) and the G and K dwarf main sequence
+from a nearer query (G in [5.5, 13.5], parallax in [1.5, 45] mas), both with
+parallax_over_error > 10, RUWE < 1.4, and teff_gspphot in [3300, 11000] K. The
+bright limit makes the sample Malmquist-biased toward luminous stars, so a
+well-populated red giant branch and red clump appear alongside the main sequence
+(a purely local volume-limited census shows almost no giants). Teff, log g, and
+[M/H] are the GSP-Phot astrophysical parameters; the 3300 K floor drops the
+cool-M-dwarf regime where GSP-Phot piles up at an unreliable grid edge near 3400 K.
 
 ## Numerical method
 
