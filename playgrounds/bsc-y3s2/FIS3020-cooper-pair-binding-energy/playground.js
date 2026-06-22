@@ -27,11 +27,11 @@ function render() {
 
   const W = canvas.width, H = canvas.height;
   const gapX = 10;
-  const leftW = (W - gapX) / 2;
-  const rightW = (W - gapX) / 2;
-
-  renderLeftPanel(leftW, H);
-  renderRightPanel(leftW + gapX, 0, rightW, H);
+  // Portrait stack: binding-energy curve on top, the gap / density-of-states
+  // panel below, each full width (was two tall half-width ribbons).
+  const sceneH = Math.round((H - gapX) / 2);
+  renderLeftPanel(W, sceneH);
+  renderRightPanel(0, sceneH + gapX, W, H - sceneH - gapX);
 }
 
 function renderLeftPanel(w, h) {
