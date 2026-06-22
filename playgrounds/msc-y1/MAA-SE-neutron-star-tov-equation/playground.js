@@ -194,15 +194,28 @@ function draw() {
   rMmax.textContent = `${MMAX[st.eos].Mmax.toFixed(2)} Msun`;
 }
 
-function tick() {
-  if (st.running) st.ph = (st.ph + 1 / 120) % 1;
+// Sweep the central density so the star walks the mass-radius curve (st.ph
+// was advanced but never read by draw()): M and R trace the M-R relation up
+// to the maximum mass, the interior profile shifts, and the EOS point moves.
+// The slider and EOS dropdown pause it.
+let _rdir = 1, _rlast = (typeof performance !== 'undefined' ? performance.now() : 0);
+const _rLo = parseInt(slR.min, 10) || 0, _rHi = parseInt(slR.max, 10) || 100;
+function tick(now) {
+  if (st.running) {
+    const dt = Math.min(0.05, (now - _rlast) / 1000 || 0);
+    st.rRaw += _rdir * dt * ((_rHi - _rLo) / 12);
+    if (st.rRaw >= _rHi) { st.rRaw = _rHi; _rdir = -1; } else if (st.rRaw <= _rLo) { st.rRaw = _rLo; _rdir = 1; }
+    slR.value = String(Math.round(st.rRaw)); sync();
+  }
+  _rlast = now;
   draw();
   requestAnimationFrame(tick);
 }
 
 function sync() { vR.textContent = rhoC().toExponential(1); }
-selE.addEventListener('change', () => { st.eos = selE.value; draw(); });
-slR.addEventListener('input', () => { st.rRaw = parseInt(slR.value, 10); sync(); draw(); });
+function pauseTov() { st.running = false; bP.textContent = 'Play'; bP.setAttribute('aria-pressed', 'true'); }
+selE.addEventListener('change', () => { pauseTov(); st.eos = selE.value; draw(); });
+slR.addEventListener('input', () => { pauseTov(); st.rRaw = parseInt(slR.value, 10); sync(); draw(); });
 bR.addEventListener('click', () => {
   st.eos = DEF_E; st.rRaw = DEF_R; st.running = true;
   selE.value = DEF_E; slR.value = String(DEF_R);

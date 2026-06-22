@@ -27,7 +27,7 @@ const sR = document.getElementById('slider-r'), vR = document.getElementById('va
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const DEF = { logT: 7.2, rho: 100 };
-const st = { ...DEF }; let running = true;
+const st = { ...DEF }; let running = !prefersReducedMotion();
 
 const CH = [
   { fn: eps_pp, color: '#5bc0eb', label: 'pp  (T⁴)' },
@@ -36,8 +36,9 @@ const CH = [
 ];
 const LOGT_LO = 6.5, LOGT_HI = 9, FLOOR = -6;
 
-sT.addEventListener('input', () => { st.logT = parseFloat(sT.value); vT.textContent = st.logT.toFixed(2); render(); });
-sR.addEventListener('input', () => { st.rho = parseFloat(sR.value); vR.textContent = st.rho.toFixed(0); render(); });
+function pausePlay() { running = false; btnP.textContent = 'Play'; btnP.setAttribute('aria-pressed', 'true'); }
+sT.addEventListener('input', () => { pausePlay(); st.logT = parseFloat(sT.value); vT.textContent = st.logT.toFixed(2); render(); });
+sR.addEventListener('input', () => { pausePlay(); st.rho = parseFloat(sR.value); vR.textContent = st.rho.toFixed(0); render(); });
 btnR.addEventListener('click', () => { st.logT = DEF.logT; st.rho = DEF.rho; sT.value = String(DEF.logT); sR.value = String(DEF.rho); vT.textContent = DEF.logT.toFixed(2); vR.textContent = String(DEF.rho); running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); render(); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
@@ -122,7 +123,21 @@ function render() {
 }
 
 let rafOn = false;
-function tick() { render(); if (running && !CAPTURE_NAME) requestAnimationFrame(tick); else rafOn = false; }
+// Sweep the temperature so the marker walks across the burning-rate curves,
+// showing the dominant chain hand off (pp -> CNO -> 3 alpha) and the steep
+// power-law slope at each T. Sliders pause it.
+let _tdir = 1, _tlast = (typeof performance !== 'undefined' ? performance.now() : 0);
+function tick(now) {
+  if (running) {
+    const dt = Math.min(0.05, (now - _tlast) / 1000 || 0);
+    st.logT += _tdir * dt * ((LOGT_HI - LOGT_LO) / 14);
+    if (st.logT >= LOGT_HI) { st.logT = LOGT_HI; _tdir = -1; } else if (st.logT <= LOGT_LO) { st.logT = LOGT_LO; _tdir = 1; }
+    sT.value = String(st.logT); vT.textContent = st.logT.toFixed(2);
+  }
+  _tlast = now;
+  render();
+  if (running && !CAPTURE_NAME) requestAnimationFrame(tick); else rafOn = false;
+}
 function startLoop() { if (!rafOn && !CAPTURE_NAME) { rafOn = true; requestAnimationFrame(tick); } }
 btnP.addEventListener('click', startLoop);
 btnR.addEventListener('click', startLoop);

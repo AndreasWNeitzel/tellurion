@@ -18,7 +18,12 @@ const sliderT = document.getElementById('slider-T');
 const valueT  = document.getElementById('value-T');
 
 let Teff = parseFloat(sliderT.value);
-sliderT.addEventListener('input', () => { Teff = parseFloat(sliderT.value); valueT.textContent = String(Teff); });
+// Auto-sweep the effective temperature so the limb-darkened disk shifts colour
+// (cool red to hot blue) and the grey T(tau) profile rescales on load. The
+// slider pauses it.
+let playing = !(DETERMINISTIC || prefersReducedMotion()), tDir = 1, _last = (typeof performance !== 'undefined' ? performance.now() : 0);
+const tLo = parseFloat(sliderT.min) || 2500, tHi = parseFloat(sliderT.max) || 10000;
+sliderT.addEventListener('input', () => { playing = false; Teff = parseFloat(sliderT.value); valueT.textContent = String(Teff); });
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -175,7 +180,14 @@ function updateReadout() {
   readoutLd.textContent = limbDarkening(0).toFixed(2);
 }
 
-function loop() {
+function loop(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    Teff += tDir * dt * ((tHi - tLo) / 13);
+    if (Teff >= tHi) { Teff = tHi; tDir = -1; } else if (Teff <= tLo) { Teff = tLo; tDir = 1; }
+    sliderT.value = String(Math.round(Teff)); valueT.textContent = String(Math.round(Teff));
+  }
+  _last = now;
   render();
   updateReadout();
   requestAnimationFrame(loop);
