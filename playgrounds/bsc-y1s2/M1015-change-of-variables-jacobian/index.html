@@ -19,6 +19,7 @@
     .pg-controls input[type="range"] { width: 100%; }
     .pg-controls .row.wide { grid-column: span 2; grid-template-columns: 1fr auto; }
     .pg-controls .row.wide .value { text-align: left; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
     .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
@@ -61,7 +62,7 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Change of variables controls">
-    <div class="row wide"><button id="btn-map" type="button">Next map</button><span class="value" id="value-map">polar</span></div>
+    <div class="row wide"><label class="label" for="select-map">map</label><select id="select-map" aria-label="coordinate map"><option value="polar">polar: x = r cos t, y = r sin t</option><option value="linear">linear shear</option><option value="square">complex square: (u,v) -&gt; (u^2 - v^2, 2uv)</option><option value="warp">sinusoidal warp</option></select></div>
     <div class="row"><span class="label">grid N</span><input aria-label="grid resolution" type="range" id="slider-N" min="2" max="32" step="1" value="10"><span class="value" id="value-N">10</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>

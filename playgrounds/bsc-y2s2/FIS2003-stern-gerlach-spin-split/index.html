@@ -18,7 +18,8 @@
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
     .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; }
     .pg-controls .row.wide .value { text-align: left; }
-    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
+ grid-template-columns: 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -60,7 +61,7 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Stern-Gerlach controls">
-    <div class="row wide"><button id="btn-spin" type="button">Next spin</button><span class="value" id="value-spin">s = 1/2</span></div>
+    <div class="row wide"><label class="label" for="select-spin">spin</label><select id="select-spin" aria-label="spin quantum number"><option value="0">spin 1/2</option><option value="1">spin 1</option><option value="2">spin 3/2</option></select></div>
     <div class="row"><label for="s-g">gradient</label><input type="range" id="s-g" min="0.2" max="1" step="0.02" value="0.6"><span class="value" id="v-g">0.60</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>

@@ -15,11 +15,10 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnFn = document.getElementById('btn-fn'), vFn = document.getElementById('value-fn');
+const selFn = document.getElementById('select-fn');
 const sR = document.getElementById('s-R'), vR = document.getElementById('v-R');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(FUNCS);
 const E = 3.4;
 const st = { fn: 'twoPoles', center: [0, 0], R: 1.5 };
 function fn() { return FUNCS[st.fn]; }
@@ -27,10 +26,10 @@ let resCache = {}, dc = { key: '', canvas: null };
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.34 }, { name: 'diag', weight: 0.78 }]); }
-function syncVals() { vFn.textContent = fn().label; sR.value = st.R; vR.textContent = st.R.toFixed(2); }
+function syncVals() { selFn.value = st.fn; sR.value = st.R; vR.textContent = st.R.toFixed(2); }
 function residues() { if (!resCache[st.fn]) resCache[st.fn] = fn().poles.map((p) => residueAt(fn(), p)); return resCache[st.fn]; }
 function pickFn(k) { st.fn = k; st.center = [0, 0]; st.R = 1.5; syncVals(); }
-btnFn.addEventListener('click', () => { pickFn(KEYS[(KEYS.indexOf(st.fn) + 1) % KEYS.length]); render(); });
+selFn.addEventListener('change', () => { pickFn(selFn.value); render(); });
 btnReset.addEventListener('click', () => { pickFn('twoPoles'); render(); });
 sR.addEventListener('input', () => { st.R = +sR.value; syncVals(); render(); });
 

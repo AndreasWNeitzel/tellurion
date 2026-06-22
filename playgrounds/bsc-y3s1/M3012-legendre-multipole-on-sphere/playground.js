@@ -15,7 +15,7 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnL = document.getElementById('btn-l'), vL = document.getElementById('value-l');
+const selL = document.getElementById('select-l');
 const btnReset = document.getElementById('btn-reset');
 
 const NAMES = ['monopole', 'dipole', 'quadrupole', 'octupole', 'hexadecapole', 'l = 5'];
@@ -24,8 +24,8 @@ let sweep = 0;
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.4 }, { name: 'diag', weight: 0.72 }]); }
-function syncVals() { vL.textContent = `l = ${st.l} (${NAMES[st.l]})`; }
-btnL.addEventListener('click', () => { st.l = (st.l + 1) % 6; syncVals(); });
+function syncVals() { selL.value = String(st.l); }
+selL.addEventListener('change', () => { st.l = +selL.value; syncVals(); });
 btnReset.addEventListener('click', () => { st.l = 2; syncVals(); });
 
 function colors() {

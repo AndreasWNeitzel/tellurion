@@ -19,10 +19,9 @@ const CAPTURE_NAME = params.get('capture');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const sN = document.getElementById('slider-N'), vN = document.getElementById('value-N');
-const btnMap = document.getElementById('btn-map'), vMap = document.getElementById('value-map');
+const selMap = document.getElementById('select-map');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(MAPS);
 const st = { mapKey: params.get('map') && MAPS[params.get('map')] ? params.get('map') : 'polar', N: 10, pu: 0.6, pv: 0.55 };
 
 function m() { return MAPS[st.mapKey]; }
@@ -34,9 +33,9 @@ function relayout() {
   REG = stack({ width: view.w, height: view.h }, [{ name: 'src', weight: 0.92 }, { name: 'dst', weight: 1.18 }, { name: 'diag', weight: 0.9 }]);
 }
 
-function syncVals() { vN.textContent = String(st.N); vMap.textContent = m().label; }
+function syncVals() { vN.textContent = String(st.N); selMap.value = st.mapKey; }
 sN.addEventListener('input', () => { st.N = parseInt(sN.value, 10); syncVals(); render(); });
-btnMap.addEventListener('click', () => { st.mapKey = KEYS[(KEYS.indexOf(st.mapKey) + 1) % KEYS.length]; st.pu = 0.6; st.pv = 0.55; syncVals(); render(); });
+selMap.addEventListener('change', () => { st.mapKey = selMap.value; st.pu = 0.6; st.pv = 0.55; syncVals(); render(); });
 btnReset.addEventListener('click', () => { st.mapKey = 'polar'; st.N = 10; sN.value = '10'; st.pu = 0.6; st.pv = 0.55; syncVals(); render(); });
 
 function colors() {

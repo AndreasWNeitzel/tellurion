@@ -16,7 +16,7 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnSpin = document.getElementById('btn-spin'), vSpin = document.getElementById('value-spin');
+const selSpin = document.getElementById('select-spin');
 const sG = document.getElementById('s-g'), vG = document.getElementById('v-g');
 const btnReset = document.getElementById('btn-reset');
 
@@ -29,9 +29,9 @@ let rng = makeRng(0xC0FFEE), atoms = [], landed = [], hist = null;
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.32 }, { name: 'diag', weight: 0.9 }]); }
-function syncVals() { vSpin.textContent = `s = ${spin() === 0.5 ? '1/2' : spin() === 1.5 ? '3/2' : '1'}`; sG.value = st.grad; vG.textContent = st.grad.toFixed(2); }
+function syncVals() { selSpin.value = String(st.si); sG.value = st.grad; vG.textContent = st.grad.toFixed(2); }
 function reset() { rng = makeRng(0xC0FFEE); atoms = []; landed = []; hist = null; }
-btnSpin.addEventListener('click', () => { st.si = (st.si + 1) % SPINS.length; reset(); syncVals(); });
+selSpin.addEventListener('change', () => { st.si = +selSpin.value; reset(); syncVals(); });
 btnReset.addEventListener('click', () => { Object.assign(st, DEF); reset(); syncVals(); });
 sG.addEventListener('input', () => { st.grad = +sG.value; reset(); syncVals(); });
 

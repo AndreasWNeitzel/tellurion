@@ -18,7 +18,8 @@
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
     .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; }
     .pg-controls .row.wide .value { text-align: left; }
-    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
+ grid-template-columns: 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -60,7 +61,7 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Residue controls">
-    <div class="row wide"><button id="btn-fn" type="button">Next function</button><span class="value" id="value-fn">f = z / ((z-1)(z+2))</span></div>
+    <div class="row wide"><label class="label" for="select-fn">function</label><select id="select-fn" aria-label="function"><option value="twoPoles">f = z / ((z-1)(z+2))</option><option value="imagPair">f = 1 / (z^2 + 1)</option><option value="threeReal">f = 1 / ((z-0.8)(z-1.8)(z+2.6))</option><option value="cubic">f = 1 / (z^3 - z)</option></select></div>
     <div class="row"><label for="s-R">radius R</label><input type="range" id="s-R" min="0.2" max="4.2" step="0.05" value="1.5"><span class="value" id="v-R">1.50</span></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
