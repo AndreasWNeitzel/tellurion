@@ -18,8 +18,12 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const sN = document.getElementById('s-n'), vN = document.getElementById('v-n');
 const selPreset = document.getElementById('select-preset');
 const btnReset = document.getElementById('btn-reset');
+const btnPlay = document.getElementById('btn-play');
 
-const st = { n: 3, cursor: 0.4 };
+const NMIN = 0.5, NMAX = 4.9, LOOP_SECONDS = 18;
+// phase in [0,1] maps to n on a triangle sweep so the star morphs from a nearly
+// uniform sphere (n small) to a centrally condensed polytrope (n -> 5) and back.
+const st = { n: 3, cursor: 0.4, playing: !DETERMINISTIC, phase: (3 - NMIN) / (NMAX - NMIN) / 2 };
 
 // theta(r/R), density theta^n, pressure theta^(n+1) at fractional radius x.
 function thetaProfile(x) { return Math.max(0, theta(M, x * M.xi1)); }
@@ -42,9 +46,12 @@ function syncVals() {
   const pv = ['0.1', '1', '1.5', '3', '4', '4.9'].find((v) => Math.abs(parseFloat(v) - st.n) < 1e-6);
   selPreset.value = pv ?? '';
 }
-btnReset.addEventListener('click', () => { st.n = 3; st.cursor = 0.4; syncVals(); render(); });
-sN.addEventListener('input', () => { st.n = +sN.value; syncVals(); render(); });
-selPreset.addEventListener('change', () => { if (selPreset.value) { st.n = parseFloat(selPreset.value); syncVals(); render(); } });
+function setPlaying(on) { st.playing = on; btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); }
+function phaseFromN(n) { return (n - NMIN) / (NMAX - NMIN) / 2; }   // ascending branch of the triangle
+btnReset.addEventListener('click', () => { st.n = 3; st.cursor = 0.4; st.phase = phaseFromN(3); setPlaying(true); syncVals(); render(); });
+btnPlay.addEventListener('click', () => setPlaying(!st.playing));
+sN.addEventListener('input', () => { st.n = +sN.value; st.phase = phaseFromN(st.n); setPlaying(false); syncVals(); render(); });
+selPreset.addEventListener('change', () => { if (selPreset.value) { st.n = parseFloat(selPreset.value); st.phase = phaseFromN(st.n); setPlaying(false); syncVals(); render(); } });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', axis: 'rgba(255,255,255,0.28)', theta: '#e8d59a', dens: '#ff8a4a', pres: '#ff6fae', mass: '#5aa9ff', cursor: '#8de08a', conc: '#b487ff' };
@@ -55,7 +62,9 @@ function panel(col, r, title) {
   ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(title, r.x + 8, r.y + 7);
 }
 function buildDisk() {
-  const key = st.n.toFixed(3); if (diskKey === key && off) return; diskKey = key;
+  // Quantise the rebuild to 0.05 in n: the 220x220 density fill is the only
+  // expensive step, so throttle it during the sweep to keep the framerate up.
+  const key = (Math.round(st.n / 0.05) * 0.05).toFixed(2); if (diskKey === key && off) return; diskKey = key;
   if (!off) { off = (typeof OffscreenCanvas !== 'undefined') ? new OffscreenCanvas(DW, DW) : Object.assign(document.createElement('canvas'), { width: DW, height: DW }); offctx = off.getContext('2d'); }
   const img = offctx.createImageData(DW, DW); const d = img.data; const half = DW / 2;
   for (let py = 0; py < DW; py += 1) for (let px = 0; px < DW; px += 1) {
@@ -148,10 +157,27 @@ canvas.addEventListener('pointerdown', (e) => { if (!SC) return; const [sx, sy] 
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; const [sx] = ptr(e); st.cursor = Math.max(0, Math.min(1, (sx - SC.plot.x) / SC.plot.w)); render(); });
 window.addEventListener('pointerup', () => { drag = false; });
 
+// Auto-sweep the polytropic index n on a triangle wave so the star morphs
+// between a nearly uniform sphere and a centrally condensed polytrope; the
+// slider, preset, and Reset all interrupt or resume the sweep.
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (st.playing) {
+    st.phase = (st.phase + dt / LOOP_SECONDS) % 1;
+    const tri = st.phase < 0.5 ? st.phase * 2 : 2 - st.phase * 2;
+    st.n = NMIN + tri * (NMAX - NMIN);
+    syncVals(); render();
+  }
+  requestAnimationFrame(tick);
+}
+
 function boot() {
-  if (params.get('n')) st.n = Math.max(0.1, Math.min(4.9, +params.get('n')));
+  if (params.get('n')) { st.n = Math.max(0.1, Math.min(4.9, +params.get('n'))); st.phase = phaseFromN(st.n); setPlaying(false); }
+  else setPlaying(st.playing);
   syncVals(); relayout(); render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  else requestAnimationFrame(tick);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });
