@@ -44,9 +44,10 @@ const st = {
   t: 0,
 };
 
-const STAR_PANEL = { x: 20, y: 30, w: 260, h: H - 80 };
-const LC_PANEL = { x: 300, y: 30, w: 280, h: H - 80 };
-const PL_PANEL = { x: 600, y: 30, w: W - 620, h: H - 80 };
+// Portrait 820x1040: star and lightcurve on top, Leavitt P-L full-width below.
+const STAR_PANEL = { x: 20, y: 30, w: 370, h: 480 };
+const LC_PANEL = { x: 420, y: 30, w: 380, h: 480 };
+const PL_PANEL = { x: 20, y: 540, w: W - 40, h: H - 580 };
 
 function drawStar() {
   const { x, y, w, h } = STAR_PANEL;
