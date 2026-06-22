@@ -16,7 +16,8 @@
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
     .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
     .pg-controls .row.wide .value { font-family: var(--font-mono); text-align: left; color: var(--text-primary); }
-    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr 1fr; grid-column: span 2; gap: var(--space-3); }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
 <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
@@ -58,8 +59,10 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Bisection controls">
-    <div class="row wide"><button id="btn-fn" type="button">Next function</button><span class="value" id="value-fn">x^3 - x - 2</span></div>
+    <div class="row wide"><label class="label" for="select-fn">function</label><select id="select-fn" aria-label="function"><option value="cubic">x^3 - x - 2</option><option value="cosx">cos x - x</option><option value="sqrt2">x^2 - 2</option><option value="wobble">sin(3x) - 0.4x</option></select></div>
     <div class="row buttons">
+      <button id="btn-step" type="button">Step</button>
+      <button id="btn-play" type="button" aria-pressed="true">Pause</button>
       <button id="btn-reset" type="button">Reset</button>
     </div>
   </div>
@@ -68,7 +71,7 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Watch the bracket halve step by step, the purple midpoint tested and then discarded as the band closes onto the root.</li>
+        <li class="t-body">Press Step to advance one bisection at a time (or Play to run it): the purple midpoint is tested and one half is discarded, and the white bar on the left shows f(a) and f(b) straddling the green zero, the intermediate value the root sits at.</li>
         <li class="t-body">Read the log plot: the width falls along a straight line, one bit of accuracy gained per step (geometric convergence).</li>
         <li class="t-body">Drag the endpoints $a$ and $b$ to bracket the root yourself, keeping $f(a)$ and $f(b)$ opposite in sign.</li>
         <li class="t-body">Drag both endpoints to the same side of the root: the sign change is gone and the theorem promises nothing.</li>

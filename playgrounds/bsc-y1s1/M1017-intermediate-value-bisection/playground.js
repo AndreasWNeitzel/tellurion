@@ -16,22 +16,26 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnFn = document.getElementById('btn-fn'), vFn = document.getElementById('value-fn');
+const selFn = document.getElementById('select-fn');
+const btnStep = document.getElementById('btn-step'), btnPlay = document.getElementById('btn-play');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(FUNCS);
-const MAXIT = 14, STEP_DT = 0.55, HOLD = 2.4;
+const MAXIT = 30, STEP_DT = 0.55;
 const st = { fn: 'cubic', a0: FUNCS.cubic.a0, b0: FUNCS.cubic.b0 };
-let cur = { a: st.a0, b: st.b0 }, hist = [], acc = 0, phase = 'run', holdT = 0;
+let cur = { a: st.a0, b: st.b0 }, hist = [], acc = 0, phase = 'run';
 function fn() { return FUNCS[st.fn]; }
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.32 }, { name: 'diag', weight: 0.9 }]); }
-function restart() { cur = { a: st.a0, b: st.b0 }; hist = []; acc = 0; phase = 'run'; holdT = 0; }
+let running = true;
+function restart() { cur = { a: st.a0, b: st.b0 }; hist = []; acc = 0; phase = 'run'; }
 function pickFn(key) { st.fn = key; st.a0 = FUNCS[key].a0; st.b0 = FUNCS[key].b0; restart(); syncVals(); }
-function syncVals() { vFn.textContent = fn().label; }
-btnFn.addEventListener('click', () => { pickFn(KEYS[(KEYS.indexOf(st.fn) + 1) % KEYS.length]); });
-btnReset.addEventListener('click', () => { pickFn('cubic'); });
+function syncVals() { selFn.value = st.fn; btnPlay.textContent = running ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(running)); }
+function setRunning(on) { running = on; syncVals(); }
+selFn.addEventListener('change', () => { pickFn(selFn.value); render(); });
+btnStep.addEventListener('click', () => { setRunning(false); step(); render(); });
+btnPlay.addEventListener('click', () => { setRunning(!running); });
+btnReset.addEventListener('click', () => { st.fn = 'cubic'; pickFn('cubic'); setRunning(true); render(); });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.08)', axis: 'rgba(255,255,255,0.32)', f: '#ffd166', band: 'rgba(78,168,255,0.13)', pos: '#5bd6a8', neg: '#ff5d5d', mid: '#b487ff', root: '#8de08a', wid: '#4ea8ff', fm: '#ff9d3c' };
@@ -65,6 +69,15 @@ function drawScene(col, r) {
   const ca = f.f(cur.a) >= 0 ? col.pos : col.neg, cb = f.f(cur.b) >= 0 ? col.pos : col.neg;
   drawPt(cur.a, ca); drawPt(cur.b, cb);
   if (hist.length) { const m = hist[hist.length - 1].m; ctx.strokeStyle = col.mid; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(xOf(m), inner.y); ctx.lineTo(xOf(m), inner.y + inner.h); ctx.stroke(); ctx.fillStyle = col.mid; ctx.beginPath(); ctx.arc(xOf(m), yOf(f.f(m)), 5, 0, 6.28); ctx.fill(); }
+  // IVT indicator: the y-values f(a) and f(b) straddle 0, so a root must lie between.
+  if (lo < 0 && hi > 0 && bracketsRoot(f, cur.a, cur.b)) {
+    const fa = f.f(cur.a), fb = f.f(cur.b), yA = yOf(fa), yB = yOf(fb), y0 = yOf(0), stripX = inner.x + 4;
+    ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+    ctx.strokeStyle = ca; ctx.beginPath(); ctx.moveTo(xOf(cur.a), yA); ctx.lineTo(stripX, yA); ctx.stroke();
+    ctx.strokeStyle = cb; ctx.beginPath(); ctx.moveTo(xOf(cur.b), yB); ctx.lineTo(stripX, yB); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(stripX, yA); ctx.lineTo(stripX, yB); ctx.stroke();
+    ctx.fillStyle = col.root; ctx.beginPath(); ctx.arc(stripX, y0, 4, 0, 6.28); ctx.fill();
+  }
   ctx.restore();
   // endpoint labels (single char, colour encodes the sign of f); hidden when the
   // endpoints have closed to within a few pixels of each other.
@@ -75,6 +88,7 @@ function drawScene(col, r) {
   ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = fontString(canvas, 'tick', 'mono', 700);
   ctx.fillStyle = ok ? col.muted : col.neg; ctx.fillText(ok ? `step ${hist.length}:  f(a) ${f.f(cur.a) >= 0 ? '> 0' : '< 0'},  f(b) ${f.f(cur.b) >= 0 ? '> 0' : '< 0'},  width ${width(cur).toExponential(1)}` : 'no sign change: pick a, b with f(a), f(b) opposite', inner.x + 6, inner.y + 4);
   if (phase === 'hold') { ctx.fillStyle = col.root; ctx.fillText(`converged: root ${midpoint(cur).toFixed(5)}`, inner.x + 6, inner.y + 18); }
+  else if (ok) { ctx.fillStyle = col.root; ctx.fillText('opposite signs: f hits 0 between a and b (IVT)', inner.x + 6, inner.y + 18); }
 }
 
 function drawDiag(col, r) {
@@ -93,7 +107,7 @@ function drawDiag(col, r) {
   ctx.fillStyle = col.wid; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('bracket width (halves each step)', inner.x + 6, inner.y + 4);
   ctx.fillStyle = col.fm; ctx.fillText('|f(midpoint)|', inner.x + 6, inner.y + 18);
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (let k = 0; k <= MAXIT; k += 2) ctx.fillText(`${k}`, xOf(k), inner.y + inner.h + 6); ctx.fillText('step', inner.x + inner.w / 2, inner.y + inner.h + 19);
+  for (let k = 0; k <= MAXIT; k += 5) ctx.fillText(`${k}`, xOf(k), inner.y + inner.h + 6); ctx.fillText('step', inner.x + inner.w / 2, inner.y + inner.h + 19);
 }
 
 function render() {
@@ -104,17 +118,16 @@ function render() {
 }
 
 function step() {
-  const f = fn(); if (!bracketsRoot(f, cur.a, cur.b)) return;
+  const f = fn(); if (phase !== 'run' || !bracketsRoot(f, cur.a, cur.b)) return;
   cur = bisectStep(f, cur); hist.push({ k: hist.length + 1, m: cur.m, w: width(cur), fm: Math.abs(f.f(cur.m)) });
-  if (hist.length >= MAXIT || width(cur) < 1e-6) { phase = 'hold'; holdT = 0; }
+  if (hist.length >= MAXIT || width(cur) < 1e-7) phase = 'hold';   // hold at convergence; Reset restarts
 }
 function advance(dt) {
-  if (!bracketsRoot(fn(), st.a0, st.b0)) return;
-  if (phase === 'run') { acc += dt; if (acc >= STEP_DT) { acc -= STEP_DT; step(); } }
-  else { holdT += dt; if (holdT >= HOLD) restart(); }
+  if (phase !== 'run' || !bracketsRoot(fn(), cur.a, cur.b)) return;
+  acc += dt; if (acc >= STEP_DT) { acc -= STEP_DT; step(); }
 }
 
-let running = true, last = 0;
+let last = 0;
 function tick(ts) { if (!last) last = ts; let dt = (ts - last) / 1000; last = ts; if (dt > 0.05) dt = 0.05; if (running) advance(dt); render(); requestAnimationFrame(tick); }
 
 let drag = null;
