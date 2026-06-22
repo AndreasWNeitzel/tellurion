@@ -48,14 +48,15 @@ function currentRM() {
 }
 function lambda_m() { return st.lambda_cm * 1e-2; }
 
-const COL = { LEFT: 30, MID: 320, RIGHT: 600 };
-const COL_W = 270;
+// Portrait: plasma column and multi-wavelength on top, RM-lambda^2 plot below.
+const COL = { LEFT: 30, MID: 420, RIGHT: 30 };
+const COL_W = 370;
 
 function drawHelixColumn() {
   // The plasma column: depicted top-to-bottom with a rectangle
   // shaded purple (magnetized plasma) and the polarization
   // vector rotating along z.
-  const x = COL.LEFT, y = 40, w = COL_W, h = H - 80;
+  const x = COL.LEFT, y = 40, w = COL_W, h = 560;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
   ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
@@ -136,7 +137,7 @@ function drawArrowY(x0, y0, x1, y1) {
 function drawMultiwavelength() {
   // Show 3 wavelengths (L, S, C) as 3 helices side-by-side, each
   // rotated by chi(lambda_i).
-  const x = COL.MID, y = 40, w = COL_W, h = H - 80;
+  const x = COL.MID, y = 40, w = COL_W, h = 560;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
   ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
@@ -185,7 +186,7 @@ function drawMultiwavelength() {
 
 function drawChiLambda2() {
   // Right panel: chi vs lambda^2 line plot demonstrating linearity.
-  const x = COL.RIGHT, y = 40, w = W - x - 20, h = H - 80;
+  const x = COL.RIGHT, y = 620, w = W - x - 20, h = 360;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
   ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
