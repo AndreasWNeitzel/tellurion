@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Hydrogen Radial Wavefunctions</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row.wide .value { font-family: var(--font-mono); text-align: left; color: var(--text-primary); }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Hydrogen Radial Wavefunctions</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Solving the hydrogen atom is one of the triumphs of quantum mechanics: the electron in the Coulomb pull of the proton has its wavefunction split into an angular part, the familiar orbital shapes, and a radial part $R_{nl}(r)$ that says how the probability is spread out from the nucleus. That radial piece is an associated Laguerre polynomial times a decaying exponential, and its structure is pinned by two integers, the principal number $n$ and the angular number $l \lt n$. The quantity that actually tells you where the electron is likely to be found is the radial probability density $P(r) = r^2|R_{nl}|^2$, the chance of finding it in a thin shell at radius $r$; the $r^2$ from the growing shell area competes with the wavefunction to set the peaks. It has exactly $n - l - 1$ nodes, spheres where the electron is never found, and its most probable radius marches outward roughly as $n^2$ Bohr radii, the atom swelling as it climbs to higher states. The scene shows the orbital two ways: a disk of the radial wavefunction oscillating in time, where the nodes appear as dark rings between shells of alternating sign, and beside it the probability curve $P(r)$ with its nodes, its peak, and its mean radius marked. The bottom panel is the energy ladder $E_n = -13.6\,\text{eV}/n^2$, the rungs crowding toward zero as the electron is less and less bound, all the states of a given $n$ sharing the same energy whatever their $l$, the special degeneracy of the pure Coulomb force. Step $n$ and $l$ and watch a node appear, the cloud swell, and the level shift.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A hydrogen orbital shown as an oscillating radial-wavefunction disk and the radial probability density P(r) with its nodes and most probable and mean radii, and the hydrogen energy ladder."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Hydrogen radial wavefunctions. Top: the orbital as a disk of the radial wavefunction R_nl(r) oscillating in time (dark rings are the nodal spheres) and the radial probability density P(r) = r^2 |R_nl|^2 with its n-l-1 nodes (red), most probable radius (green), and mean radius (gold). Bottom: the energy ladder E_n = -13.6 eV / n^2, degenerate in l. Method: associated Laguerre radial functions, normalized. Source: Griffiths, Introduction to Quantum Mechanics, 2nd ed., Sec. 4.2.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Hydrogen controls">
+    <div class="row wide"><button id="btn-n" type="button">Principal n</button><span class="value" id="value-n">n = 3</span></div>
+    <div class="row wide"><button id="btn-l" type="button">Angular l</button><span class="value" id="value-l">l = 1 (3p)</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Step the principal number $n$: the cloud swells and the most probable radius grows roughly as $n^2$ Bohr radii.</li>
+        <li class="t-body">Step the angular number $l$ (kept below $n$): each decrease of $l$ at fixed $n$ adds a radial node, a dark ring in the disk and a zero in $P(r)$.</li>
+        <li class="t-body">Count the nodes: every orbital has exactly $n - l - 1$ of them, spheres where the electron is never found.</li>
+        <li class="t-body">Watch the energy ladder: all the $l$ states of one $n$ sit on the same rung, the l-degeneracy of the Coulomb potential.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
