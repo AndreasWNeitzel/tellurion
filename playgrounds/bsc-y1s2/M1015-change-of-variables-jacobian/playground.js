@@ -76,12 +76,15 @@ function drawSource(col, r) {
   ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
   for (let i = 0; i <= st.N; i += 1) { const u = M.u[0] + i / st.N * (M.u[1] - M.u[0]); ctx.beginPath(); ctx.moveTo(fit.X(u), fit.Y(M.v[0])); ctx.lineTo(fit.X(u), fit.Y(M.v[1])); ctx.stroke(); }
   for (let j = 0; j <= st.N; j += 1) { const v = M.v[0] + j / st.N * (M.v[1] - M.v[0]); ctx.beginPath(); ctx.moveTo(fit.X(M.u[0]), fit.Y(v)); ctx.lineTo(fit.X(M.u[1]), fit.Y(v)); ctx.stroke(); }
-  // probe + its cell.
+  // probe + its cell, anchored at the exact probe so the source cell is the
+  // continuous pre-image of the mapped parallelogram (it tracks the probe
+  // smoothly rather than snapping to the underlying grid).
   const [pu, pv] = probeUV();
   const du = (M.u[1] - M.u[0]) / st.N, dv = (M.v[1] - M.v[0]) / st.N;
-  const ci = Math.floor((pu - M.u[0]) / du), cj = Math.floor((pv - M.v[0]) / dv);
+  ctx.fillStyle = 'rgba(255,157,111,0.22)';
+  ctx.fillRect(fit.X(pu), fit.Y(pv + dv), du * fit.s, dv * fit.s);
   ctx.strokeStyle = col.probe; ctx.lineWidth = 2;
-  ctx.strokeRect(fit.X(M.u[0] + ci * du), fit.Y(M.v[0] + (cj + 1) * dv), du * fit.s, dv * fit.s);
+  ctx.strokeRect(fit.X(pu), fit.Y(pv + dv), du * fit.s, dv * fit.s);
   ctx.fillStyle = col.probe; ctx.beginPath(); ctx.arc(fit.X(pu), fit.Y(pv), 4, 0, 6.28); ctx.fill();
   ctx.restore();
   // axes labels.
