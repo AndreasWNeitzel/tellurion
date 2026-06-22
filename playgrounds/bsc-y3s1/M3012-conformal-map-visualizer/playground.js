@@ -7,6 +7,7 @@
 
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { FUNCS, cadd, cabs, cmul } from './sim.js';
 
 const params = new URLSearchParams(location.search);
@@ -27,7 +28,7 @@ function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view
 function syncVals() { selFn.value = st.fn; }
 function pickFn(k) { st.fn = k; st.z0 = [0.7, 0.5]; syncVals(); }
 selFn.addEventListener('change', () => { pickFn(selFn.value); render(); });
-btnReset.addEventListener('click', () => { pickFn('square'); render(); });
+btnReset.addEventListener('click', () => { pickFn('square'); if (!prefersReducedMotion()) setPlaying(true); else render(); });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', axis: 'rgba(255,255,255,0.28)', vline: '#4ea8ff', hline: '#ff9d3c', probe: '#8de08a', crit: '#ff5d5d', mag: '#b487ff' };
@@ -131,9 +132,25 @@ function render() {
   drawScene(col, REG.scene); drawDiag(col, REG.diag);
 }
 
+// Auto-orbit the probe on a Lissajous path so the angle-cross and the
+// |f'| diagnostic animate on load: the cross collapses as the probe passes
+// a critical point and the magnification marker dips. Grabbing the probe
+// pauses it; reset restarts.
+let playing = false, raf = 0, phase = 0, last = 0;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  phase += dt * 0.55;
+  const e = fn().zE;
+  st.z0 = [0.72 * e * Math.sin(phase), 0.55 * e * Math.sin(2 * phase + 0.7)];
+  render();
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) { playing = on; if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
 let drag = false;
 function ptr(e) { const rect = canvas.getBoundingClientRect(); return [(e.clientX - rect.left) * (view.w / rect.width), (e.clientY - rect.top) * (view.h / rect.height)]; }
-canvas.addEventListener('pointerdown', (e) => { if (!ZP) return; const [sx, sy] = ptr(e); if (Math.abs(sx - ZP.cx) < ZP.side / 2 && Math.abs(sy - ZP.cy) < ZP.side / 2) { drag = true; setFrom(sx, sy); } });
+canvas.addEventListener('pointerdown', (e) => { if (!ZP) return; const [sx, sy] = ptr(e); if (Math.abs(sx - ZP.cx) < ZP.side / 2 && Math.abs(sy - ZP.cy) < ZP.side / 2) { setPlaying(false); drag = true; setFrom(sx, sy); } });
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; setFrom(...ptr(e)); });
 window.addEventListener('pointerup', () => { drag = false; });
 function setFrom(sx, sy) { const e = fn().zE; const re = Math.max(-e, Math.min(e, (sx - ZP.cx) / ZP.s)), im = Math.max(-e, Math.min(e, (ZP.cy - sy) / ZP.s)); st.z0 = [re, im]; render(); }
@@ -142,6 +159,7 @@ function boot() {
   if (params.get('fn') && FUNCS[params.get('fn')]) pickFn(params.get('fn'));
   syncVals(); relayout(); render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
+  else if (!prefersReducedMotion()) setPlaying(true);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 window.addEventListener('resize', () => { relayout(); render(); });

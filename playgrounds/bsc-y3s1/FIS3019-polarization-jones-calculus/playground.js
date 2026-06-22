@@ -8,6 +8,7 @@ import {
   jLinear, jCircular, linearPolarizer, quarterWave, halfWave,
   identityM, applyChain, stokes, ellipse, intensity, degreeOfPolarization,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -31,6 +32,7 @@ const selE2 = document.getElementById('select-e2');
 const bR = document.getElementById('btn-reset');
 
 const st = { input: 'lin', ang: 0, e1: 'qwp', a1: 45, e2: 'none' };
+let tPhase = 0;                                    // animated optical phase omega*t
 const DEG = Math.PI / 180;
 const rowAng = document.getElementById('row-ang');
 
@@ -115,6 +117,47 @@ function drawBench(vin, vmid, vout) {
   stage(704, vout, '#06d6a0', 'output');
 }
 
+// The two field components Ex(t), Ey(t) whose amplitude and phase
+// difference define the polarisation, over two periods, with a time-cursor
+// tracking the rotating E-vector drawn on the ellipse above. Fills what was
+// empty canvas below the ellipse and sphere.
+function drawTimeTraces(vout) {
+  const box = { x: 64, y: 524, w: W - 128, h: 380 };
+  ctx.fillStyle = 'rgba(120,200,255,0.04)'; ctx.fillRect(box.x, box.y, box.w, box.h);
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(box.x + 0.5, box.y + 0.5, box.w - 1, box.h - 1);
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('field components Ex(t), Ey(t)  (their phase difference is the polarisation)', box.x + 8, box.y - 9);
+
+  const cy = box.y + box.h / 2, amp = box.h * 0.36;
+  const TWO = 4 * Math.PI;                                // two periods
+  const PX = (tau) => box.x + 10 + (tau / TWO) * (box.w - 20);
+  ctx.strokeStyle = 'rgba(120,130,150,0.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(box.x, cy); ctx.lineTo(box.x + box.w, cy); ctx.stroke();
+
+  const comp = (idx) => (tau) => vout[idx].re * Math.cos(tau) - vout[idx].im * Math.sin(tau);
+  const exF = comp(0), eyF = comp(1);
+  const draw = (fn, color) => {
+    ctx.strokeStyle = color; ctx.lineWidth = 2.2; ctx.beginPath();
+    for (let i = 0; i <= 400; i += 1) { const tau = TWO * i / 400; const x = PX(tau), y = cy - fn(tau) * amp; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+  };
+  draw(exF, '#5bc0eb'); draw(eyF, '#06d6a0');
+
+  // time cursor synced to the rotating E-vector phase
+  const tc = ((tPhase % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  const cx = PX(tc);
+  ctx.strokeStyle = 'rgba(255,209,102,0.55)'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(cx, box.y + 8); ctx.lineTo(cx, box.y + box.h - 8); ctx.stroke();
+  ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(cx, cy - exF(tc) * amp, 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(cx, cy - eyF(tc) * amp, 5, 0, 2 * Math.PI); ctx.fill();
+
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText('Ex', box.x + box.w - 78, box.y + 18);
+  ctx.fillStyle = '#06d6a0'; ctx.fillText('Ey', box.x + box.w - 40, box.y + 18);
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center';
+  ctx.fillText('time t  (two optical periods)', box.x + box.w / 2, box.y + box.h + 18);
+}
+
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   const vin = inputVec();
@@ -128,7 +171,7 @@ function render() {
   drawBench(vin, vmid, vout);
 
   // left: input-vs-output polarization ellipse (the real-space field)
-  const LCX = 196, LCY = 270, S = 104;
+  const LCX = 210, LCY = 300, S = 150;
   ctx.strokeStyle = 'rgba(150,160,180,0.4)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(LCX - S - 16, LCY); ctx.lineTo(LCX + S + 16, LCY);
   ctx.moveTo(LCX, LCY - S - 16); ctx.lineTo(LCX, LCY + S + 16); ctx.stroke();
@@ -137,15 +180,21 @@ function render() {
   ctx.fillText('field ellipse  (arrow = handedness)', LCX, LCY - S - 22);
   drawEllipse(LCX, LCY, S, vin, '#5bc0eb', 2.2, 0.8, true);    // input
   drawEllipse(LCX, LCY, S, vout, '#06d6a0', 3, 1, true);       // output
+  // the field vector E(t) sweeping the output ellipse: polarisation made literal
+  const evx = vout[0].re * Math.cos(tPhase) - vout[0].im * Math.sin(tPhase);
+  const evy = vout[1].re * Math.cos(tPhase) - vout[1].im * Math.sin(tPhase);
+  const etx = LCX + evx * S, ety = LCY - evy * S;
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(LCX, LCY); ctx.lineTo(etx, ety); ctx.stroke();
+  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(etx, ety, 5.5, 0, 2 * Math.PI); ctx.fill();
   ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillStyle = '#5bc0eb'; ctx.fillText('input', LCX - 64, LCY + S + 34);
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText('input', LCX - 86, LCY + S + 34);
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.fillText('/', LCX, LCY + S + 34);
-  ctx.fillStyle = '#06d6a0'; ctx.fillText('output', LCX + 64, LCY + S + 34);
+  ctx.fillStyle = '#06d6a0'; ctx.fillText('output', LCX + 86, LCY + S + 34);
 
   // right: Poincare sphere with the stage-by-stage path. Each element
   // moves the state: a wave plate rotates it about its axis, a
   // polarizer projects it toward a diameter.
-  const PCX = 560, PCY = 264, PR = 104;
+  const PCX = 600, PCY = 300, PR = 150;
   ctx.strokeStyle = 'rgba(150,160,180,0.45)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.arc(PCX, PCY, PR, 0, 2 * Math.PI); ctx.stroke();
   ctx.beginPath(); ctx.ellipse(PCX, PCY, PR, PR * 0.32, 0, 0, 2 * Math.PI); ctx.stroke();
@@ -168,6 +217,8 @@ function render() {
     ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 2 * Math.PI); ctx.fill();
   }
 
+  drawTimeTraces(vout);
+
   rPsi.textContent = `${(eo.psi / DEG).toFixed(1)} deg`;
   rChi.textContent = `${(eo.chi / DEG).toFixed(1)} deg`;
   rHand.textContent = eo.handed;
@@ -187,12 +238,24 @@ bR.addEventListener('click', () => {
   syncLabels(); applyVis(); render();
 });
 
+// The E-vector rotation is purely visual (independent of st), so it keeps
+// flowing while the controls are used; reduced-motion and captures hold it.
+let raf = 0, lastT = 0, playing = false;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - lastT) / 1000 || 0); lastT = now;
+  tPhase += dt * 1.6; if (tPhase > 2 * Math.PI) tPhase -= 2 * Math.PI;
+  render();
+  raf = requestAnimationFrame(animate);
+}
+
 function bootSync() {
   syncLabels(); applyVis();
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     st.a1 = Math.round(f * 180);                       // rotate the QWP axis
     sA1.value = String(st.a1); syncLabels();
+    tPhase = f * 2 * Math.PI;                           // E-vector phase sweeps across frames
   }
   render();
   if (DETERMINISTIC) {
@@ -200,6 +263,8 @@ function bootSync() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     }));
+  } else if (!prefersReducedMotion()) {
+    playing = true; lastT = performance.now(); raf = requestAnimationFrame(animate);
   }
 }
 

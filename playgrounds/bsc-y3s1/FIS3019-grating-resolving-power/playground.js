@@ -11,8 +11,13 @@ const ids = ['N','d','a','l','dl'];
 const sliders = ids.map(k => ({ k, s: document.getElementById('slider-'+k), v: document.getElementById('value-'+k) }));
 let st = { N: 20, d: 2, a: 0.5, l: 589, dl: 6 };
 let running = !prefersReducedMotion();
-sliders.forEach(({ k, s, v }) => s.addEventListener('input', () => { st[k] = parseFloat(s.value); v.textContent = k === 'N' ? st[k].toString() : st[k].toFixed(2); }));
+let Nf = 20, Ndir = 1;
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
+sliders.forEach(({ k, s, v }) => s.addEventListener('input', () => {
+  running = false; btnP.textContent = 'Play'; btnP.setAttribute('aria-pressed', 'true');
+  st[k] = parseFloat(s.value); v.textContent = k === 'N' ? st[k].toString() : st[k].toFixed(2);
+  if (k === 'N') Nf = st.N;
+}));
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 let last = performance.now();
@@ -63,7 +68,19 @@ function render() {
   ctx.fillText(`R = m*N = 1*${st.N} = ${R}, min Δλ = ${dlam_min.toFixed(2)} nm @ ${st.l} nm`, 12, H - 14);
   rR.textContent = R;
 }
-function tick() { render(); requestAnimationFrame(tick); }
+// Auto-sweep the slit count N so the resolving-power story plays on load:
+// the principal maxima narrow and the two close wavelengths separate as N
+// grows. Any slider input or the pause button stops it.
+function tick(now) {
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  if (running) {
+    Nf += Ndir * dt * 6;                                  // ~6 slits/s, 2..40
+    if (Nf >= 40) { Nf = 40; Ndir = -1; } else if (Nf <= 2) { Nf = 2; Ndir = 1; }
+    const n = Math.round(Nf);
+    if (n !== st.N) { st.N = n; const sN = sliders.find((x) => x.k === 'N'); if (sN) { sN.s.value = String(n); sN.v.textContent = String(n); } }
+  }
+  render(); requestAnimationFrame(tick);
+}
 function bootSync() {
   // Reference capture sweeps the slit count N (resolving power R = mN):
   // the principal maxima visibly narrow and the two close wavelengths
