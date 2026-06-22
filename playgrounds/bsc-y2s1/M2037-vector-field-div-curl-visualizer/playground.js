@@ -28,6 +28,39 @@ const state = {
   a,
 };
 
+// Advected flow tracers: they drift along the field, so a source sprays them
+// outward, a sink pulls them in, and a vortex spins them, making divergence and
+// curl directly visible rather than only implied by the arrows. Seeded RNG keeps
+// the deterministic capture stable.
+let _pseed = 0xC0FFEE >>> 0;
+function _prnd() { _pseed = (_pseed * 1664525 + 1013904223) >>> 0; return _pseed / 4294967296; }
+const NPART = 150, DOMX = 3.6, DOMY = 2.6;
+const particles = [];
+function seedParticle(p) { p.x = (_prnd() * 2 - 1) * DOMX; p.y = (_prnd() * 2 - 1) * DOMY; p.age = 0; p.life = 1.6 + _prnd() * 3.2; }
+for (let i = 0; i < NPART; i += 1) { const p = {}; seedParticle(p); p.age = _prnd() * p.life; particles.push(p); }
+let partLast = (typeof performance !== 'undefined' ? performance.now() : 0);
+function advectParticles(now) {
+  const dt = Math.min((now - partLast) / 1000, 0.05); partLast = now;
+  const fld = FAMILIES[familyName];
+  for (const p of particles) {
+    const u = fld.P(p.x, p.y, a), v = fld.Q(p.x, p.y, a);
+    let sx = u * dt * 0.6, sy = v * dt * 0.6;
+    const sm = Math.hypot(sx, sy), cap = 0.09;
+    if (sm > cap) { sx = sx / sm * cap; sy = sy / sm * cap; }
+    p.x += sx; p.y += sy; p.age += dt;
+    if (p.age > p.life || Math.abs(p.x) > DOMX + 0.3 || Math.abs(p.y) > DOMY + 0.3) seedParticle(p);
+  }
+}
+function drawParticles(cx, cy, scale) {
+  for (const p of particles) {
+    const fade = Math.min(1, p.age / 0.4) * Math.min(1, (p.life - p.age) / 0.4);
+    if (fade <= 0) continue;
+    const px = cx + scale * p.x, py = cy - scale * p.y;
+    ctx.fillStyle = `rgba(255, 238, 196, ${(0.8 * fade).toFixed(2)})`;
+    ctx.beginPath(); ctx.arc(px, py, 2.2, 0, 6.283); ctx.fill();
+  }
+}
+
 selectFamily.addEventListener('change', () => {
   familyName = selectFamily.value;
   state.familyName = familyName;
@@ -182,6 +215,8 @@ function render() {
     }
   }
 
+  drawParticles(cx, cy, scale);
+
   // Center marker.
   ctx.fillStyle = c.red;
   ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fill();
@@ -211,7 +246,9 @@ function updateReadout() {
   readoutCurl.textContent = f.curl(0, 0, a).toFixed(3);
 }
 
-function loop() {
+function loop(now) {
+  if (now === undefined) now = (typeof performance !== 'undefined' ? performance.now() : 0);
+  advectParticles(now);
   render();
   updateReadout();
   requestAnimationFrame(loop);

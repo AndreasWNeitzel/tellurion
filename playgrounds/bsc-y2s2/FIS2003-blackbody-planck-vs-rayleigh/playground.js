@@ -19,6 +19,7 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const sT = document.getElementById('slider-T'), vT = document.getElementById('value-T');
 const selAxis = document.getElementById('select-axis');
 const btnReset = document.getElementById('btn-reset');
+const btnPlay = document.getElementById('btn-play');
 
 const st = { T: 5778, axis: 'lambda', probe: 0.5 };
 const LAM_HI = 2.5e-6, NU_HI = 1.5e15;     // plot extents
@@ -42,9 +43,24 @@ function relayout() {
   REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.32 }, { name: 'diag', weight: 0.9 }]);
 }
 function syncVals() { vT.textContent = `${st.T} K`; selAxis.value = st.axis; }
-sT.addEventListener('input', () => { st.T = parseInt(sT.value, 10); syncVals(); render(); });
-selAxis.addEventListener('change', () => { st.axis = selAxis.value; syncVals(); render(); });
-btnReset.addEventListener('click', () => { st.T = 5778; st.axis = 'lambda'; st.probe = 0.5; sT.value = '5778'; syncVals(); render(); });
+sT.addEventListener('input', () => { setPlaying(false); st.T = parseInt(sT.value, 10); syncVals(); render(); });
+selAxis.addEventListener('change', () => { setPlaying(false); st.axis = selAxis.value; syncVals(); render(); });
+btnReset.addEventListener('click', () => { st.T = 5778; st.axis = 'lambda'; st.probe = 0.5; sT.value = '5778'; setPlaying(true); syncVals(); render(); });
+// Auto-sweep the temperature so the Planck curve breathes (the peak slides by
+// Wien's law and the colour shifts); any control interaction pauses it.
+let bbPlaying = !DETERMINISTIC, bbPhase = 0, bbLast = performance.now();
+function setPlaying(on) { bbPlaying = on; if (btnPlay) { btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); } }
+if (btnPlay) btnPlay.addEventListener('click', () => setPlaying(!bbPlaying));
+function bbTick(now) {
+  const dt = Math.min((now - bbLast) / 1000, 0.05); bbLast = now;
+  if (bbPlaying) {
+    bbPhase += dt * 0.4;
+    const tri = 0.5 - 0.5 * Math.cos(bbPhase);
+    st.T = Math.round((2500 + tri * 6500) / 50) * 50;
+    sT.value = String(st.T); syncVals(); render();
+  }
+  requestAnimationFrame(bbTick);
+}
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.09)', planck: '#ffd166', rj: '#ef5466', peak: '#67d98c', sb: '#5b9bd5' };
@@ -172,6 +188,7 @@ function boot() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
+if (!DETERMINISTIC && !CAPTURE_NAME) requestAnimationFrame(bbTick);
 window.addEventListener('resize', () => { relayout(); render(); });
 if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 
