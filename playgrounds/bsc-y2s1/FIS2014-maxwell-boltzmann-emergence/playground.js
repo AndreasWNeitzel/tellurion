@@ -66,8 +66,8 @@ function drawAll() {
   ctx.fillText(`Equipartition: KE/(2N) = ${KE_per_dof.toFixed(4)}   <v^2>/4 = ${(v2 / 4).toFixed(4)}   (should agree)`, 30, 56);
 
   // Top: gas box
-  const boxSize = 320;
-  const boxX = 30, boxY = 60;
+  const boxSize = Math.min(W - 60, Math.round(H * 0.46));
+  const boxX = Math.round((W - boxSize) / 2), boxY = 50;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(boxX, boxY, boxSize, boxSize);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
@@ -92,10 +92,10 @@ function drawAll() {
   ctx.fillText('gas box (color = speed)', boxX + 6, boxY + 14);
 
   // Right: histogram
-  const histX = boxX + boxSize + 30;
-  const histW = W - histX - 30;
-  const histH = 240;
-  const histY = boxY;
+  const histX = 60;
+  const histW = W - 120;
+  const histH = H - (boxY + boxSize + 50) - 50;
+  const histY = boxY + boxSize + 50;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(histX, histY, histW, histH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
