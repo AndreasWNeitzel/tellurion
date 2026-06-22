@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>The Maxwell-Boltzmann Speed Distribution</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">The Maxwell-Boltzmann Speed Distribution</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A gas at a single temperature is not a crowd of molecules all moving alike; it is a riot of speeds, some crawling, some tearing along, most somewhere in the middle. The spread is not arbitrary. Because each component of a molecule's velocity is an independent Gaussian set by the temperature, the speed, which is the length of that velocity vector, follows the Maxwell-Boltzmann distribution $f(v) \propto v^2 e^{-mv^2/2kT}$. The $v^2$ from the growing surface area of faster-and-faster velocity shells pushes the curve up from zero, and the exponential from the Boltzmann factor pulls it back down, leaving a lopsided bell with a long high-speed tail. Three speeds pin it down, always in the same order and the same ratio: the most probable speed at the peak, the slightly larger mean, and the larger still root-mean-square that sets the pressure and the average kinetic energy. The scene is a box of molecules drawn from exactly this distribution, coloured from blue for the slow ones to red for the fast; the panel below samples speeds and stacks them into a histogram that fills in the smooth $f(v)$ curve as the count grows, with the three characteristic speeds marked. Turn the temperature up and the whole distribution slides to higher speeds and flattens out, keeping its area at one; make the molecules heavier and it shrinks back toward the slow end, since at the same temperature a heavier molecule moves more sedately.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A box of gas molecules coloured by speed, and a histogram of sampled speeds converging to the Maxwell-Boltzmann distribution with the most probable, mean, and rms speeds marked."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      The Maxwell-Boltzmann speed distribution. Top: a box of molecules with MB-distributed speeds, coloured blue (slow) to red (fast). Bottom: sampled speeds stacking into a histogram (blue) that converges to f(v) (gold), with the most probable (green), mean (orange), and rms (red) speeds marked. Method: speeds sampled as the magnitude of a Gaussian velocity. Source: Reif, Fundamentals of Statistical and Thermal Physics, Sec. 7.9-7.10.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Gas controls">
+    <div class="row"><label for="s-T">temperature T</label><input type="range" id="s-T" min="0.3" max="4" step="0.05" value="1.5"><span class="value" id="v-T">1.50</span></div>
+    <div class="row"><label for="s-m">mass m</label><input type="range" id="s-m" min="0.3" max="3" step="0.05" value="1"><span class="value" id="v-m">1.00</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Watch the histogram fill in the smooth $f(v)$ curve as more speeds are sampled, peaking at the most probable speed.</li>
+        <li class="t-body">Raise the temperature: the distribution slides right and flattens, the molecules in the box turning redder, but the area stays one.</li>
+        <li class="t-body">Increase the mass: at the same temperature the distribution shrinks back toward slow speeds, $v_p \propto 1/\sqrt{m}$.</li>
+        <li class="t-body">Note the fixed order $v_p \lt v_\text{avg} \lt v_\text{rms}$ and that the tail always reaches far past the peak.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
