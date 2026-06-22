@@ -93,7 +93,7 @@ function render() {
   const s = secular(st.t);
 
   // Panel A: top-down orbits (left half).
-  const ax = W * 0.27, ay = H * 0.5, aS = 150;
+  const ax = W * 0.27, ay = H * 0.28, aS = 150;
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('orbits from above (slow breathing + precession)', 14, 20);
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(ax, ay, 5, 0, 2 * Math.PI); ctx.fill();
@@ -110,7 +110,7 @@ function render() {
   ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(p2.x, p2.y, 4.5, 0, 2 * Math.PI); ctx.fill();
 
   // Panel B: (h, k) eccentricity phase plane (top right).
-  const bx = W * 0.74, by = H * 0.30, bS = 200;
+  const bx = W * 0.73, by = H * 0.28, bS = 170;
   ctx.strokeStyle = '#2c2f36'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(bx - 120, by); ctx.lineTo(bx + 120, by); ctx.moveTo(bx, by - 110); ctx.lineTo(bx, by + 110); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.fillText('(h, k) = (e cos ϖ, e sin ϖ)', bx - 110, by - 96);
@@ -139,7 +139,7 @@ function render() {
   ctx.beginPath(); ctx.arc(bx + bS * s.h2, by - bS * s.k2, 5, 0, 2 * Math.PI); ctx.fill();
 
   // Panel C: e1(t), e2(t) exchange (bottom right).
-  const cx0 = W * 0.55, cx1 = W - 24, cy0 = H * 0.62, cy1 = H - 40;
+  const cx0 = 48, cx1 = W - 24, cy0 = H * 0.56, cy1 = H - 40;
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(cx0, cy1); ctx.lineTo(cx1, cy1); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.fillText('e_j (orange = inner, cyan = outer)', cx0, cy0 - 6);
