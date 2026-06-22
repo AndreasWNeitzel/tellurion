@@ -15,7 +15,7 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnPre = document.getElementById('btn-preset'), vPre = document.getElementById('value-preset');
+const selPre = document.getElementById('select-preset');
 const btnReset = document.getElementById('btn-reset');
 
 const PRESETS = [
@@ -29,8 +29,8 @@ const st = { b1: [...PRESETS[0].b1], b2: [...PRESETS[0].b2], v: [1.7, 1.25] };
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.42 }, { name: 'diag', weight: 0.82 }]); }
-function syncVals() { vPre.textContent = PRESETS[pre].label; }
-btnPre.addEventListener('click', () => { pre = (pre + 1) % PRESETS.length; st.b1 = [...PRESETS[pre].b1]; st.b2 = [...PRESETS[pre].b2]; syncVals(); render(); });
+function syncVals() { selPre.value = pre >= 0 ? String(pre) : 'custom'; }
+selPre.addEventListener('change', () => { if (selPre.value === 'custom') return; pre = +selPre.value; st.b1 = [...PRESETS[pre].b1]; st.b2 = [...PRESETS[pre].b2]; syncVals(); render(); });
 btnReset.addEventListener('click', () => { pre = 0; st.b1 = [...PRESETS[0].b1]; st.b2 = [...PRESETS[0].b2]; st.v = [1.7, 1.25]; syncVals(); render(); });
 
 function colors() {
@@ -129,7 +129,7 @@ canvas.addEventListener('pointerdown', (e) => {
 });
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; const [sx, sy] = ptr(e); setFrom(sx, sy); });
 window.addEventListener('pointerup', () => { drag = null; });
-function setFrom(sx, sy) { const wx = (sx - SC.cx) / SC.S, wy = (SC.cy - sy) / SC.S; const p = [Math.max(-5, Math.min(5, wx)), Math.max(-5, Math.min(5, wy))]; if (drag === 'b1') st.b1 = p; else if (drag === 'b2') st.b2 = p; else st.v = p; render(); }
+function setFrom(sx, sy) { const wx = (sx - SC.cx) / SC.S, wy = (SC.cy - sy) / SC.S; const p = [Math.max(-5, Math.min(5, wx)), Math.max(-5, Math.min(5, wy))]; if (drag === 'b1') { st.b1 = p; pre = -1; selPre.value = 'custom'; } else if (drag === 'b2') { st.b2 = p; pre = -1; selPre.value = 'custom'; } else st.v = p; render(); }
 
 function boot() {
   syncVals(); relayout(); render();

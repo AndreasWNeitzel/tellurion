@@ -16,19 +16,18 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnPre = document.getElementById('btn-preset'), vPre = document.getElementById('value-preset');
+const selPre = document.getElementById('select-preset');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(PRESETS);
 let preKey = 'shear';
 let M = { ...PRESETS[preKey].M };
 let tw = { from: null, to: null, t: 1, active: false };
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.4 }, { name: 'diag', weight: 0.82 }]); }
-function syncVals() { vPre.textContent = PRESETS[preKey].label; }
+function syncVals() { selPre.value = preKey; }
 function tweenTo(key) { preKey = key; tw = { from: { ...M }, to: { ...PRESETS[key].M }, t: 0, active: true }; syncVals(); }
-btnPre.addEventListener('click', () => { tweenTo(KEYS[(KEYS.indexOf(preKey) + 1) % KEYS.length]); });
+selPre.addEventListener('change', () => { tweenTo(selPre.value); });
 btnReset.addEventListener('click', () => { tweenTo('shear'); });
 
 function colors() {

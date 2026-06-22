@@ -16,6 +16,7 @@
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
     .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
     .pg-controls .row.wide .value { font-family: var(--font-mono); text-align: left; color: var(--text-primary); }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
@@ -58,7 +59,7 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Transformation controls">
-    <div class="row wide"><button id="btn-preset" type="button">Next map</button><span class="value" id="value-preset">shear</span></div>
+    <div class="row wide"><label class="label" for="select-preset">map</label><select id="select-preset" aria-label="linear map"><option value="identity">identity</option><option value="rotation">rotation 40 deg</option><option value="scale">scaling</option><option value="shear" selected>shear</option><option value="reflection">reflection</option><option value="rotscale">rotation + scale</option><option value="projection">projection (det 0)</option></select></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
     </div>

@@ -17,10 +17,9 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnSurf = document.getElementById('btn-surf'), vSurf = document.getElementById('value-surf');
+const selSurf = document.getElementById('select-surf');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(SURFS);
 const EXT = 1.8;
 const DEF = { x0: 0.7, y0: 0.7 };
 const st = { surf: 'bump', x0: DEF.x0, y0: DEF.y0 };
@@ -31,8 +30,8 @@ function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.42 }, { name: 'diag', weight: 0.8 }]);
 }
-function syncVals() { vSurf.textContent = sf().label; }
-btnSurf.addEventListener('click', () => { st.surf = KEYS[(KEYS.indexOf(st.surf) + 1) % KEYS.length]; st.x0 = DEF.x0; st.y0 = DEF.y0; syncVals(); render(); });
+function syncVals() { selSurf.value = st.surf; }
+selSurf.addEventListener('change', () => { st.surf = selSurf.value; st.x0 = DEF.x0; st.y0 = DEF.y0; syncVals(); render(); });
 btnReset.addEventListener('click', () => { st.surf = 'bump'; st.x0 = DEF.x0; st.y0 = DEF.y0; syncVals(); render(); });
 
 function colors() {
