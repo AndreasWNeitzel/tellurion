@@ -7,10 +7,11 @@ the inflationary mechanism that seeded it all.
 
 ## Modes
 
-- **Expansion**: WebGL2 comoving lattice (shared cosmic-lattice-3d
-  shader) whose proper sizes scale with a(t) from the Friedmann
-  equation. Pick LCDM, matter-only, closed Big Crunch, or empty
-  coasting via the preset selector.
+- **Expansion**: a Canvas2D comoving galaxy lattice projected through
+  the orbit camera, whose proper separations scale with a(t) from the
+  Friedmann equation so the grid breathes with the Hubble flow. Pick
+  LCDM, matter-only, closed Big Crunch, or empty coasting via the
+  preset selector.
 - **Fate**: a(t) curve panel with all four fates overlaid. The
   current preset is bold; t = now is marked. The single number
   Omega_Lambda sets which fate the lattice follows.

@@ -1,10 +1,10 @@
 // Cosmology LEGEND. Four-mode laboratory for the universe at large.
 //
-// Architecture: offscreen WebGL2 canvas runs the shared cosmic-lattice
-// shader (the Hubble-flow lattice). Each frame we blit its output into
-// the visible 2D canvas via drawImage, then draw 2D overlays for the
-// mode-specific content (Friedmann a(t) curve, CMB sphere, V(phi) +
-// (n_s, r) plane). Same recipe as the BH legend.
+// Architecture: everything renders in Canvas2D. The expansion mode draws a
+// comoving galaxy lattice projected through the orbit camera, with proper
+// separations scaled by the live scale factor a(t) so the Hubble flow is
+// literal. The other modes draw their own 2D panels (Friedmann a(t) curve,
+// CMB last-scattering sphere, V(phi) + (n_s, r) plane).
 
 import {
   integrateScaleFactor, scaleAt, hubble,
@@ -12,7 +12,6 @@ import {
   POTENTIALS, epsilon, eta, nsOf, rOf, efolds_quadratic, efolds_starobinsky,
   makeRng,
 } from './sim.js';
-import { setupCosmicLatticeGL } from '../../../shared/js/engine-gl/cosmic-lattice-3d.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
@@ -27,12 +26,39 @@ const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d');
 const W = canvas.width, H = canvas.height;
 
-// Offscreen WebGL canvas; result blitted into visible canvas.
-const canvasGL = document.createElement('canvas');
-canvasGL.width = W; canvasGL.height = H;
-let engine = null;
-try { engine = setupCosmicLatticeGL(canvasGL, 9); }
-catch (e) { console.warn('[cosmology-legend] WebGL2 init failed', e); engine = null; }
+// Galaxy sprite: a warm radial glow, pre-rendered once and blitted per
+// galaxy (additive) so the comoving lattice is dense and bright without a
+// per-frame gradient cost. The expansion mode owns its rendering in
+// Canvas2D so it does not depend on a WebGL2 context being available.
+const GAL_SPRITE = (() => {
+  const s = document.createElement('canvas'); s.width = 64; s.height = 64;
+  const g = s.getContext('2d');
+  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0.0, 'rgba(255, 250, 235, 1)');
+  grd.addColorStop(0.22, 'rgba(255, 224, 158, 0.92)');
+  grd.addColorStop(0.55, 'rgba(255, 168, 96, 0.34)');
+  grd.addColorStop(1.0, 'rgba(255, 140, 80, 0)');
+  g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
+  return s;
+})();
+
+// Comoving galaxy lattice, fixed in comoving coordinates with a small
+// deterministic jitter so it reads as real large-scale structure rather
+// than a perfect crystal. Proper positions are these times a(t).
+const GAL_N = 6;                       // galaxies per axis (GAL_N^3 total)
+const GAL_CELL = 3.4;                  // comoving cell size in world units
+const galaxies = (() => {
+  const half = (GAL_N - 1) / 2, out = [];
+  for (let i = 0; i < GAL_N; i++) for (let j = 0; j < GAL_N; j++) for (let k = 0; k < GAL_N; k++) {
+    const seed = ((i * 73856093) ^ (j * 19349663) ^ (k * 83492791)) >>> 0;
+    const jx = ((seed & 255) / 255 - 0.5) * 0.45;
+    const jy = (((seed >> 8) & 255) / 255 - 0.5) * 0.45;
+    const jz = (((seed >> 16) & 255) / 255 - 0.5) * 0.45;
+    out.push({ i, j, k, cx: (i - half + jx), cy: (j - half + jy), cz: (k - half + jz), mag: 0.6 + 0.4 * (((seed >> 24) & 255) / 255) });
+  }
+  return out;
+})();
+const galIndex = new Map(galaxies.map((g) => [`${g.i},${g.j},${g.k}`, g]));
 
 const camera = createOrbitCamera(canvas, {
   target: [0, 0, 0], radius: 26, minRadius: 6, maxRadius: 70,
@@ -111,21 +137,17 @@ function getCosmo() {
 // =========================================================================
 // Background rendering: WebGL lattice for expansion mode; clear for CMB.
 // =========================================================================
-function paintBackground(a) {
-  if (st.mode === 'expansion' && engine) {
-    engine.render(camera.viewMatrix(), camera.projMatrix(W / H), camera.eyePosition(), a, []);
-    ctx.drawImage(canvasGL, 0, 0, W, H);
-  } else {
-    ctx.fillStyle = '#02030a';
-    ctx.fillRect(0, 0, W, H);
-    // Tiny stars for visual interest.
-    const r = makeRng(0xD15EA5E);
-    for (let i = 0; i < 200; i++) {
-      const ix = r() * W; const iy = r() * H;
-      const sb = 0.15 + 0.55 * r();
-      ctx.fillStyle = `rgba(200, 220, 255, ${sb.toFixed(3)})`;
-      ctx.fillRect(ix, iy, 1, 1);
-    }
+function paintBackground() {
+  ctx.fillStyle = '#02030a';
+  ctx.fillRect(0, 0, W, H);
+  // Deterministic starfield: most stars faint, a few bright, for depth.
+  const r = makeRng(0xD15EA5E);
+  for (let i = 0; i < 320; i++) {
+    const ix = r() * W; const iy = r() * H;
+    const big = r() < 0.06;
+    const sb = (big ? 0.6 : 0.12) + 0.4 * r();
+    ctx.fillStyle = `rgba(205, 222, 255, ${sb.toFixed(3)})`;
+    ctx.fillRect(ix, iy, big ? 2 : 1, big ? 2 : 1);
   }
 }
 
@@ -133,14 +155,54 @@ function paintBackground(a) {
 // MODE: EXPANSION. WebGL lattice + readout.
 // =========================================================================
 function drawExpansionMode(a) {
-  // (background is already the lattice via paintBackground)
-  // Centred title strip.
+  // Render the comoving galaxy lattice in 3D through the orbit camera, with
+  // proper separations scaled by the live scale factor a(t). The grid
+  // visibly breathes as a(t) sweeps, which is the Hubble flow made literal.
+  const cam = makeCamBasis();
+  const scale = GAL_CELL * a;
+  // Project every galaxy to screen.
+  const proj = [];
+  for (const g of galaxies) {
+    const p = w2s([g.cx * scale, g.cy * scale, g.cz * scale], cam);
+    if (!p) continue;
+    proj.push({ g, x: p.x, y: p.y, depth: p.depth });
+  }
+  // Faint comoving lattice lines to +i, +j, +k neighbours: they stretch with a.
+  ctx.strokeStyle = 'rgba(120, 165, 255, 0.10)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const g of galaxies) {
+    const p0 = w2s([g.cx * scale, g.cy * scale, g.cz * scale], cam);
+    if (!p0) continue;
+    for (const d of [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) {
+      const nb = galIndex.get(`${g.i + d[0]},${g.j + d[1]},${g.k + d[2]}`);
+      if (!nb) continue;
+      const p1 = w2s([nb.cx * scale, nb.cy * scale, nb.cz * scale], cam);
+      if (!p1) continue;
+      ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y);
+    }
+  }
+  ctx.stroke();
+  // Galaxies, far to near, additively so cores bloom. Size and brightness
+  // fall with depth; far galaxies are tinted slightly redder (a nod to
+  // cosmological redshift) by lowering the additive alpha.
+  proj.sort((u, v) => v.depth - u.depth);
+  ctx.globalCompositeOperation = 'lighter';
+  for (const q of proj) {
+    const size = Math.max(7, Math.min(34, 460 / q.depth)) * q.g.mag;
+    const alpha = Math.max(0.35, Math.min(1, 30 / q.depth)) * (0.7 + 0.3 * q.g.mag);
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(GAL_SPRITE, q.x - size / 2, q.y - size / 2, size, size);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+  // Title strip.
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
   ctx.fillText(`a(now) = ${a.toFixed(3)}`, 14, H - 30);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption');
-  ctx.fillText('Comoving lattice of galaxies; proper separations scale by a(t).', 14, H - 12);
+  ctx.fillText('Comoving lattice of galaxies; proper separations scale by a(t). Drag to orbit.', 14, H - 12);
 }
 
 // =========================================================================
@@ -664,11 +726,12 @@ function updateReadout(aNow) {
 function draw() {
   // Compute a(now). Use cosmology cache.
   const sol = getCosmo();
-  // Advance an "internal" cosmic time. For visual interest in expansion
-  // mode, slowly sweep t from -0.5 to +0.5 (units of 1/H0).
-  const tNorm = ((st.t * 0.10) % 2) - 1;       // in [-1, 1]
-  const aNow = Math.max(0.05, scaleAt(sol, tNorm * 0.5));
-  paintBackground(aNow);
+  // Advance an "internal" cosmic time. Sweep t back and forth on a triangle
+  // wave (units of 1/H0) so the expansion loops smoothly with no jump.
+  const phase = (st.t * 0.10) % 2;             // in [0, 2)
+  const tri = phase < 1 ? phase : 2 - phase;   // triangle in [0, 1]
+  const aNow = Math.max(0.05, scaleAt(sol, (tri - 0.5)));
+  paintBackground();
   if (st.mode === 'expansion') drawExpansionMode(aNow);
   else if (st.mode === 'fate') drawFateMode(aNow);
   else if (st.mode === 'cmb') drawCMBMode(makeCamBasis());
