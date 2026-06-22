@@ -36,7 +36,7 @@ const st = {
 };
 
 // Make 3D scene narrower so a diagnostic plot fits on the right.
-const CX = W * 0.32, CY = H * 0.50, SC = 130;
+const CX = W / 2, CY = Math.round(H * 0.28), SC = 150;
 function proj(x, y, z) {
   const ca = Math.cos(st.az), sa = Math.sin(st.az);
   const ey = y * ca - z * sa;
@@ -165,7 +165,7 @@ function drawDiagPanel() {
   // RIGHT-side panel: intensity I(theta_lab) = D(theta_lab)^{3+alpha}
   // vs theta_lab on a log y-axis. Shows the headlight effect
   // mathematically: a sharp peak at theta=0 whose width is ~ 1/gamma.
-  const px = W * 0.60, py = 30, pw = W - px - 24, ph = H - 60;
+  const px = 60, py = Math.round(H * 0.56), pw = W - 120, ph = H - Math.round(H * 0.56) - 40;
   ctx.fillStyle = 'rgba(15, 22, 36, 0.85)'; ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)'; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
