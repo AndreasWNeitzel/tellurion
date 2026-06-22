@@ -1,4 +1,5 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 // Canonical transformations (Canvas2D). Left: a phase-space grid and
 // a blob in (q,p). Right: their image under the selected map, which
 // can be morphed continuously from the identity by the "morph t"
@@ -32,7 +33,14 @@ const sE = document.getElementById('slider-e'), vE = document.getElementById('va
 const bPlay = document.getElementById('btn-play'), bR = document.getElementById('btn-reset');
 
 const st = { map: 'hoScale', par: 1.7, t: 1, E: 1.0, playing: false };
-const LCX = 210, RCX = 555, CY = H / 2 - 6, SC = 78;
+// Portrait composition: the two phase-space panels (source + image) sit
+// side by side across the top ~58% of the tall canvas; an area-ratio vs
+// morph diagnostic fills the lower ~42% (was: two small panels stranded
+// in the vertical middle with large voids above and below).
+const PANEL_CY = Math.round(H * 0.30);
+const LCX = Math.round(W * 0.265), RCX = Math.round(W * 0.735);
+const CY = PANEL_CY, SC = 96, HALF = 172;
+const DIAG = { x: 64, y: Math.round(H * 0.615), w: W - 128, h: Math.round(H * 0.335) };
 
 function fullPar() {
   if (st.map === 'rotation') return { a: (st.par - 0.3) / 2.3 * 2 * Math.PI };
@@ -72,10 +80,10 @@ function drawGrid(cx, T, col, lw) {
 
 function drawBlob(cx, label, T, underlay) {
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(cx - 150, CY); ctx.lineTo(cx + 150, CY);
-  ctx.moveTo(cx, CY - 150); ctx.lineTo(cx, CY + 150); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - HALF, CY); ctx.lineTo(cx + HALF, CY);
+  ctx.moveTo(cx, CY - HALF); ctx.lineTo(cx, CY + HALF); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText(label, cx, H - 14);
+  ctx.fillText(label, cx, CY + HALF + 24);
 
   // faint reference: the undeformed grid + ellipse (only on the
   // image panel) so the deformation is read against the start
@@ -123,12 +131,60 @@ function drawMapBanner(cx, pb) {
     : `{Q,P} = ${pb.toFixed(0)}: area changes (NOT canonical)`, cx, 39);
 }
 
+function areaRatioAt(t) {
+  const ell = hoEllipse(st.E, 1, 160);
+  const Ain = Math.abs(polyArea(ell)) || 1;
+  const Aout = Math.abs(polyArea(ell.map(([q, p]) => morph(q, p, t))));
+  return Aout / Ain;
+}
+
+// Area-ratio vs morph diagnostic: for a canonical map the image area
+// equals the source area for every t (flat line at 1); for p-doubling it
+// climbs to 2. The marker tracks the live morph fraction.
+function drawAreaRatio() {
+  const { x, y, w, h } = DIAG;
+  const padL = 70, padR = 22, padT = 24, padB = 34;
+  const ax = x + padL, aw = w - padL - padR;
+  const ayTop = y + padT, ah = h - padT - padB;
+  const rMax = 2.2;
+  const PX = (t) => ax + t * aw;
+  const PY = (r) => ayTop + ah - Math.min(r, rMax) / rMax * ah;
+
+  ctx.fillStyle = 'rgba(91,192,235,0.04)'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ax, ayTop); ctx.lineTo(ax, ayTop + ah); ctx.lineTo(ax + aw, ayTop + ah); ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(6,214,160,0.5)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(ax, PY(1)); ctx.lineTo(ax + aw, PY(1)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('ratio = 1: area preserved (canonical)', ax + 8, PY(1) - 7);
+
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.4; ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) { const t = i / 120; const px = PX(t), py = PY(areaRatioAt(t)); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+  ctx.stroke();
+
+  const rc = areaRatioAt(st.t);
+  ctx.strokeStyle = 'rgba(239,71,111,0.35)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PX(st.t), ayTop); ctx.lineTo(PX(st.t), ayTop + ah); ctx.stroke();
+  ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(PX(st.t), PY(rc), 5.5, 0, 2 * Math.PI); ctx.fill();
+
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('morph fraction  t', ax + aw / 2, y + h - 10);
+  ctx.save(); ctx.translate(x + 18, ayTop + ah / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('area(image) / area(source)', 0, 0); ctx.restore();
+  ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(120,130,150,0.85)';
+  ctx.fillText('0', ax - 8, PY(0) + 4); ctx.fillText('1', ax - 8, PY(1) + 4); ctx.fillText('2', ax - 8, PY(2) + 4);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#ef476f';
+  ctx.fillText(`t = ${st.t.toFixed(2)},  ratio = ${rc.toFixed(3)}`, PX(st.t) + 9, PY(rc) - 9);
+}
+
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   const Ain = drawBlob(LCX, 'phase grid + blob  (q, p)', (q, p) => [q, p], false);
   const Aout = drawBlob(RCX, `image  (Q, P)  ${st.map}  t=${st.t.toFixed(2)}`, (q, p) => morph(q, p, st.t), true);
   const pb = poissonBracket(st.map, 0.6, 0.4, fullPar());
   drawMapBanner(RCX, pb);
+  drawAreaRatio();
   rMap.textContent = st.map;
   rPB.textContent = pb.toFixed(4);
   rAI.textContent = Ain.toFixed(4);
@@ -177,6 +233,10 @@ function bootSync() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     }));
+  } else if (!prefersReducedMotion()) {
+    // Auto-morph on load so the deformation plays without a click; any
+    // input on the morph slider pauses it (handled in the sT listener).
+    setPlaying(true);
   }
 }
 

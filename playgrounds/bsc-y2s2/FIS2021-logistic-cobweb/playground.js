@@ -34,9 +34,11 @@ const btnPlayPause = document.getElementById('btn-playpause');
 const btnReset     = document.getElementById('btn-reset');
 const x0Input      = document.getElementById('input-x0');
 
-// Layout constants (pixel coordinates inside the 720x480 canvas)
-const COBWEB = { x: 50,  y: 30,  w: 300, h: 300 };
-const BIF    = { x: 400, y: 30,  w: 300, h: 400, rmin: 2.0, rmax: 4.0 };
+// Layout constants for the 820x1040 portrait canvas: a large square cobweb
+// on top, a full-width bifurcation diagram below (was two small panels in
+// the top third with the lower two thirds empty).
+const COBWEB = { x: 150, y: 44,  w: 520, h: 520 };
+const BIF    = { x: 70,  y: 632, w: 680, h: 356, rmin: 2.0, rmax: 4.0 };
 const SCATTER_KEEP   = 200;
 const SCATTER_BURN   = 256;
 const SCATTER_NCOLS  = BIF.w;
@@ -337,6 +339,7 @@ function setRfromPixel(px) {
 function onPointerDown(e) {
   const p = canvasPos(e);
   if (inBif(p)) {
+    pauseSweep();                       // grabbing r to inspect halts the auto-sweep
     state.dragging = true;
     canvas.setPointerCapture?.(e.pointerId);
     setRfromPixel(p.x);
@@ -357,6 +360,7 @@ canvas.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft')  step = -1;
   if (e.key === 'ArrowRight') step = +1;
   if (step !== 0) {
+    pauseSweep();
     const dr = e.shiftKey ? 0.001 : 0.01;
     state.r = clamp(state.r + step * dr, 0.001, 4);
     recomputeCheap();
@@ -377,6 +381,7 @@ btnReset.addEventListener('click', () => {
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+  if (state.playing) startSweep();
 });
 x0Input.addEventListener('change', () => {
   const v = parseFloat(x0Input.value);
@@ -389,6 +394,33 @@ x0Input.addEventListener('change', () => {
     x0Input.value = state.x0.toFixed(3);
   }
 });
+
+//
+// Auto-sweep of r through the period-doubling cascade: the r-line glides
+// across the bifurcation diagram while the cobweb staircase morphs from a
+// fixed point through 2- and 4-cycles into the chaotic tangle.
+//
+
+let sweepRaf = 0, sweepDir = 1, sweepLast = 0;
+function sweepStep(now) {
+  if (!state.playing) { sweepRaf = 0; return; }
+  if (!state.dragging) {
+    const dt = Math.min(0.05, (now - sweepLast) / 1000 || 0);
+    state.r += sweepDir * dt * 0.09;                       // ~16 s across the cascade
+    if (state.r >= 3.999) { state.r = 3.999; sweepDir = -1; }
+    else if (state.r <= 2.6) { state.r = 2.6; sweepDir = 1; }
+    recomputeCheap();
+    drawAll();
+    updateReadouts();
+  }
+  sweepLast = now;
+  sweepRaf = requestAnimationFrame(sweepStep);
+}
+function startSweep() { if (!sweepRaf) { sweepLast = performance.now(); sweepRaf = requestAnimationFrame(sweepStep); } }
+function pauseSweep() {
+  if (state.playing) { state.playing = false; btnPlayPause.textContent = 'Play'; }
+  if (sweepRaf) { cancelAnimationFrame(sweepRaf); sweepRaf = 0; }
+}
 
 //
 // Capture mode and main loop.
@@ -409,6 +441,7 @@ function boot() {
   recomputeCascade();
   drawAll();
   updateReadouts();
+  if (state.playing) { btnPlayPause.textContent = 'Pause'; startSweep(); }
 
   if (DETERMINISTIC) {
     requestAnimationFrame(() => {

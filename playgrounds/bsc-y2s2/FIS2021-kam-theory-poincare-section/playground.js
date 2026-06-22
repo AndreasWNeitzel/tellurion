@@ -1,4 +1,5 @@
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 // KAM / Chirikov standard map Poincare section (Canvas2D). A grid of
 // seed orbits iterated on the (theta, p) torus; below K_c they lie
 // on nested KAM curves, above it the chaotic sea spreads. sim.js is
@@ -71,12 +72,31 @@ function render() {
   vK.textContent = K.toFixed(2); vOrb.textContent = String(nOrb); vIt.textContent = String(nIt);
 }
 
-sK.addEventListener('input', () => { st.K = parseFloat(sK.value); render(); });
-sOrb.addEventListener('input', () => { st.orbits = parseInt(sOrb.value, 10); render(); });
-sIt.addEventListener('input', () => { st.iters = parseInt(sIt.value, 10); render(); });
+// Auto-sweep K from integrable (nested tori) up through the critical
+// value into the chaotic sea, so the KAM breakup is something you watch.
+// Any slider input pauses the sweep; reset restarts it.
+let playing = false, raf = 0, kdir = 1, last = 0;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  st.K += kdir * dt * 0.18;                                // ~16 s sweep 0 -> 3
+  if (st.K >= 3) { st.K = 3; kdir = -1; } else if (st.K <= 0) { st.K = 0; kdir = 1; }
+  sK.value = String(st.K);
+  render();
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) {
+  playing = on;
+  if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) cancelAnimationFrame(raf);
+}
+
+sK.addEventListener('input', () => { setPlaying(false); st.K = parseFloat(sK.value); render(); });
+sOrb.addEventListener('input', () => { setPlaying(false); st.orbits = parseInt(sOrb.value, 10); render(); });
+sIt.addEventListener('input', () => { setPlaying(false); st.iters = parseInt(sIt.value, 10); render(); });
 bR.addEventListener('click', () => {
-  st.K = 0.5; st.orbits = 22; st.iters = 420;
-  sK.value = '0.5'; sOrb.value = '22'; sIt.value = '420'; render();
+  st.K = 0.0; st.orbits = 22; st.iters = 420; kdir = 1;
+  sK.value = '0'; sOrb.value = '22'; sIt.value = '420'; render();
+  if (!prefersReducedMotion()) setPlaying(true);
 });
 
 function bootSync() {
@@ -91,6 +111,9 @@ function bootSync() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     }));
+  } else if (!prefersReducedMotion()) {
+    st.K = 0.0; sK.value = '0';                            // start integrable, sweep up
+    setPlaying(true);
   }
 }
 

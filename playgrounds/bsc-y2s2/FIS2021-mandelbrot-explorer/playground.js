@@ -45,6 +45,8 @@ const state = {
   // and ~ 30 sec to reach 1e-10).
   zoomFactor: 0.985,
   zoomFloor: 1e-13,
+  zoomLoop: false,     // when set, auto-zoom ping-pongs forever (reel mode)
+  zoomDir: 1,          // 1 = zooming in (width shrinks), -1 = zooming out
   rafId: null,
   hover: null,
   palette: null,
@@ -322,10 +324,18 @@ function startAutoZoom() {
   btnAutoZoom.textContent = 'Stop zoom';
   const tick = () => {
     if (!state.autoZoom) return;
-    state.width *= state.zoomFactor;
-    if (state.width < state.zoomFloor) {
-      stopAutoZoom();
-      return;
+    if (state.zoomLoop) {
+      // Ping-pong: zoom in to a moderate depth, then back out, forever, so
+      // the reel never hits a hard cut. Click recentres, reset/button stop.
+      state.width *= state.zoomDir < 0 ? (1 / state.zoomFactor) : state.zoomFactor;
+      if (state.width < 8e-6) state.zoomDir = -1;
+      else if (state.width > 3.4) state.zoomDir = 1;
+    } else {
+      state.width *= state.zoomFactor;
+      if (state.width < state.zoomFloor) {
+        stopAutoZoom();
+        return;
+      }
     }
     // Direct render every frame. Downsample adapts: 2x while the view is
     // wide (cheap), 3x at deep zoom (maxIter is high). With maxIter capped
@@ -342,7 +352,7 @@ function startAutoZoom() {
 
 btnAutoZoom.addEventListener('click', () => {
   if (state.autoZoom) stopAutoZoom();
-  else startAutoZoom();
+  else { state.zoomLoop = false; startAutoZoom(); }   // manual = single zoom to floor
 });
 
 btnZoomOut.addEventListener('click', () => {
@@ -405,7 +415,19 @@ function bootSync() {
     return;
   }
 
+  // Live: open on Seahorse Valley and ping-pong auto-zoom so the boundary's
+  // self-similarity is in motion on load. Any click recentres the zoom; the
+  // zoom button or reset hands control back to manual exploration.
+  const T = ZOOM_TARGETS.seahorse;
+  state.cx = T.cx;
+  state.cy = T.cy;
+  state.width = 3.5;
   refresh(1);
+  if (!prefersReducedMotion()) {
+    state.zoomLoop = true;
+    state.zoomDir = 1;
+    startAutoZoom();
+  }
 }
 
 if (document.readyState === 'loading') {

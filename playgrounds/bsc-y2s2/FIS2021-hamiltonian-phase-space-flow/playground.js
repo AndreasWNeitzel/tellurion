@@ -85,6 +85,13 @@ function render() {
 function tick(now) { const dt = (now - last) / 1000; last = now; render(); requestAnimationFrame(tick); }
 function bootSync() {
   if (CAPTURE_NAME) { tracers = []; for (let i = -2; i <= 2; i += 1) for (let j = -2; j <= 2; j += 1) tracers.push({ q: i * 0.8, p: j * 0.8, trail: [] }); for (let n = 0; n < 200; n += 1) for (const tr of tracers) { const nx = leapfrog(tr.q, tr.p, 0.05, st.system); tr.q = nx.q; tr.p = nx.p; tr.trail.push([tr.q, tr.p]); } }
+  else if (!DETERMINISTIC) {
+    // Seed a grid of orbits on load so the symplectic flow is moving
+    // immediately. With no tracers the page shows only the static flow
+    // field and reads as frozen; the orbits are what animate.
+    tracers = [];
+    for (let i = -3; i <= 3; i += 1) for (let j = -3; j <= 3; j += 1) tracers.push({ q: i * 0.7, p: j * 0.6, trail: [] });
+  }
   render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }, { once: true }); } else { bootSync(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }

@@ -33,14 +33,21 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const ATT = { x: 40, y: 30, w: 480, h: 400, xmin: -1.6, xmax: 1.6, ymin: -0.5, ymax: 0.5 };
-const PAR = { x: 560, y: 30, w: 130, h: 130, amin: 1.0, amax: 1.5, bmin: 0.1, bmax: 0.4 };
+// Three full-height rows so the tall portrait canvas is used end to end:
+// the Henon attractor on top, the Lyapunov spectrum lambda_1,2(a) in the
+// middle, the (a,b) parameter picker plus a caption on the bottom (was two
+// panels stranded in the top ~40% with the lower 60% empty).
+const ATT  = { x: 56, y: 52, w: W - 112, h: 372, xmin: -1.55, xmax: 1.55, ymin: -0.42, ymax: 0.42 };
+const SPEC = { x: 72, y: 492, w: W - 144, h: 300, amin: 1.0, amax: 1.42, lmin: -1.85, lmax: 0.6 };
+const PAR  = { x: 72, y: 820, w: 160, h: 160, amin: 1.0, amax: 1.5, bmin: 0.1, bmax: 0.4 };
 
 const state = {
   a: 1.4,
   b: 0.3,
   result: null,
   attractor: null,
+  specCurve: null,
+  specB: NaN,
   playing: !(DETERMINISTIC || prefersReducedMotion()),
   dragging: false,
 };
@@ -197,11 +204,117 @@ function drawParameterPanel() {
   ctx.restore();
 }
 
+// The spectrum lambda_1,2(a) at the current b. Cached because each sample
+// is a 40k-step accumulation; it only changes when b changes, not as a
+// sweeps, so the auto-sweep reuses one cached curve.
+function computeSpectrumCurve() {
+  const n = 88, out = [];
+  for (let i = 0; i < n; i += 1) {
+    const a = SPEC.amin + (SPEC.amax - SPEC.amin) * i / (n - 1);
+    const r = lyapunovSpectrum(a, state.b, { burnIn: 600, accum: 40_000 });
+    out.push({ a, l1: r.bounded ? r.lambda1 : NaN, l2: r.bounded ? r.lambda2 : NaN });
+  }
+  state.specCurve = out;
+  state.specB = state.b;
+}
+
+function drawSpectrum() {
+  const { x: ox, y: oy, w, h, amin, amax, lmin, lmax } = SPEC;
+  const PX = (a) => ox + (a - amin) / (amax - amin) * w;
+  const PY = (l) => oy + (1 - (Math.max(lmin, Math.min(lmax, l)) - lmin) / (lmax - lmin)) * h;
+
+  ctx.fillStyle = tokens.surface;
+  ctx.fillRect(ox, oy, w, h);
+
+  // shade the chaotic columns (lambda_1 > 0)
+  if (state.specCurve) {
+    ctx.fillStyle = 'rgba(193,59,39,0.10)';
+    for (let i = 0; i + 1 < state.specCurve.length; i += 1) {
+      const c0 = state.specCurve[i], c1 = state.specCurve[i + 1];
+      if (c0.l1 > 0) ctx.fillRect(PX(c0.a), oy, PX(c1.a) - PX(c0.a) + 1, h);
+    }
+  }
+
+  ctx.strokeStyle = tokens.fgFaint;
+  ctx.lineWidth = 0.8;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(ox, PY(0)); ctx.lineTo(ox + w, PY(0)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = tokens.grid;
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(ox + 0.5, oy + 0.5, w - 1, h - 1);
+
+  const drawCurve = (key, color) => {
+    ctx.strokeStyle = color; ctx.lineWidth = 1.8; ctx.beginPath();
+    let started = false;
+    for (const c of state.specCurve) {
+      const v = c[key];
+      if (!Number.isFinite(v)) { started = false; continue; }
+      const px = PX(c.a), py = PY(v);
+      if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  };
+  if (state.specCurve) { drawCurve('l2', tokens.fgMuted); drawCurve('l1', tokens.accentWarm); }
+
+  const acx = PX(Math.max(amin, Math.min(amax, state.a)));
+  ctx.strokeStyle = tokens.accent;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(acx, oy); ctx.lineTo(acx, oy + h); ctx.stroke();
+  if (state.result && state.result.bounded) {
+    ctx.fillStyle = tokens.accent;
+    ctx.beginPath(); ctx.arc(acx, PY(state.result.lambda1), 4.5, 0, 2 * Math.PI); ctx.fill();
+  }
+
+  ctx.fillStyle = tokens.fgMuted;
+  ctx.font = fontString(canvas, 'caption');
+  ctx.textAlign = 'left';
+  ctx.fillText('Lyapunov spectrum vs a   (shaded: lambda_1 > 0, chaos)', ox, oy - 10);
+
+  ctx.font = fontString(canvas, 'tick');
+  ctx.fillStyle = tokens.fgFaint;
+  ctx.textAlign = 'center';
+  for (const at of [1.0, 1.1, 1.2, 1.3, 1.4]) ctx.fillText(at.toFixed(1), PX(at), oy + h + 14);
+  ctx.fillText('a', ox + w / 2, oy + h + 28);
+  ctx.textAlign = 'right';
+  for (const lt of [0.4, 0, -0.4, -0.8, -1.2, -1.6]) ctx.fillText(lt.toFixed(1), ox - 5, PY(lt) + 3);
+  ctx.save();
+  ctx.translate(ox - 38, oy + h / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('lambda', 0, 0);
+  ctx.restore();
+
+  // legend
+  ctx.textAlign = 'left';
+  ctx.fillStyle = tokens.accentWarm; ctx.fillRect(ox + w - 116, oy + 9, 16, 3);
+  ctx.fillStyle = tokens.fgMuted; ctx.fillText('lambda_1', ox + w - 96, oy + 13);
+  ctx.fillStyle = tokens.fgMuted; ctx.fillRect(ox + w - 116, oy + 24, 16, 3);
+  ctx.fillText('lambda_2', ox + w - 96, oy + 28);
+}
+
+function drawCaption() {
+  const tx = PAR.x + PAR.w + 34, ty = PAR.y + 16;
+  ctx.fillStyle = tokens.fgMuted;
+  ctx.font = fontString(canvas, 'caption');
+  ctx.textAlign = 'left';
+  const lines = [
+    "Henon map:  x' = 1 - a x^2 + y,   y' = b x",
+    'lambda_1 + lambda_2 = ln|b|  (constant area contraction)',
+    'lambda_1 > 0 is the signature of chaos.',
+    'Drag the (a,b) handle to explore; a sweeps automatically.',
+  ];
+  lines.forEach((s, i) => ctx.fillText(s, tx, ty + i * 26));
+}
+
 function drawAll() {
   ctx.fillStyle = tokens.bg;
   ctx.fillRect(0, 0, W, H);
   drawAttractor();
+  drawSpectrum();
   drawParameterPanel();
+  drawCaption();
 }
 
 function updateReadouts() {
@@ -259,6 +372,7 @@ function setFromPar(p) {
   _pendingRecompute = true;
   requestAnimationFrame(() => {
     _pendingRecompute = false;
+    if (Math.abs(state.b - state.specB) > 1e-4) computeSpectrumCurve();
     recompute();
     drawAll();
     updateReadouts();
@@ -268,6 +382,7 @@ function setFromPar(p) {
 canvas.addEventListener('pointerdown', (e) => {
   const p = canvasPos(e);
   if (inPar(p)) {
+    pauseSweep();
     state.dragging = true;
     canvas.setPointerCapture?.(e.pointerId);
     setFromPar(p);
@@ -283,6 +398,7 @@ canvas.addEventListener('pointercancel', () => { state.dragging = false; });
 btnReset.addEventListener('click', () => {
   state.a = 1.4;
   state.b = 0.3;
+  if (Math.abs(state.b - state.specB) > 1e-4) computeSpectrumCurve();
   recompute();
   drawAll();
   updateReadouts();
@@ -290,18 +406,48 @@ btnReset.addEventListener('click', () => {
 btnPlayPause.addEventListener('click', () => {
   state.playing = !state.playing;
   btnPlayPause.textContent = state.playing ? 'Pause' : 'Play';
+  if (state.playing) startSweep();
 });
+
+// Auto-sweep the nonlinearity a from the periodic regime up to the canonical
+// chaotic attractor at a = 1.4; the cursor on the spectrum tracks where
+// lambda_1 crosses zero. Dragging the (a,b) handle halts the sweep.
+let sweepRaf = 0, sweepDir = 1, sweepLast = 0;
+function sweepStep(now) {
+  if (!state.playing) { sweepRaf = 0; return; }
+  if (!state.dragging) {
+    const dt = Math.min(0.05, (now - sweepLast) / 1000 || 0);
+    state.a += sweepDir * dt * ((SPEC.amax - SPEC.amin) / 16);   // ~16 s end to end
+    if (state.a >= SPEC.amax) { state.a = SPEC.amax; sweepDir = -1; }
+    else if (state.a <= SPEC.amin) { state.a = SPEC.amin; sweepDir = 1; }
+    recompute();
+    drawAll();
+    updateReadouts();
+  }
+  sweepLast = now;
+  sweepRaf = requestAnimationFrame(sweepStep);
+}
+function startSweep() { if (!sweepRaf) { sweepLast = performance.now(); sweepRaf = requestAnimationFrame(sweepStep); } }
+function pauseSweep() {
+  if (state.playing) { state.playing = false; btnPlayPause.textContent = 'Play'; }
+  if (sweepRaf) { cancelAnimationFrame(sweepRaf); sweepRaf = 0; }
+}
 
 function bootSync() {
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    state.a = PAR.amin + frac * (PAR.amax - PAR.amin);
-    state.b = PAR.bmin + frac * (PAR.bmax - PAR.bmin);
+    state.a = 1.2 + frac * (1.42 - 1.2);                   // populated attractor across all frames
+    state.b = 0.3;
     state.playing = false;
+  } else if (state.playing) {
+    state.a = 1.4;                                         // open on the iconic chaotic attractor
+    sweepDir = -1;                                         // then sweep down through the cascade
   }
+  computeSpectrumCurve();
   recompute();
   drawAll();
   updateReadouts();
+  if (state.playing) { btnPlayPause.textContent = 'Pause'; startSweep(); }
   if (DETERMINISTIC) {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
