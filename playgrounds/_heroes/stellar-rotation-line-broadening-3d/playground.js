@@ -191,9 +191,9 @@ function render() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
 
-  // Star on the left.
-  const R = 130;
-  drawStar(220, 200, R);
+  // Star centred in the top region.
+  const R = 230;
+  drawStar(410, 300, R);
 
   // Top-left small labels.
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
@@ -202,8 +202,8 @@ function render() {
   ctx.fillText(`v sin i = ${st.vsiniKmS.toFixed(0)} km/s    i = ${st.inc.toFixed(0)}°`, 24, 22);
   ctx.fillText('blue limb approaches → blueshift; red limb recedes → redshift', 24, 40);
 
-  // Profile panel right + below.
-  drawProfilePanel(420, 30, 460, 360);
+  // Profile panel full-width below.
+  drawProfilePanel(40, 620, 740, 360);
 
   // HWHD readout.
   const hw = halfWidthHalfDepth(st.wavelengths, st.profile, st.depth);
