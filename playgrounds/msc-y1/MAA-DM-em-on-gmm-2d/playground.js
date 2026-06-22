@@ -274,10 +274,11 @@ function bootSync() {
 }
 
 // Auto-run mode: when enabled, run one EM step per frame; users can pause.
-let autoRun = false;
+let autoRun = !(DETERMINISTIC || prefersReducedMotion());
 let autoFrame = 0;
 const btnPlayPause = document.getElementById('btn-playpause');
 if (btnPlayPause) {
+  btnPlayPause.textContent = autoRun ? 'Pause auto-run' : 'Auto-run';
   btnPlayPause.addEventListener('click', () => {
     autoRun = !autoRun;
     btnPlayPause.textContent = autoRun ? 'Pause auto-run' : 'Auto-run';
@@ -287,7 +288,8 @@ function autoTick() {
   if (autoRun && !CAPTURE_NAME) {
     autoFrame += 1;
     if (autoFrame % 6 === 0) {
-      step();
+      if (state.iter > 35) initParams();          // converged: restart the EM demo so it loops
+      else step();
       drawAll();
     }
   }

@@ -27,7 +27,7 @@ const btnReset  = document.getElementById('btn-reset');
 const btnFlip   = document.getElementById('btn-flip');
 
 const W = canvas.width, H = canvas.height;
-const PLOT = { x: 70, y: 50, w: 660, h: 380, ymin: 0, ymax: 6 };
+const PLOT = { x: 80, y: 64, w: 660, h: 876, ymin: 0, ymax: 6 };   // fill the portrait height (was h=380, a top-40% band)
 
 const rng = makeRng(0xC0FFEE);
 
@@ -203,7 +203,11 @@ function applyControls() {
   valueN.textContent  = String(state.n);
   drawAll();
 }
-[sliderA0, sliderB0, sliderK, sliderN].forEach(s => s.addEventListener('input', applyControls));
+// Auto-stream coin flips so the posterior sharpens and walks toward the true
+// bias on load; once data accumulate, restart from the prior to loop the
+// "data overwhelms the prior" story. Any control pauses it.
+let playing = !(DETERMINISTIC || prefersReducedMotion()), _last = (typeof performance !== 'undefined' ? performance.now() : 0), _acc = 0;
+[sliderA0, sliderB0, sliderK, sliderN].forEach(s => s.addEventListener('input', () => { playing = false; applyControls(); }));
 // Prior preset dropdown: snaps alpha0, beta0 to one of four classic
 // hyperprior choices so the user can see the prior bias dominate when
 // it is strong and recede when data are abundant.
@@ -212,6 +216,7 @@ const PRIOR_PRESETS = {
 };
 const selPrior = document.getElementById('select-prior');
 if (selPrior) selPrior.addEventListener('change', () => {
+  playing = false;
   const p = PRIOR_PRESETS[selPrior.value]; if (!p) return;
   sliderA0.value = String(p[0]); sliderB0.value = String(p[1]);
   applyControls();
@@ -220,17 +225,29 @@ btnReset.addEventListener('click', () => {
   sliderA0.value = '2'; sliderB0.value = '2'; sliderK.value = '7'; sliderN.value = '10';
   if (selPrior) selPrior.value = 'flat';
   applyControls();
+  if (!prefersReducedMotion()) playing = true;
 });
-btnFlip.addEventListener('click', () => {
+function doFlip(m) {
   let extraHeads = 0;
-  for (let i = 0; i < 5; i += 1) if (rng() < state.trueBias) extraHeads += 1;
-  state.n += 5;
-  state.k += extraHeads;
-  sliderN.value = String(state.n);
-  sliderK.value = String(state.k);
+  for (let i = 0; i < m; i += 1) if (rng() < state.trueBias) extraHeads += 1;
+  state.n += m; state.k += extraHeads;
+  sliderN.value = String(state.n); sliderK.value = String(state.k);
   if (state.n > 50) { sliderN.max = String(state.n); sliderK.max = String(state.n); }
   applyControls();
-});
+}
+btnFlip.addEventListener('click', () => { playing = false; doFlip(5); });
+function tick(now) {
+  if (playing) {
+    _acc += (now - _last) / 1000;
+    if (_acc > 0.4) {
+      _acc = 0;
+      if (state.n >= 60) { state.n = 0; state.k = 0; sliderN.value = '0'; sliderK.value = '0'; sliderN.max = '50'; sliderK.max = '50'; applyControls(); }
+      else doFlip(3);
+    }
+  }
+  _last = now;
+  requestAnimationFrame(tick);
+}
 
 function bootSync() {
   if (CAPTURE_NAME) {
@@ -258,9 +275,9 @@ function bootSync() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick);
 }
 
 

@@ -131,12 +131,28 @@ function drawAll() {
   }
 }
 
-selKernel.addEventListener('change', () => { state.kernel = selKernel.value; drawAll(); });
-sliderEll.addEventListener('input', () => { state.ell = parseFloat(sliderEll.value); valueEll.textContent = state.ell.toFixed(2); drawAll(); });
-sliderSf.addEventListener('input', () => { state.sf = parseFloat(sliderSf.value); valueSf.textContent = state.sf.toFixed(2); drawAll(); });
-sliderSn.addEventListener('input', () => { state.sn = parseFloat(sliderSn.value); valueSn.textContent = state.sn.toFixed(2); drawAll(); });
-btnClear.addEventListener('click', () => { state.xObs = []; state.yObs = []; drawAll(); });
-btnResample.addEventListener('click', () => { state.priorSeed += 17; drawAll(); });
+// Auto-sweep the length scale so the prior samples and the posterior morph
+// from wiggly (short ell) to smooth (long ell), the core GP intuition. Any
+// control pauses it.
+let playing = !(DETERMINISTIC || prefersReducedMotion()), ellDir = 1, _last = (typeof performance !== 'undefined' ? performance.now() : 0);
+const ellLo = parseFloat(sliderEll.min) || 0.1, ellHi = parseFloat(sliderEll.max) || 2;
+selKernel.addEventListener('change', () => { playing = false; state.kernel = selKernel.value; drawAll(); });
+sliderEll.addEventListener('input', () => { playing = false; state.ell = parseFloat(sliderEll.value); valueEll.textContent = state.ell.toFixed(2); drawAll(); });
+sliderSf.addEventListener('input', () => { playing = false; state.sf = parseFloat(sliderSf.value); valueSf.textContent = state.sf.toFixed(2); drawAll(); });
+sliderSn.addEventListener('input', () => { playing = false; state.sn = parseFloat(sliderSn.value); valueSn.textContent = state.sn.toFixed(2); drawAll(); });
+btnClear.addEventListener('click', () => { playing = false; state.xObs = []; state.yObs = []; drawAll(); });
+btnResample.addEventListener('click', () => { playing = false; state.priorSeed += 17; drawAll(); });
+function tick(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    state.ell += ellDir * dt * ((ellHi - ellLo) / 11);
+    if (state.ell >= ellHi) { state.ell = ellHi; ellDir = -1; } else if (state.ell <= ellLo) { state.ell = ellLo; ellDir = 1; }
+    sliderEll.value = String(state.ell); valueEll.textContent = state.ell.toFixed(2);
+    drawAll();
+  }
+  _last = now;
+  requestAnimationFrame(tick);
+}
 
 canvas.addEventListener('click', (ev) => {
   const rect = canvas.getBoundingClientRect();
@@ -149,6 +165,7 @@ canvas.addEventListener('click', (ev) => {
     const POST = { x: PAD, y: 30 + (H - 100) / 2 + 30, w: W - 2 * PAD, h: (H - 100) / 2, ymin: -3, ymax: 3 };
     const xv = X_MIN + (X_MAX - X_MIN) * (cx - POST.x) / POST.w;
     const yv = POST.ymin + (POST.ymax - POST.ymin) * (1 - (cy - POST.y) / POST.h);
+    playing = false;
     state.xObs.push(xv); state.yObs.push(yv);
     drawAll();
   }
@@ -178,9 +195,9 @@ function bootSync() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick);
 }
 
 
