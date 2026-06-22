@@ -38,11 +38,12 @@ function frac() { return normaliseFractions({ iron: st.fIron, silicate: st.fSil,
 let sol = solvePlanet({ massEarth: st.Mearth, frac: frac() });
 function rebuild() { sol = solvePlanet({ massEarth: st.Mearth, frac: frac() }); }
 
-// Layout (1200 x 680 canvas).
-const NX = 30, NY = 50, NW = 580, NH = 580;        // cutaway scene
+// Layout (820 x 1040 portrait): cutaway on top, the two diagnostic panels
+// side by side below.
+const NX = 30, NY = 40, NW = 760, NH = 580;        // cutaway scene
 const cx0 = NX + NW * 0.5, cy0 = NY + NH * 0.5 - 6;
-const PX = NX + NW + 30, PY = 50, PW = 520, PH = 270;       // M-R curve
-const PSX = NX + NW + 30, PSY = 360, PSW = 520, PSH = 270;  // pressure profile
+const PX = 30, PY = 650, PW = 370, PH = 360;       // M-R curve
+const PSX = 420, PSY = 650, PSW = 370, PSH = 360;  // pressure profile
 
 // Layer colours (warm core to cool envelope).
 const LCOL = {
