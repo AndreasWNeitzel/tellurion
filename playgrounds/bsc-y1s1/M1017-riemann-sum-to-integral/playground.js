@@ -17,11 +17,10 @@ const CAPTURE_NAME = params.get('capture');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
-const btnFunc = document.getElementById('btn-func'), vFunc = document.getElementById('value-func');
-const btnRule = document.getElementById('btn-rule'), vRule = document.getElementById('value-rule');
+const selFunc = document.getElementById('select-func');
+const selRule = document.getElementById('select-rule');
 const btnReset = document.getElementById('btn-reset');
 
-const FKEYS = Object.keys(FUNCS);
 const st = { func: 'quad', rule: 'left', n: 8 };
 function fn() { return FUNCS[st.func]; }
 
@@ -30,10 +29,10 @@ function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.35 }, { name: 'diag', weight: 0.86 }]);
 }
-function syncVals() { vN.textContent = String(st.n); vFunc.textContent = fn().label; vRule.textContent = st.rule; }
+function syncVals() { vN.textContent = String(st.n); selFunc.value = st.func; selRule.value = st.rule; }
 sN.addEventListener('input', () => { st.n = parseInt(sN.value, 10); syncVals(); render(); });
-btnFunc.addEventListener('click', () => { st.func = FKEYS[(FKEYS.indexOf(st.func) + 1) % FKEYS.length]; syncVals(); render(); });
-btnRule.addEventListener('click', () => { st.rule = RULES[(RULES.indexOf(st.rule) + 1) % RULES.length]; syncVals(); render(); });
+selFunc.addEventListener('change', () => { st.func = selFunc.value; syncVals(); render(); });
+selRule.addEventListener('change', () => { st.rule = selRule.value; syncVals(); render(); });
 btnReset.addEventListener('click', () => { st.func = 'quad'; st.rule = 'left'; st.n = 8; sN.value = '8'; syncVals(); render(); });
 
 function colors() {

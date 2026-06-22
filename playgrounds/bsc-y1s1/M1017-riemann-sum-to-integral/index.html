@@ -17,7 +17,8 @@
     .pg-controls .row { display: grid; grid-template-columns: 5ch 1fr 5ch; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); }
     .pg-controls input[type="range"] { width: 100%; }
-    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: 9ch 1fr; gap: var(--space-3); }
     .pg-controls .row.wide .value { text-align: left; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
@@ -62,8 +63,8 @@
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Riemann sum controls">
     <div class="row"><span class="label">n</span><input aria-label="number of rectangles" type="range" id="slider-n" min="1" max="100" step="1" value="8"><span class="value" id="value-n">8</span></div>
-    <div class="row wide"><button id="btn-rule" type="button">Next rule</button><span class="value" id="value-rule">left</span></div>
-    <div class="row wide"><button id="btn-func" type="button">Next function</button><span class="value" id="value-func">f = x^2 on [0, 2]</span></div>
+    <div class="row wide"><label class="label" for="select-rule">rule</label><select id="select-rule" aria-label="integration rule"><option value="left">left endpoint</option><option value="right">right endpoint</option><option value="midpoint">midpoint</option><option value="trapezoid">trapezoid</option></select></div>
+    <div class="row wide"><label class="label" for="select-func">function</label><select id="select-func" aria-label="integrand"><option value="quad">f = x^2 on [0, 2]</option><option value="sine">f = sin x on [0, pi]</option><option value="exp">f = e^x on [0, 1.5]</option><option value="arctan">f = 1/(1+x^2) on [-2, 2]</option></select></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
     </div>
