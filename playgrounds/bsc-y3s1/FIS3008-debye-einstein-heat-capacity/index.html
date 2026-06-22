@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Specific Heat of Solids</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr 1fr; grid-column: span 2; gap: var(--space-3); }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Specific Heat of Solids</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Classical physics predicts that every solid has the same molar heat capacity, $3Nk$, the law of Dulong and Petit, and at room temperature most do. But cool a crystal toward absolute zero and its heat capacity collapses, something classical equipartition cannot explain. Einstein gave the first quantum account by treating every atom as an independent oscillator of a single frequency: the modes freeze out when $kT$ drops below $\hbar\omega_E$, and the heat capacity falls. It was the right idea but the wrong detail. Einstein's curve drops exponentially at low temperature, while real solids follow a gentler power law. Debye fixed it by replacing the single frequency with a whole spectrum of sound waves up to a cutoff, the Debye frequency, and the long-wavelength acoustic modes survive to very low temperature and give the famous $T^3$ law. The scene plots both heat capacities against temperature, sharing the Dulong-Petit plateau at high $T$ but parting ways in the cold, and a sweeping cursor reads each one off. The lower panel puts them on log-log axes, where the Debye curve becomes a straight line of slope three (the $T^3$ law) and the Einstein curve bends sharply away below it: the same data that told physicists in 1912 which model nature actually uses.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="The Debye and Einstein lattice heat capacities plotted against temperature with the Dulong-Petit plateau and a sweeping cursor, and the same curves on log-log axes showing the Debye T-cubed line and the Einstein exponential falloff."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Specific heat of solids. Top: the Debye (orange) and Einstein (blue) heat capacities C/3Nk against temperature, sharing the Dulong-Petit plateau and read by a sweeping cursor; ticks mark the Debye and Einstein temperatures. Bottom: log-log axes, where the Debye low-T behaviour is the straight T^3 line (slope 3) and the Einstein model falls exponentially. Method: closed-form Einstein and Debye (numerical Debye integral). Source: Ashcroft and Mermin, Solid State Physics, Ch. 23.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Heat capacity controls">
+    <div class="row"><label for="s-td">Debye temperature</label><input type="range" id="s-td" min="80" max="600" step="5" value="400"><span class="value" id="v-td">400 K</span></div>
+    <div class="row"><label for="s-te">Einstein temperature</label><input type="range" id="s-te" min="80" max="600" step="5" value="320"><span class="value" id="v-te">320 K</span></div>
+    <div class="row buttons">
+      <button id="btn-sweep" type="button" aria-pressed="true">Sweep T: on</button>
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Let the cursor sweep to high $T$: both heat capacities flatten at the Dulong-Petit value $3Nk$.</li>
+        <li class="t-body">Sweep to low $T$: the Einstein curve plunges far below the Debye curve, freezing out too fast.</li>
+        <li class="t-body">Read the log-log panel: the Debye curve is a straight line of slope 3, the $T^3$ law; the Einstein line peels away.</li>
+        <li class="t-body">Raise the Debye temperature (a stiffer, lighter crystal like diamond): the whole curve shifts to higher $T$.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
