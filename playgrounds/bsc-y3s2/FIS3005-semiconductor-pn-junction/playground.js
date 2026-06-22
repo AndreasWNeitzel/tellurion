@@ -9,6 +9,7 @@ import {
   chargeDensity, peakField, diodeCurrentOverI0, junctionCapacitance,
   thermalVoltage,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -236,13 +237,31 @@ function render() {
 }
 
 function syncLabels() { vV.textContent = st.V.toFixed(2); vNA.textContent = st.lna.toFixed(1); vND.textContent = st.lnd.toFixed(1); }
-sV.addEventListener('input', () => { st.V = parseFloat(sV.value); syncLabels(); render(); });
-sNA.addEventListener('input', () => { st.lna = parseFloat(sNA.value); syncLabels(); render(); });
-sND.addEventListener('input', () => { st.lnd = parseFloat(sND.value); syncLabels(); render(); });
-selView.addEventListener('change', () => { st.view = selView.value; render(); });
+// Auto-sweep the bias from reverse to forward so the junction responds on
+// load: the bands bend, the depletion width breathes, and the operating
+// point slides along the I-V curve. Any control input pauses it.
+let playing = false, raf = 0, vDir = 1, last = 0;
+const vLo = parseFloat(sV.min); const vHi = parseFloat(sV.max);
+const vMin = Number.isFinite(vLo) ? vLo : -8, vMax = Number.isFinite(vHi) ? vHi : 0.6;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  st.V += vDir * dt * ((vMax - vMin) / 12);
+  if (st.V >= vMax) { st.V = vMax; vDir = -1; } else if (st.V <= vMin) { st.V = vMin; vDir = 1; }
+  sV.value = String(st.V); syncLabels(); render();
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) { playing = on; if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+function pause() { if (playing) setPlaying(false); }
+
+sV.addEventListener('input', () => { pause(); st.V = parseFloat(sV.value); syncLabels(); render(); });
+sNA.addEventListener('input', () => { pause(); st.lna = parseFloat(sNA.value); syncLabels(); render(); });
+sND.addEventListener('input', () => { pause(); st.lnd = parseFloat(sND.value); syncLabels(); render(); });
+selView.addEventListener('change', () => { st.view = selView.value; render(); });   // sweep continues across views
 bR.addEventListener('click', () => {
   st.V = 0; st.lna = 22; st.lnd = 21.7; st.view = 'bands';
-  sV.value = '0'; sNA.value = '22'; sND.value = '21.7'; selView.value = 'bands'; syncLabels(); render();
+  sV.value = '0'; sNA.value = '22'; sND.value = '21.7'; selView.value = 'bands'; syncLabels();
+  if (!prefersReducedMotion()) setPlaying(true); else render();
 });
 
 function bootSync() {
@@ -258,6 +277,8 @@ function bootSync() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     }));
+  } else if (!prefersReducedMotion()) {
+    setPlaying(true);
   }
 }
 

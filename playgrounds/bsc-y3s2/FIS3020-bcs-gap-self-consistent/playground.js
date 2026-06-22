@@ -10,11 +10,11 @@ const rD = document.getElementById('readout-d');
 const sN = document.getElementById('slider-N'), vN = document.getElementById('value-N');
 const sT = document.getElementById('slider-T'), vT = document.getElementById('value-T');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-// Default to static: temperature is purely slider-driven so the slider
-// unambiguously respects user input. Play toggles an optional auto
-// T-sweep. The old default (running = true) auto-oscillated tRel every
-// frame and fought the slider ("sliders don't respect input").
-let st = { N0V: 0.3, tRel: 0.3 }; let running = false; let userControlling = false;
+// Auto-sweep the temperature on load so the gap opening and closing through
+// Tc plays without a click. Dragging the T slider sets userControlling,
+// which pauses the sweep (tick skips the tRel update) so the slider still
+// respects input; releasing it resumes. Play/Pause toggles the sweep.
+let st = { N0V: 0.3, tRel: 0.3 }; let running = !(DETERMINISTIC || prefersReducedMotion()); let userControlling = false;
 sN.addEventListener('input', () => { st.N0V = parseFloat(sN.value); vN.textContent = st.N0V.toFixed(2); render(); });
 // Dragging T sets userControlling, which pauses the autoplay step in
 // tick() (so it does not overwrite tRel). That also paused rendering, so
@@ -24,7 +24,7 @@ sT.addEventListener('input', () => { userControlling = true; st.tRel = parseFloa
 sT.addEventListener('change', () => { userControlling = false; });
 btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
-btnP.textContent = 'Play'; btnP.setAttribute('aria-pressed', 'true');   // starts static
+btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running));
 let sweep = 0;     // autoplay temperature sweep phase
 function render() {
   const W = canvas.width, H = canvas.height;

@@ -10,6 +10,7 @@ import {
   meissnerField, criticalField, isSuperconducting, surfaceField,
   vortexCount, vortexSpacing,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -175,13 +176,31 @@ function render() {
 }
 
 function syncLabels() { vT.textContent = st.Tr.toFixed(2); vB.textContent = st.B0.toFixed(3); vBc0.textContent = st.Bc0.toFixed(3); }
-sT.addEventListener('input', () => { st.Tr = parseFloat(sT.value); syncLabels(); render(); });
-sB.addEventListener('input', () => { st.B0 = parseFloat(sB.value); syncLabels(); render(); });
-selType.addEventListener('change', () => { st.type = selType.value; render(); });
-sBc0.addEventListener('input', () => { st.Bc0 = parseFloat(sBc0.value); syncLabels(); render(); });
+// Auto-sweep the temperature across Tc so the Meissner effect plays on load:
+// below Tc the field lines bend around the sphere (B = 0 inside); as T rises
+// past the critical parabola the flux floods back in. Any control pauses it.
+let playing = false, raf = 0, tDir = 1, last = 0;
+const trLo = parseFloat(sT.min); const trHi = parseFloat(sT.max);
+const tMin = Number.isFinite(trLo) ? trLo : 0.1, tMax = Number.isFinite(trHi) ? trHi : 1.1;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  st.Tr += tDir * dt * ((tMax - tMin) / 12);
+  if (st.Tr >= tMax) { st.Tr = tMax; tDir = -1; } else if (st.Tr <= tMin) { st.Tr = tMin; tDir = 1; }
+  sT.value = String(st.Tr); syncLabels(); render();
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) { playing = on; if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+function pause() { if (playing) setPlaying(false); }
+
+sT.addEventListener('input', () => { pause(); st.Tr = parseFloat(sT.value); syncLabels(); render(); });
+sB.addEventListener('input', () => { pause(); st.B0 = parseFloat(sB.value); syncLabels(); render(); });
+selType.addEventListener('change', () => { st.type = selType.value; render(); });   // sweep continues across types
+sBc0.addEventListener('input', () => { pause(); st.Bc0 = parseFloat(sBc0.value); syncLabels(); render(); });
 bR.addEventListener('click', () => {
   st.Tr = 0.4; st.B0 = 0.03; st.type = 'I'; st.Bc0 = 0.08;
-  sT.value = '0.4'; sB.value = '0.03'; selType.value = 'I'; sBc0.value = '0.08'; syncLabels(); render();
+  sT.value = '0.4'; sB.value = '0.03'; selType.value = 'I'; sBc0.value = '0.08'; syncLabels();
+  if (!prefersReducedMotion()) setPlaying(true); else render();
 });
 
 function bootSync() {
@@ -197,6 +216,8 @@ function bootSync() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     }));
+  } else if (!prefersReducedMotion()) {
+    setPlaying(true);
   }
 }
 

@@ -8,6 +8,7 @@ import {
   E1D, sshBands, sshGap, E2D, dos1D, filling1D, fermiSurface2D,
   effMassBottom,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -202,13 +203,31 @@ function render() {
 }
 
 function syncLabels() { vT.textContent = st.t.toFixed(2); vDim.textContent = st.dim.toFixed(2); vEF.textContent = st.EF.toFixed(2); }
-selLat.addEventListener('change', () => { st.lat = selLat.value; applyVis(); render(); });
-sT.addEventListener('input', () => { st.t = parseFloat(sT.value); syncLabels(); render(); });
-sDim.addEventListener('input', () => { st.dim = parseFloat(sDim.value); syncLabels(); render(); });
-sEF.addEventListener('input', () => { st.EF = parseFloat(sEF.value); syncLabels(); render(); });
+
+// Auto-sweep the Fermi level so the band fills and empties on load: the
+// filled states sweep up the dispersion and the Fermi surface / DOS cursor
+// move with it. Any control input pauses it.
+let playing = false, raf = 0, efDir = 1, last = 0;
+const efLo = parseFloat(sEF.min) || -5, efHi = parseFloat(sEF.max) || 5;
+function animate(now) {
+  if (!playing) return;
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  st.EF += efDir * dt * ((efHi - efLo) / 13);
+  if (st.EF >= efHi) { st.EF = efHi; efDir = -1; } else if (st.EF <= efLo) { st.EF = efLo; efDir = 1; }
+  sEF.value = String(st.EF); syncLabels(); render();
+  raf = requestAnimationFrame(animate);
+}
+function setPlaying(on) { playing = on; if (on) { last = performance.now(); raf = requestAnimationFrame(animate); } else if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+function pause() { if (playing) setPlaying(false); }
+
+selLat.addEventListener('change', () => { st.lat = selLat.value; applyVis(); render(); });   // sweep continues across lattices
+sT.addEventListener('input', () => { pause(); st.t = parseFloat(sT.value); syncLabels(); render(); });
+sDim.addEventListener('input', () => { pause(); st.dim = parseFloat(sDim.value); syncLabels(); render(); });
+sEF.addEventListener('input', () => { pause(); st.EF = parseFloat(sEF.value); syncLabels(); render(); });
 bR.addEventListener('click', () => {
   st.lat = 'ssh'; st.t = 1.0; st.dim = 0.5; st.EF = 0;
-  selLat.value = 'ssh'; sT.value = '1.0'; sDim.value = '0.5'; sEF.value = '0'; syncLabels(); applyVis(); render();
+  selLat.value = 'ssh'; sT.value = '1.0'; sDim.value = '0.5'; sEF.value = '0'; syncLabels(); applyVis();
+  if (!prefersReducedMotion()) setPlaying(true); else render();
 });
 
 function bootSync() {
@@ -225,6 +244,8 @@ function bootSync() {
       window.__simulationReady = true;
       window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } }));
     }));
+  } else if (!prefersReducedMotion()) {
+    setPlaying(true);
   }
 }
 
