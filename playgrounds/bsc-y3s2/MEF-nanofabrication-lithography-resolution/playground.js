@@ -99,12 +99,28 @@ function draw() {
   rRes.textContent = Number.isFinite(minRes) ? minRes + ' nm' : '> 220 nm';
 }
 
-function tick() { if (st.running) st.phase += 1; draw(); requestAnimationFrame(tick); }
+// Sweep the numerical aperture when playing (st.phase was incremented but
+// never read, so nothing moved): the Rayleigh limit R = k1 lambda / NA
+// shrinks, the aerial image of the fine pitches sharpens, and the contrast
+// bars flip from red (below the limit) to blue (resolved) zone by zone.
+let naDir = 1, _last = (typeof performance !== 'undefined' ? performance.now() : 0);
+const naLo = (parseFloat(sNA.min) || 45) / 100, naHi = (parseFloat(sNA.max) || 145) / 100;
+function tick(now) {
+  if (st.running) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    st.NA += naDir * dt * ((naHi - naLo) / 11);
+    if (st.NA >= naHi) { st.NA = naHi; naDir = -1; } else if (st.NA <= naLo) { st.NA = naLo; naDir = 1; }
+    sNA.value = String(Math.round(st.NA * 100)); syncLabels();
+  }
+  _last = now;
+  draw(); requestAnimationFrame(tick);
+}
 
 function syncLabels() { vNA.textContent = st.NA.toFixed(2); vK1.textContent = st.k1.toFixed(2); }
+function pausePlay() { st.running = false; bP.textContent = 'Play'; bP.setAttribute('aria-pressed', 'true'); }
 selLam.addEventListener('change', () => { st.lam = selLam.value; draw(); });
-sNA.addEventListener('input', () => { st.NA = parseFloat(sNA.value) / 100; syncLabels(); draw(); });
-sK1.addEventListener('input', () => { st.k1 = parseFloat(sK1.value) / 100; syncLabels(); draw(); });
+sNA.addEventListener('input', () => { pausePlay(); st.NA = parseFloat(sNA.value) / 100; syncLabels(); draw(); });
+sK1.addEventListener('input', () => { pausePlay(); st.k1 = parseFloat(sK1.value) / 100; syncLabels(); draw(); });
 bR.addEventListener('click', () => {
   st.lam = 'arf'; st.NA = 1.0; st.k1 = 0.5; st.running = true;
   selLam.value = 'arf'; sNA.value = '100'; sK1.value = '50';

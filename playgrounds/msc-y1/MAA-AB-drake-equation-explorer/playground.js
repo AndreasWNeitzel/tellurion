@@ -31,10 +31,15 @@ let logFl = parseFloat(sliderFl.value);
 let logFi = parseFloat(sliderFi.value);
 let logL  = parseFloat(sliderL.value);
 
-sliderR.addEventListener('input', () => { logR = parseFloat(sliderR.value); valueR.textContent = logR.toFixed(2); });
-sliderFl.addEventListener('input', () => { logFl = parseFloat(sliderFl.value); valueFl.textContent = logFl.toFixed(2); });
-sliderFi.addEventListener('input', () => { logFi = parseFloat(sliderFi.value); valueFi.textContent = logFi.toFixed(2); });
-sliderL.addEventListener('input', () => { logL = parseFloat(sliderL.value); valueL.textContent = logL.toFixed(2); });
+// Auto-sweep the civilisation lifetime L (the factor that dominates N's
+// uncertainty, spanning orders of magnitude) so the count of detectable
+// civilisations swings on load. Any slider pauses the sweep.
+let playing = !(DETERMINISTIC || prefersReducedMotion()), lDir = 1, _last = (typeof performance !== 'undefined' ? performance.now() : 0);
+const lLo = parseFloat(sliderL.min) || 2, lHi = parseFloat(sliderL.max) || 9;
+sliderR.addEventListener('input', () => { playing = false; logR = parseFloat(sliderR.value); valueR.textContent = logR.toFixed(2); });
+sliderFl.addEventListener('input', () => { playing = false; logFl = parseFloat(sliderFl.value); valueFl.textContent = logFl.toFixed(2); });
+sliderFi.addEventListener('input', () => { playing = false; logFi = parseFloat(sliderFi.value); valueFi.textContent = logFi.toFixed(2); });
+sliderL.addEventListener('input', () => { playing = false; logL = parseFloat(sliderL.value); valueL.textContent = logL.toFixed(2); });
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -174,7 +179,14 @@ function updateReadout() {
   readoutMed.textContent = median > 0 ? Math.log10(median).toFixed(2) : 'NA';
 }
 
-function loop() {
+function loop(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    logL += lDir * dt * ((lHi - lLo) / 13);
+    if (logL >= lHi) { logL = lHi; lDir = -1; } else if (logL <= lLo) { logL = lLo; lDir = 1; }
+    sliderL.value = String(logL); valueL.textContent = logL.toFixed(2);
+  }
+  _last = now;
   render();
   updateReadout();
   requestAnimationFrame(loop);
