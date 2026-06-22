@@ -29,7 +29,7 @@ const W = canvas.width, H = canvas.height;
 
 const st = { e: 0.56, N: 36, s: 0.05, seed: 0xC0FFEE, k: 3 };
 let running = !prefersReducedMotion();
-const CX = W / 2, CY = 232, SC = 150;          // focus at (CX, CY); 1 AU = SC px
+const CX = W / 2, CY = 512, SC = 280;          // focus at (CX, CY); 1 AU = SC px (centred + enlarged to fill the portrait)
 const OMEGA = 0.3;                              // orbit orientation (matches generateData)
 
 sE.addEventListener('input', () => { st.e = parseFloat(sE.value); vE.textContent = st.e.toFixed(2); st.k = 3; });
