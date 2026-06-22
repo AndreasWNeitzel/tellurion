@@ -46,8 +46,9 @@ function n2() { return NMAP[st.n2_key]; }
 function theta_rad() { return st.theta_deg * DEG; }
 
 // Scene: left 55% = ray diagram; right 45% = R_s/R_p plot.
-const SCENE = { x: 0, y: 0, w: 0.55 * W, h: H };
-const PLOT = { x: 0.58 * W, y: 30, w: 0.40 * W, h: H - 60 };
+// Portrait: ray diagram on top, Fresnel reflectance curves full-width below.
+const SCENE = { x: 0, y: 0, w: W, h: 0.58 * H };
+const PLOT = { x: 40, y: 0.60 * H + 20, w: W - 80, h: 0.36 * H };
 
 function drawSky() {
   ctx.fillStyle = '#04060c';
