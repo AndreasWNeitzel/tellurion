@@ -55,10 +55,12 @@ function rebuild(toStep = st.nstep) {
 }
 
 // geometry
-const BX = 20, BY = 20, BW = 540, BH = 540;
+// Portrait stack: square particle box on top, MSD and histogram plots full-width below.
+const BW = Math.min(canvas.width - 40, Math.round(canvas.height * 0.5)), BH = BW;
+const BX = Math.round((canvas.width - BW) / 2), BY = 20;
 const cx = BX + BW / 2, cy = BY + BH / 2;
-const QX = 584, QW = 256;
-const M1Y = 220, M1H = 148, M2Y = 392, M2H = 148;
+const QX = 60, QW = canvas.width - 120;
+const M1Y = BY + BH + 46, M1H = 190, M2Y = BY + BH + 46 + 190 + 42, M2H = 190;
 
 function panel(x, y, w, h, title) {
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(x, y, w, h);
