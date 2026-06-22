@@ -77,15 +77,18 @@ function applyPreset(name) {
 // =========================================================================
 // LAYOUT.
 // =========================================================================
-const SCENE = { x: 24, y: 36, w: Math.floor(W * 0.46), h: H - 60 };
-const RIGHT_X = SCENE.x + SCENE.w + 24;
-const RIGHT_W = W - RIGHT_X - 24;
-const PANEL_GAP = 16;
-const PANEL_H = (H - 60 - 2 * PANEL_GAP) / 3;
+// Portrait stack: the atmosphere scene spans the full width on top, the three
+// diagnostic plots run full-width (landscape) beneath it so their legends read.
+const SCENE = { x: 16, y: 36, w: W - 32, h: Math.round(H * 0.40) };
+const PANEL_GAP = 14;
+const PANEL_X = 16;
+const PANEL_W = W - 32;
+const PANELS_TOP = SCENE.y + SCENE.h + PANEL_GAP;
+const PANEL_H = (H - PANELS_TOP - 14 - 2 * PANEL_GAP) / 3;
 const PANELS = {
-  curve:     { x: RIGHT_X, y: SCENE.y, w: RIGHT_W, h: PANEL_H },
-  budget:    { x: RIGHT_X, y: SCENE.y + PANEL_H + PANEL_GAP, w: RIGHT_W, h: PANEL_H },
-  spectrum:  { x: RIGHT_X, y: SCENE.y + 2 * (PANEL_H + PANEL_GAP), w: RIGHT_W, h: PANEL_H },
+  curve:     { x: PANEL_X, y: PANELS_TOP, w: PANEL_W, h: PANEL_H },
+  budget:    { x: PANEL_X, y: PANELS_TOP + PANEL_H + PANEL_GAP, w: PANEL_W, h: PANEL_H },
+  spectrum:  { x: PANEL_X, y: PANELS_TOP + 2 * (PANEL_H + PANEL_GAP), w: PANEL_W, h: PANEL_H },
 };
 
 // =========================================================================
