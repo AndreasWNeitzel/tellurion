@@ -32,7 +32,7 @@ const btnReset = document.getElementById('btn-reset');
 const SEC_PER_MYR = 3.156e13;
 const BOX_PC = 8;            // the rendered region is 8 pc across
 const NSIDE = 44;            // particle grid (NSIDE^2 gas tracers)
-const DMAX_U = 3.4;          // collapse displacement cap (clumps fully formed)
+const DMAX_U = 1.05;         // collapse displacement cap: hold at peak accumulation (cores pile up) just before shell-crossing disperses them
 let running = !DETERMINISTIC;
 let phi = 0, hold = 0;
 
@@ -270,9 +270,10 @@ function tick(now) {
     const rateRef = Math.sqrt(4 * Math.PI * G_SI * rho());
     const vr = Math.min(1.4, Math.sqrt(Math.abs(ww)) / rateRef);
     if (unstable) {
-      // grow the collapse until the cores are fully formed, then hold there
-      // (no auto-reset); a parameter change or Reset restarts from phi=0.
-      if (currentD(true) < DMAX_U - 1e-6) phi += vr * 1.5 * dt;
+      // grow the collapse until the cores pile up at the caustic, hold so the
+      // accumulation is visible, then reset and re-collapse so it runs forever.
+      if (currentD(true) < DMAX_U - 1e-6) { phi += vr * 1.5 * dt; hold = 0; }
+      else { hold += dt; if (hold > 1.6) { phi = 0; hold = 0; } }
     } else { phi += vr * 2.4 * dt; }   // stable: keep oscillating (a sound wave)
   }
   render();
