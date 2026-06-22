@@ -18,22 +18,39 @@ const CAPTURE_NAME = params.get('capture');
 
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
-const btnPreset = document.getElementById('btn-preset'), vPreset = document.getElementById('value-preset');
+const selPreset = document.getElementById('select-preset');
+const sA = document.getElementById('s-a'), sB = document.getElementById('s-b'), sC = document.getElementById('s-c'), sD = document.getElementById('s-d');
+const vA = document.getElementById('v-a'), vB = document.getElementById('v-b'), vC = document.getElementById('v-c'), vD = document.getElementById('v-d');
 const btnReset = document.getElementById('btn-reset');
 
 const KEYS = Object.keys(PRESETS);
 const EXT = 3;
+// an asymmetric motif (an "F") on the unit square, carried into the parallelogram
+// so the orientation flip at det < 0 is visible as a mirror image.
+const FMOTIF = [[[0.30, 0.22], [0.30, 0.80]], [[0.30, 0.80], [0.64, 0.80]], [[0.30, 0.54], [0.56, 0.54]]];
 const st = { preset: 'custom', a: 1, b: 0.4, c: -0.5, d: 1.3 };   // columns v1=(a,b), v2=(c,d)
 function applyPreset(k) { const p = PRESETS[k]; st.preset = k; st.a = p.a; st.b = p.b; st.c = p.c; st.d = p.d; }
+function matchPreset() { for (const k of KEYS) { const p = PRESETS[k]; if (Math.abs(p.a - st.a) < 1e-6 && Math.abs(p.b - st.b) < 1e-6 && Math.abs(p.c - st.c) < 1e-6 && Math.abs(p.d - st.d) < 1e-6) return k; } return 'custom'; }
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.42 }, { name: 'diag', weight: 0.82 }]);
 }
-function syncVals() { vPreset.textContent = PRESETS[st.preset] ? PRESETS[st.preset].label : 'custom'; }
-btnPreset.addEventListener('click', () => { const i = KEYS.indexOf(st.preset); applyPreset(KEYS[(i + 1 + KEYS.length) % KEYS.length] || KEYS[0]); syncVals(); render(); });
-btnReset.addEventListener('click', () => { st.preset = 'custom'; st.a = 1; st.b = 0.4; st.c = -0.5; st.d = 1.3; syncVals(); render(); });
+function syncVals() {
+  sA.value = st.a; vA.textContent = st.a.toFixed(2);
+  sB.value = st.b; vB.textContent = st.b.toFixed(2);
+  sC.value = st.c; vC.textContent = st.c.toFixed(2);
+  sD.value = st.d; vD.textContent = st.d.toFixed(2);
+  st.preset = matchPreset(); selPreset.value = st.preset;
+}
+function setEntry(k, val) { st[k] = val; syncVals(); render(); }
+sA.addEventListener('input', () => setEntry('a', +sA.value));
+sB.addEventListener('input', () => setEntry('b', +sB.value));
+sC.addEventListener('input', () => setEntry('c', +sC.value));
+sD.addEventListener('input', () => setEntry('d', +sD.value));
+selPreset.addEventListener('change', () => { if (selPreset.value !== 'custom' && PRESETS[selPreset.value]) { applyPreset(selPreset.value); syncVals(); render(); } });
+btnReset.addEventListener('click', () => { st.a = 1; st.b = 0.4; st.c = -0.5; st.d = 1.3; syncVals(); render(); });
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', grid: 'rgba(255,255,255,0.07)', warp: 'rgba(120,150,210,0.35)', pos: '#5b8def', neg: '#ef5466', v1: '#67d98c', v2: '#ffd166', orient: '#ffffff' };
@@ -72,11 +89,20 @@ function drawScene(col, r) {
     p = apply(st.a, st.b, st.c, st.d, -EXT, k); q = apply(st.a, st.b, st.c, st.d, EXT, k);
     ctx.beginPath(); ctx.moveTo(X(p[0]), Y(p[1])); ctx.lineTo(X(q[0]), Y(q[1])); ctx.stroke();
   }
+  // input unit square (area 1) for the area-scaling comparison, with an "F" motif.
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.4; ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(1), Y(0)); ctx.lineTo(X(1), Y(1)); ctx.lineTo(X(0), Y(1)); ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('area 1', X(0.7), Y(0.16));
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 2;
+  for (const seg of FMOTIF) { ctx.beginPath(); seg.forEach((pt, i) => { i ? ctx.lineTo(X(pt[0]), Y(pt[1])) : ctx.moveTo(X(pt[0]), Y(pt[1])); }); ctx.stroke(); }
   // image of the unit square (the parallelogram), filled by sign.
   const C = [[0, 0], [st.a, st.b], [st.a + st.c, st.b + st.d], [st.c, st.d]];
   ctx.beginPath(); ctx.moveTo(X(C[0][0]), Y(C[0][1])); for (let i = 1; i < 4; i += 1) ctx.lineTo(X(C[i][0]), Y(C[i][1])); ctx.closePath();
   ctx.fillStyle = det >= 0 ? 'rgba(91,141,239,0.30)' : 'rgba(239,84,102,0.30)'; ctx.fill();
   ctx.strokeStyle = det >= 0 ? col.pos : col.neg; ctx.lineWidth = 2; ctx.stroke();
+  // the same "F" carried by M into the parallelogram (mirrored when det < 0).
+  ctx.strokeStyle = det >= 0 ? '#bcd2ff' : '#ffc2cc'; ctx.lineWidth = 2.4;
+  for (const seg of FMOTIF) { ctx.beginPath(); seg.forEach((pt, i) => { const w = apply(st.a, st.b, st.c, st.d, pt[0], pt[1]); i ? ctx.lineTo(X(w[0]), Y(w[1])) : ctx.moveTo(X(w[0]), Y(w[1])); }); ctx.stroke(); }
   // orientation arc (v1 -> v2 sense), inside the parallelogram near the origin.
   const ang1 = Math.atan2(st.b, st.a), ang2 = Math.atan2(st.d, st.c); const rad = size * 0.07;
   ctx.strokeStyle = col.orient; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(X(0), Y(0), rad, -ang1, -ang2, det < 0); ctx.stroke();
@@ -88,7 +114,7 @@ function drawScene(col, r) {
   ctx.restore();
 
   // readout strip.
-  const items = [[`det ${det.toFixed(3)}`, det >= 0 ? col.pos : col.neg], [`area |det| ${Math.abs(det).toFixed(3)}`, col.fg], [det > 1e-4 ? 'orientation preserved' : det < -1e-4 ? 'orientation reversed' : 'collapsed (det = 0)', det > 1e-4 ? col.pos : det < -1e-4 ? col.neg : col.muted]];
+  const items = [[`det ${det.toFixed(3)}`, det >= 0 ? col.pos : col.neg], [`area x ${Math.abs(det).toFixed(2)}`, col.fg], [det > 1e-4 ? 'orientation kept' : det < -1e-4 ? 'orientation flipped' : 'collapsed (det 0)', det > 1e-4 ? col.pos : det < -1e-4 ? col.neg : col.muted]];
   ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'center'; ctx.font = fontString(canvas, 'caption', 'mono', 700);
   items.forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, r.x + r.w * (i + 0.5) / 3, r.y + r.h - 11); });
 }
@@ -129,9 +155,9 @@ function ptr(e) { const rect = canvas.getBoundingClientRect(); return [(e.client
 canvas.addEventListener('pointerdown', (e) => {
   if (!SCN) return; const [sx, sy] = ptr(e); const X = (wx) => SCN.ox + (wx + EXT) / (2 * EXT) * SCN.size, Y = (wy) => SCN.oy + (EXT - wy) / (2 * EXT) * SCN.size;
   const d1 = Math.hypot(sx - X(st.a), sy - Y(st.b)), d2 = Math.hypot(sx - X(st.c), sy - Y(st.d));
-  if (Math.min(d1, d2) < 26) { drag = d1 <= d2 ? 1 : 2; st.preset = 'custom'; vPreset.textContent = 'custom'; setVec(sx, sy); render(); }
+  if (Math.min(d1, d2) < 26) { drag = d1 <= d2 ? 1 : 2; setVec(sx, sy); render(); }
 });
-function setVec(sx, sy) { const wx = Math.max(-EXT, Math.min(EXT, SCN.wX(sx))), wy = Math.max(-EXT, Math.min(EXT, SCN.wY(sy))); if (drag === 1) { st.a = wx; st.b = wy; } else { st.c = wx; st.d = wy; } }
+function setVec(sx, sy) { const wx = Math.max(-EXT, Math.min(EXT, SCN.wX(sx))), wy = Math.max(-EXT, Math.min(EXT, SCN.wY(sy))); if (drag === 1) { st.a = wx; st.b = wy; } else { st.c = wx; st.d = wy; } syncVals(); }
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; const [sx, sy] = ptr(e); setVec(sx, sy); render(); });
 window.addEventListener('pointerup', () => { drag = null; });
 
