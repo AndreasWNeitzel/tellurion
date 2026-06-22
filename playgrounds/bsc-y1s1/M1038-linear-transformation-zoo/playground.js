@@ -18,6 +18,9 @@ const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const selPre = document.getElementById('select-preset');
 const btnReset = document.getElementById('btn-reset');
+const btnPlay = document.getElementById('btn-play');
+let holdT = 0, autoCycle = true;
+function setPlay(on) { autoCycle = on; if (on) holdT = 0; if (btnPlay) { btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); } }
 
 let preKey = 'shear';
 let M = { ...PRESETS[preKey].M };
@@ -27,8 +30,9 @@ let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.4 }, { name: 'diag', weight: 0.82 }]); }
 function syncVals() { selPre.value = preKey; }
 function tweenTo(key) { preKey = key; tw = { from: { ...M }, to: { ...PRESETS[key].M }, t: 0, active: true }; syncVals(); }
-selPre.addEventListener('change', () => { tweenTo(selPre.value); });
-btnReset.addEventListener('click', () => { tweenTo('shear'); });
+selPre.addEventListener('change', () => { setPlay(false); tweenTo(selPre.value); });
+btnReset.addEventListener('click', () => { setPlay(true); tweenTo('shear'); });
+if (btnPlay) btnPlay.addEventListener('click', () => setPlay(!autoCycle));
 
 function colors() {
   return { bg: '#06070c', panel: '#0a0c12', fg: '#e8e8e8', muted: '#9aa0a6', border: 'rgba(255,255,255,0.12)', refgrid: 'rgba(255,255,255,0.07)', grid: '#3f78c8', square: 'rgba(141,224,138,0.16)', squareEdge: '#8de08a', circle: '#ffd166', col1: '#ff5d5d', col2: '#5bd6a8', eig: '#b487ff', axis: 'rgba(255,255,255,0.28)' };
@@ -124,7 +128,7 @@ function render() {
 
 function smooth(t) { return t * t * (3 - 2 * t); }
 function advance(dt) {
-  if (tw.active) { tw.t = Math.min(1, tw.t + dt / 0.55); const k = smooth(tw.t); M = { a: tw.from.a + (tw.to.a - tw.from.a) * k, b: tw.from.b + (tw.to.b - tw.from.b) * k, c: tw.from.c + (tw.to.c - tw.from.c) * k, d: tw.from.d + (tw.to.d - tw.from.d) * k }; if (tw.t >= 1) tw.active = false; }
+  if (tw.active) { tw.t = Math.min(1, tw.t + dt / 0.55); const k = smooth(tw.t); M = { a: tw.from.a + (tw.to.a - tw.from.a) * k, b: tw.from.b + (tw.to.b - tw.from.b) * k, c: tw.from.c + (tw.to.c - tw.from.c) * k, d: tw.from.d + (tw.to.d - tw.from.d) * k }; if (tw.t >= 1) { tw.active = false; holdT = 0; } } else if (autoCycle) { holdT += dt; if (holdT > 1.6) { holdT = 0; const ks = Object.keys(PRESETS); tweenTo(ks[(ks.indexOf(preKey) + 1) % ks.length]); } }
 }
 
 let drag = null;
@@ -133,7 +137,7 @@ canvas.addEventListener('pointerdown', (e) => {
   if (!SC) return; const [sx, sy] = ptr(e); if (sy > REG.scene.y + REG.scene.h) return;
   const t1 = w2s(M.a, M.c), t2 = w2s(M.b, M.d);
   if (Math.hypot(sx - t1[0], sy - t1[1]) < 16) drag = 'c1'; else if (Math.hypot(sx - t2[0], sy - t2[1]) < 16) drag = 'c2';
-  if (drag) { tw.active = false; setMatrixFrom(sx, sy); }
+  if (drag) { tw.active = false; setPlay(false); setMatrixFrom(sx, sy); }
 });
 canvas.addEventListener('pointermove', (e) => { if (!drag) return; const [sx, sy] = ptr(e); setMatrixFrom(sx, sy); });
 window.addEventListener('pointerup', () => { drag = null; });

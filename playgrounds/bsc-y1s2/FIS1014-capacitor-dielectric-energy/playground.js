@@ -22,7 +22,7 @@ const btnMode = document.getElementById('btn-mode'), vMode = document.getElement
 const btnRelease = document.getElementById('btn-release'), btnReset = document.getElementById('btn-reset');
 
 const st = { epsR: 4, V: 2, mode: 'Q', slab: createSlab(0), Q: 0 };
-let running = false;
+let running = !DETERMINISTIC;
 function setHeldQ() { st.Q = chargeFor(1, 0, st.V); }   // charge at x=0, then held in const-Q mode
 setHeldQ();
 
@@ -148,7 +148,7 @@ function advance() {
   const p = { epsR: st.epsR, mode: st.mode, Q: st.Q, V: st.V, m: 1.2, gamma: 1.6 };
   let n = 0; const dt = 1 / 240;
   while (n < 8) { stepSlab(st.slab, dt, p); n += 1; }
-  if (st.slab.x >= 0.999 && Math.abs(st.slab.v) < 1e-3) { running = false; btnRelease.textContent = 'Release'; }
+  if (st.slab.x >= 0.999 && Math.abs(st.slab.v) < 1e-3) { st.slab = createSlab(0); }   // loop: the field re-pulls the slab in
 }
 function render() {
   if (!REG) relayout();
@@ -168,7 +168,8 @@ window.addEventListener('pointerup', () => { dragging = false; });
 
 function boot() {
   syncVals(); relayout();
-  if (CAPTURE_NAME) { st.slab.x = 0.45; }
+  if (CAPTURE_NAME) { st.slab.x = 0.45; running = false; }
+  btnRelease.textContent = running ? 'Pause' : 'Release'; btnRelease.setAttribute('aria-pressed', String(running));
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
