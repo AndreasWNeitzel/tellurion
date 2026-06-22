@@ -19,10 +19,9 @@ const CAPTURE_NAME = params.get('capture');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const sR = document.getElementById('slider-R'), vR = document.getElementById('value-R');
-const btnField = document.getElementById('btn-field'), vField = document.getElementById('value-field');
+const selField = document.getElementById('select-field');
 const btnReset = document.getElementById('btn-reset');
 
-const KEYS = Object.keys(FIELDS);
 const EXT = 2.5;
 const st = { field: 'vortex', cx: 0.5, cy: 0.3, R: 1.0 };
 function fld() { return FIELDS[st.field]; }
@@ -32,9 +31,9 @@ function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.4 }, { name: 'diag', weight: 0.82 }]);
 }
-function syncVals() { vR.textContent = st.R.toFixed(2); vField.textContent = fld().label; }
+function syncVals() { vR.textContent = st.R.toFixed(2); selField.value = st.field; }
 sR.addEventListener('input', () => { st.R = parseFloat(sR.value); syncVals(); render(); });
-btnField.addEventListener('click', () => { st.field = KEYS[(KEYS.indexOf(st.field) + 1) % KEYS.length]; syncVals(); render(); });
+selField.addEventListener('change', () => { st.field = selField.value; syncVals(); render(); });
 btnReset.addEventListener('click', () => { st.field = 'vortex'; st.cx = 0.5; st.cy = 0.3; st.R = 1.0; sR.value = '1'; syncVals(); render(); });
 
 function colors() {
