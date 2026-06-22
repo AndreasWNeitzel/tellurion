@@ -45,8 +45,9 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 const DIAG_W_FRAC = 0.32;
 function diagBounds() {
   const W = canvas.width, H = canvas.height;
-  const x = Math.round(W * (1 - DIAG_W_FRAC));
-  return { x, y: 8, w: W - x - 8, h: H - 16 };
+  // Bottom full-width diagnostics panel (portrait): scene fills the top.
+  const y = Math.round(H * 0.55);
+  return { x: 16, y, w: W - 32, h: H - y - 12 };
 }
 
 function render() {
@@ -55,8 +56,8 @@ function render() {
   // The scene now occupies only the left portion of the canvas; the
   // termination shock is centred in that sub-region rather than the
   // full canvas so it doesn't visually collide with the diagnostic.
-  const sceneW = diag.x - 0;
-  const cx = sceneW / 2, cy = H / 2 + 6;
+  const sceneW = W;
+  const cx = sceneW / 2, cy = Math.round(H * 0.28);
   ctx.fillStyle = '#04040a'; ctx.fillRect(0, 0, W, H);
   for (const [sx, sy, sr] of stars) { ctx.fillStyle = `rgba(180,195,230,${0.15 + 0.25 * sr / 1.9})`; ctx.fillRect(sx * sceneW, sy * H, sr, sr); }
 
