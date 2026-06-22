@@ -103,10 +103,9 @@ function vAt(r) {
 }
 
 function drawGalaxy3D() {
-  // Use most of the LEFT half of the canvas. Scale tied to canvas
-  // height so the disc fills the panel rather than being a tiny dot.
-  const cx = W * 0.25, cy = H * 0.50;
-  const scale = Math.min(W * 0.20, H * 0.34) / 8;     // 8 ~ outer disc radius
+  // Fill the TOP region of the portrait canvas, centred horizontally.
+  const cx = W * 0.5, cy = H * 0.30;
+  const scale = Math.min(W * 0.30, H * 0.22) / 8;     // 8 ~ outer disc radius
 
   // Dark matter halo: large transparent purple sphere.
   if (st.includeDM) {
@@ -167,7 +166,7 @@ function drawGalaxy3D() {
 
 function drawRotationCurve() {
   // Right panel: v_c(r) decomposition.
-  const x0 = 460, y0 = 60, w = 410, h = 380;
+  const x0 = 60, y0 = 650, w = 700, h = 330;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(x0, y0, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.18)';
