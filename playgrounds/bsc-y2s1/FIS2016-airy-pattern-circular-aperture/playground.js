@@ -35,13 +35,14 @@ const btnNarrow    = document.getElementById('btn-narrow');
 const btnWide      = document.getElementById('btn-wide');
 
 const W = canvas.width, H = canvas.height;
-const HEAT_W = 480;
-const HEAT_X = 20, HEAT_Y = 30;
-const HEAT_H = H - HEAT_Y - 30;
-const PROF_X = HEAT_X + HEAT_W + 30;
-const PROF_W = W - PROF_X - 20;
-const PROF_Y = HEAT_Y;
-const PROF_H = HEAT_H;
+// Portrait: square Airy heatmap on top, radial profile full-width below.
+const HEAT_W = Math.min(W - 40, Math.round(H * 0.52));
+const HEAT_H = HEAT_W;
+const HEAT_X = Math.round((W - HEAT_W) / 2), HEAT_Y = 30;
+const PROF_X = 56;
+const PROF_W = W - PROF_X - 24;
+const PROF_Y = HEAT_Y + HEAT_H + 44;
+const PROF_H = H - PROF_Y - 40;
 
 const state = {
   lambda: 550e-9,
