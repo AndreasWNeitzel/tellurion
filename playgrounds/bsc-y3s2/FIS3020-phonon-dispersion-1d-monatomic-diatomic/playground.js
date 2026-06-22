@@ -15,7 +15,7 @@ let st = { m1: 1, m2: 2, K: 1, pol: 'transverse' }; let running = true;
 sM1.addEventListener('input', () => { st.m1 = parseFloat(sM1.value); vM1.textContent = st.m1.toFixed(2); });
 sM2.addEventListener('input', () => { st.m2 = parseFloat(sM2.value); vM2.textContent = st.m2.toFixed(2); });
 sK.addEventListener('input', () => { st.K = parseFloat(sK.value); vK.textContent = st.K.toFixed(2); });
-btnR.addEventListener('click', () => { running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
+btnR.addEventListener('click', () => { running = true; autoK = !prefersReducedMotion(); btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 // Polarization toggle (transverse / longitudinal). Both share the
 // same dispersion in a 1D chain; the difference is the direction of
@@ -74,6 +74,13 @@ function render() {
   ctx.fillStyle = '#ffd166'; ctx.fillText('Optical', pad.l + 10, pad.t + 72);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`m₁ = ${st.m1.toFixed(2)}, m₂ = ${st.m2.toFixed(2)}, K = ${st.K.toFixed(2)}  (raise K -> branches rise)`, pad.l + 10, pad.t + 92);
+  // Swept mode marker on the selected branch: glides along the dispersion
+  // (the big moving element) while the lattice strip below shows that mode.
+  const mkx = xToPx(selected.k), mky = yToPx(Math.min(selected.omega, OMEGA_MAX));
+  ctx.strokeStyle = 'rgba(255,255,255,0.32)'; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+  ctx.beginPath(); ctx.moveTo(mkx, pad.t); ctx.lineTo(mkx, H - pad.b); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(mkx, mky, 5.5, 0, 2 * Math.PI); ctx.fill();
+
   rG.textContent = (gap.high - gap.low).toFixed(2);
 }
 // Upgrade 1-A: a 24-atom strip below the dispersion curve. Clicking any
@@ -106,6 +113,7 @@ canvas.addEventListener('click', (e) => {
   cand.sort((a, b) => Math.abs(a.omega - clickedOmega) - Math.abs(b.omega - clickedOmega));
   selected = { k, omega: Math.max(cand[0].omega, 1e-3), branch: cand[0].branch };
   _t0 = performance.now();
+  autoK = false;                                 // user picked a fixed mode; stop the k-sweep
 });
 
 function renderLattice() {
@@ -156,7 +164,26 @@ function renderLattice() {
   ctx.fillText(`Lattice: ${selected.branch} mode, k=${selected.k.toFixed(2)}, ${st.pol}  (click the curve to change)`, 12, stripY - 20);
 }
 
-function tick() { render(); renderLattice(); requestAnimationFrame(tick); }
+// Auto-sweep the selected wavevector across the zone so the mode marker
+// glides along its branch and the lattice wavelength changes; clicking the
+// curve picks a fixed mode (pauses the sweep), reset resumes it.
+let autoK = !prefersReducedMotion(), kDir = 1, _kLast = performance.now();
+function omegaForBranch(k, br) {
+  if (br === 'acoustic') return diatomic(k, st.K, st.m1, st.m2).acoustic;
+  if (br === 'optical') return diatomic(k, st.K, st.m1, st.m2).optical;
+  return monatomic(k, st.K, (st.m1 + st.m2) / 2);
+}
+function tick(now) {
+  if (running && autoK) {
+    const dt = Math.min(0.05, (now - _kLast) / 1000 || 0);
+    selected.k += kDir * dt * 0.6;
+    if (selected.k >= Math.PI - 0.05) { selected.k = Math.PI - 0.05; kDir = -1; }
+    else if (selected.k <= 0.1) { selected.k = 0.1; kDir = 1; }
+    selected.omega = Math.max(omegaForBranch(selected.k, selected.branch), 1e-3);
+  }
+  _kLast = now;
+  render(); renderLattice(); requestAnimationFrame(tick);
+}
 function bootSync() {
   if (CAPTURE_NAME) {
     // Vary K across capture frames so the gate exercises the now-fixed

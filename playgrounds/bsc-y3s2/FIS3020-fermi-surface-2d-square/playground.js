@@ -19,7 +19,11 @@ const sliderF = document.getElementById('slider-f');
 const valueF  = document.getElementById('value-f');
 
 let f = parseFloat(sliderF.value);
-sliderF.addEventListener('input', () => { f = parseFloat(sliderF.value); valueF.textContent = f.toFixed(3); });
+// Auto-sweep the band filling so the Fermi surface evolves on load (electron
+// pocket -> half-filled square -> hole pocket). The slider pauses it.
+let playing = !prefersReducedMotion(), fDir = 1, lastT = 0;
+const fLo = parseFloat(sliderF.min) || 0.05, fHi = parseFloat(sliderF.max) || 0.95;
+sliderF.addEventListener('input', () => { playing = false; f = parseFloat(sliderF.value); valueF.textContent = f.toFixed(3); });
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -199,7 +203,14 @@ function updateReadout() {
   readoutF.textContent = f.toFixed(3);
 }
 
-function loop() {
+function loop(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+    f += fDir * dt * ((fHi - fLo) / 12);
+    if (f >= fHi) { f = fHi; fDir = -1; } else if (f <= fLo) { f = fLo; fDir = 1; }
+    sliderF.value = String(f); valueF.textContent = f.toFixed(3);
+  }
+  lastT = now;
   render();
   updateReadout();
   requestAnimationFrame(loop);

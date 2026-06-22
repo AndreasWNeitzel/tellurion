@@ -22,9 +22,14 @@ const valueTheta  = document.getElementById('value-theta');
 
 let beta = parseFloat(sliderBeta.value);
 let thetaDeg = parseFloat(sliderTheta.value);
+// Auto-sweep the source speed so the Doppler shift plays on load (red at
+// recession through blue at approach, with relativistic beaming). Either
+// slider pauses it.
+let playing = !prefersReducedMotion(), betaDir = 1, lastT = 0;
+const betaLo = parseFloat(sliderBeta.min) || 0, betaHi = parseFloat(sliderBeta.max) || 0.95;
 
-sliderBeta.addEventListener('input', () => { beta = parseFloat(sliderBeta.value); valueBeta.textContent = beta.toFixed(3); });
-sliderTheta.addEventListener('input', () => { thetaDeg = parseFloat(sliderTheta.value); valueTheta.textContent = String(thetaDeg); });
+sliderBeta.addEventListener('input', () => { playing = false; beta = parseFloat(sliderBeta.value); valueBeta.textContent = beta.toFixed(3); });
+sliderTheta.addEventListener('input', () => { playing = false; thetaDeg = parseFloat(sliderTheta.value); valueTheta.textContent = String(thetaDeg); });
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -205,7 +210,14 @@ function updateReadout() {
   readoutF.textContent = dopplerFactor(beta, thetaDeg * Math.PI / 180).toFixed(4);
 }
 
-function loop() {
+function loop(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+    beta += betaDir * dt * ((betaHi - betaLo) / 13);
+    if (beta >= betaHi) { beta = betaHi; betaDir = -1; } else if (beta <= betaLo) { beta = betaLo; betaDir = 1; }
+    sliderBeta.value = String(beta); valueBeta.textContent = beta.toFixed(3);
+  }
+  lastT = now;
   render();
   updateReadout();
   requestAnimationFrame(loop);

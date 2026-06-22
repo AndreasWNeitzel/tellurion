@@ -53,7 +53,12 @@ const GX = 320, GY = 200, DT = 0.11, VMAX = 1.8, YSHIFT = 8, DIFF = 3, CONF = 0.
 const SUBSTEPS = 1;
 const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 5e-3, maxIter: 12 }, bfecc: false, confine: CONF };
 const REGIME_RE = { stokes: 8, steady: 60, vonkarman: 300, turbulent: 600 };
-const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: !prefersReducedMotion(), field: 'vorticity' };
+// Default to the speed field: |u| through viridis colours the whole domain
+// (the free stream is non-zero everywhere), so the page never loads on a
+// near-black frame. The vorticity field (iconic but black-background, and
+// localised by the live scheme's downstream dissipation) stays one click
+// away in the field selector.
+const st = { regime: 'vonkarman', Re: 300, obs: 'cylinder', tracer: false, speed: 2, running: !prefersReducedMotion(), field: 'speed' };
 const selField = document.getElementById('select-field');
 
 let state, dye, off, peakW = 0;
@@ -183,8 +188,8 @@ selField.addEventListener('change', () => { st.field = selField.value; render();
 sSpd.addEventListener('input', () => { st.speed = parseInt(sSpd.value, 10); syncLabels(); });
 tTracer.addEventListener('change', () => { st.tracer = tTracer.checked; build(60); render(); });
 bR.addEventListener('click', () => {
-  st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false; st.speed = 2; st.running = true; st.field = 'vorticity';
-  selReg.value = 'vonkarman'; sRe.value = '300'; selObs.value = 'cylinder'; sSpd.value = '2'; tTracer.checked = false; selField.value = 'vorticity';
+  st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false; st.speed = 2; st.running = true; st.field = 'speed';
+  selReg.value = 'vonkarman'; sRe.value = '300'; selObs.value = 'cylinder'; sSpd.value = '2'; tTracer.checked = false; selField.value = 'speed';
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); syncLabels(); build(80); render();
 });
 bP.addEventListener('click', () => { st.running = !st.running; bP.textContent = st.running ? 'Pause' : 'Play'; bP.setAttribute('aria-pressed', String(!st.running)); });
@@ -203,6 +208,7 @@ function restoreState() {
 
 function bootSync() {
   restoreState(); syncLabels();
+  selField.value = st.field;
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   if (CAPTURE_NAME) {
     // Long developed-wake warmup; the von Karman street takes ~ 8
@@ -222,7 +228,11 @@ function bootSync() {
     for (let n = 0; n < steps; n += 1) step(state, DT, STEP_OPTS);
     render();
   } else {
-    build(80); render();
+    // Warm-start to a developed wake so the page does not load on a uniform
+    // (zero-vorticity, all-black) field: the von Karman street needs ~8
+    // shedding cycles (~450 steps at Re=300) before the alternating cores
+    // appear. Control-change rebuilds stay short and redevelop live.
+    build(prefersReducedMotion() ? 80 : 420); render();
   }
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {

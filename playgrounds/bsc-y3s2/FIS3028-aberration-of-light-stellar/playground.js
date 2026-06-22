@@ -10,6 +10,7 @@ import { fontString } from '../../../shared/js/canvas-type.js';
 import {
   thetaObs, aberrationShift, BETA_EARTH_ORBIT,
 } from './sim.js';
+import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 
 const params         = new URLSearchParams(location.search);
 const DETERMINISTIC  = params.get('deterministic') === '1';
@@ -25,7 +26,13 @@ const sliderLogB = document.getElementById('slider-logb');
 const valueLogB  = document.getElementById('value-logb');
 
 let logBeta = parseFloat(sliderLogB.value);
-sliderLogB.addEventListener('input', () => { logBeta = parseFloat(sliderLogB.value); valueLogB.textContent = logBeta.toFixed(2); });
+// Auto-sweep the ship speed (log beta) so the star field rushes forward and
+// crowds toward the apex on load: aberration from a crawl to near-light. The
+// slider pauses it.
+let playing = !prefersReducedMotion(), bDir = 1, lastT = 0;
+const bLo = parseFloat(sliderLogB.min); const bHi = parseFloat(sliderLogB.max);
+const blo = Number.isFinite(bLo) ? bLo : -6, bhi = Number.isFinite(bHi) ? bHi : 0;
+sliderLogB.addEventListener('input', () => { playing = false; logBeta = parseFloat(sliderLogB.value); valueLogB.textContent = logBeta.toFixed(2); });
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -178,7 +185,14 @@ function updateReadout() {
   readoutAp.textContent = Math.abs(ratio - 1) < 0.05 ? 'yes' : 'no';
 }
 
-function loop() {
+function loop(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+    logBeta += bDir * dt * ((bhi - blo) / 13);
+    if (logBeta >= bhi) { logBeta = bhi; bDir = -1; } else if (logBeta <= blo) { logBeta = blo; bDir = 1; }
+    sliderLogB.value = String(logBeta); valueLogB.textContent = logBeta.toFixed(2);
+  }
+  lastT = now;
   render();
   updateReadout();
   requestAnimationFrame(loop);
