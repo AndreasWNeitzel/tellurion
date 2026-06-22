@@ -54,10 +54,11 @@
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Specific heat of solids. Top: the Debye (orange) and Einstein (blue) heat capacities C/3Nk against temperature, sharing the Dulong-Petit plateau and read by a sweeping cursor; ticks mark the Debye and Einstein temperatures. Bottom: log-log axes, where the Debye low-T behaviour is the straight T^3 line (slope 3) and the Einstein model falls exponentially. Method: closed-form Einstein and Debye (numerical Debye integral). Source: Ashcroft and Mermin, Solid State Physics, Ch. 23.</figcaption>
+      Specific heat of solids. Top: the lattice vibrating with thermal amplitude, and the phonon mode spectrum coloured by each mode's activation (warm = active, contributing k to C; cool = frozen). As kT sweeps right, more modes switch on; the warm fraction of the modes is C/3Nk. The Debye spectrum is a continuum g(omega) proportional to omega squared up to omega_Debye; the Einstein model puts every mode at one frequency. Bottom: the resulting heat capacities versus temperature, with the Dulong-Petit plateau and the Debye T^3 asymptote. Source: Ashcroft and Mermin, Solid State Physics, Ch. 23.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Heat capacity controls">
+    <div class="row"><label for="s-tcur">temperature T</label><input type="range" id="s-tcur" min="5" max="1000" step="5" value="200"><span class="value" id="v-tcur">200 K</span></div>
     <div class="row"><label for="s-td">Debye temperature</label><input type="range" id="s-td" min="80" max="600" step="5" value="400"><span class="value" id="v-td">400 K</span></div>
     <div class="row"><label for="s-te">Einstein temperature</label><input type="range" id="s-te" min="80" max="600" step="5" value="320"><span class="value" id="v-te">320 K</span></div>
     <div class="row buttons">
@@ -70,10 +71,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Let the cursor sweep to high $T$: both heat capacities flatten at the Dulong-Petit value $3Nk$.</li>
-        <li class="t-body">Sweep to low $T$: the Einstein curve plunges far below the Debye curve, freezing out too fast.</li>
-        <li class="t-body">Read the log-log panel: the Debye curve is a straight line of slope 3, the $T^3$ law; the Einstein line peels away.</li>
-        <li class="t-body">Raise the Debye temperature (a stiffer, lighter crystal like diamond): the whole curve shifts to higher $T$.</li>
+        <li class="t-body">Raise the temperature $T$: the $kT$ line sweeps right, more modes turn warm (active), the lattice jiggles harder, and $C/3Nk$ climbs toward the Dulong-Petit value of 1.</li>
+        <li class="t-body">Drop $T$ low: the Einstein spike freezes out all at once (its single frequency needs $kT \gtrsim \hbar\omega_E$), while the Debye continuum keeps a few low-frequency modes active, giving the $T^3$ tail.</li>
+        <li class="t-body">Compare the warm fraction of the spectrum with the heat capacity below: they are the same number, because $C$ is the activation-weighted area of the density of states.</li>
+        <li class="t-body">Raise the Debye temperature (a stiffer, lighter crystal like diamond): every mode needs more heat to activate, so the whole curve shifts to higher $T$.</li>
       </ul>
     </section>
 

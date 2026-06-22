@@ -16,7 +16,7 @@ tier: simple
 hero_candidate: false
 renderer: canvas2d
 estimated_engagement_minutes: 5
-share_state_keys: [TD, TE]
+share_state_keys: [T, TD, TE]
 invariants:
   - key: dp
     label: both models reach the Dulong-Petit value 3Nk at high T
