@@ -48,8 +48,8 @@ const SPECTRAL = [
   ['M', 3200], ['K', 4500], ['G', 5600], ['F', 6800], ['A', 9200], ['B', 15000], ['O', 30000],
 ];
 
-function drawCurves() {
-  const x0 = 44, y0 = 40, pw = W * 0.52 - x0, ph = H - y0 - 54;
+function drawCurves(R) {
+  const x0 = R.x + 50, y0 = R.y + 22, pw = R.w - 50 - 16, ph = R.h - 22 - 32;
   const nTot = Math.pow(10, st.logN);
   ctx.fillStyle = '#0a0a0e'; ctx.fillRect(x0, y0, pw, ph);
   ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, pw - 1, ph - 1);
@@ -96,18 +96,18 @@ function drawCurves() {
   ctx.fillStyle = '#ffffff'; ctx.fillText('Balmer line strength = (1-x) f2', x0 + 8, y0 + 48);
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'center';
   ctx.fillText(`peak ~ ${Math.round(bpT)} K (A stars)`, xOf(bpT), y0 + ph - 10);
-  ctx.save(); ctx.translate(14, y0 + ph / 2); ctx.rotate(-Math.PI / 2);
+  ctx.save(); ctx.translate(R.x + 16, y0 + ph / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillText('fraction (normalized)', 0, 0); ctx.restore();
 }
 
-function drawGas() {
-  const x0 = W * 0.55, y0 = 40, bw = W - x0 - 28, bh = H - y0 - 54;
+function drawGas(R) {
+  const x0 = R.x + 18, y0 = R.y + 22, bw = R.w - 36, bh = R.h - 22 - 30;
   ctx.fillStyle = '#0a0a0e'; ctx.fillRect(x0, y0, bw, bh);
   ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, bw - 1, bh - 1);
   const nTot = Math.pow(10, st.logN);
   const x = ionizationFraction(st.T, nTot);
   const f2 = boltzmannFraction(2, st.T);              // of neutrals (Z0~g1)
-  const cols = 13, rows = Math.ceil(st.tokenR.length / cols);
+  const cols = 16, rows = Math.ceil(st.tokenR.length / cols);
   const cw = bw / cols, chh = bh / rows;
   let nIon = 0, nExc = 0;
   const vth = Math.sqrt(Math.max(0.2, st.T / 8000));            // thermal speed scale
@@ -153,8 +153,13 @@ function render() {
   const tion = ionizationTemp(nTot);
   ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`T = ${Math.round(st.T)} K   log n = ${st.logN.toFixed(2)}   x = ${x.toFixed(3)}   Balmer = ${balmerStrength(st.T, nTot).toExponential(2)}`, 24, 22);
-  drawCurves();
-  drawGas();
+  // Portrait stack: the hydrogen-gas box on top (wide, the visual hook), the
+  // Saha/Boltzmann/Balmer curves below (full-width landscape plot). Replaces
+  // the old side-by-side split that left both panels as tall narrow ribbons.
+  const headerH = 34;
+  const gasH = Math.round((H - headerH) * 0.42);
+  drawGas({ x: 0, y: headerH, w: W, h: gasH });
+  drawCurves({ x: 0, y: headerH + gasH, w: W, h: H - headerH - gasH });
   readoutX.textContent = x.toFixed(3);
   readoutTion.textContent = String(Math.round(tion));
 }
