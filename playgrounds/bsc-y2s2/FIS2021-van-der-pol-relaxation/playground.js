@@ -58,9 +58,9 @@ function drawAll() {
 
   // Layout
   const padL = 40, padR = 40;
-  const panelW = (W - padL - padR - 40) / 2;
+  const panelW = W - padL - padR;
   const panelY = 60;
-  const panelH = H - panelY - 80;
+  const panelH = Math.round((H - panelY - 100) / 2);
 
   // Phase panel
   const phaseX = padL;
@@ -102,14 +102,14 @@ function drawAll() {
   ctx.fillText('phase (x, v)', phaseX + 6, panelY + 14);
 
   // Trace panel
-  const traceX = padL + panelW + 40;
+  const traceX = padL, traceY = panelY + panelH + 44;
   ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(traceX, panelY, panelW, panelH);
+  ctx.fillRect(traceX, traceY, panelW, panelH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(traceX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
+  ctx.strokeRect(traceX + 0.5, traceY + 0.5, panelW - 1, panelH - 1);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
   ctx.beginPath();
-  ctx.moveTo(traceX, panelY + panelH / 2); ctx.lineTo(traceX + panelW, panelY + panelH / 2);
+  ctx.moveTo(traceX, traceY + panelH / 2); ctx.lineTo(traceX + panelW, traceY + panelH / 2);
   ctx.stroke();
   if (state.trace.length >= 2) {
     const tWindow = 30.0;
@@ -121,7 +121,7 @@ function drawAll() {
     for (const pt of state.trace) {
       if (pt.t < tStart) continue;
       const px = traceX + 4 + (panelW - 8) * (pt.t - tStart) / tWindow;
-      const py = panelY + panelH / 2 - (pt.x / xRange) * (panelH / 2 - 6);
+      const py = traceY + panelH / 2 - (pt.x / xRange) * (panelH / 2 - 6);
       if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
     }
     ctx.stroke();
@@ -129,7 +129,7 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accentCool;
   ctx.textAlign = 'left';
-  ctx.fillText('x(t)', traceX + 6, panelY + 14);
+  ctx.fillText('x(t)', traceX + 6, traceY + 14);
 }
 
 function tickN(n) {
