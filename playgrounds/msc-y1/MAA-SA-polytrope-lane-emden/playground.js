@@ -90,8 +90,10 @@ function drawStar(c, s) {
   ctx.fillRect(STAR.x, STAR.y, STAR.w, STAR.h);
 
   const xiD = displayXi(s);
-  const RMAX = Math.min(STAR.w * 0.44, STAR.h * 0.44);
-  const R = Math.max(24, Math.min(RMAX, xiD * (RMAX / XI_SCALE)));
+  const RMAX = Math.min(STAR.w * 0.46, STAR.h * 0.46);
+  // Fill most of the panel (kills the dead space for compact low-n stars); the
+  // relative radius and the xi_1 readout still convey the physical size.
+  const R = RMAX * (0.72 + 0.28 * Math.min(1, xiD / 9));
   // Centre of the star disc inside the STAR panel.
   const cx = STAR.x + STAR.w / 2;
   const cy = STAR.y + STAR.h / 2;
@@ -206,10 +208,11 @@ function drawProfile(c, s, probe) {
   ctx.fillStyle = c.bg;
   ctx.fillRect(PLOTS.x, PLOTS.y, PLOTS.w, PLOTS.h);
 
-  // The xiMax used to be 10, which clipped the n=5 polytrope (which is
-  // formally infinite) abruptly mid-plot ("random truncation"). Bumped
-  // to 18 so the curve fades to zero smoothly inside the panel.
-  const xiMax = 18;
+  // Adapt the x-axis to the current polytrope so the curve fills the panel
+  // instead of trailing off across a fixed xi=18 axis the low-n profiles never
+  // reach.
+  const xiMax = Math.max(5, Math.ceil(displayXi(s) * 1.12));
+  const xiStep = xiMax <= 7 ? 1 : (xiMax <= 14 ? 2 : 3);
   const padL = 50, padR = 14, padT = 24, padB = 28;
   const half = (PLOTS.h - 8) / 2;
   function panel(yTop, label) {
@@ -269,7 +272,7 @@ function drawProfile(c, s, probe) {
   ctx.textAlign = 'right';
   for (let yv = 0; yv <= 1.01; yv += 0.25) ctx.fillText(yv.toFixed(2), tp.x0 - 4, yForUnit(tp, yv) + 3);
   ctx.textAlign = 'center';
-  for (let xi = 0; xi <= xiMax; xi += 3) ctx.fillText(`${xi}`, xFor(tp, xi), tp.y1 + 14);
+  for (let xi = 0; xi <= xiMax; xi += xiStep) ctx.fillText(`${xi}`, xFor(tp, xi), tp.y1 + 14);
   ctx.fillText('ξ', (tp.x0 + tp.x1) / 2, tp.y1 + 26);
   ctx.textAlign = 'left';
   // Probe marker.
@@ -327,7 +330,7 @@ function drawProfile(c, s, probe) {
   ctx.textAlign = 'right';
   for (let yv = 0; yv <= 1.01; yv += 0.25) ctx.fillText(yv.toFixed(2), bp.x0 - 4, yForUnit(bp, yv) + 3);
   ctx.textAlign = 'center';
-  for (let xi = 0; xi <= xiMax; xi += 3) ctx.fillText(`${xi}`, xFor(bp, xi), bp.y1 + 14);
+  for (let xi = 0; xi <= xiMax; xi += xiStep) ctx.fillText(`${xi}`, xFor(bp, xi), bp.y1 + 14);
   ctx.fillText('ξ', (bp.x0 + bp.x1) / 2, bp.y1 + 26);
   ctx.textAlign = 'left';
   // xi_1 marker on the mass plot too.
