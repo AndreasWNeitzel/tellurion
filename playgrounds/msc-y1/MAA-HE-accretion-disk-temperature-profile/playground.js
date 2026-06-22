@@ -30,9 +30,9 @@ const W = canvas.width, H = canvas.height;
 const VIEW_NAMES = ['profile', 'disc', 'SED'];
 
 const state = {
-  view: 0,
+  view: 1,             // open on the rotating disc (the animated, colour-mapped temperature view)
   rmax: 80,
-  speed: 0,
+  speed: 3,            // nonzero so the Keplerian shear + Doppler beaming play on load
   phase: 0,            // accumulated rotation phase for the disc view
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
@@ -412,15 +412,22 @@ function bootSync() {
     }
     return;
   }
+  // Reflect the disc-view + rotation-speed defaults in the controls.
+  sliderView.value = String(state.view); valueView.textContent = VIEW_NAMES[state.view];
+  sliderSpeed.value = String(state.speed); valueSpeed.textContent = String(state.speed);
   drawAll();
 }
 
-function tick() {
-  if (state.playing) {
-    // Advance the rotation phase when in disc view and speed > 0. The
-    // outer disc turns slowly; inner annuli shear ahead via the
-    // r^-1.5 factor applied per pixel in drawDisc.
-    if (state.view === 1 && state.speed > 0) state.phase += state.speed * 0.012;
+// The disc view rebuilds an 80k-pixel offscreen with per-pixel transcendental
+// math, so throttle it to ~24 fps: the Keplerian rotation is slow enough that
+// this reads as smooth while leaving the frame budget free (it is why the
+// rotation was opt-in before). The profile view is a static reference plot.
+let _lastDisc = 0;
+function tick(now) {
+  if (state.playing && state.view === 1 && state.speed > 0 && now - _lastDisc > 40) {
+    const dt = _lastDisc ? (now - _lastDisc) : 16.7;
+    state.phase += state.speed * 0.012 * (dt / 16.7);    // advance per elapsed time, not per frame
+    _lastDisc = now;
     drawAll();
   }
   requestAnimationFrame(tick);
