@@ -244,7 +244,7 @@ function drawSceneFrame(center, scale) {
 function drawSidePanel() {
   // Right-side panel: bar chart of jet vs counter-jet flux, plus
   // apparent superluminal velocity readout.
-  const x0 = 0.62 * W, y0 = 30, x1 = W - 14, y1 = H - 30;
+  const x0 = 40, y0 = 0.60 * H + 20, x1 = W - 40, y1 = H - 30;
   ctx.fillStyle = 'rgba(20, 28, 44, 0.78)';
   ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
@@ -364,7 +364,7 @@ function updateReadout() {
 }
 
 function draw() {
-  const sceneRect = { x: 0, y: 0, w: 0.6 * W, h: H };
+  const sceneRect = { x: 0, y: 0, w: W, h: 0.58 * H };
   const center = { x: sceneRect.x + sceneRect.w / 2, y: sceneRect.y + sceneRect.h / 2 };
   const scale = 0.34 * sceneRect.h;
   drawBackground(center, scale);
