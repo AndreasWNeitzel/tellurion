@@ -96,9 +96,12 @@ function render() {
   const U = uPhotonThermalJM3(T);
   // Layout: left 55 % = t_cool curve, right 45 % = electron evolution.
   const padL = 64, padR = 14, padT = 30, padB = 40;
-  const leftW = Math.floor((W - padL - padR) * 0.55);
-  const rightW = (W - padL - padR) - leftW - 30;
-  const plotH = H - padT - padB;
+  // Portrait stack: t_cool curve full-width on top, electron-evolution panel below.
+  const leftW = W - padL - padR;
+  const plotH = Math.round((H - padT - padB - 44) / 2);
+  const rightW = W - padL - padR;
+  const rPadT = padT + plotH + 44;
+  const rPlotH = plotH;
 
   // --- LEFT: t_cool(gamma) curve ---
   const tMinLog = -3, tMaxLog = 18;
@@ -153,25 +156,25 @@ function render() {
   ctx.fillText('γ (log)', padL + leftW - 60, padT + plotH + 28);
 
   // --- RIGHT: live electron population evolution ---
-  const rightX = padL + leftW + 30;
+  const rightX = padL;
   function xRight(lg) { return rightX + rightW * (lg - gMinLog) / (gMaxLog - gMinLog); }
   ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
   for (let lg = gMinLog; lg <= gMaxLog; lg += 1) {
     const x = xRight(lg);
-    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, rPadT); ctx.lineTo(x, rPadT + rPlotH); ctx.stroke();
   }
   for (let lg = gMinLog; lg <= gMaxLog; lg += 3) {
     ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`10^${lg}`, xRight(lg) - 14, padT + plotH + 14);
+    ctx.fillText(`10^${lg}`, xRight(lg) - 14, rPadT + rPlotH + 14);
   }
   ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('electron cooling on a γ axis', rightX, padT - 6);
+  ctx.fillText('electron cooling on a γ axis', rightX, rPadT - 6);
 
   // Evolve each electron and plot it as a dot. Draw a trail from its
   // initial gamma to its current gamma (a horizontal line on the log γ
   // axis) to show how far it has cooled.
-  const dotY0 = padT + 30;
-  const dotYStep = (plotH - 90) / N_ELECTRONS;
+  const dotY0 = rPadT + 30;
+  const dotYStep = (rPlotH - 90) / N_ELECTRONS;
   for (let i = 0; i < N_ELECTRONS; i += 1) {
     const g0 = electrons[i];
     const gN = gammaAt(g0, timeElapsedYr, U);
@@ -201,7 +204,7 @@ function render() {
     const b = Math.min(NBINS - 1, Math.max(0, Math.floor((Math.log10(gN) - gMinLog) / (gMaxLog - gMinLog) * NBINS)));
     hist[b] += 1;
   }
-  const histY = padT + plotH - 50;
+  const histY = rPadT + rPlotH - 50;
   const histH = 40;
   let hMax = 1; for (const v of hist) if (v > hMax) hMax = v;
   const binW = rightW / NBINS;
