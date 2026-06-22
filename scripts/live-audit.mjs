@@ -37,7 +37,10 @@ const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=sw
 const flagged = [];
 for (const dir of dirs) {
   const rel = dir.replace('playgrounds/', '');
-  const page = await browser.newPage({ viewport: { width: 1200, height: 1100 }, deviceScaleFactor: 1 });
+  // no-preference reduced motion so cards that default to !prefersReducedMotion()
+  // actually auto-run; otherwise headless reports reduce and every such card looks
+  // frozen (false positive).
+  const page = await browser.newPage({ viewport: { width: 1200, height: 1100 }, deviceScaleFactor: 1, reducedMotion: 'no-preference' });
   const errs = [];
   page.on('pageerror', (e) => errs.push(String(e).split('\n')[0]));
   let verdict = [];
