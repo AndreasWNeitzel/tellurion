@@ -56,6 +56,28 @@ function relayout() {
 
 const T_CONCAVE = descentTime(concaveCurve(160)).time;
 
+// Descent table for the concave reference so its bead can slide with the others
+// (the concave path replaced the old circular arc, which still has its own
+// positionOnArc; this gives the concave curve the same time-parametrised bead).
+const concaveTable = (() => {
+  const pts = concaveCurve(160), ts = [0]; let T = 0;
+  for (let i = 1; i < pts.length; i += 1) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+    const ds = Math.hypot(x1 - x0, y1 - y0);
+    const v0 = Math.sqrt(2 * G * Math.max(0, -y0)), v1 = Math.sqrt(2 * G * Math.max(0, -y1));
+    T += ds / Math.max(0.05, 0.5 * (v0 + v1)); ts.push(T);
+  }
+  return { pts, ts, T };
+})();
+function positionOnConcave(t) {
+  const { pts, ts, T } = concaveTable;
+  if (t >= T) return { x: X_B, y: -Y_B, done: true };
+  let lo = 0, hi = ts.length - 1;
+  while (lo + 1 < hi) { const mid = (lo + hi) >> 1; if (ts[mid] < t) lo = mid; else hi = mid; }
+  const dt = ts[hi] - ts[lo], f = dt > 0 ? (t - ts[lo]) / dt : 0;
+  return { x: pts[lo][0] + f * (pts[hi][0] - pts[lo][0]), y: pts[lo][1] + f * (pts[hi][1] - pts[lo][1]), done: false };
+}
+
 const state = {
   speed: 2,
   tNow: 0,
@@ -213,6 +235,7 @@ function drawAll() {
     }
   }
   drawBead(positionOnCycloid(t), tok.accentCool, 'cycloid');
+  drawBead(positionOnConcave(t), '#f1d28a', 'concave');
   drawBead(positionOnLine(t), tok.accentWarm, 'line');
   drawBead(positionOnUser(t), '#9be8b0', 'yours');
 
