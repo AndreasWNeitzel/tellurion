@@ -35,7 +35,11 @@ const state = {
   L: 6.0,             // deep default sag so the catenary visibly differs from a parabola
   mode: urlParams.get('mode') === 'arch' ? 'arch' : 'hang',  // 'hang' = chain in tension; 'arch' = inverted, compression
   drag: null,
+  playing: false,
+  phase: 0,
 };
+const btnPlay = document.getElementById('btn-play');
+function setPlaying(on) { state.playing = on; if (btnPlay) { btnPlay.textContent = on ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!on)); } }
 
 // Chord line between the two supports, and the vertical map that flips the
 // hanging catenary about that chord to make the self-supporting arch. The
@@ -92,6 +96,7 @@ function pxToWorld(cx, cy) {
 }
 
 sliderA.addEventListener('input', () => {
+  setPlaying(false);
   const t = parseFloat(sliderA.value);
   state.L = chord() * (1.02 + 0.9 * (t - 0.4) / 2.6);
   valueA.textContent = state.L.toFixed(2);
@@ -115,6 +120,7 @@ btnReset.addEventListener('click', () => {
   sliderA.value = '2.87'; valueA.textContent = '6.00'; render();
 });
 canvas.addEventListener('pointerdown', (e) => {
+  setPlaying(false);
   const w = pxToWorld(e.clientX, e.clientY);
   const d1 = Math.hypot(w.x - state.P1.x, w.y - state.P1.y);
   const d2 = Math.hypot(w.x - state.P2.x, w.y - state.P2.y);
@@ -131,6 +137,22 @@ canvas.addEventListener('pointermove', (e) => {
   render();
 });
 window.addEventListener('pointerup', () => { state.drag = null; canvas.classList.remove('dragging'); });
+if (btnPlay) btnPlay.addEventListener('click', () => setPlaying(!state.playing));
+
+// Gently breathe the chain length on a loop so the catenary sag deepens and
+// flattens: a live view of how length sets the curve. Any drag, the slider, or
+// Pause stops it.
+let lastT = performance.now();
+function tick(now) {
+  const dt = Math.min((now - lastT) / 1000, 0.05); lastT = now;
+  if (state.playing) {
+    state.phase += dt * 0.6;
+    state.L = chord() * (1.7 + 0.55 * Math.sin(state.phase));
+    if (sliderA) { const t = 0.4 + (state.L / chord() - 1.02) * 2.6 / 0.9; sliderA.value = String(Math.max(0.3, Math.min(3, t))); valueA.textContent = state.L.toFixed(2); }
+    render();
+  }
+  requestAnimationFrame(tick);
+}
 
 function render() {
   if (!REG) relayout();
@@ -295,7 +317,9 @@ function bootSync() {
   if (selMode) selMode.value = state.mode;
   if (valueMode) valueMode.textContent = state.mode === 'arch' ? 'arch' : 'chain';
   placeSupportsForMode();
+  setPlaying(true);
   render();
+  requestAnimationFrame(tick);
 }
 
 if (document.readyState === 'loading') {
