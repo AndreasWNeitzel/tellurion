@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Thin-Lens Imaging</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Thin-Lens Imaging</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">A thin lens takes every ray leaving a point of the object and bends it so the rays meet again at one point of the image, and two of those rays are easy to draw exactly. A ray arriving parallel to the axis leaves through the far focal point; a ray through the centre of the lens passes straight on; a ray through the near focal point leaves parallel to the axis. Where the refracted rays cross is the image, fixed by the Gaussian lens equation $\frac1{d_o}+\frac1{d_i}=\frac1f$ with transverse magnification $M=-d_i/d_o$. Drag the object along the axis and the image slides, flips, and resizes in response. Beyond the focal point of a converging lens the image is real and inverted on the far side; bring the object inside the focal length and the rays diverge, the image jumps to the near side, upright and enlarged, the magnifying-glass regime. A diverging lens ($f \lt 0$) always returns a small upright virtual image. Photons stream along the physical ray paths so the direction of light is never ambiguous, and the lower panel plots the image distance and magnification against object distance: the lens-equation hyperbola, blowing up at $d_o=f$ where the image runs off to infinity and the sign of $d_i$ flips from virtual to real.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A thin lens on an optical axis with a draggable object arrow, the three principal rays traced to locate the image, photons streaming along the ray paths, and a plot of image distance and magnification against object distance."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Thin-lens imaging. Top: an object (yellow) imaged by a converging or diverging lens; the parallel, chief, and focal rays locate the image, real and inverted (red) or virtual and upright (violet), with photons marking the direction of light. Bottom: image distance d_i (red) and magnification M (green) against object distance d_o, the lens-equation hyperbola with its asymptote at d_o = f. Method: Gaussian lens equation and principal-ray construction. Source: Hecht, Optics, 5th ed., Ch. 5, Eq. 5.17.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Lens controls">
+    <div class="row"><label for="s-f">focal length f</label><input type="range" id="s-f" min="-6" max="6" step="0.1" value="4"><span class="value" id="v-f">+4.0 (converging)</span></div>
+    <div class="row"><label for="s-d">object d_o</label><input type="range" id="s-d" min="0.5" max="13" step="0.1" value="8"><span class="value" id="v-d">8.0</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Drag the object toward the lens: past $d_o=2f$ the real image grows and slides outward, reaching the same size ($M=-1$) exactly at $d_o=2f$.</li>
+        <li class="t-body">Push the object inside the focal length ($d_o \lt f$): the image flips to the near side, upright and enlarged, the way a magnifying glass works.</li>
+        <li class="t-body">Sit the object right at the focal point: the refracted rays come out parallel and the image runs off to infinity, the asymptote in the lower panel.</li>
+        <li class="t-body">Make the lens diverging ($f \lt 0$): the image is always virtual, upright, and shrunken, no matter where the object sits.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
