@@ -30,23 +30,32 @@ const W = canvas.width, H = canvas.height;
 // galaxy (additive) so the comoving lattice is dense and bright without a
 // per-frame gradient cost. The expansion mode owns its rendering in
 // Canvas2D so it does not depend on a WebGL2 context being available.
-const GAL_SPRITE = (() => {
+function makeGalSprite(inner, mid, outer) {
   const s = document.createElement('canvas'); s.width = 64; s.height = 64;
   const g = s.getContext('2d');
   const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  grd.addColorStop(0.0, 'rgba(255, 250, 235, 1)');
-  grd.addColorStop(0.22, 'rgba(255, 224, 158, 0.92)');
-  grd.addColorStop(0.55, 'rgba(255, 168, 96, 0.34)');
-  grd.addColorStop(1.0, 'rgba(255, 140, 80, 0)');
+  grd.addColorStop(0.0, inner); grd.addColorStop(0.22, mid);
+  grd.addColorStop(0.55, outer); grd.addColorStop(1.0, 'rgba(0,0,0,0)');
   g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
   return s;
-})();
+}
+// Redshift palette: nearby galaxies sit near rest colour, distant ones glow
+// progressively redder. With proper distance growing as a(t), this makes
+// Hubble's law (farther = more redshifted) literal across the lattice.
+const GAL_SPRITES = [
+  makeGalSprite('rgba(255,253,248,1)','rgba(255,236,200,0.92)','rgba(255,200,140,0.30)'),
+  makeGalSprite('rgba(255,248,235,1)','rgba(255,222,170,0.92)','rgba(255,180,110,0.30)'),
+  makeGalSprite('rgba(255,240,220,1)','rgba(255,200,140,0.92)','rgba(255,150,95,0.30)'),
+  makeGalSprite('rgba(255,228,200,1)','rgba(255,176,120,0.92)','rgba(248,120,84,0.30)'),
+  makeGalSprite('rgba(255,212,184,1)','rgba(252,140,100,0.92)','rgba(228,90,74,0.30)'),
+  makeGalSprite('rgba(255,196,170,1)','rgba(240,110,86,0.92)','rgba(200,64,64,0.30)'),
+];
 
 // Comoving galaxy lattice, fixed in comoving coordinates with a small
 // deterministic jitter so it reads as real large-scale structure rather
 // than a perfect crystal. Proper positions are these times a(t).
-const GAL_N = 6;                       // galaxies per axis (GAL_N^3 total)
-const GAL_CELL = 3.4;                  // comoving cell size in world units
+const GAL_N = 8;                       // galaxies per axis (GAL_N^3 total)
+const GAL_CELL = 2.6;                  // comoving cell size in world units
 const galaxies = (() => {
   const half = (GAL_N - 1) / 2, out = [];
   for (let i = 0; i < GAL_N; i++) for (let j = 0; j < GAL_N; j++) for (let k = 0; k < GAL_N; k++) {
@@ -54,7 +63,9 @@ const galaxies = (() => {
     const jx = ((seed & 255) / 255 - 0.5) * 0.45;
     const jy = (((seed >> 8) & 255) / 255 - 0.5) * 0.45;
     const jz = (((seed >> 16) & 255) / 255 - 0.5) * 0.45;
-    out.push({ i, j, k, cx: (i - half + jx), cy: (j - half + jy), cz: (k - half + jz), mag: 0.6 + 0.4 * (((seed >> 24) & 255) / 255) });
+    const cx = (i - half + jx), cy = (j - half + jy), cz = (k - half + jz);
+    const dnorm = Math.min(1, Math.sqrt(cx * cx + cy * cy + cz * cz) / (half * 1.732 || 1));
+    out.push({ i, j, k, cx, cy, cz, mag: 0.6 + 0.4 * (((seed >> 24) & 255) / 255), dnorm });
   }
   return out;
 })();
@@ -192,7 +203,8 @@ function drawExpansionMode(a) {
     const size = Math.max(7, Math.min(34, 460 / q.depth)) * q.g.mag;
     const alpha = Math.max(0.35, Math.min(1, 30 / q.depth)) * (0.7 + 0.3 * q.g.mag);
     ctx.globalAlpha = alpha;
-    ctx.drawImage(GAL_SPRITE, q.x - size / 2, q.y - size / 2, size, size);
+    const spr = GAL_SPRITES[Math.min(GAL_SPRITES.length - 1, Math.floor(q.g.dnorm * GAL_SPRITES.length))];
+    ctx.drawImage(spr, q.x - size / 2, q.y - size / 2, size, size);
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
