@@ -58,7 +58,13 @@ for (let i = 0; i < sliced.length; i += 1) {
     const canvas = page.locator('canvas').first();
     const box = await canvas.boundingBox();
     if (box) {
-      await canvas.screenshot({ path: join(OUT, `${idx}-${slug}.png`) });
+      // Clipped page screenshot (not locator.screenshot) so continuously
+      // animating canvases do not time out on the element-stability wait.
+      await page.screenshot({
+        path: join(OUT, `${idx}-${slug}.png`),
+        clip: { x: box.x, y: box.y, width: box.width, height: box.height },
+        timeout: 12000,
+      });
       process.stdout.write(`${idx} ${rel}\n`);
     } else {
       process.stdout.write(`${idx} ${rel} NO-CANVAS\n`);
