@@ -55,8 +55,8 @@ function projEarth(x, y, z, cx, cy, R) {
 }
 
 function drawEarth() {
-  // Left panel: 3D Earth with suspension marker.
-  const cx = 220, cy = 270, R = 150;
+  // Top panel: 3D Earth with suspension marker (portrait stack).
+  const cx = W / 2, cy = Math.round(H * 0.23), R = 150;
   // Globe gradient.
   const g = ctx.createRadialGradient(cx - 30, cy - 30, R * 0.2, cx, cy, R);
   g.addColorStop(0, '#3b6eb0');
@@ -115,8 +115,8 @@ function drawEarth() {
 }
 
 function drawTrace() {
-  // Right panel: floor trace of the bob (precessing rosette).
-  const cx = 670, cy = 270, R = 170;
+  // Middle panel: floor trace of the bob (precessing rosette).
+  const cx = W / 2, cy = Math.round(H * 0.57), R = 165;
   // Background framed disk.
   ctx.fillStyle = '#0a0a0e';
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.fill();
@@ -205,7 +205,8 @@ function render() {
 
 const angHistory = [];
 function drawAngleDiagnostic() {
-  const pw = 240, ph = 128, px = W - pw - 14, py = 14;
+  // Bottom panel: full-width swing-plane azimuth vs time (the Rule-13 ramp).
+  const pw = W - 120, ph = 170, px = 60, py = Math.round(H * 0.80);
   ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
   ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
