@@ -127,7 +127,7 @@ function tick() {
   if (running) {
     const d = drop(), Veff = st.field ? st.V : 0;
     const v = terminalVelocity(d.r, d.n, Veff);
-    st.y += (v / PLATE_GAP) * 0.9;   // gap-fractions per frame, scaled for visibility
+    st.y += (v / PLATE_GAP) * 0.9 + (Math.random() - 0.5) * 0.006;   // drift plus Brownian jitter (real drops wobble from air-molecule collisions)
     if (st.y < 0.04) st.y = 0.04; if (st.y > 0.96) st.y = 0.96;
   }
   render(); if (running) requestAnimationFrame(tick);

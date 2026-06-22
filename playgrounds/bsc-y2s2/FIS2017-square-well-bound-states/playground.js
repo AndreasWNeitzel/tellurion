@@ -66,7 +66,7 @@ function drawScene(col, r) {
   const s = ss[st.sel];
   if (s) { const amp = st.V0 * 0.16, color = s.parity === 'even' ? col.even : col.odd;
     ctx.strokeStyle = color; ctx.lineWidth = 2.6; ctx.beginPath();
-    for (let p = 0; p <= 320; p += 1) { const x = -X + 2 * X * p / 320; const Y = yOf(s.E + amp * waveAt(s, x, st.V0, st.L)); p ? ctx.lineTo(xOf(x), Y) : ctx.moveTo(xOf(x), Y); } ctx.stroke(); }
+    for (let p = 0; p <= 320; p += 1) { const x = -X + 2 * X * p / 320; const Y = yOf(s.E + amp * waveAt(s, x, st.V0, st.L) * Math.cos(s.E * swT * 1.2)); p ? ctx.lineTo(xOf(x), Y) : ctx.moveTo(xOf(x), Y); } ctx.stroke(); }
   ctx.restore();
   // axis labels.
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
@@ -108,6 +108,15 @@ function drawDiag(col, r) {
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('z = kL/2', inner.x + inner.w / 2, inner.y + inner.h + 8);
 }
 
+// A stationary state is not static: its real part oscillates as cos(E t / hbar)
+// while |psi|^2 stays fixed. Animate that phase rotation for the selected level.
+let swT = 0, swLast = (typeof performance !== 'undefined' ? performance.now() : 0);
+function swTick(now) {
+  if (now === undefined) now = swLast;
+  const dt = Math.min((now - swLast) / 1000, 0.05); swLast = now;
+  swT += dt; render();
+  requestAnimationFrame(swTick);
+}
 function render() {
   if (!REG) relayout();
   const col = colors();
@@ -129,6 +138,7 @@ function boot() {
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
+if (!DETERMINISTIC) requestAnimationFrame(swTick);
 window.addEventListener('resize', () => { relayout(); render(); });
 if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { relayout(); render(); }).observe(canvas);
 
