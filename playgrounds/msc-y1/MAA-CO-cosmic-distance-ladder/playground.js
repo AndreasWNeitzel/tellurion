@@ -26,7 +26,7 @@ const state = { ...DEF, targetLog: 6.0, phase: 0, dragging: false };
 let running = !prefersReducedMotion();
 
 const AX = { x0: 70, x1: W - 40, lo: 0, hi: 10 };          // log10(d / pc)
-const RY = 250;                                            // ruler y
+const RY = 180;                                            // ruler y
 const xOf = (logpc) => AX.x0 + (Math.max(AX.lo, Math.min(AX.hi, logpc)) - AX.lo) / (AX.hi - AX.lo) * (AX.x1 - AX.x0);
 const xOfPc = (pc) => xOf(Math.log10(Math.max(1, pc)));
 const logFromX = (px) => AX.lo + (px - AX.x0) / (AX.x1 - AX.x0) * (AX.hi - AX.lo);
@@ -46,10 +46,10 @@ function lbl(s, x, y) {
 // Rung working ranges (log10 pc) and the colour; ranges deliberately
 // overlap their neighbour, which is where the calibration is passed up.
 const RUNGS = [
-  { name: 'Trigonometric parallax', lo: 0.0, hi: 3.5, yc: RY + 58, color: '#f5c842', err: 0.02 },
-  { name: 'Cepheid period-luminosity', lo: 3.0, hi: 7.5, yc: RY + 96, color: '#4f9cf9', err: 0.05 },
-  { name: 'Type Ia supernova', lo: 6.5, hi: 9.5, yc: RY + 134, color: '#f59e6e', err: 0.07 },
-  { name: 'Hubble flow  v = H0 d', lo: 7.5, hi: 10.0, yc: RY + 172, color: '#b48bff', err: 0.10 },
+  { name: 'Trigonometric parallax', lo: 0.0, hi: 3.5, yc: RY + 96, color: '#f5c842', err: 0.02 },
+  { name: 'Cepheid period-luminosity', lo: 3.0, hi: 7.5, yc: RY + 188, color: '#4f9cf9', err: 0.05 },
+  { name: 'Type Ia supernova', lo: 6.5, hi: 9.5, yc: RY + 280, color: '#f59e6e', err: 0.07 },
+  { name: 'Hubble flow  v = H0 d', lo: 7.5, hi: 10.0, yc: RY + 372, color: '#b48bff', err: 0.10 },
 ];
 // Real signposts at true distances (pc).
 const OBJ = [
@@ -140,7 +140,7 @@ function render() {
   const errF = cumErr(state.targetLog);
   const dLogErr = Math.log10(1 + errF);                    // half-width in dex
   const ex0 = xOf(state.targetLog - dLogErr), ex1 = xOf(state.targetLog + dLogErr);
-  const cyTop = RY - 86, cyBot = RY + 186;
+  const cyTop = RY - 80, cyBot = RY + 408;
   ctx.fillStyle = 'rgba(245,200,66,0.15)'; ctx.fillRect(ex0, cyTop, ex1 - ex0, cyBot - cyTop);
   ctx.strokeStyle = '#f5c842'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(cx, cyTop); ctx.lineTo(cx, cyBot); ctx.stroke();
@@ -153,7 +153,7 @@ function render() {
   ctx.textAlign = 'left';
 
   // diagnostic strip: cumulative fractional error vs distance
-  const dy = H - 96, dh = 78;
+  const dy = RY + 440, dh = H - (RY + 440) - 34;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(AX.x0, dy, AX.x1 - AX.x0, dh);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(AX.x0 + 0.5, dy + 0.5, AX.x1 - AX.x0 - 1, dh - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
