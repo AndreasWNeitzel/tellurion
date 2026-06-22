@@ -41,19 +41,19 @@ describe('Data Integrity', () => {
     }
   });
 
-  it('GAIA_CMD fields are in physically sensible ranges (100 pc volume-limited GSP-Phot sample)', () => {
+  it('GAIA_CMD fields are in physically sensible ranges (magnitude-limited GSP-Phot sample)', () => {
     const extents = gaiaExtents();
-    // BP-RP colour: hot blue stars to red M dwarfs
+    // BP-RP colour: hot blue stars to red giants and cool dwarfs
     expect(extents.bprpMin).toBeGreaterThanOrEqual(-0.4);
-    expect(extents.bprpMax).toBeLessThanOrEqual(5.0);
-    // M_G absolute magnitude: bright down to the faint lower main sequence
-    expect(extents.mgMin).toBeGreaterThanOrEqual(-2.0);
+    expect(extents.bprpMax).toBeLessThanOrEqual(5.5);
+    // M_G absolute magnitude: luminous giants down to the lower main sequence
+    expect(extents.mgMin).toBeGreaterThanOrEqual(-5.0);
     expect(extents.mgMax).toBeLessThanOrEqual(16.0);
     // Teff (GSP-Phot)
     expect(extents.teffMin).toBeGreaterThanOrEqual(2400);
     expect(extents.teffMax).toBeLessThanOrEqual(11000);
-    // logg (GSP-Phot): the local sample is dwarf-dominated with a few giants
-    expect(extents.loggMin).toBeGreaterThanOrEqual(2.0);
+    // logg (GSP-Phot): the magnitude-limited sample reaches the red giant branch
+    expect(extents.loggMin).toBeGreaterThanOrEqual(-1.0);
     expect(extents.loggMax).toBeLessThanOrEqual(5.6);
     // [M/H] (GSP-Phot, QC-trimmed)
     expect(extents.mhMin).toBeGreaterThanOrEqual(-2.6);
@@ -237,7 +237,9 @@ describe('Gaia Extents', () => {
     const ext = gaiaExtents();
     expect(ext.teffMin).toBeGreaterThanOrEqual(2400);
     expect(ext.teffMax).toBeLessThanOrEqual(11000);
-    expect(ext.loggMin).toBeGreaterThanOrEqual(2.0);
+    // The magnitude-limited sample reaches the luminous red-giant branch, so logg
+    // runs well below the old volume-limited floor (down to about -0.3).
+    expect(ext.loggMin).toBeGreaterThanOrEqual(-1.0);
     expect(ext.loggMax).toBeLessThanOrEqual(5.6);
   });
 });

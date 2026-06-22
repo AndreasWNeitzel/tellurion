@@ -162,14 +162,7 @@ function drawHR(col, r) {
     else ctx.fillStyle = col.star;
     ctx.beginPath(); ctx.arc(X, Y, 1.9, 0, 6.28); ctx.fill();
   }
-  // observed ridge: the running median Teff of the real stars per logg bin.
-  if (kiel && GAIA_RIDGE.length > 1) {
-    ctx.strokeStyle = col.ridge; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath();
-    GAIA_RIDGE.forEach((b, i) => { const X = xOf(b.teff), Y = yOf(b.logg); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke(); ctx.setLineDash([]);
-    const top = GAIA_RIDGE[GAIA_RIDGE.length - 1];
-    ctx.fillStyle = col.ridge; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-    ctx.fillText('Gaia ridge (median)', xOf(top.teff) - 6, yOf(top.logg));
-  }
+  // (the running-median Gaia ridge overlay was removed to keep the plot uncluttered)
   // MESA track (Kiel only). Break the polyline where the track leaves the
   // observable box (the post-AGB excursion reaches ~80000 K and the white dwarf
   // logg ~ 8, both far off this scale).
@@ -188,15 +181,15 @@ function drawHR(col, r) {
     ctx.stroke();
     // ZAMS label at the true zero-age main sequence (most compact early point).
     const z = MESA_TRACK[ZAMS_IDX];
-    ctx.fillStyle = col.track; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = col.track; ctx.font = fontString(canvas, 'caption', 'sans', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillText('ZAMS', xOf(teffFromLog(z[2])) + 7, yOf(z[4]) + 4);
     // main-sequence turn-off marker.
-    if (TO_AGE) { const to = trackAt(TO_AGE); const X = xOf(teffFromLog(to.logTeff)), Y = yOf(to.logg); ctx.strokeStyle = col.toLine; ctx.lineWidth = 1.6; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.arc(X, Y, 7, 0, 6.28); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = col.toLine; ctx.textAlign = 'left'; ctx.fillText('turn-off', X + 9, Y); }
+    if (TO_AGE) { const to = trackAt(TO_AGE); const X = xOf(teffFromLog(to.logTeff)), Y = yOf(to.logg); ctx.strokeStyle = col.toLine; ctx.lineWidth = 1.6; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.arc(X, Y, 7, 0, 6.28); ctx.stroke(); ctx.setLineDash([]); }
     // age marker (when the star is on-scale; off-scale = white-dwarf cooling).
     const m = trackAt(st.age);
     if (m) {
       const teff = teffFromLog(m.logTeff);
-      ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+      ctx.font = fontString(canvas, 'caption', 'sans', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
       if (inBox(teff, m.logg)) {
         const X = xOf(teff), Y = yOf(m.logg);
         ctx.fillStyle = col.marker; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(X, Y, 6.5, 0, 6.28); ctx.fill(); ctx.stroke();
