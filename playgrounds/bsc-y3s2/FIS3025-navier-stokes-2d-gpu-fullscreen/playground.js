@@ -22,6 +22,7 @@ import {
 import { viridis, divBlack } from '../../../shared/js/render/colormaps.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -131,6 +132,51 @@ function build(warm) {
   }
 }
 
+// True-aspect letterbox rect for the GX x GY field inside the portrait canvas,
+// so the cylinder renders as a circle instead of a tall ellipse.
+const BLIT = { x: 0, y: Math.round((H - W * GY / GX) / 2), w: W, h: Math.round(W * GY / GX) };
+
+function drawColorbar() {
+  const vort = st.field === 'vorticity';
+  const cbX = 80, cbW = W - 160, cbY = 150, cbH = 26;
+  for (let i = 0; i < cbW; i += 1) {
+    const t = i / (cbW - 1);
+    const c = vort ? divBlack(t) : viridis(t);
+    ctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`;
+    ctx.fillRect(cbX + i, cbY, 1, cbH);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1; ctx.strokeRect(cbX + 0.5, cbY + 0.5, cbW - 1, cbH - 1);
+  ctx.fillStyle = 'rgba(220,228,245,0.92)'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(`flow past a ${st.obs}    Re = ${st.Re}    (${st.regime})`, W / 2, 104);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(vort ? 'vorticity  curl u  (RdBu: blue ccw, red cw)' : 'speed  |u|  (viridis)', cbX, cbY - 10);
+  ctx.fillStyle = 'rgba(160,170,190,0.85)';
+  ctx.fillText(vort ? '-4.0' : '0', cbX, cbY + cbH + 16);
+  ctx.textAlign = 'right';
+  ctx.fillText(vort ? '+4.0' : VMAX.toFixed(1), cbX + cbW, cbY + cbH + 16);
+}
+
+function drawWakeProfile() {
+  const { uc, vc } = cellVelocity(state);
+  const xCol = Math.round(GX * 0.72);
+  const bx0 = 80, bw = W - 160, by0 = BLIT.y + BLIT.h + 30, bh = H - (BLIT.y + BLIT.h + 30) - 36;
+  ctx.fillStyle = 'rgba(120,170,235,0.05)'; ctx.fillRect(bx0, by0, bw, bh);
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.strokeRect(bx0 + 0.5, by0 + 0.5, bw - 1, bh - 1);
+  const PX = (y) => bx0 + (y / (GY - 1)) * bw;
+  const PY = (s) => by0 + bh - 8 - Math.min(1, s / VMAX) * (bh - 18);
+  ctx.strokeStyle = 'rgba(120,130,150,0.35)'; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(bx0, PY(1)); ctx.lineTo(bx0 + bw, PY(1)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let y = 0; y < GY; y += 1) {
+    const s = Math.hypot(uc[y * GX + xCol], vc[y * GX + xCol]);
+    const px = PX(y), py = PY(s);
+    y ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,235,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('downstream speed |u|(y) at x = 0.72 L  (the dip is the wake deficit; dashed = free stream)', bx0, by0 - 8);
+}
+
 function render() {
   if (st.field === 'vorticity') paintVorticity(); else paintSpeed();
   if (st.tracer) {
@@ -147,8 +193,16 @@ function render() {
     if (state.obstacle[k]) { const j = k * 4; off.data[j] = 24; off.data[j + 1] = 26; off.data[j + 2] = 32; }
   }
   offCtx.putImageData(off, 0, 0);
+  // Letterbox the field at its true aspect; the bands above and below carry
+  // the colour scale and a downstream wake-velocity profile (was a full-canvas
+  // stretch that distorted the cylinder into an ellipse).
+  ctx.fillStyle = '#06070a'; ctx.fillRect(0, 0, W, H);
   ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(offCanvas, 0, 0, W, H);
+  ctx.drawImage(offCanvas, 0, 0, GX, GY, BLIT.x, BLIT.y, BLIT.w, BLIT.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 1;
+  ctx.strokeRect(BLIT.x + 0.5, BLIT.y + 0.5, BLIT.w - 1, BLIT.h - 1);
+  drawColorbar();
+  drawWakeProfile();
 
   rDiv.textContent = divergenceMax(state).toExponential(1);
   rSt.textContent = peakW.toFixed(2);
