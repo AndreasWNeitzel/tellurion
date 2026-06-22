@@ -46,7 +46,9 @@ window.addEventListener('pointermove', (e) => {
   lastX = e.clientX; lastY = e.clientY;
 });
 
-let centerX = canvas.width * 0.34;
+let centerX = canvas.width * 0.5;
+const SURF_SCALE = 290;
+const SURF_CY = () => canvas.height * 0.37;
 function project(x, y, z) {
   const cy = Math.cos(yaw), sy = Math.sin(yaw);
   const x1 = x * cy - z * sy;
@@ -54,7 +56,7 @@ function project(x, y, z) {
   const cp = Math.cos(pitch), sp = Math.sin(pitch);
   const y1 = y * cp - z1 * sp;
   const z2 = y * sp + z1 * cp;
-  return { px: centerX + x1 * 180 + z2 * 50, py: canvas.height / 2 - y1 * 180 + z2 * 50, depth: z2 };
+  return { px: centerX + x1 * SURF_SCALE + z2 * 82, py: SURF_CY() - y1 * SURF_SCALE + z2 * 82, depth: z2 };
 }
 
 // Saddle z = a u v: a hyperbolic paraboloid. The lines u = const are
@@ -75,9 +77,9 @@ function render() {
 }
 
 function renderSphere() {
-  const cx = centerX, cy = canvas.height / 2;
+  const cx = centerX, cy = SURF_CY();
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.arc(cx, cy, 180, 0, 2 * Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, SURF_SCALE, 0, 2 * Math.PI); ctx.stroke();
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1; ctx.beginPath();
   for (let i = 0; i <= 60; i += 1) {
     const phi = 2 * Math.PI * i / 60;
@@ -85,6 +87,20 @@ function renderSphere() {
     if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
   }
   ctx.stroke();
+  // latitude/longitude graticule for a fuller globe.
+  ctx.strokeStyle = 'rgba(120,150,200,0.16)'; ctx.lineWidth = 1;
+  for (let lat = -60; lat <= 60; lat += 30) {
+    const cl = Math.cos(lat * Math.PI / 180), sl = Math.sin(lat * Math.PI / 180);
+    ctx.beginPath();
+    for (let i = 0; i <= 60; i += 1) { const ph = 2 * Math.PI * i / 60; const p = project(cl * Math.cos(ph), sl, cl * Math.sin(ph)); i ? ctx.lineTo(p.px, p.py) : ctx.moveTo(p.px, p.py); }
+    ctx.stroke();
+  }
+  for (let lon = 0; lon < 180; lon += 30) {
+    const co = Math.cos(lon * Math.PI / 180), so = Math.sin(lon * Math.PI / 180);
+    ctx.beginPath();
+    for (let i = 0; i <= 60; i += 1) { const th = -Math.PI / 2 + Math.PI * i / 60; const p = project(Math.cos(th) * co, Math.sin(th), Math.cos(th) * so); i ? ctx.lineTo(p.px, p.py) : ctx.moveTo(p.px, p.py); }
+    ctx.stroke();
+  }
   const prog = Math.min(1, st.t / 3);
   const colors = ['#ffd166', '#ef476f'];
   [0, st.dphi].forEach((phi0, k) => {
@@ -103,6 +119,16 @@ function renderSphere() {
     const p = project(g.x, g.z, g.y);
     ctx.fillStyle = colors[k]; ctx.beginPath(); ctx.arc(p.px, p.py, 6, 0, 2 * Math.PI); ctx.fill();
   });
+  // deviation-vector ladder: connect the two geodesics at intervals so the
+  // shrinking separation (the geodesic-deviation vector) is visible directly.
+  ctx.strokeStyle = 'rgba(225,228,248,0.55)'; ctx.lineWidth = 1.3;
+  for (let r = 1; r <= 9; r += 1) {
+    const trr = (r / 9) * tt;
+    const ga = greatCircle(trr, Math.PI / 2, 0, Math.PI / 2);
+    const gb = greatCircle(trr, Math.PI / 2, st.dphi, Math.PI / 2);
+    const pa = project(ga.x, ga.z, ga.y), pb = project(gb.x, gb.z, gb.y);
+    ctx.beginPath(); ctx.moveTo(pa.px, pa.py); ctx.lineTo(pb.px, pb.py); ctx.stroke();
+  }
   const sep = angularSeparation(
     greatCircle(tt, Math.PI / 2, 0, Math.PI / 2),
     greatCircle(tt, Math.PI / 2, st.dphi, Math.PI / 2),
@@ -201,10 +227,10 @@ function drawReadouts(headline, sep, init) {
   ctx.fillStyle = '#9aa0a6';
   ctx.fillText(headline, 12, 20);
   ctx.fillStyle = '#06d6a0';
-  ctx.fillText(`separation xi = ${sep.toFixed(3)}   (initial ${init.toFixed(3)})`, 12, canvas.height - 12);
+  ctx.fillText(`separation xi = ${sep.toFixed(3)}   (initial ${init.toFixed(3)})`, 12, 40);
   ctx.fillStyle = 'rgba(150,160,175,0.7)';
   ctx.textAlign = 'right';
-  ctx.fillText('drag to rotate', canvas.width - 12, canvas.height - 12);
+  ctx.fillText('drag to rotate', canvas.width - 12, 20);
   ctx.textAlign = 'left';
 }
 
@@ -212,7 +238,7 @@ function drawReadouts(headline, sep, init) {
 // length. Sinusoidal (converging) on the sphere, flat on the plane,
 // growing on the saddle, exactly as the Jacobi equation predicts.
 function drawDeviationPlot(spec) {
-  const pw = 250, ph = 150, px = canvas.width - pw - 16, py = 52;
+  const px = 40, pw = canvas.width - 80, py = Math.round(canvas.height * 0.66), ph = Math.round(canvas.height * 0.30);
   ctx.fillStyle = 'rgba(8,12,22,0.9)';
   ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220,230,255,0.3)';
