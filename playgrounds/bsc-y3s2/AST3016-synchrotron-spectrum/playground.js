@@ -31,7 +31,7 @@ function render() {
   const W = canvas.width, H = canvas.height;
   const padL = 60, padR = 15, padT = 30, padB = 50;
   const mainW = W;                       // spectrum spans the full width (top)
-  const specBot = Math.round(H * 0.48);  // spectrum occupies the top portion
+  const specBot = st.mode === 'ensemble' ? Math.round(H * 0.48) : H - padB;  // full height when there is no bottom panel
   const rTop = specBot + 34;              // emission + N(gamma) panels stack below
   const rightW = W - padL - padR;
   const B = Math.pow(10, st.logB) * 1e-4;
