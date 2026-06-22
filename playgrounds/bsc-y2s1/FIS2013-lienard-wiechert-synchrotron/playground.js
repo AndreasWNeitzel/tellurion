@@ -180,7 +180,13 @@ function render() {
   rTh.textContent = `${(opAng * 180 / Math.PI).toFixed(1)}°`;
 }
 
-function tick() { render(); requestAnimationFrame(tick); }
+function tick() {
+  // Slowly orbit the camera so the 3D beaming lobe reads as a solid; a pointer
+  // drag takes over and Pause halts the spin.
+  if (st.running && !st.drag) st.az += 0.006;
+  render();
+  requestAnimationFrame(tick);
+}
 
 function bootSync() {
   render();
