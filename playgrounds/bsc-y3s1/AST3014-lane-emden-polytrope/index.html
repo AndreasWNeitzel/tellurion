@@ -16,6 +16,8 @@
     .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
     .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
     .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: 6ch 1fr; }
+    .pg-controls select { width: 100%; font-family: var(--font-mono); font-size: var(--fs-small); background: var(--surface-2, #11141c); color: var(--text-primary); border: 1px solid var(--border, rgba(255,255,255,0.16)); border-radius: 6px; padding: 4px 8px; }
     .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
   </style>
 <link rel="stylesheet" href="../../../shared/css/explainer.css">
@@ -54,11 +56,20 @@
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      The Lane-Emden polytrope. Top: the star as a disk coloured by density (hot is dense) beside the density rho/rho_c (orange) and enclosed mass m/M (blue) against fractional radius, with a draggable cursor. Bottom: the central concentration rho_c / mean density against polytropic index n, climbing from 1 at n=0 toward infinity at n=5. Method: RK4 integration of the Lane-Emden equation (shared engine). Source: Chandrasekhar, An Introduction to the Study of Stellar Structure, Ch. 4.</figcaption>
+      The Lane-Emden polytrope. Top: a density cross-section of the star beside its interior profiles against fractional radius, the Lane-Emden function theta (which spans the whole star), the density theta^n, the pressure theta^(n+1), and the enclosed mass m/M, with a draggable cursor. Higher n crushes the density and pressure toward the centre while theta still runs the full radius. Bottom: the central concentration rho_c / mean density against polytropic index n, climbing from 1 at n=0 toward infinity at n=5. Method: RK4 integration of the Lane-Emden equation (shared engine). Source: Chandrasekhar, An Introduction to the Study of Stellar Structure, Ch. 4.</figcaption>
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Polytrope controls">
     <div class="row"><label for="s-n">index n</label><input type="range" id="s-n" min="0.1" max="4.9" step="0.05" value="3"><span class="value" id="v-n">3.00</span></div>
+    <div class="row wide"><label for="select-preset">preset</label><select id="select-preset" aria-label="polytrope preset">
+      <option value="">custom</option>
+      <option value="0.1">n=0 uniform sphere</option>
+      <option value="1">n=1 analytic sin(x)/x</option>
+      <option value="1.5">n=1.5 convective / white dwarf</option>
+      <option value="3" selected>n=3 Eddington / Chandrasekhar</option>
+      <option value="4">n=4 very concentrated</option>
+      <option value="4.9">n=4.9 near-singular</option>
+    </select></div>
     <div class="row buttons">
       <button id="btn-reset" type="button">Reset</button>
     </div>
@@ -68,9 +79,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Raise the index $n$: the density crushes toward the centre, the disk brightening at the core and dimming the envelope.</li>
-        <li class="t-body">Set $n=1$: the density follows the exact analytic $\sin\xi/\xi$, reaching the surface at $\xi_1=\pi$.</li>
-        <li class="t-body">Drag the radius cursor: read the density and the fraction of the star's mass inside that radius, ever more concentrated as $n$ grows.</li>
+        <li class="t-body">Raise the index $n$ (or pick a preset): the density and pressure crush toward the centre, the core brightening and the envelope dimming, while the Lane-Emden function theta keeps spanning the whole radius.</li>
+        <li class="t-body">Pick the $n=1$ preset: the solution is the exact analytic $\theta=\sin\xi/\xi$, reaching the surface at $\xi_1=\pi$. Compare the convective $n=1.5$ and the Eddington $n=3$ presets.</li>
+        <li class="t-body">Drag the radius cursor: read theta, the density, the pressure, and the fraction of the star's mass inside that radius, ever more centrally concentrated as $n$ grows.</li>
         <li class="t-body">Watch the central concentration climb toward infinity as $n$ approaches 5, where the star has no finite radius.</li>
       </ul>
     </section>
