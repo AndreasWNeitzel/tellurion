@@ -43,8 +43,8 @@ function getOpts() {
 }
 
 function drawOrbit() {
-  // Left panel: orbit top-down.
-  const cx = 220, cy = 270, R = 200;
+  // Top panel: orbit top-down.
+  const cx = 410, cy = 310, R = 250;
   const opts = getOpts();
   const pos = positions(st.t, opts);
 
@@ -113,8 +113,8 @@ function drawOrbit() {
 }
 
 function drawRVCurve() {
-  // Right panel: v_r(t) over one period.
-  const x0 = 470, y0 = 60, w = 420, h = 280;
+  // Bottom panel: v_r(t) over one period.
+  const x0 = 60, y0 = 650, w = 700, h = 320;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(x0, y0, w, h);
   ctx.strokeStyle = 'rgba(255,255,255,0.18)';
