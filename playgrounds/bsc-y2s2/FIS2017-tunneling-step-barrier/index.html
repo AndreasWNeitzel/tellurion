@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Quantum Tunneling Through a Barrier</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row .value { font-family: var(--font-mono); text-align: right; color: var(--text-primary); min-width: 4ch; }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Quantum Tunneling Through a Barrier</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Fire a quantum particle at a wall too tall to climb and it sometimes comes out the other side. Classically a particle with energy below the barrier height is simply turned back, every time. The wave is not: it does not stop dead at the wall, it bends into an exponential that decays across the barrier, and if the barrier is thin enough a sliver of amplitude survives to the far side and resumes travelling. That leaked fraction is the transmission probability $T = [1 + V_0^2\sinh^2(\kappa L)/(4E(V_0-E))]^{-1}$, which shrinks fast, exponentially, as the barrier thickens or rises, the reason tunneling is a delicate affair that nonetheless runs alpha decay, the scanning tunneling microscope, and fusion in the Sun. Above the barrier the story flips: the particle is not guaranteed through either, the step acts as a partial mirror, and at special energies where exactly a half-integer of wavelengths fits the barrier the reflections cancel and transmission is perfect. The top panel animates the real part of the wave flowing in, the standing-wave ripple of incident plus reflected on the left, the decay inside, the smaller transmitted wave leaving on the right, all inside the static probability envelope. The bottom panel tracks $T$ and $R$ against energy, the tunneling tail below $V_0$ and the resonance comb above, always summing to one. Slide the energy, height, and width and watch the leak respond.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A wave incident on a rectangular barrier, with the time-evolving real part decaying through the barrier and a smaller transmitted wave, and a plot of transmission and reflection against energy showing tunneling below the barrier and resonances above."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Quantum tunneling through a barrier. Top: the barrier (orange), the time-evolving real part of the wave (blue) inside the static probability envelope (green), decaying through the barrier and emerging reduced. Bottom: transmission T (green) and reflection R (orange) against energy, with the tunneling region below V0 tinted and the perfect-transmission resonances marked above. Method: T from the exact barrier formula; the wave by integrating the Schrodinger equation from the transmitted side. Source: Griffiths, Introduction to Quantum Mechanics, 2nd ed., Sec. 2.6.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Tunneling controls">
+    <div class="row"><label for="s-E">energy E</label><input type="range" id="s-E" min="0.1" max="6" step="0.05" value="1.0"><span class="value" id="v-E">1.00</span></div>
+    <div class="row"><label for="s-V">height V0</label><input type="range" id="s-V" min="0.5" max="5" step="0.1" value="2.0"><span class="value" id="v-V">2.00</span></div>
+    <div class="row"><label for="s-L">width L</label><input type="range" id="s-L" min="0.4" max="3.5" step="0.05" value="1.5"><span class="value" id="v-L">1.50</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Start below the barrier ($E \lt V_0$): the wave decays across the barrier and a small transmitted wave survives, so the tunneling probability is small but nonzero.</li>
+        <li class="t-body">Widen the barrier: the transmitted wave shrinks fast (exponentially), and the operating point slides down the tunneling tail.</li>
+        <li class="t-body">Raise the energy above the barrier: the step becomes a partial mirror, and at the marked resonances the transmission hits one (the reflections cancel).</li>
+        <li class="t-body">Watch the diagnostic: T and R always add to one, all the probability accounted for.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
