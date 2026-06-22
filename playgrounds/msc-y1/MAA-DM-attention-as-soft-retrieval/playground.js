@@ -39,6 +39,13 @@ const state = {
   tau:    0.5,
 };
 
+// Orbit the query on a Lissajous path through the key cloud so the attention
+// fan and the retrieved value shift continuously on load. Dragging the query
+// or moving a slider pauses it; reset resumes.
+let playing = !(DETERMINISTIC || prefersReducedMotion()), _phase = 0, _last = (typeof performance !== 'undefined' ? performance.now() : 0);
+const _qxLo = parseFloat(sliderQx.min), _qxHi = parseFloat(sliderQx.max);
+const _qyLo = parseFloat(sliderQy.min), _qyHi = parseFloat(sliderQy.max);
+
 function cssVar(name, fallback) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 }
@@ -255,7 +262,7 @@ function applyControls() {
   valueQy.textContent  = state.query[1].toFixed(2);
   drawAll();
 }
-[sliderTau, sliderQx, sliderQy].forEach(s => s.addEventListener('input', applyControls));
+[sliderTau, sliderQx, sliderQy].forEach(s => s.addEventListener('input', () => { playing = false; applyControls(); }));
 
 // Drag-the-query: pointerdown on the key panel sets the query position
 // to the cursor; pointermove drags it. Updates the qx, qy sliders so
@@ -275,11 +282,26 @@ function setQueryFromEvent(e) {
   drawAll();
   return true;
 }
-canvas.addEventListener('pointerdown', (e) => { if (setQueryFromEvent(e)) { qDragging = true; canvas.setPointerCapture?.(e.pointerId); } });
+canvas.addEventListener('pointerdown', (e) => { if (setQueryFromEvent(e)) { playing = false; qDragging = true; canvas.setPointerCapture?.(e.pointerId); } });
 canvas.addEventListener('pointermove', (e) => { if (qDragging) setQueryFromEvent(e); });
 window.addEventListener('pointerup', () => { qDragging = false; });
 
-btnReset.addEventListener('click', () => { sliderTau.value = '0.5'; sliderQx.value = '0'; sliderQy.value = '0'; applyControls(); });
+btnReset.addEventListener('click', () => { sliderTau.value = '0.5'; sliderQx.value = '0'; sliderQy.value = '0'; applyControls(); if (!prefersReducedMotion()) playing = true; });
+
+function tick(now) {
+  if (playing) {
+    const dt = Math.min(0.05, (now - _last) / 1000 || 0);
+    _phase += dt * 0.6;
+    const qx = (_qxLo + _qxHi) / 2 + (_qxHi - _qxLo) / 2 * 0.85 * Math.sin(_phase);
+    const qy = (_qyLo + _qyHi) / 2 + (_qyHi - _qyLo) / 2 * 0.85 * Math.sin(2 * _phase + 0.7);
+    state.query = [qx, qy];
+    sliderQx.value = qx.toFixed(2); valueQx.textContent = qx.toFixed(2);
+    sliderQy.value = qy.toFixed(2); valueQy.textContent = qy.toFixed(2);
+    drawAll();
+  }
+  _last = now;
+  requestAnimationFrame(tick);
+}
 btnShuffle.addEventListener('click', () => {
   state.shuffleSeed = (state.shuffleSeed ?? 0) + 1;
   reshuffle();
@@ -313,9 +335,9 @@ function bootSync() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootSync, { once: true });
+  document.addEventListener('DOMContentLoaded', () => { bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick); }, { once: true });
 } else {
-  bootSync();
+  bootSync(); if (!CAPTURE_NAME && playing) requestAnimationFrame(tick);
 }
 
 
