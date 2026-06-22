@@ -230,9 +230,22 @@ canvas.addEventListener('pointerup', endPaint);
 canvas.addEventListener('pointercancel', endPaint);
 
 let last = performance.now();
+const PRESET_CYCLE = ['plates', 'coax', 'dipole', 'sphere'];
+let solvedAt = 0;
 function tick(now) {
   last = now;
-  if (running) stepSolve();
+  if (running) {
+    const wasSolved = solved;
+    stepSolve();
+    if (solved && !wasSolved) solvedAt = now;
+    // Once converged and left alone, advance to the next boundary configuration
+    // and relax again, so the scene keeps demonstrating rather than freezing.
+    if (solved && !painting && !DETERMINISTIC && now - solvedAt > 2600) {
+      const idx = PRESET_CYCLE.indexOf(selPreset.value);
+      selPreset.value = PRESET_CYCLE[(idx + 1) % PRESET_CYCLE.length];
+      syncVals(); loadPreset();
+    }
+  }
   render();
   requestAnimationFrame(tick);
 }
