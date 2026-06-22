@@ -52,10 +52,11 @@ function trainState() {
 }
 
 // Layout (1200x680 canvas).
-const SX = 30, SY = 50, SW = 1140, SH = 220;        // top: rod-train track + ghost
-const CX_L = 100, CX_R = 320, CKY = 320, CKR = 42;  // twin clocks band
-const KPX = 30, KPY = 470, KPW = 840, KPH = 170;    // contraction graphic
-const PMX = 900, PMY = 290, PMW = 270, PMH = 350;   // Minkowski panel
+// Portrait stack: rod-train track, twin clocks, contraction graphic, Minkowski panel.
+const SX = 20, SY = 44, SW = canvas.width - 40, SH = 150;        // rod-train track (top)
+const CX_L = Math.round(canvas.width * 0.30), CX_R = Math.round(canvas.width * 0.70), CKY = SY + SH + 66, CKR = 44;  // twin clocks band
+const KPX = 20, KPY = CKY + CKR + 38, KPW = canvas.width - 40, KPH = 150;    // contraction graphic
+const PMH = canvas.height - (KPY + KPH + 36) - 28, PMW = PMH, PMX = Math.round((canvas.width - PMH) / 2), PMY = KPY + KPH + 36;   // Minkowski panel (square, bottom)
 
 function clockFace(cx, cy, r, frac, label, col, accent) {
   ctx.save();
