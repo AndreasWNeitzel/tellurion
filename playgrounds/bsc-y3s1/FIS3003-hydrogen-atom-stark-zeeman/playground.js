@@ -35,8 +35,8 @@ function curB() { return st.running ? st.B * (0.55 + 0.45 * (0.5 - 0.5 * Math.co
 function curF() { return st.running ? st.F * (0.55 + 0.45 * (0.5 - 0.5 * Math.cos(st.t * 0.6 + 1.7))) : st.F; }
 
 // geometry
-const DX = 26, DY = 50, DW = 360, DH = 470;       // term diagram
-const SX = 410, SY = 50, SW = 274, SH = 470;      // synthetic spectrum (clears the HUD)
+const DX = 30, DY = 46, DW = 370, DH = canvas.height - 92;       // term diagram (left column)
+const SX = 420, SY = 46, SW = canvas.width - 450, SH = canvas.height - 92;      // synthetic spectrum (right column)
 
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, canvas.width, canvas.height);

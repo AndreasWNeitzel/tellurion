@@ -33,9 +33,9 @@ function curAllowed() { return allowedJ(st.j1, st.j2); }
 function curJ() { const A = curAllowed(); const i = st.jIdx < 0 ? A.length - 1 : Math.min(st.jIdx, A.length - 1); return A[i]; }
 
 // geometry
-const VX = 26, VY = 46, VW = 470, VH = 474;       // 3D vector model
+const VW = 480, VH = 480, VX = Math.round((canvas.width - 480) / 2), VY = 36;       // 3D vector model (top)
 const cx3 = VX + VW / 2, cy3 = VY + VH / 2 + 30;
-const TX = 540, TY = 180, TW = 320;               // CG table + J ladder (below the HUD)
+const TX = 100, TY = VY + VH + 40, TW = canvas.width - 200;               // CG table + J ladder (bottom)
 
 // rotate (x,y,z) about z (yaw) then x (pitch), orthographic
 function proj(x, y, z, yaw, pitch, s) {
