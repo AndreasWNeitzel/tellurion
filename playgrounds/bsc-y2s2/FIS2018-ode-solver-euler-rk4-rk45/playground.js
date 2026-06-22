@@ -45,7 +45,7 @@ function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
   const padL = 50, padR = 30, padT = 30, padB = 50;
-  const left = padL, right = W * 0.6, top = padT, bot = H - padB;
+  const left = padL, right = W - padR, top = padT, bot = Math.round(H * 0.46);
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, bot); ctx.lineTo(right, bot); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('x(t)', 12, top + 10); ctx.fillText('t', right - 20, bot + 18);
@@ -62,9 +62,9 @@ function render() {
   });
   // Right column: phase portrait on top, log error plot below, stacked
   // with a clear gap so neither overlaps the other.
-  const colX0 = right + 44, colX1 = W - padR;
+  const colX0 = padL, colX1 = Math.round(W / 2) - 12;
   const midGap = 26;
-  const psT = padT, psB = Math.round(H / 2) - midGap;
+  const psT = bot + 52, psB = H - padB;
   const cx = (colX0 + colX1) / 2, cy = (psT + psB) / 2;
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(colX0, cy); ctx.lineTo(colX1, cy); ctx.moveTo(cx, psT); ctx.lineTo(cx, psB); ctx.stroke();
@@ -85,7 +85,7 @@ function render() {
     ctx.fillStyle = colors[i];
     ctx.beginPath(); ctx.arc(xToPx(y[0]), vToPx(y[1]), 5, 0, 2 * Math.PI); ctx.fill();
   });
-  const errL = colX0, errT = Math.round(H / 2) + midGap, errR2 = colX1, errB = H - padB;
+  const errL = Math.round(W / 2) + 12, errT = bot + 52, errR2 = W - padR, errB = H - padB;
   ctx.strokeStyle = '#9aa0a6';
   ctx.beginPath(); ctx.moveTo(errL, errT); ctx.lineTo(errL, errB); ctx.lineTo(errR2, errB); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
