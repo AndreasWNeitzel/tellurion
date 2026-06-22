@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<title>Vibrating Drumhead Modes</title>
+<link rel="stylesheet" href="../../../shared/css/tokens.css">
+<link rel="stylesheet" href="../../../shared/css/base.css">
+<link rel="stylesheet" href="../../../shared/css/playground-v2.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { function tryRender(){ if (window.renderMathInElement && window.katex) renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); else setTimeout(tryRender, 50); } tryRender(); });</script>
+<style>
+    .pg-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3) var(--space-4); align-items: center; margin-block: var(--space-4); }
+    .pg-controls .row.wide { grid-column: span 2; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: center; font-size: var(--fs-small); color: var(--text-secondary); }
+    .pg-controls .row.wide .value { font-family: var(--font-mono); text-align: left; color: var(--text-primary); }
+    .pg-controls .row.buttons { grid-template-columns: 1fr; grid-column: span 2; }
+  </style>
+<link rel="stylesheet" href="../../../shared/css/explainer.css">
+<link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/assets/favicon/site.webmanifest">
+<meta name="theme-color" content="#07090f">
+</head>
+<body>
+<main class="playground-layout" data-focus="false">
+
+  <a href="/" class="playground-back" aria-label="Back to catalog">
+    <svg class="back-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    <span class="back-title">Back</span>
+  </a>
+
+  <article class="playground-center">
+
+    <header class="playground-header">
+      <h1 class="t-title playground-title">Vibrating Drumhead Modes</h1>
+    </header>
+
+    <section class="playground-intro">
+      <p class="t-body">Strike a circular drum and it does not ring on a single clean pitch the way a string does, and the reason is geometry. Solving the wave equation on a disk, the displacement separates into an angular part $\cos(m\theta)$ and a radial part that turns out to be a Bessel function $J_m(kr)$, the natural standing wave of a round membrane. Clamping the rim forces $J_m(ka)=0$, so the only allowed wavenumbers are $k_{mn} = j_{m,n}/a$ where $j_{m,n}$ is the $n$-th zero of $J_m$, and the frequencies scale with those zeros. The scene paints the mode as it breathes in and out, red rising and blue falling, with the still lines drawn on top: $m$ nodal diameters from the angular factor and $n-1$ nodal circles from the interior zeros of the Bessel function, the same patterns sand grains settle into on a Chladni plate. The bottom panel is that radial profile, and its zeros are exactly the nodal circles you see in the disk, with the last zero pinned to the rim. The catch, and the reason a drum sounds more like a thud than a note, is in the frequencies: the Bessel zeros are not in any simple integer ratio, so the overtones are inharmonic, scattered rather than stacked like a string's $1, 2, 3, \ldots$. Step the angular and radial mode numbers and watch the pattern and its pitch rearrange.</p>
+    </section>
+
+    <div class="playground-canvas-frame">
+      <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+      </button>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0"
+              data-plot-role="diagnostic"
+              aria-label="A circular drumhead vibrating in a chosen mode, shown as a diverging colormap with its nodal diameters and circles, and the radial Bessel profile whose zeros are those nodal circles."></canvas>
+    </div>
+
+    <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
+      Vibrating drumhead modes. Top: the (m,n) mode displacement on the disk (red up, blue down), oscillating in time, with m nodal diameters and n-1 nodal circles drawn dark. Bottom: the radial profile J_m(k r), whose zeros are the nodal circles, clamped to zero at the rim. Method: Bessel functions and their zeros from series and root-finding; frequencies scale as j_{m,n}. Source: Arfken, Weber, Harris, Mathematical Methods for Physicists, 7th ed.</figcaption>
+
+    <section class="playground-controls">
+      <div class="controls pg-controls" id="controls" role="group" aria-label="Drumhead controls">
+    <div class="row wide"><button id="btn-m" type="button">Angular m</button><span class="value" id="value-m">m = 1</span></div>
+    <div class="row wide"><button id="btn-n" type="button">Radial n</button><span class="value" id="value-n">n = 2</span></div>
+    <div class="row buttons">
+      <button id="btn-reset" type="button">Reset</button>
+    </div>
+  </div>
+    </section>
+
+    <section class="playground-what-to-try">
+      <h2 class="t-label">WHAT TO TRY</h2>
+      <ul>
+        <li class="t-body">Step the angular number $m$: each increment adds a nodal diameter, a still line straight across the drum.</li>
+        <li class="t-body">Step the radial number $n$: each increment adds a nodal circle, a still ring, matching a new zero in the radial profile below.</li>
+        <li class="t-body">Read the frequency ratio: the Bessel zeros are not integer multiples, so the overtones are inharmonic, the reason a drum has no clear pitch.</li>
+        <li class="t-body">Watch the rim: every mode is clamped to zero there, the boundary condition that selects the allowed frequencies.</li>
+      </ul>
+    </section>
+
+  </article>
+
+  <aside class="playground-rail" aria-label="Diagnostics">
+    <section class="rail-state">
+      <h2 class="t-label">LIVE READOUTS</h2>
+      <table class="rail-state-table"></table>
+    </section>
+    <section class="rail-invariants">
+      <h2 class="t-label">DIAGNOSTICS</h2>
+      <ul class="rail-invariants-list"></ul>
+    </section>
+    <section class="rail-references">
+      <h2 class="t-label">REFERENCES</h2>
+      <ol class="rail-references-list"></ol>
+    </section>
+  </aside>
+
+</main>
+<script type="module" src="../../../shared/js/rail.js"></script>
+<script type="module" src="../../../shared/js/focus.js"></script>
+<script type="module" src="./playground.js"></script>
+<script type="module" src="../../../shared/js/explainer.js"></script>
+</body>
+</html>
