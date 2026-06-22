@@ -47,7 +47,8 @@ const DEF_M = 2.0;
 const state = { M: DEF_M, t: 0 };
 let rng = makeRng(SEED), host = [], sat, trail, running = true;
 let rHistory = [];                                 // {t, r} inspiral track for the diagnostic
-let tSinkPrev = null;                              // last completed sink time, for reference
+let tSinkPrev = null;                              // sink time of the completed inspiral
+let sunk = false;                                  // satellite has merged; hold for a manual reset
 
 // 3D (orbit plane = xy, z up) -> screen, tilted about x. Returns
 // [sx, sy, depth] with depth larger = nearer the viewer.
@@ -69,11 +70,13 @@ function reset() {
   trail = [];
   rHistory = [{ t: 0, r: R0 }];
   state.t = 0;
+  sunk = false;
 }
 reset();
 
 const dt = 0.02;
 function step() {
+  if (sunk) return;
   const r = sat.r;
   const X = V0 / (Math.SQRT2 * SIGMA);
   // Isothermal host: circular speed V0 is flat, so X and f(X) are
@@ -88,7 +91,8 @@ function step() {
   state.t += dt;
   rHistory.push({ t: state.t, r: sat.r });
   if (rHistory.length > 4000) rHistory.shift();
-  if (sat.r <= RMIN + 1e-4) { tSinkPrev = state.t; reset(); }
+  // On merging, hold the final state (do not auto-restart); the user resets.
+  if (sat.r <= RMIN + 1e-4) { sat.r = RMIN; tSinkPrev = state.t; sunk = true; }
 }
 
 function panel(col, r, title) {
@@ -205,6 +209,15 @@ function render() {
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, view.w, view.h);
   drawScene(REG.scene);
   drawDiag(REG.diag);
+  if (sunk) {
+    const s = REG.scene;
+    ctx.font = fontString(canvas, 'caption', 'sans', 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const msg = `satellite merged at t = ${(tSinkPrev ?? state.t).toFixed(1)}  .  press Reset to replay`;
+    const w = ctx.measureText(msg).width + 24, bx = s.x + s.w / 2 - w / 2, by = s.y + s.h - 56;
+    ctx.fillStyle = 'rgba(8,10,18,0.86)'; ctx.fillRect(bx, by, w, 26);
+    ctx.strokeStyle = 'rgba(255,210,120,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(bx + 0.5, by + 0.5, w - 1, 25);
+    ctx.fillStyle = 'rgba(255,214,120,0.95)'; ctx.fillText(msg, s.x + s.w / 2, by + 13);
+  }
 }
 
 // Cheap deterministic hash for wake jitter (stable per index, no rng
@@ -231,8 +244,8 @@ function buildControls() {
 }
 
 let rafOn = false;
-function tick() { if (running) step(); render(); if (running && !CAPTURE_NAME) requestAnimationFrame(tick); else rafOn = false; }
-function startLoop() { if (!rafOn && running && !CAPTURE_NAME) { rafOn = true; requestAnimationFrame(tick); } }
+function tick() { if (running && !sunk) step(); render(); if (running && !sunk && !CAPTURE_NAME) requestAnimationFrame(tick); else rafOn = false; }
+function startLoop() { if (!rafOn && running && !sunk && !CAPTURE_NAME) { rafOn = true; requestAnimationFrame(tick); } }
 
 buildControls();
 if (DETERMINISTIC) {
