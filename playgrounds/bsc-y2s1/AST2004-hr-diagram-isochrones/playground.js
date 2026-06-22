@@ -39,10 +39,13 @@ const AGE_MIN = MESA_TRACK[0][0];
 const st = { u: 0, age: TO_AGE ?? 6, view: 'kiel', color: 'metal' };
 let running = !DETERMINISTIC;
 
-// Kiel axes (Teff reversed: hot left; logg reversed: dwarfs at bottom).
-const KX = [7400, 3000], KY = [0.1, 5.7];
-// CMD axes (BP-RP; M_G reversed: bright at top).
-const CX = [0.5, 4.0], CY = [-4.2, 10.2];
+// Kiel axes (Teff reversed: hot left; logg reversed: dwarfs at bottom). The giant
+// region runs down to logg ~ 0 and Teff ~ 2800 K so the RGB tip and the cool AGB
+// stay on scale.
+const KX = [7400, 2800], KY = [-0.3, 5.7];
+// CMD axes (BP-RP clipped to the bulk; a handful of very red outliers reach ~3.7 and
+// would otherwise waste most of the axis). M_G reversed: bright at top.
+const CX = [0.5, 2.8], CY = [-4.2, 10.2];
 
 // Evolutionary-progress reparametrization. The star crawls along the main sequence
 // for ~9 Gyr and then races through the subgiant and giant phases in under 1 Gyr, so
@@ -51,15 +54,21 @@ const CX = [0.5, 4.0], CY = [-4.2, 10.2];
 // the visible track, and step a uniform parameter u in [0,1] through it: equal u
 // covers equal screen distance, giving the fast giant phases their share of time.
 const TEFF_SPAN = KX[0] - KX[1], LOGG_SPAN = KY[1] - KY[0];
-const inVisBox = (teff, logg) => teff >= KX[1] && teff <= 6700 && logg >= KY[0] && logg <= KY[1];
 const REPARAM = (() => {
+  // Collect the whole observable evolution, from the ZAMS through the RGB tip, the
+  // helium-burning clump and the AGB, stopping only at the post-AGB blueward jump
+  // (Teff > 6700 K) so the giant phases are not cut off at the RGB tip.
   const idxs = [];
-  for (let i = ZAMS_IDX; i < MESA_TRACK.length; i += 1) { const teff = teffFromLog(MESA_TRACK[i][2]), logg = MESA_TRACK[i][4]; if (inVisBox(teff, logg)) idxs.push(i); else if (idxs.length) break; }
+  for (let i = ZAMS_IDX; i < MESA_TRACK.length; i += 1) { if (teffFromLog(MESA_TRACK[i][2]) > 6700 && idxs.length) break; idxs.push(i); }
+  // Cap each step so the near-instantaneous helium flash (a long jump across the
+  // Kiel plane at almost fixed age) cannot swallow the sweep and starve the slower,
+  // more interesting subgiant and red-giant climb.
+  const SEG_CAP = 0.025;
   const cum = [0], ages = [MESA_TRACK[idxs[0]][0]];
   for (let k = 1; k < idxs.length; k += 1) {
     const a = MESA_TRACK[idxs[k - 1]], b = MESA_TRACK[idxs[k]];
     const dx = (teffFromLog(b[2]) - teffFromLog(a[2])) / TEFF_SPAN, dy = (b[4] - a[4]) / LOGG_SPAN;
-    cum.push(cum[k - 1] + Math.hypot(dx, dy)); ages.push(b[0]);
+    cum.push(cum[k - 1] + Math.min(SEG_CAP, Math.hypot(dx, dy))); ages.push(b[0]);
   }
   return { cum, ages, total: cum[cum.length - 1] || 1 };
 })();
@@ -131,7 +140,7 @@ function drawHR(col, r) {
 
   // grid + ticks.
   ctx.strokeStyle = col.grid; ctx.lineWidth = 0.8; ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textBaseline = 'top'; ctx.textAlign = 'center';
-  const xticks = kiel ? [7000, 6000, 5000, 4000, 3000] : [1, 2, 3];
+  const xticks = kiel ? [7000, 6000, 5000, 4000, 3000] : [1, 1.5, 2, 2.5];
   for (const t of xticks) { const X = xOf(t); ctx.beginPath(); ctx.moveTo(X, box.y); ctx.lineTo(X, box.y + box.h); ctx.stroke(); ctx.fillText(kiel ? `${t}` : t.toFixed(1), X, box.y + box.h + 5); }
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   const yticks = kiel ? [1, 2, 3, 4, 5] : [-2, 0, 2, 4, 6, 8];
