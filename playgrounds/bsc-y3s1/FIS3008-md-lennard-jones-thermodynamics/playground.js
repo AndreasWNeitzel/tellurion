@@ -35,8 +35,8 @@ const st = { T: 1.0, rho: 0.55, speed: 4, running: !prefersReducedMotion() };
 let state = makeLJ({ N, rho: st.rho, T0: st.T, seed: SEED });
 let e0 = diagnostics(state.inst).energy;
 
-const BX = 60, BY = 40, BS = 400;                       // particle box (square)
-const PX0 = BX + BS + 56, PX1 = W - 24, PY0 = 70, PY1 = H - 70;
+const BX = (W - 560) / 2, BY = 40, BS = 560;            // particle box (square), big centred hero
+const PX0 = 70, PX1 = W - 24, PY0 = 690, PY1 = H - 46;  // g(r) as a full-width bottom plot
 
 function drawBox() {
   const L = state.L, s = BS / L;
