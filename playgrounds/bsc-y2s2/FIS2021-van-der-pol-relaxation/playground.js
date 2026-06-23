@@ -177,7 +177,10 @@ function bootSync() {
 
 function tick() {
   if (state.playing) {
-    tickN(state.speed);
+    // x3 the per-frame rate: the phase orbit closes quickly but the x(t)
+    // trace needs several oscillations to fill its panel instead of showing
+    // a lone wiggle in the first quarter.
+    tickN(state.speed * 3);
     drawAll();
   }
   requestAnimationFrame(tick);
