@@ -70,7 +70,7 @@ function drawScene(col, r) {
   const { a, q, gamma } = mathieuParams(st.r, st.h, st.beta);
   const g = floquetGrowth(a, q, gamma, 160);
   const unstable = g > 1.0005;
-  panel(col, r, `Parametric resonance:  drive omegaD/omega0 = ${st.r.toFixed(2)} (resonance at 2),  depth h = ${st.h.toFixed(2)},  ${unstable ? 'GROWING' : 'decaying'} (x${g.toFixed(3)}/period)`);
+  panel(col, r, `Parametric resonance: drive = ${st.r.toFixed(2)}, depth h = ${st.h.toFixed(2)}, ${unstable ? 'GROWING' : 'decaying'}`);
   const inner = { x: r.x + 12, y: r.y + 28, w: r.w - 24, h: r.h - 28 - 10 };
   // pendulum (left).
   const pend = { x: inner.x, y: inner.y, w: inner.w * 0.36, h: inner.h };
@@ -112,7 +112,7 @@ function drawScene(col, r) {
 
 function drawDiag(col, r) {
   const { a, q, gamma } = mathieuParams(st.r, st.h, st.beta);
-  panel(col, r, 'Ince-Strutt stability chart (Mathieu): resonance tongues where the amplitude grows; the dot is the current setting');
+  panel(col, r, 'Ince-Strutt stability chart (Mathieu): resonance tongues');
   const inner = { x: r.x + 44, y: r.y + 30, w: r.w - 44 - 16, h: r.h - 30 - 34 };
   const xOf = (qq) => inner.x + qq / QHI * inner.w, yOf = (aa) => inner.y + inner.h * (AHI - aa) / (AHI - ALO);
   if (chart) ctx.drawImage(chart, inner.x, inner.y, inner.w, inner.h);

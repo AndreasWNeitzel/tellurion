@@ -169,7 +169,7 @@ function drawDiagPanel() {
   ctx.fillStyle = 'rgba(15, 22, 36, 0.85)'; ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)'; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.textAlign = 'left';
   ctx.fillText('intensity vs lab angle  I(θ) = D(θ)^{3+α}', px + 8, py + 16);
   const beta = betaOf(st.gamma), p = 3 + st.alpha;
   const ax = px + 40, ay = py + 30;

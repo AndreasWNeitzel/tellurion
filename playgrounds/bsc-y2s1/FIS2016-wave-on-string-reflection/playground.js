@@ -117,8 +117,8 @@ function drawAll() {
   const ringY = padT + panelH + 20 + panelH / 2 - yEnd * (panelH * 0.4);
   ctx.strokeStyle = 'rgba(255, 215, 130, 0.95)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(padL + panelW - 4, ringY, 6, 0, 6.28); ctx.stroke();
-  ctx.fillStyle = 'rgba(255, 215, 130, 0.85)'; ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillText('slider (free)', padL + panelW - 60, ringY + 18);
+  ctx.fillStyle = 'rgba(255, 215, 130, 0.85)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right';
+  ctx.fillText('slider (free)', padL + panelW - 4, ringY + 18); ctx.textAlign = 'left';
 }
 
 function tickN(n) {

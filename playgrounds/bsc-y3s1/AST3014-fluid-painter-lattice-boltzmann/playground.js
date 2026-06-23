@@ -105,7 +105,7 @@ function drawWakeDiagnostic() {
   wakeHistory.forEach((v, i) => { const x = xOf(i), y = yOf(v); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
   ctx.stroke();
   ctx.fillStyle = 'rgba(200,210,240,0.72)'; ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillText('shedding oscillation -> Strouhal frequency', ax, py0 + ph - 5);
+  ctx.fillText('shedding -> Strouhal frequency', ax, py0 + ph - 5);
 }
 
 let drawing = false;

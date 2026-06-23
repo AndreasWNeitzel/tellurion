@@ -139,8 +139,8 @@ function drawAll() {
   const pX = barX + state.p * barW;
   ctx.fillStyle = '#7ed4c1'; ctx.fillRect(pX - 1, barY - 4, 2, barH + 8);
   ctx.fillStyle = '#9aa0a6'; ctx.textAlign = 'left';
-  ctx.fillText('0', barX - 2, barY + barH + 11);
-  ctx.textAlign = 'right'; ctx.fillText('1', barX + barW + 2, barY + barH + 11);
+  ctx.fillText('0', barX - 2, barY + barH + 6);
+  ctx.textAlign = 'right'; ctx.fillText('1', barX + barW + 2, barY + barH + 6);
 
   // ====================================================================
   // ORDER-PARAMETER CURVE P_inf(p). The canonical percolation plot:
@@ -237,7 +237,7 @@ function drawAll() {
   ctx.fillStyle = 'rgba(15, 18, 28, 0.85)'; ctx.fillRect(hX, hY, hW, hH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.strokeRect(hX + 0.5, hY + 0.5, hW - 1, hH - 1);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('cluster sizes log10(n) vs log10(s)', hX + 4, hY + 12);
+  ctx.fillText('cluster-size distribution', hX + 4, hY + 12);
   const NB = 12;
   const bins = new Array(NB).fill(0);
   const maxLogS = Math.max(1, Math.log10(state.L * state.L));
