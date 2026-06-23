@@ -15,8 +15,8 @@ VO: The playground offers three fields (unit curl, a shear, and a conservative f
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag and resize the loop in a curl=1 field: the circulation around it always equals the enclosed area, so the circulation-versus-area plot is a straight line of slope equal to the curl.
+VO: Switch the field to curl=-1 or curl=0: the circulation flips sign or vanishes, even though the loop is unchanged.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

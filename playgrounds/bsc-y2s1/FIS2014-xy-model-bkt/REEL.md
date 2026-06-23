@@ -15,8 +15,8 @@ VO: Berezinskii, Kosterlitz and Thouless found instead a topological transition 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Cool below the BKT temperature: the compass needles lock into smooth swirls and the bound vortex-antivortex pairs stay tightly paired.
+VO: Raise the temperature T through the transition: watch isolated vortices (the pinwheel defects) appear and wander, the topological mechanism behind the Berezinskii-Kosterlitz-Thouless transition.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

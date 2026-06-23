@@ -15,8 +15,8 @@ VO: The total radiated power is the Larmor formula, proportional to the square o
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the sin-squared theta donut: an electron oscillating along the axis radiates nothing straight up the axis and most strongly broadside.
+VO: Raise the oscillation frequency: the total radiated power climbs steeply (Larmor power scales as acceleration squared), and the readout P_tot follows.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

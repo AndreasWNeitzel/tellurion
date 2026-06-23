@@ -15,8 +15,8 @@ VO: The playground draws the Planck curve as you change temperature (watch the p
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide the temperature T: the Planck continuum brightens and its peak marches to shorter wavelengths (Wien law), so the star colour shifts from red toward blue.
+VO: Deepen the absorption lines: the Balmer, Ca II H and K, Na D and Mg b features cut into the continuum.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

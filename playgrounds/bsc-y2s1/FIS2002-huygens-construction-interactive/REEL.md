@@ -15,8 +15,8 @@ VO: The primary scene is the physical 2D wavelet field with the swept Huygens ci
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch each point on the wavefront act as a secondary source: their circular wavelets superpose, and the envelope is the next wavefront.
+VO: Follow the far-field amplitude versus angle: the coherent sum of N sources builds the central maximum and the side lobes of the diffraction pattern, a sinc envelope for a slit.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: Its angular size scales as wavelength over aperture diameter, which is the f
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Widen the aperture D: the Airy disk and its rings shrink as 1.22 lambda over D, so a bigger lens resolves finer detail.
+VO: Add RMS wavefront error sigma: the Strehl ratio drops, light bleeds out of the central disk into the rings, and the radial profile loses its clean peak.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

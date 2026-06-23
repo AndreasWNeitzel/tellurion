@@ -15,8 +15,8 @@ VO: The primary scene is the physical temperature field (viridis) overlaid with 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch heat diffuse across the grid: the temperature field smooths and spreads under dT/dt = div(kappa grad T), hot spots bleeding into their cold surroundings until everything equilibrates.
+VO: Paint a region of different conductivity kappa: heat races through the high-conductivity channels and stalls in the insulating patches, the field bending around them.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: Presets give a free circular wavefront, single-slit diffraction, double-slit
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Pick a preset (free wavefront, single slit, double slit, a cavity): the explicit leapfrog scheme propagates the scalar wave through the geometry, reflecting off rigid walls and diffracting through openings.
+VO: Watch the wave reach the dashed screen: the intensity profile |u|(y) builds up the diffraction pattern, bright where wavelets arrive in phase and dark where they cancel.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

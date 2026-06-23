@@ -15,8 +15,8 @@ VO: Because each displacement is a sum of many tiny independent kicks, the cloud
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the ensemble of walkers spread from the origin: the cloud radius grows as sqrt(4 D t), and the highlighted tracer jitters along its own jagged random walk under the molecular buffeting.
+VO: Read the mean-squared-displacement panel: it climbs linearly as 4 D t, the signature of normal diffusion, and the measured points sit right on the line.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
