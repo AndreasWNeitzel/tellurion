@@ -217,12 +217,13 @@ function drawGeigerNuttall(c) {
   ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
   ctx.fillStyle = c.muted; ctx.fillText('Q (MeV)', x1, y1 + 16);
 
-  // Y-axis name (top-left) and the linear-in-1/sqrt(Q) descriptor (top-centre,
-  // above the diagonal so it never meets the bottom status row).
+  // Y-axis name (top-left) and the linear-in-1/sqrt(Q) descriptor (top-centre).
+  // Both sit in the top margin above the plot area (y < y0) so they clear the
+  // highest decade tick label, which is anchored at y0.
   ctx.textAlign = 'left';
-  ctx.fillText('log10 T_1/2 (s)', 8, y0 + 8);
+  ctx.fillText('log10 T_1/2 (s)', 8, top + 11);
   ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(200,206,224,0.6)';
-  ctx.fillText('log T linear in 1/√Q', (x0 + x1) / 2, y0 + 8);
+  ctx.fillText('log T linear in 1/√Q', (x0 + x1) / 2, top + 11);
 
   // Geiger-Nuttall line: exactly linear in 1/sqrt(Q).
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
