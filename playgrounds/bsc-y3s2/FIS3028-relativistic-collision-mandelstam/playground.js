@@ -63,20 +63,21 @@ function drawScattering(SX, SY, SW, SH) {
     x2 = SX + SW - 30 - Math.min(1, phase * 2) * span;
   }
 
-  // Pre-collision incoming particles
+  // Pre-collision incoming particles, with momentum arrows showing each
+  // beam's direction of travel toward the interaction point.
   if (phase < 0.55) {
-    drawParticle(x1, cy, 12, '#5bc0eb', `m1 = ${st.m1.toFixed(2)}`);
-    drawParticle(x2, cy, 12, '#ffd166', st.geom === 'fixed' ? `m2 = ${st.m2.toFixed(2)} (tgt)` : `m2 = ${st.m2.toFixed(2)}`);
-    // Trailing motion streaks
-    const t1 = st.geom === 'fixed' ? '+' : '+';
-    drawStreak(x1 - 8, cy, '#5bc0eb', -1);
-    if (st.geom !== 'fixed') drawStreak(x2 + 8, cy, '#ffd166', 1);
+    drawMomentumArrow(x1, cy, 1, '#5bc0eb');
+    if (st.geom !== 'fixed') drawMomentumArrow(x2, cy, -1, '#ffd166');
+    drawParticle(x1, cy, 15, '#5bc0eb', `m1 = ${st.m1.toFixed(2)}`);
+    drawParticle(x2, cy, 15, '#ffd166', st.geom === 'fixed' ? `m2 = ${st.m2.toFixed(2)} (tgt)` : `m2 = ${st.m2.toFixed(2)}`);
+    drawStreak(x1 - 10, cy, '#5bc0eb', -1);
+    if (st.geom !== 'fixed') drawStreak(x2 + 10, cy, '#ffd166', 1);
   }
 
   // Collision fireball at phase ~ 0.5
   if (phase >= 0.40 && phase < 0.70) {
     const fp = (phase - 0.40) / 0.30;     // 0..1 collision burst
-    const r = 6 + 60 * fp * (1 - fp) * 4;   // grows then shrinks
+    const r = 8 + SH * 0.17 * fp * (1 - fp) * 4;   // grows then shrinks, scaled to the scene
     const fireG = ctx.createRadialGradient(collideX, cy, 0, collideX, cy, r);
     // Colour saturation grows with sqrt(s): high-energy collisions are
     // hotter (whiter) than low-energy ones.
@@ -94,16 +95,17 @@ function drawScattering(SX, SY, SW, SH) {
   if (phase >= 0.55) {
     const op = (phase - 0.55) / 0.45;
     const N_JETS = Math.max(4, Math.min(14, Math.round(4 + 2 * Math.log10(Math.max(1, roots)))));
+    const rxMax = SW * 0.42, ryMax = SH * 0.40;   // fill the scene in both axes
     for (let i = 0; i < N_JETS; i += 1) {
       const ang = (i / N_JETS) * Math.PI * 2 + 0.31;
-      const reach = SW * 0.42 * op;
-      const jx = collideX + reach * Math.cos(ang);
-      const jy = cy + reach * Math.sin(ang) * 0.55;       // foreshortened vertically
+      const grow = 0.22 + 0.78 * op;
+      const jx = collideX + rxMax * grow * Math.cos(ang);
+      const jy = cy + ryMax * grow * Math.sin(ang);
       const c = i % 2 === 0 ? '#5bc0eb' : '#ffd166';
-      drawParticle(jx, jy, Math.max(4, 8 * (1 - op * 0.6)), c, '');
-      ctx.strokeStyle = c; ctx.globalAlpha = 0.45 * (1 - op);
+      ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.globalAlpha = 0.5 * (1 - 0.5 * op);
       ctx.beginPath(); ctx.moveTo(collideX, cy); ctx.lineTo(jx, jy); ctx.stroke();
       ctx.globalAlpha = 1;
+      drawParticle(jx, jy, Math.max(5, 10 * (1 - op * 0.5)), c, '');
     }
     ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText(`${N_JETS} outgoing tracks  (multiplicity ~ ln sqrt s)`, cx, SY + SH - 10);
@@ -132,6 +134,20 @@ function drawStreak(x, y, col, dir) {
     ctx.fillRect(x + dir * k * 9, y - 1.5, 4, 3);
   }
 }
+// Momentum arrow drawn behind an incoming particle, pointing along its
+// direction of travel (dir = +1 moving right, -1 moving left).
+function drawMomentumArrow(x, y, dir, col) {
+  const tail = x - dir * 60, head = x - dir * 26;
+  ctx.strokeStyle = col; ctx.globalAlpha = 0.7; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(tail, y); ctx.lineTo(head, y); ctx.stroke();
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.moveTo(head + dir * 11, y);
+  ctx.lineTo(head, y - 7);
+  ctx.lineTo(head, y + 7);
+  ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = 1;
+}
 
 function drawPlot(SX, SY, SW, SH) {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(SX, SY, SW, SH);
@@ -144,6 +160,12 @@ function drawPlot(SX, SY, SW, SH) {
   ctx.lineTo(SX + SW - pad.r, SY + SH - pad.b); ctx.stroke();
   const xToPx = (l) => SX + pad.l + l / 5 * (SW - pad.l - pad.r);
   const yToPx = (l) => SY + SH - pad.b - l / 5 * (SH - pad.t - pad.b);
+  // Decade tick labels on both log axes.
+  ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'center';
+  for (let l = 0; l <= 5; l += 1) ctx.fillText(String(l), xToPx(l), SY + SH - pad.b + 14);
+  ctx.textAlign = 'right';
+  for (let l = 0; l <= 5; l += 1) ctx.fillText(String(l), SX + pad.l - 5, yToPx(l) + 3);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.8; ctx.beginPath();
   for (let i = 0; i <= 200; i += 1) {
     const logE = 5 * i / 200;
@@ -169,6 +191,7 @@ function drawPlot(SX, SY, SW, SH) {
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(xToPx(st.logE), yToPx(Math.log10(sqrtS(sf))), 5, 0, 2 * Math.PI); ctx.fill();
   ctx.beginPath(); ctx.arc(xToPx(st.logE), yToPx(Math.log10(sqrtS(sc))), 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.textAlign = 'left';
   ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('fixed-target sqrt(s) ~ sqrt(E)', SX + pad.l + 6, SY + pad.t + 14);
   ctx.fillStyle = '#ffd166';
