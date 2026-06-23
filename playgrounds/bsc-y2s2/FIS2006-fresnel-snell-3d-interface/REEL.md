@@ -15,8 +15,8 @@ VO: The refracted beam bends by Snell, the Fresnel equations fix the s- and p-re
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep the incidence angle: the refracted beam bends by Snell n1 sin(theta1) = n2 sin(theta2), and the Fresnel reflectance curves below track how much s and p light reflects at each angle.
+VO: Find Brewster angle, where the p-reflectance hits zero: the reflected p-polarised beam vanishes entirely, which is why polarising sunglasses kill glare off water and roads.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

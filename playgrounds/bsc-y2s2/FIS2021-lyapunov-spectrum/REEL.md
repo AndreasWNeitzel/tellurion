@@ -15,8 +15,8 @@ VO: The playground computes the full spectrum for the Henon map with the Benetti
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag the (a, b) handle across the Henon parameter plane: the attractor morphs and the two Lyapunov exponents shift.
+VO: Read the constraint lambda_1 + lambda_2 = ln|b|: the map contracts area at a fixed rate, so the two exponents always sum to the same value.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

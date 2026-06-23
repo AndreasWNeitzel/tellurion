@@ -65,8 +65,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch the iterative solver between Jacobi, Gauss-Seidel and conjugate gradient: each drives the residual down at a different rate, and the log-residual plot shows conjugate gradient winning by far.</li>
+        <li class="t-body">Raise the grid size N: the iterative methods slow down (their iteration count grows with N) while the Thomas direct solver stays exact in O(N). That scaling is why solver choice matters.</li>
+        <li class="t-body">Watch the solution converge toward the exact parabola: the iterate creeps up from below as the residual shrinks, the visible meaning of an iterative method homing in on the answer.</li>
       </ul>
     </section>
 

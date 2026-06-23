@@ -15,8 +15,8 @@ VO: The scene shows a phase blob and its image under a chosen map: the harmonic 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the map: harmonic scaling squashes a circle into an ellipse, a phase rotation spins it, and an area-preserving squeeze stretches one axis while shrinking the other.
+VO: Watch the area ratio: every canonical map keeps it pinned at 1, since the Poisson bracket {Q,P} = 1.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

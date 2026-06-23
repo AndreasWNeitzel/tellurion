@@ -15,8 +15,8 @@ VO: At kick strength K = 0 the motion is integrable, every orbit on an invariant
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the kick strength K from zero: at K = 0 the rotor sits on clean horizontal lines (conserved tori), and as K grows islands and a chaotic sea appear between them.
+VO: Push K past the critical 0.9716: the last KAM torus spanning the map breaks, and trajectories can finally wander across the whole momentum range.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

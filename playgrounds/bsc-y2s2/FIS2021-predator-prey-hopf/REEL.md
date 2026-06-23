@@ -15,8 +15,8 @@ VO: For some parameters predator and prey settle to a stable coexistence equilib
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the prey carrying capacity K: the stable coexistence point loses stability through a Hopf bifurcation, and the populations break into a growing limit cycle.
+VO: Watch the phase portrait and the time series together: below the bifurcation the spiral winds into the fixed point, above it the spiral winds out onto a closed predator-prey cycle.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

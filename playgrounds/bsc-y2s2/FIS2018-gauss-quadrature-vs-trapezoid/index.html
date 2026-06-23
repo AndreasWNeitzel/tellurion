@@ -85,8 +85,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Raise the node count n: the trapezoid error falls slowly as 1/n-squared, while Gauss-Legendre plunges to machine precision within a handful of nodes. The error-vs-n panel shows the exponential gap.</li>
+        <li class="t-body">Note where Gauss puts its nodes: clustered, unequally weighted, and never at the endpoints, which is how n points integrate polynomials up to degree 2n-1 exactly.</li>
+        <li class="t-body">Change the integrand: smooth functions let Gauss converge spectrally, but a kink or singularity drags both schemes back to algebraic convergence.</li>
       </ul>
     </section>
 

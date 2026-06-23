@@ -15,8 +15,8 @@ VO: Trajectories spiral outward in a near-plane, then the z-equation lifts and r
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the parameter c: the Rossler attractor period-doubles, its single funnel loop splitting into two, then four, then a chaotic band.
+VO: Watch the trajectory spiral out in the plane then fold back through the funnel: the slow spiral plus the fast z-kick is the stretch-and-fold that makes the chaos.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

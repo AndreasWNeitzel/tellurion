@@ -15,8 +15,8 @@ VO: The left panel animates the mechanism, the right is its phase portrait (q, q
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the system: a simple pendulum, a chaotic double pendulum, a springy elastic pendulum, or a Kepler orbit, each from the same Euler-Lagrange machinery L = T - V integrated by RK4.
+VO: Watch the energy readout dH/H: the symplectic-quality integrator holds it near zero even for the chaotic double pendulum, the honest check that the dynamics is faithful.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

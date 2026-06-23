@@ -15,8 +15,8 @@ VO: The animation is driven by the real equations, not a canned loop.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag to orbit the 3D pattern: the radiation forms a toroidal donut with a sin-squared theta shape, brightest broadside to the dipole and exactly null along its axis.
+VO: Compare the 3D donut against the 2D angular figure-eight below: they are the same sin-squared pattern, the polar plot being a slice through the donut.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

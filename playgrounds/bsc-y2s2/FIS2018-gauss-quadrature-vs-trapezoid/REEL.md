@@ -15,8 +15,8 @@ VO: The trapezoid rule uses n + 1 equispaced points and converges slowly; Gauss-
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the node count n: the trapezoid error falls slowly as 1/n-squared, while Gauss-Legendre plunges to machine precision within a handful of nodes.
+VO: Note where Gauss puts its nodes: clustered, unequally weighted, and never at the endpoints, which is how n points integrate polynomials up to degree 2n-1 exactly.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

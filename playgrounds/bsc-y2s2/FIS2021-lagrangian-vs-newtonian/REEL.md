@@ -15,8 +15,8 @@ VO: The playground shows the same swinging pendulum alongside the three formulat
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the view between all-three, Newton-only and phase space: the same pendulum is derived from force balance (tension and gravity arrows) and from a single coordinate theta via L = T - V.
+VO: Raise the initial angle theta_0 toward pi: the swing leaves the small-angle regime, the period lengthens, and the phase-space orbit fattens from an ellipse toward the separatrix.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: As the drive amplitude rises the periodic response undergoes a period-doubli
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the drive amplitude gamma: the ball in the double well goes from settling in one well, to hopping between them, to chaotic rattling.
+VO: Sweep gamma slowly and watch the bifurcation diagram on the right: the strobed positions split, period-double, and smear into chaos, the classic route the Duffing system takes.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

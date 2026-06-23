@@ -15,8 +15,8 @@ VO: Clustering the nodes toward the edges at the Chebyshev points tames the erro
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the node count n: the equispaced interpolant grows wild oscillations near the endpoints (the Runge phenomenon) while the Chebyshev interpolant hugs the function.
+VO: Look at where the nodes sit: Chebyshev clusters them near the endpoints, exactly where equispaced sampling fails, which tames the boundary blow-up.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

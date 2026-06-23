@@ -15,8 +15,8 @@ VO: The playground runs a particle in a central potential, where rotating the wh
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Keep the symmetry-breaking epsilon at zero: the central potential is rotationally symmetric, so the orbit closes and the angular momentum L_z stays flat.
+VO: Dial epsilon away from zero: the added angular term breaks rotational symmetry, the orbit precesses, and L_z starts drifting.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

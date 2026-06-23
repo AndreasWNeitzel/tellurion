@@ -15,8 +15,8 @@ VO: The playground colours every pixel (a value of c) by how fast its orbit esca
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Click anywhere to recenter and let it auto-zoom: the boundary of the set is infinitely detailed, and every dive reveals miniature copies of the whole Mandelbrot shape.
+VO: Jump to a named landmark (Seahorse Valley, a satellite mini-set, the elephant valley): each is a different self-similar structure on the fractal boundary.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

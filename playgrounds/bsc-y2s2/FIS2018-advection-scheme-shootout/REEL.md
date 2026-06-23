@@ -15,8 +15,8 @@ VO: The playground runs four (upwind, Lax-Friedrichs, Lax-Wendroff, and a higher
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the same square pulse advected four ways: FTCS blows up (unconditionally unstable), first-order upwind smears the pulse into a diffusive lump, and Lax-Wendroff and MacCormack ring with dispersive wiggles near the edges.
+VO: Raise the CFL number toward 1: the schemes sharpen, but push past the stability limit and even the stable schemes blow up.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

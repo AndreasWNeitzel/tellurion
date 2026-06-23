@@ -15,8 +15,8 @@ VO: The playground solves it with a direct Thomas algorithm (exact, O(n), a sing
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the iterative solver between Jacobi, Gauss-Seidel and conjugate gradient: each drives the residual down at a different rate, and the log-residual plot shows conjugate gradient winning by far.
+VO: Raise the grid size N: the iterative methods slow down (their iteration count grows with N) while the Thomas direct solver stays exact in O(N).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: For small mu the cycle is nearly sinusoidal; as mu grows it deforms into a r
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise mu: the Van der Pol limit cycle morphs from a near-circular orbit (mu small, almost a harmonic oscillator) into a sharp relaxation oscillation with fast jumps and slow crawls.
+VO: Start the trajectory anywhere off the origin: it always spirals onto the same limit cycle, the self-sustained oscillation that does not depend on the initial condition.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

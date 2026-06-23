@@ -15,8 +15,8 @@ VO: A rod-train moves at speed beta = v/c and is Lorentz-contracted to L0/gamma 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Push beta = v/c toward 1: the moving rod contracts to L0/gamma, the travelling clock visibly falls behind the home clock, and the worldline on the Minkowski diagram tilts toward the light cone.
+VO: Read the twin clocks side by side: the traveller ages less, the elapsed-time gap widening as you approach c.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
