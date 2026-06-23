@@ -36,9 +36,13 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const ASPECT = H / W;
+const PY0 = 26, PYH = 540;                     // orbit panel (top); separations diagnostic fills below
+const ASPECT = PYH / W;
 let VIEW = { xmin: -1.6, xmax: 1.6, ymin: -1.07, ymax: 1.07 };
 const TRAIL_MAX = 6000;
+const SEP = { x: 40, y: 588, w: W - 80, h: H - 588 - 16 };
+const sepHist = [];                            // { t, r12, r23, r31 } over ~one period
+const SEP_KEEP = 900;
 
 const state = {
   orbit: 'figure-eight',
@@ -80,12 +84,13 @@ function rebuild() {
   setView(entry.view);
   state.trails = [[], [], []];
   state.tElapsed = 0;
+  sepHist.length = 0;
 }
 
 function px(x, y) {
   return {
     px: ((x - VIEW.xmin) / (VIEW.xmax - VIEW.xmin)) * W,
-    py: (1 - (y - VIEW.ymin) / (VIEW.ymax - VIEW.ymin)) * H,
+    py: PY0 + (1 - (y - VIEW.ymin) / (VIEW.ymax - VIEW.ymin)) * PYH,
   };
 }
 
@@ -93,16 +98,17 @@ function drawAll() {
   ctx.fillStyle = tokens.bg;
   ctx.fillRect(0, 0, W, H);
 
-  // grid
+  // grid (clipped to the orbit panel)
   ctx.strokeStyle = tokens.grid;
   ctx.lineWidth = 0.5;
   ctx.beginPath();
   for (let x = -1.5; x <= 1.5; x += 0.5) {
     const { px: xp } = px(x, 0);
-    ctx.moveTo(xp, 0); ctx.lineTo(xp, H);
+    ctx.moveTo(xp, PY0); ctx.lineTo(xp, PY0 + PYH);
   }
-  for (let y = -1; y <= 1; y += 0.5) {
+  for (let y = -1.5; y <= 1.5; y += 0.5) {
     const { py: yp } = px(0, y);
+    if (yp < PY0 || yp > PY0 + PYH) continue;
     ctx.moveTo(0, yp); ctx.lineTo(W, yp);
   }
   ctx.stroke();
@@ -113,7 +119,7 @@ function drawAll() {
   ctx.beginPath();
   const o = px(0, 0);
   ctx.moveTo(0, o.py); ctx.lineTo(W, o.py);
-  ctx.moveTo(o.px, 0); ctx.lineTo(o.px, H);
+  ctx.moveTo(o.px, PY0); ctx.lineTo(o.px, PY0 + PYH);
   ctx.stroke();
 
   // trails (3 bodies)
@@ -150,6 +156,40 @@ function drawAll() {
   ctx.textAlign = 'left';
   const entry = ORBIT_CATALOG[state.orbit] || ORBIT_CATALOG['figure-eight'];
   ctx.fillText(`${state.orbit}  (G = m_i = 1, T = ${entry.period.toFixed(3)})`, 20, 22);
+
+  drawSeparations();
+}
+
+// The three pairwise separations vs time: for a periodic choreography they
+// trace out a repeating pattern, and the deep dips are the close two-body
+// passages that make these orbits so delicate.
+function drawSeparations() {
+  const { x: x0, y: y0, w, h } = SEP, x1 = x0 + w, y1 = y0 + h;
+  ctx.fillStyle = '#0c0d12'; ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.lineWidth = 0.6; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  ctx.fillStyle = tokens.fgMuted; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'left';
+  ctx.fillText('pairwise separations vs time (dips = close passages)', x0 + 10, y0 + 16);
+  if (sepHist.length < 2) return;
+  const plT = y0 + 26, plB = y1 - 26, plL = x0 + 40, plR = x1 - 12;
+  let hi = 0.1;
+  for (const s of sepHist) hi = Math.max(hi, s.r12, s.r23, s.r31);
+  hi *= 1.08;
+  const t0 = sepHist[0].t, tSpan = Math.max(1e-6, sepHist[sepHist.length - 1].t - t0);
+  const xt = (t) => plL + (t - t0) / tSpan * (plR - plL);
+  const yr = (r) => plB - r / hi * (plB - plT);
+  ctx.strokeStyle = tokens.fgFaint; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plL, plT); ctx.lineTo(plL, plB); ctx.lineTo(plR, plB); ctx.stroke();
+  const keys = [['r12', colors[0]], ['r23', colors[2]], ['r31', colors[1]]];
+  for (const [key, col] of keys) {
+    ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.beginPath();
+    sepHist.forEach((s, i) => { const X = xt(s.t), Y = yr(s[key]); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); });
+    ctx.stroke();
+  }
+  ctx.font = fontString(canvas, 'tick'); ctx.textAlign = 'left';
+  ctx.fillStyle = colors[0]; ctx.fillText('1-2', plL + 6, plT + 12);
+  ctx.fillStyle = colors[2]; ctx.fillText('2-3', plL + 44, plT + 12);
+  ctx.fillStyle = colors[1]; ctx.fillText('3-1', plL + 82, plT + 12);
+  ctx.fillStyle = tokens.fgMuted; ctx.textAlign = 'center'; ctx.fillText('time', (plL + plR) / 2, plB + 15);
+  ctx.save(); ctx.translate(x0 + 14, (plT + plB) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('separation', 0, 0); ctx.restore();
 }
 
 function updateReadouts() {
@@ -178,6 +218,14 @@ function stepOnce() {
     tr.push({ x: state.tb.inst.q[2 * i], y: state.tb.inst.q[2 * i + 1] });
     if (tr.length > TRAIL_MAX) tr.shift();
   }
+  const q = state.tb.inst.q;
+  sepHist.push({
+    t: state.tElapsed,
+    r12: Math.hypot(q[0] - q[2], q[1] - q[3]),
+    r23: Math.hypot(q[2] - q[4], q[3] - q[5]),
+    r31: Math.hypot(q[4] - q[0], q[5] - q[1]),
+  });
+  if (sepHist.length > SEP_KEEP) sepHist.shift();
   // Re-seed at each period so the delicate choreographies keep
   // redrawing as the recognizable closed orbit instead of drifting.
   const period = (ORBIT_CATALOG[state.orbit] || {}).period || 6.3;
