@@ -36,6 +36,7 @@ function curJ() { const A = curAllowed(); const i = st.jIdx < 0 ? A.length - 1 :
 const VW = 480, VH = 480, VX = Math.round((canvas.width - 480) / 2), VY = 36;       // 3D vector model (top)
 const cx3 = VX + VW / 2, cy3 = VY + VH / 2 + 30;
 const TX = 100, TY = VY + VH + 40, TW = canvas.width - 200;               // CG table + J ladder (bottom)
+const DIAG = { x: 470, y: TY + 100, w: 262, h: 300 };                     // cone-angle vs J (right of the table)
 
 // rotate (x,y,z) about z (yaw) then x (pitch), orthographic
 function proj(x, y, z, yaw, pitch, s) {
@@ -132,6 +133,8 @@ function render() {
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('cell colour = |coeff|; rows sum to 1 (unitary)', TX, gy0 + Ms.length * cellH + 16);
 
+  drawAngleDiag(A, J, j1, j2);
+
   rEls['j1'].textContent = String(j1);
   rEls['j2'].textContent = String(j2);
   rEls['J'].textContent = String(J);
@@ -139,6 +142,46 @@ function render() {
   rEls['theta1'].textContent = (th1 * 180 / Math.PI).toFixed(1) + ' deg';
   const th2 = J > 1e-9 ? Math.acos(Math.max(-1, Math.min(1, cosJ2toJ(j1, j2, J)))) : Math.PI / 2;
   rEls['theta2'].textContent = (th2 * 180 / Math.PI).toFixed(1) + ' deg';
+}
+
+// Cone-angle diagnostic: theta1 (J1 to J) and theta2 (J2 to J) across the
+// whole allowed-J multiplet. As J grows from |j1-j2| to j1+j2 the vectors
+// swing from anti-aligned to aligned, so both angles fall; the marked
+// column is the J currently drawn in the 3D scene. This ties the precession
+// geometry to the ladder and fills the panel beside the (narrow) table.
+function drawAngleDiag(A, Jsel, j1, j2) {
+  const { x, y, w, h } = DIAG;
+  const padL = 34, padB = 30, padT = 28, padR = 14;
+  const ax = x + padL, aw = w - padL - padR;
+  const ay = y + padT, ah = h - padT - padB;
+  ctx.fillStyle = 'rgba(127,214,255,0.04)'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('cone angle (deg) vs total J', x + 8, y + 16);
+  const PYa = (deg) => ay + ah - deg / 180 * ah;
+  const n = A.length;
+  const PXi = (i) => (n > 1 ? ax + i / (n - 1) * aw : ax + aw / 2);
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.strokeStyle = 'rgba(150,160,180,0.18)'; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(ax, PYa(90)); ctx.lineTo(ax + aw, PYa(90)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'right';
+  for (const d of [0, 90, 180]) ctx.fillText(String(d), ax - 5, PYa(d) + 4);
+  const isel = A.indexOf(Jsel);
+  if (isel >= 0) { ctx.strokeStyle = 'rgba(255,210,74,0.4)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PXi(isel), ay); ctx.lineTo(PXi(isel), ay + ah); ctx.stroke(); }
+  const t1 = A.map((Jv) => (Jv > 1e-9 ? Math.acos(Math.max(-1, Math.min(1, cosJ1toJ(j1, j2, Jv)))) * 180 / Math.PI : 90));
+  const t2 = A.map((Jv) => (Jv > 1e-9 ? Math.acos(Math.max(-1, Math.min(1, cosJ2toJ(j1, j2, Jv)))) * 180 / Math.PI : 90));
+  for (const [arr, col] of [[t1, '#7fd6ff'], [t2, '#ff9a5d']]) {
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+    arr.forEach((d, i) => { const px = PXi(i), py = PYa(d); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); });
+    ctx.stroke();
+    ctx.fillStyle = col; arr.forEach((d, i) => { ctx.beginPath(); ctx.arc(PXi(i), PYa(d), i === isel ? 5 : 3, 0, 6.2832); ctx.fill(); });
+  }
+  ctx.fillStyle = 'rgba(150,160,180,0.75)'; ctx.textAlign = 'center'; ctx.font = fontString(canvas, 'caption', 'mono');
+  A.forEach((Jv, i) => ctx.fillText(String(Jv), PXi(i), ay + ah + 16));
+  ctx.fillText('total J', ax + aw / 2, y + h - 4);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#7fd6ff'; ctx.fillText('th(J1,J)', ax + 6, ay + 12);
+  ctx.fillStyle = '#ff9a5d'; ctx.fillText('th(J2,J)', ax + 74, ay + 12);
 }
 
 // controls
