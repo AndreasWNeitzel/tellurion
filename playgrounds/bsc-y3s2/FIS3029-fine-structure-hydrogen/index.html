@@ -51,7 +51,7 @@
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
 <div class="row"><span class="label">n_max</span><input aria-label="n_max" type="range" id="slider-n" min="2" max="5" step="1" value="3"><span class="value" id="value-n">3</span></div>
-<div class="row"><span class="label">FS magnify</span><input aria-label="FS magnify" type="range" id="slider-m" min="1" max="10000" step="100" value="3000"><span class="value" id="value-m">3000</span></div>
+<div class="row"><span class="label">zoom n</span><input aria-label="zoom n" type="range" id="slider-m" min="1" max="5" step="1" value="2"><span class="value" id="value-m">2</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">Δ_FS:</span><span class="value" id="readout-f">0</span></div></div>
@@ -60,8 +60,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Drag zoom n to expand a different principal level: the middle panel rebuilds its j-sublevels and the connector traces which Bohr level you are magnifying. n=1 has a single j (no splitting), n=2 splits into two rungs, n=3 into three.</li>
+        <li class="t-body">Read the rungs: states with the same total j sit on one line (2S1/2 and 2P1/2 are degenerate), because the Dirac fine structure depends on n and j, not on the orbital l. That l-degeneracy is the deep result the splitting reveals.</li>
+        <li class="t-body">Follow the bottom diagnostic: the splitting falls off as 1/n cubed, so the tightly packed high-n levels split far less than n=2. The level you are zooming is marked on the curve.</li>
       </ul>
     </section>
 
