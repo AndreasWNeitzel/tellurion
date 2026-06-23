@@ -129,7 +129,7 @@ function render() {
   drawScene(col, REG.scene); drawDiag(col, REG.diag);
 }
 
-let running = true, last = 0;
+const running = true; let last = 0;
 function advance(dt) {
   for (const m of markers) { const sp = Math.hypot(...apply(st.A, m.p)) || 1e-6; m.p = rk4(m.p, dt * 1.1); m.age += dt; const rr = Math.hypot(m.p[0], m.p[1]); if (rr > W * 1.4 || rr < 0.02 || m.age > 14) Object.assign(m, seedMarker()); }
   icT += dt; const xt = flow(st.A, st.x0, icT); const rr = Math.hypot(xt[0], xt[1]); if (rr > W * 1.5 || rr < 0.02 || icT > 18) icT = 0;

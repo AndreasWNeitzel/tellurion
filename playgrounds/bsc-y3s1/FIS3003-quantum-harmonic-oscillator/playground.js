@@ -93,7 +93,7 @@ function render() {
   drawScene(col, REG.scene); drawDiag(col, REG.diag);
 }
 
-let running = true, last = 0;
+const running = true; let last = 0;
 function tick(ts) { if (!last) last = ts; let dt = (ts - last) / 1000; last = ts; if (dt > 0.05) dt = 0.05; if (running) phase += dt; render(); requestAnimationFrame(tick); }
 
 function boot() {

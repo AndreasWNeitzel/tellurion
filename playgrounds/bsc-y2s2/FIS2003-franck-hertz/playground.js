@@ -114,7 +114,7 @@ function advance(dt) {
   for (const f of flashes) f.ttl -= dt * 2.2; flashes = flashes.filter((f) => f.ttl > 0).slice(-40);
 }
 
-let running = true, last = 0;
+const running = true; let last = 0;
 function tick(ts) { if (!last) last = ts; let dt = (ts - last) / 1000; last = ts; if (dt > 0.05) dt = 0.05; if (running) advance(dt); render(); requestAnimationFrame(tick); }
 
 function boot() {

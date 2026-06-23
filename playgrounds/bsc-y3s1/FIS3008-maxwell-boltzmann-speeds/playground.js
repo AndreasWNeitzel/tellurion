@@ -94,7 +94,7 @@ function advance(dt) {
   if (hist) for (let i = 0; i < 28; i += 1) { const v = sampleSpeed(st.T, st.m, rng); const b = Math.floor(v / hist.dv); if (b >= 0 && b < hist.bins.length) hist.bins[b] += 1; hist.total += 1; }
 }
 
-let running = true, last = 0;
+const running = true; let last = 0;
 function tick(ts) { if (!last) last = ts; let dt = (ts - last) / 1000; last = ts; if (dt > 0.05) dt = 0.05; if (running) advance(dt); render(); requestAnimationFrame(tick); }
 
 function boot() {

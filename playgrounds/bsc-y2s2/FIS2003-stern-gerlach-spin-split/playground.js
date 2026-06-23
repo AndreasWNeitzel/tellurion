@@ -134,7 +134,7 @@ function advance(dt) {
   const keep = []; for (const a of atoms) { if (a.x >= GEO.xsc) landAtom(a); else keep.push(a); } atoms = keep;
 }
 
-let running = true, last = 0;
+const running = true; let last = 0;
 function tick(ts) { if (!last) last = ts; let dt = (ts - last) / 1000; last = ts; if (dt > 0.05) dt = 0.05; if (running) advance(dt); render(); requestAnimationFrame(tick); }
 
 function boot() {

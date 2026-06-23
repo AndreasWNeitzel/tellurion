@@ -146,7 +146,7 @@ function setMatrixFrom(sx, sy) {
   if (drag === 'c1') { M.a = wx; M.c = wy; } else { M.b = wx; M.d = wy; }
 }
 
-let running = true, last = 0;
+const running = true; let last = 0;
 function tick(ts) { if (!last) last = ts; let dt = (ts - last) / 1000; last = ts; if (dt > 0.05) dt = 0.05; if (running) advance(dt); render(); requestAnimationFrame(tick); }
 
 function boot() {
