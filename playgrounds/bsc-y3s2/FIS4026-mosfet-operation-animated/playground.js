@@ -87,7 +87,9 @@ function drawOutput(x, y, w, h) {
 }
 
 function drawDevice(x, y, w, h) {
-  panel(x, y, w, h, 'cross-section: gate, oxide, inversion channel');
+  // Short title: the parts (gate, n+ S/D, p-substrate, inversion channel) are
+  // labelled in-figure, and a longer title ran under the centred 'gate' label.
+  panel(x, y, w, h, 'device cross-section');
   const dx0 = x + 24, dx1 = x + w - 16, top = y + 34, bot = y + h - 26;
   const midH = bot - top;
   ctx.fillStyle = '#221a2e'; ctx.fillRect(dx0, top, dx1 - dx0, midH);          // p-substrate
