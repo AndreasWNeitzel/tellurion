@@ -35,14 +35,15 @@ function drawWell() {
   ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
   ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('infinite well: levels E_n and wavefunctions psi_n(x) = sin(n π x / L)', x + 6, y + 14);
-  // energy axis: show the first 5 levels and their psi_n
-  const Emax = energyLevel(6, st.L, st.m);
+  // energy axis: show the first 6 levels and their psi_n, scaled so the
+  // top level nearly reaches the well top instead of leaving an empty band.
+  const Emax = energyLevel(6.4, st.L, st.m);
   const eY = (E) => y + h - 24 - (h - 60) * (E / Emax);
   // well walls
   const wx0 = x + w * 0.30, wx1 = x + w * 0.78;
   ctx.strokeStyle = 'rgba(150,170,210,0.5)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(wx0, y + 28); ctx.lineTo(wx0, y + h - 24); ctx.lineTo(wx1, y + h - 24); ctx.lineTo(wx1, y + 28); ctx.stroke();
-  for (let n = 1; n <= 5; n += 1) {
+  for (let n = 1; n <= 6; n += 1) {
     const E = energyLevel(n, st.L, st.m);
     const yy = eY(E);
     ctx.strokeStyle = `hsla(${200 - n * 22}, 70%, 65%, 0.9)`; ctx.lineWidth = 1;
