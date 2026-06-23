@@ -144,6 +144,16 @@ function drawDensity(c, a) {
     const x = xFor(la);
     ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke();
   }
+  // Axis tick labels: scale factor a (x) and rho/rho_crit (y), both decades.
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = c.muted; ctx.textAlign = 'center';
+  for (let la = aMinLog; la <= 0; la += 2) ctx.fillText(`10^${la}`, xFor(la), y1 + 14);
+  ctx.textAlign = 'right';
+  for (let lr = 0; lr <= rMaxLog; lr += 10) {
+    const y = yFor(lr);
+    ctx.fillText(`10^${lr}`, x0 - 4, y + 3);
+    ctx.strokeStyle = c.grid; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+  }
+  ctx.textAlign = 'left';
   const curve = (color, f) => {
     ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
     let st = false;
