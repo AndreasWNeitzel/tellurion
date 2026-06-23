@@ -176,39 +176,71 @@ function drawNuclearScene(c) {
 function drawGeigerNuttall(c) {
   const top = H * 0.70;
   ctx.fillStyle = c.bg; ctx.fillRect(0, top, W, H - top);
-  const pad = { l: 70, r: 20, t: 12, b: 26 };
+  const pad = { l: 72, r: 20, t: 18, b: 50 };
   const x0 = pad.l, x1 = W - pad.r, y0 = top + pad.t, y1 = H - pad.b;
+  const QLO = 1, QHI = 12;
 
+  // Autoscale the log-half-life axis over the swept Q range, with a margin.
   let lmin = Infinity, lmax = -Infinity;
   const Qm = (Q) => 1 / Math.sqrt(Q);
   for (let i = 0; i <= 60; i += 1) {
-    const Q = 1 + 11 * i / 60;
-    const l = geigerNuttallLogT(st.Z, Q);
+    const l = geigerNuttallLogT(st.Z, QLO + (QHI - QLO) * i / 60);
     if (l < lmin) lmin = l; if (l > lmax) lmax = l;
   }
-  const xFor = (Q) => x0 + (Qm(Q) - Qm(12)) / (Qm(1) - Qm(12)) * (x1 - x0);
-  const yFor = (l) => y1 - (l - lmin) / (lmax - lmin || 1) * (y1 - y0);
+  const lspan = lmax - lmin || 1; lmin -= 0.06 * lspan; lmax += 0.06 * lspan;
+  const xFor = (Q) => x0 + (Qm(Q) - Qm(QHI)) / (Qm(QLO) - Qm(QHI)) * (x1 - x0);
+  const yFor = (l) => y1 - (l - lmin) / (lmax - lmin) * (y1 - y0);
 
+  // Axes.
   ctx.strokeStyle = c.muted; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
-  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('log10 T_1/2 (s)', 8, y0 + 8);
-  ctx.textAlign = 'center';
-  ctx.fillText('Q^-1/2 (Geiger-Nuttall)', (x0 + x1) / 2, H - 8);
 
+  // Y tick labels: round decades of log10 T with faint gridlines.
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.62)';
+  ctx.textAlign = 'right';
+  const yStep = 20, yloTick = Math.ceil(lmin / yStep) * yStep, yhiTick = Math.floor(lmax / yStep) * yStep;
+  for (let lv = yloTick; lv <= yhiTick; lv += yStep) {
+    const yy = yFor(lv);
+    ctx.fillText(`10^${lv}`, x0 - 6, yy + 3);
+    ctx.strokeStyle = 'rgba(226,232,240,0.07)';
+    ctx.beginPath(); ctx.moveTo(x0, yy); ctx.lineTo(x1, yy); ctx.stroke();
+  }
+
+  // X tick labels at chosen Q (axis is linear in 1/sqrt(Q)).
+  ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(200,206,224,0.62)';
+  for (const Qv of [2, 3, 4, 6, 8, 10]) {
+    const px = xFor(Qv);
+    ctx.strokeStyle = 'rgba(226,232,240,0.12)';
+    ctx.beginPath(); ctx.moveTo(px, y1); ctx.lineTo(px, y1 + 4); ctx.stroke();
+    ctx.fillText(`${Qv}`, px, y1 + 16);
+  }
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
+  ctx.fillStyle = c.muted; ctx.fillText('Q (MeV)', x1, y1 + 16);
+
+  // Y-axis name (top-left) and the linear-in-1/sqrt(Q) descriptor (top-centre,
+  // above the diagonal so it never meets the bottom status row).
+  ctx.textAlign = 'left';
+  ctx.fillText('log10 T_1/2 (s)', 8, y0 + 8);
+  ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(200,206,224,0.6)';
+  ctx.fillText('log T linear in 1/√Q', (x0 + x1) / 2, y0 + 8);
+
+  // Geiger-Nuttall line: exactly linear in 1/sqrt(Q).
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 200; i += 1) {
-    const Q = 1 + 11 * i / 200;
+    const Q = QLO + (QHI - QLO) * i / 200;
     const px = xFor(Q), py = yFor(geigerNuttallLogT(st.Z, Q));
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
 
+  // Current operating point.
   const lCur = geigerNuttallLogT(st.Z, st.Q);
   ctx.fillStyle = '#06d6a0';
   ctx.beginPath(); ctx.arc(xFor(st.Q), yFor(lCur), 6, 0, 2 * Math.PI); ctx.fill();
+
+  // Status caption alone on the bottom row (no longer collides with the axis label).
   ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText(`Z = ${st.Z}, Q = ${st.Q.toFixed(2)} MeV  ->  T_1/2 ~ 10^${lCur.toFixed(1)} s`, 12, H - 8);
+  ctx.fillText(`Z = ${st.Z}, Q = ${st.Q.toFixed(2)} MeV  ->  T_1/2 ~ 10^${lCur.toFixed(1)} s   (Geiger-Nuttall)`, 12, H - 8);
   rT.textContent = `10^${lCur.toFixed(1)} s`;
 }
 

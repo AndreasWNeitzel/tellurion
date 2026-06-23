@@ -192,10 +192,13 @@ function render() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('baryon-to-photon ratio  η_10', BX + dW / 2 - 80, dY + dH2 + 8);
 
-  // Planck label at top-right corner.
+  // Planck label at the top-right corner, right-aligned so it clears the
+  // left-anchored panel-0 title and sits above the Y_p curve at eta = 20.
   ctx.fillStyle = 'rgba(251, 113, 133, 0.95)';
   ctx.font = fontString(canvas, 'tick', 'mono', 600);
-  ctx.fillText('Planck η_10 = 6.10', X(ETA_PLANCK) + 6, dY + 12);
+  ctx.textAlign = 'right';
+  ctx.fillText('Planck η_10 = 6.10', BX + dW - 10, dY + 12);
+  ctx.textAlign = 'left';
 
   rE.textContent = st.eta.toFixed(2);
 }
