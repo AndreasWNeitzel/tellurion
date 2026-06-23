@@ -24,10 +24,10 @@ const btnReset      = document.getElementById('btn-reset');
 
 const W = canvas.width, H = canvas.height;
 const PANEL = {
-  raw:    { x: 30,  y: 30, w: 410, h: 280 },
-  pca:    { x: 470, y: 30, w: 410, h: 280 },
-  isomap: { x: 30,  y: 330, w: 410, h: 280 },
-  tsne:   { x: 470, y: 330, w: 410, h: 280 },
+  raw:    { x: 24,  y: 34,  w: 378, h: 466 },
+  pca:    { x: 418, y: 34,  w: 378, h: 466 },
+  isomap: { x: 24,  y: 540, w: 378, h: 466 },
+  tsne:   { x: 418, y: 540, w: 378, h: 466 },
 };
 
 const state = {
@@ -112,9 +112,12 @@ function drawRaw() {
   }
   const pad = 0.05 * Math.max(umax - umin, vmax - vmin, 1e-9);
   umin -= pad; umax += pad; vmin -= pad; vmax += pad;
+  const sU = umax - umin, sV = vmax - vmin;
+  const s = Math.min((p.w - 18) / sU, (p.h - 18) / sV);   // uniform scale: keep the cloud's shape
+  const ox = p.x + (p.w - s * sU) / 2, oy = p.y + (p.h - s * sV) / 2;
   for (let i = 0; i < N; i += 1) {
-    const cx = p.x + (us[i] - umin) / (umax - umin) * p.w;
-    const cy = p.y + (1 - (vs[i] - vmin) / (vmax - vmin)) * p.h;
+    const cx = ox + (us[i] - umin) * s;
+    const cy = oy + (sV - (vs[i] - vmin)) * s;
     ctx.fillStyle = colorFor(state.data.labels[i], state.dataset);
     ctx.beginPath();
     ctx.arc(cx, cy, 2.4, 0, 2 * Math.PI);
@@ -161,10 +164,13 @@ function drawEmbedding(p, Y, title) {
   }
   const pad = 0.05 * Math.max(MX - mx, MZ - mz, 1e-9);
   mx -= pad; MX += pad; mz -= pad; MZ += pad;
+  const spanX = MX - mx, spanZ = MZ - mz;
+  const s = Math.min((p.w - 18) / spanX, (p.h - 18) / spanZ);   // uniform: do not distort the embedding
+  const ox = p.x + (p.w - s * spanX) / 2, oy = p.y + (p.h - s * spanZ) / 2;
   for (let i = 0; i < state.data.N; i += 1) {
     const x = Y[i * 2], z = Y[i * 2 + 1];
-    const cx = p.x + ((x - mx) / (MX - mx)) * p.w;
-    const cy = p.y + (1 - (z - mz) / (MZ - mz)) * p.h;
+    const cx = ox + (x - mx) * s;
+    const cy = oy + (spanZ - (z - mz)) * s;
     ctx.fillStyle = colorFor(state.data.labels[i], state.dataset);
     ctx.beginPath();
     ctx.arc(cx, cy, 2.2, 0, 2 * Math.PI);
