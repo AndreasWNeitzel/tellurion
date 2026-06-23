@@ -113,7 +113,7 @@ function render() {
   // ---------- Panel C: diagnostic, splitting vs n (falls as 1/n^3) ----------
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 0.5; ctx.strokeRect(CX0, CY0, CX1 - CX0, CY1 - CY0);
   ctx.fillStyle = 'rgba(255,255,255,0.78)'; ctx.textAlign = 'left';
-  ctx.fillText('diagnostic: fine-structure splitting vs n  (falls as ~ 1/n^3)', CX0 + 6, CY0 - 16);
+  ctx.fillText('fine-structure splitting vs n  (~ 1/n^3)', CX0 + 6, CY0 - 16);
   const NN = Math.max(st.nMax, 5);
   const pts = [];
   for (let k = 2; k <= NN; k += 1) { const s = maxSplit(k); if (s > 0) pts.push({ n: k, s: s * 1e6 }); }
