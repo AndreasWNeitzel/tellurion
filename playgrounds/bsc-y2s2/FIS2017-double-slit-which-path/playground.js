@@ -27,7 +27,8 @@ const st = { d: 4, lam: 0.5, D: 0 };     // d in um, lam in um (visual units)
 function aWidth() { return 0.28 * st.d; }   // slit width as a fraction of separation
 const THMAX = () => 3.2 * st.lam / st.d;    // angular half-window (~few fringes)
 let running = !DETERMINISTIC;
-let dots = [], flying = [], NB = 90, hist = new Float64Array(NB), nDet = 0;
+const NB = 90;
+let dots = [], flying = [], hist = new Float64Array(NB), nDet = 0;
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() {
