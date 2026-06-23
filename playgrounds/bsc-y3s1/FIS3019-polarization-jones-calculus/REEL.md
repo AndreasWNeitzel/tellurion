@@ -15,8 +15,9 @@ VO: A fully polarized beam is a Jones vector (Ex, Ey) of complex amplitudes; eac
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Send linear light through a quarter-wave plate at 45 degrees: the field ellipse opens from a line into a circle, and the Poincare point swings from the equator up to a pole.
+VO: Chain a second element: each wave plate or rotator slides the state along a great circle of the Poincare sphere, the geometric picture of how Jones matrices compose.
+VO: Read the Ex(t) and Ey(t) traces: their phase difference is the polarisation, zero for linear, a quarter cycle for circular, anything between for elliptical.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: The fringe contrast does not last forever: its visibility falls as the path 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide the mirror across zero path difference: the fringes blaze brightest where the two arms are matched, then fade as you move away, the visibility envelope set by the source coherence length L_c.
+VO: Shorten L_c for a broadband source and the envelope narrows to a few fringes around zero; lengthen it toward a laser and fringes persist over millimetres of mirror travel.
+VO: Change the wavelength lambda: the fringe spacing scales with it, the optical ruler Michelson used to measure the metre in wavelengths of light.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

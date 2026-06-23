@@ -15,8 +15,9 @@ VO: Every sampler here uses the Metropolis-Hastings rule, accept a proposal x'' 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the target to the banana: a curved ridge that trips up samplers tuned for round Gaussians, so the chains struggle to follow the bend.
+VO: Compare the chains: too small a step gives high acceptance but a slow crawl, too large a step is rejected constantly. The sweet spot sits around 25 percent acceptance.
+VO: Read the effective sample size: a thousand correlated samples are not a thousand independent draws, and that autocorrelation is what really limits how much each chain learns.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

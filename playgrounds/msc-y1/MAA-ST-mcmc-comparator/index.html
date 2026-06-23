@@ -140,8 +140,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch the target to the banana: a curved ridge that trips up samplers tuned for round Gaussians, so the chains struggle to follow the bend.</li>
+        <li class="t-body">Compare the chains: too small a step gives high acceptance but a slow crawl, too large a step is rejected constantly. The sweet spot sits around 25 percent acceptance.</li>
+        <li class="t-body">Read the effective sample size: a thousand correlated samples are not a thousand independent draws, and that autocorrelation is what really limits how much each chain learns.</li>
       </ul>
     </section>
 

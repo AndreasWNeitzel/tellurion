@@ -15,8 +15,9 @@ VO: 5). The TOV system is integrated by RK4 from the centre to the surface for f
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step along an equation-of-state track: every point is a star in hydrostatic balance, but past the mass peak adding matter shrinks the radius and the star is unstable to collapse.
+VO: Switch the equation of state: a stiffer one (steeper P versus density) supports more mass. Only curves whose peak clears the dashed two-solar-mass pulsar line survive observation.
+VO: Watch the interior panel: pressure and enclosed mass fall from the dense core to the surface, the structure the TOV equation balances against general-relativistic gravity.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: Conditioning on noisy observations gives a closed-form Gaussian posterior, w
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the kernel: RBF gives smooth curves, Matern rougher ones, periodic repeating ones. The prior fog of sample functions takes on exactly the character the kernel encodes.
+VO: Shorten the length scale: the prior wiggles faster and the posterior band snaps back to the data sooner, so the fit trusts only nearby points.
+VO: Add observations: the posterior band pinches to zero at each one and balloons between them, the calibrated uncertainty that makes a Gaussian process more than a curve fit.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: The instantaneous image is fully developed speckle: the intensity follows a 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise D/r_0 for stronger turbulence over a bigger aperture: the short exposure boils into more and finer speckles, each a diffraction-limited image of the star scrambled in phase.
+VO: Watch the histogram lock onto p(x) = exp(-x): fully developed speckle has a negative-exponential intensity, with contrast sigma over mean equal to one.
+VO: Compare short and long exposure: averaging many speckle frames washes them into the smooth seeing disk, the blur that speckle imaging and adaptive optics exist to beat.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

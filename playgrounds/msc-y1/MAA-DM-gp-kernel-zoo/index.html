@@ -100,8 +100,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch the kernel: RBF gives smooth curves, Matern rougher ones, periodic repeating ones. The prior fog of sample functions takes on exactly the character the kernel encodes.</li>
+        <li class="t-body">Shorten the length scale: the prior wiggles faster and the posterior band snaps back to the data sooner, so the fit trusts only nearby points.</li>
+        <li class="t-body">Add observations: the posterior band pinches to zero at each one and balloons between them, the calibrated uncertainty that makes a Gaussian process more than a curve fit.</li>
       </ul>
     </section>
 

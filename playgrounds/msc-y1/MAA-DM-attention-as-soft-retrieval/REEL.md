@@ -15,8 +15,9 @@ VO: 2017). Six keys k i sit in a 2D plane, each carrying a scalar value v i; a m
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag the query among the keys: the attention lines thicken toward whichever key it sits nearest and the weighted output slides toward that key value, content-based soft retrieval.
+VO: Lower the temperature tau: the softmax sharpens toward a hard argmax with one key winning and entropy near zero; raise it and attention spreads evenly across all keys.
+VO: This single head is the building block of every transformer: a query reading a soft, differentiable average of values addressed by their keys.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
