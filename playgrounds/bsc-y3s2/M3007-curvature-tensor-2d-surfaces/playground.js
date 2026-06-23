@@ -15,15 +15,16 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 
 const SURFACE_NAMES = ['torus', 'sphere', 'cylinder', 'saddle'];
 const urlSurface = params.get('surface');
+const VIEW_PITCH = 0.78;   // default tilt so the torus is seen from above its plane
 const st = {
-  Rr: 3, t: 1, yaw: 0, pitch: 0,
+  Rr: 3, t: 1, yaw: 0, pitch: VIEW_PITCH,
   surface: SURFACE_NAMES.includes(urlSurface) ? urlSurface : 'torus',
 };
 let running = !prefersReducedMotion();
 
 sR.addEventListener('input', () => { st.Rr = parseFloat(sR.value); vR.textContent = st.Rr.toFixed(2); });
 if (selSurface) selSurface.addEventListener('change', () => { st.surface = selSurface.value; });
-btnR.addEventListener('click', () => { st.t = 0; st.yaw = 0; st.pitch = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
+btnR.addEventListener('click', () => { st.t = 0; st.yaw = 0; st.pitch = VIEW_PITCH; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
 let last = performance.now();
@@ -135,7 +136,7 @@ function colorForK(K, kMax) {
   return `rgba(91, 192, 235, ${0.3 - t * 0.5})`;
 }
 
-const SURF_S = 1.6;   // enlarge the projected surface to fill the portrait
+const SURF_S = 1.9;   // enlarge the projected surface to fill the portrait
 function projectPoint(x, y, z, cx, cy) {
   // Auto-spin (st.t) plus the pointer-drag yaw.
   const yaw = st.yaw + st.t * 0.3;
