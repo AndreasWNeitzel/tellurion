@@ -61,22 +61,22 @@ function render() {
 
   // selected star + physical readout (top)
   const M = st.M, L = L_solar(M), t = MS_lifetime_Gyr(M), T = Trel(M) * 5772;
-  const selX = 110, selY = 110;
-  drawStar(selX, selY, Math.max(7, Math.min(28, Rstar(M) * 7)), M, Math.max(0.4, Math.min(3.2, Math.log10(L + 1) * 1.1)));
+  const selX = 160, selY = 158;
+  drawStar(selX, selY, Math.max(10, Math.min(54, Rstar(M) * 9)), M, Math.max(0.5, Math.min(3.6, Math.log10(L + 1) * 1.2)));
   ctx.fillStyle = '#94a3b8'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('selected star', 300, 70);
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillText(`M  = ${M.toFixed(2)} Msun`, 300, 92);
-  ctx.fillText(`L  = ${L < 1e4 ? L.toFixed(2) : L.toExponential(2)} Lsun   (L ~ M^3.5)`, 300, 112);
-  ctx.fillText(`Teff = ${(T).toFixed(0)} K   R = ${Rstar(M).toFixed(2)} Rsun`, 300, 132);
+  ctx.fillText('selected star', 340, 86);
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'body', 'mono');
+  ctx.fillText(`M  = ${M.toFixed(2)} Msun`, 340, 112);
+  ctx.fillText(`L  = ${L < 1e4 ? L.toFixed(2) : L.toExponential(2)} Lsun   (L ~ M^3.5)`, 340, 136);
+  ctx.fillText(`Teff = ${(T).toFixed(0)} K   R = ${Rstar(M).toFixed(2)} Rsun`, 340, 160);
   const tMyr = t * 1e3;
   const tTxt = t >= 1 ? `${t.toFixed(2)} Gyr` : tMyr >= 10 ? `${tMyr.toFixed(0)} Myr` : `${tMyr.toFixed(2)} Myr`;
-  ctx.fillText(`t_MS = ${tTxt}`, 300, 152);
+  ctx.fillText(`t_MS = ${tTxt}`, 340, 184);
 
   // the living main sequence: a population aging on its own clocks
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('the main sequence: each star ages at age = elapsed / t_MS(M); massive ones die young', 26, 196);
-  const sy = 268, x0 = 60, x1 = W - 40;
+  ctx.fillText('the main sequence: each star ages at age = elapsed / t_MS(M); massive ones die young', 26, 300);
+  const sy = 400, x0 = 60, x1 = W - 40;
   ctx.strokeStyle = 'rgba(120,130,150,0.25)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, sy + 56); ctx.lineTo(x1, sy + 56); ctx.stroke();
   for (let k = 0; k < SAMPLE.length; k += 1) {
@@ -84,8 +84,8 @@ function render() {
     const px = x0 + k / (SAMPLE.length - 1) * (x1 - x0);
     const tk = MS_lifetime_Gyr(Mk);
     const age = ((st.tau * RATE_GYR_PER_S) / tk) % 1.0;   // fraction of MS life
-    const rad = Math.max(3.5, Math.min(22, Rstar(Mk) * 6));
-    const glowK = Math.max(0.3, Math.min(3, Math.log10(L_solar(Mk) + 1) * 0.9));
+    const rad = Math.max(4, Math.min(24, Rstar(Mk) * 6.5));
+    const glowK = Math.max(0.3, Math.min(1.8, Math.log10(L_solar(Mk) + 1) * 0.9));
     // Death-flash + SN spike removed: with each MS-lifetime cycle
     // independently triggering a flash, the row read as "random
     // flickers of luminosity" rather than physics. Stars now glow
@@ -94,29 +94,53 @@ function render() {
     // age bar
     ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(px - 16, sy + 40, 32, 4);
     ctx.fillStyle = age > 0.9 ? '#ef476f' : '#5bc0eb'; ctx.fillRect(px - 16, sy + 40, 32 * age, 4);
-    ctx.fillStyle = Math.abs(Mk - M) < 1e-6 ? '#ffd166' : '#94a3b8';
     ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-    ctx.fillText(`${Mk}`, px, sy + 64);
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(7,8,16,0.85)'; ctx.strokeText(`${Mk}`, px, sy + 70);
+    ctx.fillStyle = Math.abs(Mk - M) < 1e-6 ? '#ffd166' : '#cbd5e1';
+    ctx.fillText(`${Mk}`, px, sy + 70);
     if (Math.abs(Mk - M) < 0.06) { ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, sy, rad + 7, 0, 6.2832); ctx.stroke(); }
   }
   ctx.textAlign = 'left';
 
-  // diagnostic: the log-log L-M relation with the current marker
-  const dx0 = 60, dx1 = W - 40, dy0 = H - 96, dy1 = H - 30;
-  ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0 - 10, dx1 - dx0, dy1 - dy0 + 22);
-  ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 - 9.5, dx1 - dx0 - 1, dy1 - dy0 + 21);
-  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('diagnostic: log L vs log M  (slope ~ 3.5)', dx0 + 8, dy0 + 4);
-  const xPx = (lm) => dx0 + (lm + 1) / 3 * (dx1 - dx0);
-  const yPx = (ll) => dy1 - (ll + 2) / 9 * (dy1 - dy0);
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8; ctx.beginPath();
-  for (let i = 0; i <= 160; i += 1) {
-    const Mi = Math.pow(10, -1 + 3 * i / 160);
-    const p = { x: xPx(Math.log10(Mi)), y: yPx(Math.log10(L_solar(Mi))) };
-    if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+  // diagnostics: the two relations the title promises, brighter (L-M) and
+  // shorter-lived (t_MS-M), log-log with the current-mass marker.
+  const gy0 = 558, gy1 = H - 20, gw = (W - 24 * 3) / 2;
+  const gxA = 24, gxB = 24 + gw + 24;
+  function panel(gx, title, fn, ylo, yhi, color, yticks) {
+    ctx.fillStyle = '#0d1117'; ctx.fillRect(gx, gy0, gw, gy1 - gy0);
+    ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(gx + 0.5, gy0 + 0.5, gw - 1, gy1 - gy0 - 1);
+    const axX = gx + 42, axY0 = gy0 + 30, axY1 = gy1 - 32, axW = gw - 56;
+    const xPx = (lm) => axX + (lm + 1) / 3 * axW;             // log M over [-1, 2]
+    const yPx = (lv) => axY1 - (lv - ylo) / (yhi - ylo) * (axY1 - axY0);
+    ctx.fillStyle = '#9aa3b2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+    ctx.fillText(title, gx + 8, gy0 + 16);
+    ctx.fillStyle = 'rgba(200,206,224,0.55)'; ctx.font = fontString(canvas, 'tick', 'mono');
+    ctx.textAlign = 'center';
+    for (const lm of [-1, 0, 1, 2]) {
+      const x = xPx(lm);
+      ctx.strokeStyle = 'rgba(226,232,240,0.07)'; ctx.beginPath(); ctx.moveTo(x, axY0); ctx.lineTo(x, axY1); ctx.stroke();
+      ctx.fillText(`${lm}`, x, axY1 + 14);
+    }
+    ctx.textAlign = 'right';
+    for (const lv of yticks) {
+      const y = yPx(lv);
+      ctx.strokeStyle = 'rgba(226,232,240,0.07)'; ctx.beginPath(); ctx.moveTo(axX, y); ctx.lineTo(axX + axW, y); ctx.stroke();
+      ctx.fillText(`${lv}`, axX - 4, y + 3);
+    }
+    ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+    ctx.fillText('log M', gx + gw / 2, gy1 - 6);
+    ctx.strokeStyle = color; ctx.lineWidth = 1.8; ctx.beginPath();
+    for (let i = 0; i <= 160; i += 1) {
+      const Mi = Math.pow(10, -1 + 3 * i / 160);
+      const X = xPx(Math.log10(Mi)), Y = yPx(Math.log10(fn(Mi)));
+      if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#06d6a0';
+    ctx.beginPath(); ctx.arc(xPx(Math.log10(M)), yPx(Math.log10(fn(M))), 5, 0, 6.2832); ctx.fill();
   }
-  ctx.stroke();
-  ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(xPx(Math.log10(M)), yPx(Math.log10(L)), 4.5, 0, 6.2832); ctx.fill();
+  panel(gxA, 'log L / Lsun vs log M  (slope ~ 3.5)', (m) => L_solar(m), -4, 7, '#ffd166', [-4, -2, 0, 2, 4, 6]);
+  panel(gxB, 'log t_MS / Gyr vs log M  (slope ~ -2.5)', (m) => MS_lifetime_Gyr(m), -4.5, 4, '#5bc0eb', [-4, -2, 0, 2, 4]);
 
   rL.textContent = `${L < 1e4 ? L.toFixed(2) : L.toExponential(2)} Lsun`;
 }
