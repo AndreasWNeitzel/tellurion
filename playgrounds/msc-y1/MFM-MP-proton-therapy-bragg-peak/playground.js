@@ -152,21 +152,25 @@ function drawPatient(x, y, w, h) {
   // distal sparing note
   const r90 = distalDepth(dose, Z, 0.9);
   ctx.fillStyle = 'rgba(155,232,176,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`proton dose ends at ~${r90.toFixed(1)} cm; X-ray irradiates the far side`, px, y + h - 12);
+  ctx.fillText(`proton stops at ~${r90.toFixed(1)} cm; X-ray exits the far side`, px, y + h - 12);
 }
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  const half = (W - 52) / 2;
-  drawMain(20, 20, half, H - 34);
-  if (st.mode === 'sobp') drawSOBP(20 + half + 12, 20, half, (H - 46) / 2);
+  // Portrait stack: the depth-dose plot full width on top (it was a
+  // 340-wide, 1006-tall column with the Bragg peak squeezed), then the SOBP
+  // construction and the patient dose map full width below.
+  const fw = W - 40;
+  drawMain(20, 20, fw, 452);
+  const yB = 486;
+  if (st.mode === 'sobp') drawSOBP(20, yB, fw, 250);
   else {
-    panel(20 + half + 12, 20, half, (H - 46) / 2, 'SOBP construction (switch mode to spread-out Bragg peak)');
+    panel(20, yB, fw, 250, 'SOBP construction (switch to spread-out mode)');
     ctx.fillStyle = 'rgba(200,210,235,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText('A single pristine peak is too narrow to cover a tumour.', 20 + half + 28, 20 + (H - 46) / 4);
-    ctx.fillText('Select "spread-out Bragg peak" to see the superposition.', 20 + half + 28, 20 + (H - 46) / 4 + 18);
+    ctx.fillText('A single pristine Bragg peak is too narrow to cover a whole tumour.', 36, yB + 60);
+    ctx.fillText('Switch to spread-out mode to see the weighted superposition.', 36, yB + 80);
   }
-  drawPatient(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
+  drawPatient(20, yB + 262, fw, H - (yB + 262) - 16);
   rE.textContent = `${st.e} MeV`;
   rR.textContent = `${cache.R.toFixed(1)} cm`;
   rMode.textContent = st.mode === 'sobp' ? 'spread-out Bragg peak' : 'pristine vs X-ray';
