@@ -150,7 +150,14 @@ function render() {
   ctx.fillText('effective potential  V_eff(r) = V(r) + L²/2μr²', P.x + 8, P.y + 7);
   const padL = 18, padR = 16, padT = 30, padB = 22;
   const ax0 = P.x + padL, ax1 = P.x + P.w - padR, ayt = P.y + padT, ayb = P.y + P.h - padB;
-  const rLo = 0.25, rHi = Math.max(3.5, maxR * 1.25);
+  // Frame the plot to the radial range the orbit actually explores: scan for
+  // the outer turning point (largest r where V_eff crosses E) and frame just
+  // past it, so the well and both turning points fill the panel instead of
+  // being squeezed against a long flat large-r tail.
+  let rOuter = 2.0;
+  { let pv = vEff(0.25, orbit.k, orbit.p, orbit.L);
+    for (let i = 1; i <= 400; i += 1) { const rr = 0.25 + 24 * i / 400; const v = vEff(rr, orbit.k, orbit.p, orbit.L); if (isFinite(pv) && isFinite(v) && (pv - E) * (v - E) < 0) rOuter = rr; pv = v; } }
+  const rLo = 0.25, rHi = Math.min(14, Math.max(1.6, rOuter * 1.3));
   let vlo = Infinity, vhi = -Infinity; const NS = 240; const vv = [];
   for (let i = 0; i <= NS; i += 1) { const rr = rLo + (rHi - rLo) * i / NS; const v = vEff(rr, orbit.k, orbit.p, orbit.L); vv.push(v); if (isFinite(v)) { vlo = Math.min(vlo, v); vhi = Math.max(vhi, v); } }
   vlo = Math.min(vlo, E); vhi = Math.max(Math.min(vhi, E + Math.abs(E) + 3), E + 0.5);
