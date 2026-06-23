@@ -253,7 +253,7 @@ function drawDiagPanel(E_G, Tnow) {
 
   const nu = rateExponent(Tnow, E_G);
   ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = '#cdd3dc';
-  ctx.fillText(`rate ∝ ∫ I(E) dE   (S-factor constant)`, x0 + 10, yt + 20);
+  ctx.fillText(`<σv> ∝ T^(-3/2) ∫ I(E) dE   (S-factor constant)`, x0 + 10, yt + 20);
   ctx.fillStyle = C_RATE;
   ctx.fillText(`local slope  ν = dln(rate)/dlnT ≈ ${nu.toFixed(1)}`, x0 + 10, yt + 40);
 

@@ -72,9 +72,13 @@ export function peakValue(E_G, kT) {
   return integrand(peakEnergy(E_G, kT), kT, E_G);
 }
 
-// Thermally-averaged rate up to a constant: integral of I(E) dE over the
-// region that contains the peak. Trapezoid on a fixed grid. This carries
-// the dominant exponential temperature dependence of <sigma v>.
+// Thermally-averaged rate <sigma v> up to a temperature-independent constant.
+// The (kT)^(-3/2) prefactor is the Maxwell-Boltzmann normalisation and is NOT
+// constant in T: dropping it (integrating the bare Gamow integrand alone)
+// overstates the temperature exponent as 5/6 + tau/3 instead of the physical
+// (tau-2)/3, so pp would read nu ~ 5.4 rather than the textbook ~ 4. The
+// integrand E^(1/2) (from f(E)) times v ~ E^(1/2) times sigma ~ 1/E cancels to
+// the bare exp(-E/kT - sqrt(E_G/E)) shape, leaving only this prefactor.
 export function rate(kT, E_G, opts = {}) {
   const E0 = peakEnergy(E_G, kT);
   const dE = peakWidth(E0, kT);
@@ -83,7 +87,7 @@ export function rate(kT, E_G, opts = {}) {
   const h = Emax / n;
   let sum = 0;
   for (let i = 1; i < n; i += 1) sum += integrand(i * h, kT, E_G);
-  return sum * h;                       // endpoints are ~0, omitted
+  return Math.pow(kT, -1.5) * sum * h;  // endpoints are ~0, omitted
 }
 
 // Local power-law exponent nu = d ln rate / d ln T at temperature T (K).
