@@ -29,7 +29,7 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const VIEW_R = 1.9;
+const VIEW_R = 1.25;                            // tightened so the orbit fills the canvas
 const CX = W / 2, CY = H / 2;
 const PX_PER_UNIT = Math.min(W, H) / (2 * VIEW_R);
 const STEPS_PER_FRAME_BASE = 30;
@@ -116,11 +116,21 @@ function drawAll() {
     ctx.stroke();
   }
 
+  // apsidal line: from the centre through the latest perihelion, the direction
+  // that slowly rotates as the orbit precesses
+  if (state.perihelions.length) {
+    const ph = state.perihelions[state.perihelions.length - 1];
+    const ang = Math.atan2(ph.y, ph.x), rr = VIEW_R * 0.98;
+    const a1 = toPx(rr * Math.cos(ang), rr * Math.sin(ang));
+    const a2 = toPx(-rr * Math.cos(ang), -rr * Math.sin(ang));
+    ctx.strokeStyle = 'rgba(255, 120, 120, 0.35)'; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(a1.px, a1.py); ctx.lineTo(a2.px, a2.py); ctx.stroke(); ctx.setLineDash([]);
+  }
   for (const ph of state.perihelions) {
     const p = toPx(ph.x, ph.y);
     ctx.fillStyle = '#ff5050';
     ctx.beginPath();
-    ctx.arc(p.px, p.py, 3, 0, 2 * Math.PI);
+    ctx.arc(p.px, p.py, 3.5, 0, 2 * Math.PI);
     ctx.fill();
   }
 
