@@ -15,8 +15,9 @@ VO: Circular orbits sit at its extrema: a minimum is stable, a maximum unstable.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: The two gold dots are the circular orbits: the barrier peak is unstable, the well minimum is the stable orbit. Lower L toward L_ISCO = 2 sqrt(3) and watch them slide together and annihilate at the ISCO, r = 6M.
+VO: Above the barrier an infalling particle is captured by the black hole; below it the particle is reflected. This barrier, absent in Newtonian gravity, is what makes the ISCO and the innermost orbits possible.
+VO: Switch to photon mode: the well disappears and only the unstable peak at the photon sphere r = 3M remains, the radius of the black hole shadow.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

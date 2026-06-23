@@ -15,8 +15,9 @@ VO: Because the loss scales as gamma 2, high-energy electrons cool fastest, so a
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the bath temperature: U_ph climbs as T to the fourth power, the whole t_cool curve drops, and the electrons cool visibly faster between reinjections.
+VO: Slide the injection energy: high-gamma electrons sit far right on the t_cool curve where the cooling time is shortest, so they crash down the axis almost at once. Low-gamma electrons barely move.
+VO: Watch the dashed marker track gamma_inj on the cooling curve and read its t_cool against the Hubble line: above the line, the photon bath cannot cool those electrons within the age of the Universe.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

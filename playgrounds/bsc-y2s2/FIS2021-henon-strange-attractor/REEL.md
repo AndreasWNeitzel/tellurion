@@ -15,8 +15,9 @@ VO: At the canonical a = 1. 4, b = 0.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the orbit stipple in the attractor: zoom in mentally and each smooth band splits into more bands, the Cantor-set cross-section of a strange attractor.
+VO: Drag a between 0.9 and 1.4 and follow the gold dot on the Lyapunov plot: it climbs above zero into chaos, but drops into the deep periodic windows where the orbit collapses onto a finite cycle.
+VO: Lower b toward 0 and the attractor flattens toward the 1D logistic map; the whole Lyapunov curve recomputes for the new dissipation.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

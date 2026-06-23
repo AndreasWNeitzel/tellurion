@@ -15,8 +15,9 @@ VO: Averaged over one loop the particle marches steadily perpendicular to both f
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: The particle traces a cycloid, looping as it gyrates yet marching steadily sideways. That net motion is the ExB drift, v_d = E/B, perpendicular to both fields and, strikingly, independent of the charge and mass.
+VO: Raise E or lower B: the drift speeds up and the loops stretch into a flatter cycloid (the loop size scales as E/B squared). At the cusps the particle momentarily stops before the field accelerates it again.
+VO: Flip the charge sign: the gyration reverses, but the particle still drifts the same way. A whole plasma drifts together regardless of the sign of its charges, so the ExB drift carries no current.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

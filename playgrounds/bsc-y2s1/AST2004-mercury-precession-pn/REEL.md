@@ -15,8 +15,9 @@ VO: General relativity adds, to leading post-Newtonian order, an effective 1/r 3
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the red perihelion dots: each marks the closest approach, and they march steadily around the Sun. That rotation of the orbit's long axis is the relativistic perihelion precession, the dashed apsidal line tracks its current direction.
+VO: Turn alpha up: the general-relativistic correction strengthens and the orbit precesses faster, sweeping the perihelion dots around in fewer revolutions. At alpha = 0 the ellipse closes and there is no precession.
+VO: Raise the eccentricity: a more elongated orbit makes each precession step easier to see, the same effect that made Mercury (the Solar System's most eccentric inner planet) the classic test of GR.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

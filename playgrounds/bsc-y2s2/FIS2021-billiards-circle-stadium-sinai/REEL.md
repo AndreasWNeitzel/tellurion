@@ -15,8 +15,9 @@ VO: The circle is integrable, so trajectories stay on tidy caustic patterns; the
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Two balls launch from the same point 0.001 rad apart (warm and cool trails). In the stadium and Sinai tables they peel apart almost at once and the bottom plot shoots up exponentially: deterministic chaos.
+VO: Switch to the circle or the ellipse: the same twins barely separate and the plot creeps up only linearly. These tables are integrable, so nearby orbits stay nearby.
+VO: In the ellipse, launch from a focus and every chord reflects through the other focus, the classic two-focus property.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: Below the critical p c (about 0. 5927 for the square lattice) only small iso
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep the occupation p across p_c = 0.5927: below it the lattice is a confetti of small clusters and the order parameter sits near zero; cross it and one gold spanning cluster suddenly links top to bottom.
+VO: Park p exactly at p_c (the button): the cluster-size distribution stretches into a scale-free power law, clusters of every size, the fingerprint of a continuous phase transition.
+VO: Resample at fixed p near threshold: whether a spanning cluster forms flickers between yes and no, the finite-size critical fluctuations that sharpen into a step only as the lattice grows.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

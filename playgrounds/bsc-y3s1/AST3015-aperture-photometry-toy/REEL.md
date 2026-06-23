@@ -15,8 +15,9 @@ VO: The playground drops a synthetic Moffat point-spread function onto a noisy C
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Grow the aperture radius: the flux climbs and plateaus at F_true once it captures the star's Moffat wings, but the noise keeps growing, so the SNR curve rises then falls. Park your radius near the SNR peak.
+VO: Too small an aperture throws away light (the error goes negative); too large drowns the star in sky-noise pixels. The growth curve shows both failure modes at once.
+VO: Resample the exposure: the frame reshuffles its photon and read noise, the measured flux scatters around F_true, but the SNR-optimal radius barely moves. That stability is why aperture photometry works.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

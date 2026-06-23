@@ -15,8 +15,9 @@ VO: Once the swept-up mass dominates the ejecta, the only scales left are E, rho
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the shell sweep outward and slow: the gas piles into a thin dense rim (compression rho2/rho1 = 4 for a strong shock) that cools from white to orange to red as the shock decelerates.
+VO: The bottom plot stays a straight line of slope 2/5 on log axes: R proportional to t^(2/5), the self-similar Sedov-Taylor law that let Taylor read the Trinity bomb yield from declassified fireball photos.
+VO: Raise the explosion energy or lower the ambient density: the remnant reaches any given radius sooner, but the 2/5 slope never changes, only the line shifts.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

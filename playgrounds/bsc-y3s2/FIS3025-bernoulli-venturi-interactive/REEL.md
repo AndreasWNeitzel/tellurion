@@ -15,8 +15,9 @@ VO: Mass conservation fixes the volume flow Q = A(x) v(x) = const, so the fluid 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Narrow the throat ratio: the throat columns dip lower and, in the energy-split plot, the static-pressure curve plunges while the dynamic-pressure curve climbs to keep the green total flat.
+VO: Raise the flow rate Q: every column drops and both pressure curves swing harder, yet their sum never moves. That flat total line is Bernoulli's theorem.
+VO: Change the density: watch the airfoil lift readout and the dynamic-pressure curve scale together, since both go as rho v squared.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

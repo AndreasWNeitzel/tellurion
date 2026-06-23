@@ -15,8 +15,9 @@ VO: The playground draws four parameterized families as an arrow grid (a pure
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch families: a source sprays the tracers outward (div > 0), a sink pulls them in (div < 0), a vortex spins them with zero divergence, and a shear or saddle mixes the two.
+VO: Read the inset: flux and circulation through the dashed loop both grow as r squared, the area scaling of the divergence and Green theorems. Flux tracks div, circulation tracks curl.
+VO: A pure rotation has div = 0 but curl = 2a: the arrows never point outward, yet the loop still has net circulation. Divergence and curl are independent.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

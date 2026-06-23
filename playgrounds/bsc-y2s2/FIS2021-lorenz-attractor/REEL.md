@@ -15,8 +15,9 @@ VO: Lorenz keeps its interactive sigma/rho/beta sliders and a live tangent-vecto
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the orbit wind around one wing, then jump to the other with no warning: the bottom x(t) strip flips sign at every jump. That irregular switching, from a fully deterministic system, is the Lorenz signature.
+VO: Lower rho below about 24.7: the wings collapse and the orbit spirals into a fixed point. Push rho up and the butterfly reappears with a positive max-Lyapunov exponent.
+VO: Switch attractor from the menu (Roessler, Aizawa, Thomas, Halvorsen, Chen-Ueta): each is a different dissipative chaotic flow with its own x(t) fingerprint.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

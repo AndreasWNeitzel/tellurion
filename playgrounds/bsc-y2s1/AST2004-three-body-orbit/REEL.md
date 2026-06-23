@@ -15,8 +15,9 @@ VO: The most famous, found by Chenciner and Montgomery in 2000, sends three equa
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Three equal masses chase each other down the same figure-eight track. The bottom plot shows the three separations cycling in lockstep, dipping at each close passage; that periodic rhythm is what makes this a choreography.
+VO: Nudge the perturbation dv by a hair: the delicate orbit no longer closes and the bodies drift apart. These choreographies live on a knife edge of initial conditions.
+VO: Switch orbits from the menu to other known solutions; each has its own separation signature, and energy and angular momentum stay conserved (watch the rail).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

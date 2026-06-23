@@ -15,8 +15,9 @@ VO: It is an exact area-preserving twist map (Jacobian determinant identically 1
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Let it sweep from K=0: watch horizontal invariant tori first wrinkle, then break into island chains around rational frequencies, while the white golden torus holds on longest.
+VO: Stop near K_c = 0.9716 with the slider: the golden torus is the last unbroken curve spanning the section. Just above it, that barrier is gone and p diffuses across the whole strip.
+VO: Read the bottom plot: the golden-torus p-spread stays flat while the torus confines the orbit, then jumps right at K_c. That is Greene's criterion, the quantitative onset of global chaos.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

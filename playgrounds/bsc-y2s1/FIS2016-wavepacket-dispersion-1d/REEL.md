@@ -15,8 +15,9 @@ VO: Its centre moves at the group velocity hbar k 0 / m, like a classical partic
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the packet glide right and flatten: the bottom plot draws its centre as a straight worldline (slope = group velocity v_g = hbar k0/m) inside a band that fans out, the spreading sigma(t).
+VO: Make sigma0 small (a sharply localized packet): it disperses fastest, because a narrow packet needs a broad spread of momenta. A wide packet barely changes width over the same time.
+VO: Raise k0: the de Broglie carrier inside the envelope oscillates faster and the whole packet drifts quicker, but the spreading rate is set by sigma0, not k0.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

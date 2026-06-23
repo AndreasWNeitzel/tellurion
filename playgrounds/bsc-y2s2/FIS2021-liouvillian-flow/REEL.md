@@ -15,8 +15,9 @@ VO: The playground drops a Gaussian blob of tracers anywhere in the pendulum''s 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: The blob starts on the separatrix, where it filaments fast: the cloud stretches into a thin thread wrapping the libration region while the bottom-right ellipse area races up, even though Liouville keeps the true area at 1.
+VO: Drag the dashed circle deep inside the libration region: there the flow is nearly rigid, the blob barely distorts, and the covariance area hugs the dashed reference line.
+VO: Drag it onto a rotation orbit above the separatrix: the cloud shears the other way as faster tracers outrun slower ones around the circle.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

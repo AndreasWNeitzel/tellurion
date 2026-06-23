@@ -15,8 +15,9 @@ VO: Below threshold a perturbation just decays back to rest; above it the trajec
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: It starts with I = 0.5, in the oscillatory band: watch v spike and crash while the slow recovery w trails behind, and the phase trajectory settle onto the limit cycle that loops around the unstable fixed point.
+VO: Drop I below 0.4: the fixed point becomes stable and the neuron falls quiet. Now hit Kick to inject a perturbation and watch a single all-or-none spike fire before it relaxes back, the signature of excitability.
+VO: Read the phase plane: spikes happen when the trajectory rounds the fold of the cubic v-nullcline; the w-nullcline sets where the fixed point sits and whether it is stable.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

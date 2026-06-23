@@ -15,8 +15,9 @@ VO: Far out the gas is nearly at rest; gravity pulls it in, it speeds up, and at
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Gas falls in subsonic (blue) from the Bondi radius and accelerates, crossing to supersonic (red) exactly at the sonic radius r_s = r_B/2. The bottom plot shows that single transonic solution threading the critical point.
+VO: Lower the sound speed (colder gas): the Bondi radius swells, the accretion rate Mdot climbs, and the whole flow is pulled from larger distances. Mdot scales as M squared over c_s cubed.
+VO: Raise the accretor mass: both circles grow together and the infalling stream thickens, the same spherical accretion that feeds compact objects and protostars.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: The action J = (1/2pi) contour p dq is the enclosed phase area over 2pi; the
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: The left phase orbit and the right action-angle loop are the same motion in two coordinate systems: the canonical transformation turns any bound orbit into a circle of radius sqrt(2J) that the angle sweeps at constant rate.
+VO: Push the ramp slider up to drive the frequency: slow ramps keep the bottom J(t) line flat (the adiabatic invariant holds), but a fast ramp makes it drift and the verdict turns red.
+VO: Switch the potential to pendulum, quartic, or the Kepler radial orbit: the phase orbit changes shape, yet the action-angle picture is still a clean circle swept uniformly.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

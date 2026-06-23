@@ -15,8 +15,9 @@ VO: A tip scans an atomically corrugated surface. In AFM the tip-sample interact
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: In the default constant-height mode, drag the gap: the whole current map brightens as the tip drops and goes dark as it lifts, because I falls off exponentially with the gap.
+VO: Raise the work function phi: kappa grows, the per-angstrom current factor climbs toward ten, and the atomic spots sharpen. This is why STM resolves single atoms.
+VO: Switch to constant-current to see the topograph that faithfully reproduces the surface, or to AFM to read the Lennard-Jones force curve with the operating point marked.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

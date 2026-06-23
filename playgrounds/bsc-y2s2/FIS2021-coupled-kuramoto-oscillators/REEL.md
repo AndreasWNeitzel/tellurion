@@ -15,8 +15,9 @@ VO: Below a critical K they drift incoherently and the order parameter stays nea
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the coupling K through the critical value K_c: the dots stop being scattered and bunch into a moving clump, the order-parameter arrow grows, and r(t) climbs off the floor toward 1.
+VO: Drop K below K_c and the clump disperses: the arrow collapses toward the centre and r(t) rattles near zero. This continuous onset of synchrony is the Kuramoto transition.
+VO: Widen the frequency spread gamma: it pushes K_c higher, so a coupling that synchronized a narrow population now leaves a broad one incoherent.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

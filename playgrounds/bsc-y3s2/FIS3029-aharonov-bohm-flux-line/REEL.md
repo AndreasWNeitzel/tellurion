@@ -15,8 +15,9 @@ VO: The double-slit fringe pattern shifts by Phi/Phi 0 cycles, where Phi 0 = h/e
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: On load the flux ramps on its own: watch the whole fringe pattern slide sideways while the solenoid stays dark (B = 0 on the electron paths).
+VO: Drag Φ/Φ₀ to take manual control. At every integer the pattern returns to itself; the fringe-shift plot shows the shift tracking Φ/Φ₀ one-for-one.
+VO: Follow the pink central-fringe marker on the detector: it is displaced purely by the vector potential, with no force ever acting on the electron.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: The Roche limit marks the crossover, near 2. 44 primary radii for an equal-d
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Follow the satellite around its orbit: out near apoastron it stays a tight clump, but as it dives inside the dashed Roche limit the tidal field shears it into a long stream, the stream-length readout shooting up.
+VO: Lower the cohesion (self-gravity): the body shreds more easily and the stream grows longer; raise it and the clump resists disruption deeper inside the Roche radius.
+VO: Raise the eccentricity so periastron dips well inside the Roche limit: that is how comets like Shoemaker-Levy 9 are torn into a string of fragments before impact.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

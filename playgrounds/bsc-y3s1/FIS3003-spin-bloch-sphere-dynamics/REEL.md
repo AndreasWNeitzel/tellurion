@@ -15,8 +15,9 @@ VO: With a circularly polarized drive the effective field is static in the rotat
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: The spin tip traces a purple spiral: fast Larmor precession about the static field, slowly tilted by the drive. Drag the sphere to view the spiral from any angle.
+VO: Switch to the rotating frame: the fast precession is transformed away and the spin sweeps a simple Rabi cone about the effective field, the clean picture behind every qubit gate.
+VO: Tune the drive onto resonance: the cone opens all the way from the north pole to the south, a full population inversion, the spin-flip at the heart of NMR and quantum control.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
