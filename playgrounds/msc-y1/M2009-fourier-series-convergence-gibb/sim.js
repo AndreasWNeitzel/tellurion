@@ -10,7 +10,7 @@ export const PI = Math.PI;
 // Exact target value at x in (-pi, pi). square in [-1,1], sawtooth
 // x/pi in [-1,1], triangle 1 - 2|x|/pi in [-1,1].
 export function targetVal(kind, x) {
-  let t = ((x + PI) % (2 * PI) + 2 * PI) % (2 * PI) - PI;   // wrap to (-pi, pi]
+  const t = ((x + PI) % (2 * PI) + 2 * PI) % (2 * PI) - PI;   // wrap to (-pi, pi]
   if (kind === 'square') return t > 0 ? 1 : (t < 0 ? -1 : 0);
   if (kind === 'sawtooth') return t / PI;
   return 1 - 2 * Math.abs(t) / PI;                          // triangle
@@ -21,7 +21,7 @@ export function targetVal(kind, x) {
 // (n pi). Triangle: a0 = 0, a_n = -8/(pi^2 n^2) for odd n.
 export function coeffs(kind, N) {
   const a = new Float64Array(N + 1), b = new Float64Array(N + 1);
-  let a0 = 0;
+  const a0 = 0;
   for (let n = 1; n <= N; n += 1) {
     if (kind === 'square') b[n] = (n % 2) ? 4 / (n * PI) : 0;
     else if (kind === 'sawtooth') b[n] = 2 * ((n % 2) ? 1 : -1) / (n * PI);

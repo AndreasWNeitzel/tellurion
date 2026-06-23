@@ -24,7 +24,7 @@ let lastTime     = (typeof performance !== 'undefined' ? performance.now() : Dat
 let frame        = 0;
 // Respect the OS prefers-reduced-motion accessibility preference: start
 // paused for those users. A pause/play button toggles it.
-let running      = !prefersReducedMotion();
+const running      = !prefersReducedMotion();
 
 const _rng = makeRng(SEED);
 

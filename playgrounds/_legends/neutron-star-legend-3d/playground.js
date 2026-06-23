@@ -180,7 +180,7 @@ function drawNSSphere(cam, spinPhase, surfaceTint) {
     const thc = (q.th0 + q.th1) / 2;
     const phc = (q.ph0 + q.ph1) / 2;
     const r0 = 1.0;
-    let pc = [
+    const pc = [
       r0 * Math.sin(thc) * Math.cos(phc + spinPhase),
       r0 * Math.cos(thc),
       r0 * Math.sin(thc) * Math.sin(phc + spinPhase),

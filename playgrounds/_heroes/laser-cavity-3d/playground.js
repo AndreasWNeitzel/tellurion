@@ -81,7 +81,7 @@ bPause.addEventListener('click', () => { ui.running = !ui.running; bPause.textCo
 bReset.addEventListener('click', () => { sim.N = 0; sim.n = 1e-9; ui.qArmed = false; ui.qOpen = true; });
 bQ.addEventListener('click', () => { ui.qArmed = true; ui.qOpen = false; ui.qT = 0; sim.N = 0; sim.n = 1e-9; });
 
-let nMaxSeen = 1, outMaxSeen = 1;
+const nMaxSeen = 1, outMaxSeen = 1;
 function drawPlot() {
   const W = plot.width, H = plot.height;
   pctx.fillStyle = '#07080b'; pctx.fillRect(0, 0, W, H);

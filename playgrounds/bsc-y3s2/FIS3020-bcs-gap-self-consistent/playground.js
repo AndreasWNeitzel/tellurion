@@ -14,7 +14,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 // Tc plays without a click. Dragging the T slider sets userControlling,
 // which pauses the sweep (tick skips the tRel update) so the slider still
 // respects input; releasing it resumes. Play/Pause toggles the sweep.
-let st = { N0V: 0.3, tRel: 0.3 }; let running = !(DETERMINISTIC || prefersReducedMotion()); let userControlling = false;
+const st = { N0V: 0.3, tRel: 0.3 }; let running = !(DETERMINISTIC || prefersReducedMotion()); let userControlling = false;
 sN.addEventListener('input', () => { st.N0V = parseFloat(sN.value); vN.textContent = st.N0V.toFixed(2); render(); });
 // Dragging T sets userControlling, which pauses the autoplay step in
 // tick() (so it does not overwrite tRel). That also paused rendering, so

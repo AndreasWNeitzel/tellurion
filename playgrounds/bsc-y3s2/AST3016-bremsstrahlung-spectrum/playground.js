@@ -41,7 +41,7 @@ const rng = makeRng(0xC0FFEE);
 const ions = [];
 const electrons = [];
 const pulses = [];
-let lastEmit = 0;
+const lastEmit = 0;
 const NBINS = 36;
 const histLog = new Float32Array(NBINS);   // bin in log10 photon energy
 const lognu_min = 8, lognu_max = 22;

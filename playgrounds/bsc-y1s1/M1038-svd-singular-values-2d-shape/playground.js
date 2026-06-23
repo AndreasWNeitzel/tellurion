@@ -29,7 +29,7 @@ const btnPlay = document.getElementById('btn-playpause');
 const DEF = { a: 1.5, b: -0.7, c: 0.4, d: 2.1 };
 let running = !DETERMINISTIC;
 let phase = 0;                 // morph phase in [0, 4)
-let M = { ...DEF };
+const M = { ...DEF };
 let dec = null;               // svd decomposition + keyframe matrices
 
 function readMatrix() {

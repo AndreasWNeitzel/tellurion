@@ -213,7 +213,7 @@ function drawTurn(col) {
   }
 
   // Current sweep cursor.
-  let cd = ((theta * 180 / Math.PI) % 180 + 180) % 180;
+  const cd = ((theta * 180 / Math.PI) % 180 + 180) % 180;
   ctx.strokeStyle = col.warm; ctx.lineWidth = 1.4; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(fx(cd), y0); ctx.lineTo(fx(cd), y1); ctx.stroke(); ctx.setLineDash([]);
 

@@ -199,7 +199,7 @@ function drawDiag(col, r) {
   const inner = { x: r.x + 52, y: r.y + 28, w: r.w - 52 - 18, h: r.h - 28 - 34 };
   const p = si(); const Bmax = 1;
   const VHof = (B, sign) => hallVoltage(p.I, B, p.n, p.t, sign) * 1e3;
-  let vmax = Math.max(Math.abs(VHof(Bmax, 1)), 1e-6) * 1.15;
+  const vmax = Math.max(Math.abs(VHof(Bmax, 1)), 1e-6) * 1.15;
   const xOf = (B) => inner.x + (B + Bmax) / (2 * Bmax) * inner.w;
   const yOf = (v) => inner.y + inner.h * (0.5 - 0.5 * v / vmax);
   ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);

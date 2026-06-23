@@ -88,12 +88,12 @@ canvas.addEventListener('pointerup', (e) => {
   const cx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   const cy = 1 - ((e.clientY - rect.top) / rect.height) * 2;
   const FOV = 1.05, aspect = canvas.width / canvas.height;
-  let dx = cx * FOV * aspect, dy = cy * FOV, dz = 1;
+  const dx = cx * FOV * aspect, dy = cy * FOV, dz = 1;
   // undo pitch then yaw
   const cp = Math.cos(ui.pitch), sp = Math.sin(ui.pitch);
   let y = cp * dy + sp * dz, z = -sp * dy + cp * dz;
   const cyaw = Math.cos(ui.yaw), syaw = Math.sin(ui.yaw);
-  let x = cyaw * dx - syaw * z; z = syaw * dx + cyaw * z;
+  const x = cyaw * dx - syaw * z; z = syaw * dx + cyaw * z;
   const L = Math.hypot(x, y, z); const cosShip = z / L;
   const cosLab = deaberrateCos(ui.beta, cosShip);
   const D = dopplerFactor(ui.beta, cosShip);

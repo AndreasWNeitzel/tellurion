@@ -135,7 +135,7 @@ function stepSinai(state) {
       const t1 = (-b - sq) / (2 * a);
       const t2 = (-b + sq) / (2 * a);
       // We're outside the disc; smaller positive root is the entry point.
-      let t = t1 > 1e-9 ? t1 : (t2 > 1e-9 ? t2 : Infinity);
+      const t = t1 > 1e-9 ? t1 : (t2 > 1e-9 ? t2 : Infinity);
       if (t < tMin && t < Infinity) {
         const xNext = x + t * vx, yNext = y + t * vy;
         const r = Math.hypot(xNext, yNext);

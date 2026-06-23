@@ -43,7 +43,7 @@ function accel(s, x, y) {
 
 export function step(s, dt) {
   // Velocity-Verlet.
-  let [ax, ay] = accel(s, s.x, s.y);
+  const [ax, ay] = accel(s, s.x, s.y);
   s.x += s.vx * dt + 0.5 * ax * dt * dt;
   s.y += s.vy * dt + 0.5 * ay * dt * dt;
   const [ax2, ay2] = accel(s, s.x, s.y);

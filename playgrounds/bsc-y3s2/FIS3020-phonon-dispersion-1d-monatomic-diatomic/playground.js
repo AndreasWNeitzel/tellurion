@@ -11,7 +11,7 @@ const sM1 = document.getElementById('slider-m1'), vM1 = document.getElementById(
 const sM2 = document.getElementById('slider-m2'), vM2 = document.getElementById('value-m2');
 const sK = document.getElementById('slider-K'), vK = document.getElementById('value-K');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { m1: 1, m2: 2, K: 1, pol: 'transverse' }; let running = true;
+const st = { m1: 1, m2: 2, K: 1, pol: 'transverse' }; let running = true;
 sM1.addEventListener('input', () => { st.m1 = parseFloat(sM1.value); vM1.textContent = st.m1.toFixed(2); });
 sM2.addEventListener('input', () => { st.m2 = parseFloat(sM2.value); vM2.textContent = st.m2.toFixed(2); });
 sK.addEventListener('input', () => { st.K = parseFloat(sK.value); vK.textContent = st.K.toFixed(2); });

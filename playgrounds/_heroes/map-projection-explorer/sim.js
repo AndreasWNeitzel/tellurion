@@ -32,11 +32,11 @@ export function rotate(lon, lat, lambda0, phi0) {
   let z = Math.sin(lat);
   // Rotate by -lambda0 about the z axis, then by -phi0 about the y axis.
   const cL = Math.cos(-lambda0), sL = Math.sin(-lambda0);
-  let x1 = x * cL - y * sL;
-  let y1 = x * sL + y * cL;
+  const x1 = x * cL - y * sL;
+  const y1 = x * sL + y * cL;
   const cP = Math.cos(phi0), sP = Math.sin(phi0);
-  let x2 = x1 * cP + z * sP;
-  let z2 = -x1 * sP + z * cP;
+  const x2 = x1 * cP + z * sP;
+  const z2 = -x1 * sP + z * cP;
   x = x2; y = y1; z = z2;
   const lon2 = Math.atan2(y, x);
   const lat2 = Math.asin(clamp(z, -1, 1));

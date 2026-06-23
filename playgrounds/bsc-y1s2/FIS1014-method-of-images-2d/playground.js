@@ -122,7 +122,7 @@ function outOfView(x, y) {
 }
 function clampCharge() {
   if (st.geom === 'sphere') {
-    let d = Math.hypot(st.chg.x, st.chg.y);
+    const d = Math.hypot(st.chg.x, st.chg.y);
     if (d < 1e-6) { st.chg.x = R + 0.5; return; }
     const dc = Math.max(R + 0.2, Math.min(2.5, d));
     st.chg.x *= dc / d; st.chg.y *= dc / d;

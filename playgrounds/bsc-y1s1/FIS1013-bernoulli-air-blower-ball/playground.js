@@ -35,7 +35,7 @@ const btnPlay = document.getElementById('btn-playpause');
 const PHYSICS_DT = 1 / 240;
 const VISF = 0.16;              // visual slowdown for the advected streaks
 let running = !DETERMINISTIC;
-let s = createBlower();
+const s = createBlower();
 let tracers = [];
 
 function applyControls() {

@@ -40,7 +40,7 @@ const TX = 100, TY = VY + VH + 40, TW = canvas.width - 200;               // CG 
 // rotate (x,y,z) about z (yaw) then x (pitch), orthographic
 function proj(x, y, z, yaw, pitch, s) {
   const cyw = Math.cos(yaw), syw = Math.sin(yaw);
-  let X = x * cyw - y * syw, Y = x * syw + y * cyw, Z = z;
+  const X = x * cyw - y * syw, Y = x * syw + y * cyw, Z = z;
   const cp = Math.cos(pitch), sp = Math.sin(pitch);
   const Y2 = Y * cp - Z * sp, Z2 = Y * sp + Z * cp;
   return [cx3 + X * s, cy3 - Z2 * s, Y2];

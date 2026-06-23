@@ -131,7 +131,7 @@ function drawAll() {
   }
 
   // Compute energy levels
-  let levels = [];
+  const levels = [];
   if (state.well === 'infinite') {
     for (let n = 1; n <= 8; n += 1) levels.push({ n, E: infiniteWellE(n, 2) });
   } else if (state.well === 'finite') {

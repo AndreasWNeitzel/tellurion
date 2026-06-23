@@ -64,7 +64,7 @@ function drawScene(col, r) {
   heat.width = NH; heat.height = NH; const hctx = heat.getContext('2d'); const img = hctx.createImageData(NH, NH);
   for (let j = 0; j < NH; j += 1) for (let i = 0; i < NH; i += 1) {
     const wx = -EXT + (i + 0.5) / NH * 2 * EXT, wy = EXT - (j + 0.5) / NH * 2 * EXT;
-    let dv = f.singular ? 0 : f.div(wx, wy);
+    const dv = f.singular ? 0 : f.div(wx, wy);
     const c = rdbu(0.5 - Math.max(-1, Math.min(1, dv / 4)) * 0.5);
     const k = (j * NH + i) * 4; img.data[k] = c.r; img.data[k + 1] = c.g; img.data[k + 2] = c.b; img.data[k + 3] = 150;
   }

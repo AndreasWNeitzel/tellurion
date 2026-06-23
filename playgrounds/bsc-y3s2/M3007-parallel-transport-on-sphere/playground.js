@@ -186,7 +186,7 @@ function renderSphere(c, cxPx, cyPx, R) {
   // the sphere: transport along a great circle is the same rotation
   // (about axis n = A x B) that slides the point along the geodesic.
   const legs = [[P1, P2], [P2, P3], [P3, P1]];
-  let v0 = vnorm(vsub(P2, { x: P1.x * vdot(P1, P2), y: P1.y * vdot(P1, P2), z: P1.z * vdot(P1, P2) }));
+  const v0 = vnorm(vsub(P2, { x: P1.x * vdot(P1, P2), y: P1.y * vdot(P1, P2), z: P1.z * vdot(P1, P2) }));
   let v = v0, p = P1;
   const sGlobal = (transportPhase % 1) * 3;
   for (let L = 0; L < 3; L += 1) {

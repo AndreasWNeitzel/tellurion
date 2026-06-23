@@ -36,7 +36,7 @@ const valueT = document.getElementById('value-T');
 
 let logT = parseFloat(sliderT.value);
 let timeElapsedYr = 0;
-let running = !prefersReducedMotion();
+const running = !prefersReducedMotion();
 
 sliderT.addEventListener('input', () => {
   logT = parseFloat(sliderT.value);

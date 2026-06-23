@@ -11,7 +11,7 @@ const sT = document.getElementById('slider-T'), vT = document.getElementById('va
 const sD = document.getElementById('slider-d'), vD = document.getElementById('value-d');
 const selS = document.getElementById('select-s');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { T: 5800, depth: 1, scale: 'lin', tA: 0 };
+const st = { T: 5800, depth: 1, scale: 'lin', tA: 0 };
 let running = !prefersReducedMotion();
 sT.addEventListener('input', () => { st.T = parseFloat(sT.value); vT.textContent = st.T.toFixed(0); });
 sD.addEventListener('input', () => { st.depth = parseFloat(sD.value); vD.textContent = st.depth.toFixed(2); });

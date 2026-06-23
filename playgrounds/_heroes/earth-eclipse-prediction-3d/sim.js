@@ -47,9 +47,9 @@ export function jdToDate(jd) {
   const day = Math.floor(dayWithFrac);
   const dayFrac = dayWithFrac - day;
   const totalSec = dayFrac * 86400;
-  let hour = Math.floor(totalSec / 3600);
-  let min = Math.floor((totalSec - hour * 3600) / 60);
-  let sec = Math.floor(totalSec - hour * 3600 - min * 60);
+  const hour = Math.floor(totalSec / 3600);
+  const min = Math.floor((totalSec - hour * 3600) / 60);
+  const sec = Math.floor(totalSec - hour * 3600 - min * 60);
   return { year, month, day, hour, min, sec };
 }
 

@@ -17,7 +17,7 @@ const rT = document.getElementById('readout-t');
 const sF = document.getElementById('slider-F'), vF = document.getElementById('value-F');
 const sW = document.getElementById('slider-W'), vW = document.getElementById('value-W');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { F: 1, W: 1, t: 0 }; let running = true;
+const st = { F: 1, W: 1, t: 0 }; let running = true;
 sF.addEventListener('input', () => { st.F = parseFloat(sF.value); vF.textContent = st.F.toFixed(2); render(); });
 sW.addEventListener('input', () => { st.W = parseFloat(sW.value); vW.textContent = st.W.toFixed(2); render(); });
 btnR.addEventListener('click', () => { st.t = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });

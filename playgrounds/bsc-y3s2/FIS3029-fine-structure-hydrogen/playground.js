@@ -10,7 +10,7 @@ const rF = document.getElementById('readout-f');
 const sN = document.getElementById('slider-n'), vN = document.getElementById('value-n');
 const sM = document.getElementById('slider-m'), vM = document.getElementById('value-m');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { nMax: 3, mag: 3000 }; let running = !(DETERMINISTIC || prefersReducedMotion());
+const st = { nMax: 3, mag: 3000 }; let running = !(DETERMINISTIC || prefersReducedMotion());
 // Reference capture: this is a static diagram (no time evolution), so the five
 // golden frames must differ by the pedagogically central variable. Sweep the
 // fine-structure magnification from nearly-unresolved to wide-open so the

@@ -85,7 +85,7 @@ export function fluidMass(s) {
 // streaming with half-way bounce-back at walls and obstacles.
 export function step(s) {
   const { NX, NY, tau, uIn, obstacle } = s;
-  let f = s.f, f2 = s.f2;
+  const f = s.f, f2 = s.f2;
 
   // Steady inflow on the left edge: equilibrium at (rho, u) = (1, uIn).
   for (let y = 0; y < NY; y += 1) {

@@ -188,7 +188,7 @@ function drawPathPolyline(path, color, widthPx) {
       const pt = ll2px(cur.lat, cur.lon);
       ctx.moveTo(pt.x, pt.y);
     } else {
-      let dlon = cur.lon - prev.lon;
+      const dlon = cur.lon - prev.lon;
       if (Math.abs(dlon) > 180) {
         // The shorter great-circle hop crosses the antimeridian; split.
         const sign = dlon > 0 ? -1 : 1;

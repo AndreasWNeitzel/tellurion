@@ -138,7 +138,7 @@ function drawDiagnostic() {
   dctx.fillText('ensemble spread  log₁₀ D(t)', 8, 14);
   if (diamHistory.length < 2) return;
   const ax = 34, ay = 22, aw = w - 44, ah = h - 40;
-  let tMax = diamHistory[diamHistory.length - 1].t || 1;
+  const tMax = diamHistory[diamHistory.length - 1].t || 1;
   const lLo = -3, lHi = 2;
   const xOf = (tt) => ax + (tt / tMax) * aw;
   const yOf = (l) => ay + ah - ((Math.max(lLo, Math.min(lHi, l)) - lLo) / (lHi - lLo)) * ah;

@@ -9,7 +9,7 @@ const canvas = document.getElementById('stage'); const ctx = canvas.getContext('
 const rB = document.getElementById('readout-b');
 const sB = document.getElementById('slider-B'), vB = document.getElementById('value-B');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { B: 2 }; let running = true;
+const st = { B: 2 }; let running = true;
 const Bmax = 20;
 sB.addEventListener('input', () => { st.B = parseFloat(sB.value); vB.textContent = st.B.toFixed(2); });
 btnR.addEventListener('click', () => { st.B = 2; sB.value = 2; vB.textContent = '2.00'; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });

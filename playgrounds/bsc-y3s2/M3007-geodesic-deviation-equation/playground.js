@@ -21,7 +21,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 
 const SURFACES = ['sphere', 'plane', 'saddle'];
 const urlSurface = params.get('surface');
-let st = {
+const st = {
   dphi: 0.3,
   t: 0,
   surface: SURFACES.includes(urlSurface) ? urlSurface : 'sphere',
@@ -46,7 +46,7 @@ window.addEventListener('pointermove', (e) => {
   lastX = e.clientX; lastY = e.clientY;
 });
 
-let centerX = canvas.width * 0.5;
+const centerX = canvas.width * 0.5;
 const SURF_SCALE = 290;
 const SURF_CY = () => canvas.height * 0.37;
 function project(x, y, z) {

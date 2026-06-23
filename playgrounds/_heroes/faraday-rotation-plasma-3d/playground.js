@@ -199,7 +199,7 @@ function drawChiLambda2() {
   const RM = currentRM();
   // Plot lambda^2 from 0 to 0.05 m^2 (lambda 0 to ~ 22 cm).
   const lam2_max = 0.05;
-  let chiMax = Math.abs(RM * lam2_max);
+  const chiMax = Math.abs(RM * lam2_max);
   // We'll normalize chi axis to the abs(chi) at lambda = 21 cm baseline.
   const Y_RANGE_DEG = 720;     // plot up to 2 wraps.
   const chiMaxDeg = Math.min(Y_RANGE_DEG, Math.abs(rotationAngleDeg(RM, Math.sqrt(lam2_max))));

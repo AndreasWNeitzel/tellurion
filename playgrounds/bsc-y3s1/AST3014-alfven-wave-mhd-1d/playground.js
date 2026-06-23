@@ -23,7 +23,7 @@ const sN     = document.getElementById('slider-n'), vN = document.getElementById
 const btnR   = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const W = canvas.width, H = canvas.height;
-let st = { B_nT: 5, n_amu_cc: 5, t: 0 };
+const st = { B_nT: 5, n_amu_cc: 5, t: 0 };
 let running = !prefersReducedMotion();
 
 const LAMBDA = 1e7;          // m, display wavelength (sim.js convention)

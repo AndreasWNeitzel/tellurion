@@ -69,7 +69,7 @@ describe('Van der Pol: large-mu measured period close to asymptotic', () => {
     // warmup
     for (let i = 0; i < 5000; i += 1) stepVdP(s, dt);
     // measure: find consecutive maxima
-    let prevX = s.x, prevV = s.v;
+    const prevX = s.x, prevV = s.v;
     let lastMaxT = -1, period = -1;
     for (let i = 0; i < 200000; i += 1) {
       const oldV = s.v;

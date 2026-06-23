@@ -29,7 +29,7 @@ const btnReset = document.getElementById('btn-reset');
 
 const N = 112, OMEGA = 1.92, SWEEPS_PER_FRAME = 3;
 let running = !DETERMINISTIC;
-let g = createGrid(N);
+const g = createGrid(N);
 let resid = 1, residHist = [];
 let heat = null;
 let solved = false;   // once converged, hold the solution (no auto-reset); painting or a new preset resumes

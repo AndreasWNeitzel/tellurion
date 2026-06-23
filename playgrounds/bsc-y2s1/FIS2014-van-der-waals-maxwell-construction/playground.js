@@ -38,7 +38,7 @@ let running = !prefersReducedMotion();
 // Fixed particle identities (seeded once): a stable condensation rank
 // so the same molecules join the liquid first as V shrinks, plus phase
 // offsets for gas jitter.
-let baseRank = new Float64Array(NP), phx = new Float64Array(NP), phy = new Float64Array(NP), lat = new Float64Array(NP);
+const baseRank = new Float64Array(NP), phx = new Float64Array(NP), phy = new Float64Array(NP), lat = new Float64Array(NP);
 function seedParticles() {
   const rng = makeRng(DEFAULT_SEED);
   for (let i = 0; i < NP; i += 1) { baseRank[i] = rng(); phx[i] = rng() * Math.PI * 2; phy[i] = rng() * Math.PI * 2; lat[i] = rng(); }

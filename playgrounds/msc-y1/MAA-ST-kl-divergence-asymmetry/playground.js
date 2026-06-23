@@ -86,7 +86,7 @@ function drawAll() {
   // P (filled)
   ctx.fillStyle = 'rgba(110, 165, 215, 0.30)';
   ctx.beginPath();
-  let first = toPx(xs[0], 0);
+  const first = toPx(xs[0], 0);
   ctx.moveTo(first.px, first.py);
   for (let i = 0; i < GRID_N; i += 1) {
     const pp = toPx(xs[i], p[i]);

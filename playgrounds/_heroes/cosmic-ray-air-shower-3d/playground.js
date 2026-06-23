@@ -268,7 +268,7 @@ function drawProfile() {
   // Plot N(X) for X in [0, 1500] g cm^-2.
   const X_MAX_PLOT = 1500;
   const N_PTS = 200;
-  let Npeak = Nmax();
+  const Npeak = Nmax();
   ctx.strokeStyle = 'rgba(120, 220, 255, 0.95)';
   ctx.lineWidth = 1.8;
   ctx.beginPath();

@@ -59,7 +59,7 @@ function panel(col, r, title) {
   ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(title, r.x + 8, r.y + 7);
 }
 
-let SC = null;
+const SC = null;
 function drawScene(col, r) {
   panel(col, r, `Diffraction pattern of N = ${st.N} slits: sharp orders at d sin(theta) = m lambda`);
   const inner = { x: r.x + 18, y: r.y + 28, w: r.w - 36, h: r.h - 28 - 28 };

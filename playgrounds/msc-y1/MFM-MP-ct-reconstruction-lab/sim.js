@@ -148,7 +148,7 @@ export function fbp(sino, N, angles, nDet, kind = 'ramlak') {
 
 // MLEM (Shepp and Vardi 1982): x_{k+1} = x_k / (A^T 1) * A^T (b / A x_k).
 export function mlem(sino, N, angles, nDet, iters, phantom = null) {
-  let x = new Float64Array(N * N).fill(1e-3);
+  const x = new Float64Array(N * N).fill(1e-3);
   const ones = sino.map((p) => Float64Array.from(p).fill(1));
   const sens = backproject(ones, N, angles, nDet);        // A^T 1
   const rmseHist = [];

@@ -197,7 +197,7 @@ function drawMRcurve() {
   ];
   const curves = compositions.map(c => ({ ...c, pts: massRadiusCurve(c.f, M_axis) }));
 
-  let xMin = M_axis[0], xMax = M_axis[M_axis.length - 1];
+  const xMin = M_axis[0], xMax = M_axis[M_axis.length - 1];
   let yMax = 0; for (const c of curves) for (const p of c.pts) yMax = Math.max(yMax, p.R_earth);
   yMax *= 1.05;
 

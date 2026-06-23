@@ -60,7 +60,7 @@ describe('bouncing shapes: parabola small-amplitude period', () => {
     const s = createSystem({ shape: 'parabola', a, e: 1, mu: 0, n: 1, seed: 9 });
     const b = s.balls[0];
     b.x = 0.12; b.y = SHAPES.parabola.f(0.12, a); b.vx = 0; b.vy = 0;  // released from rest
-    let crossings = [];
+    const crossings = [];
     let prevx = b.x;
     for (let i = 0; i < 20000; i += 1) {
       step(s, DT);

@@ -17,7 +17,7 @@ const canvas = document.getElementById('stage'); const ctx = canvas.getContext('
 const rE = document.getElementById('readout-e');
 const sE = document.getElementById('slider-e'), vE = document.getElementById('value-e');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { eta: 6.1, tau: 0 }; let running = true;
+const st = { eta: 6.1, tau: 0 }; let running = true;
 sE.addEventListener('input', () => { st.eta = parseFloat(sE.value); vE.textContent = st.eta.toFixed(2); st.tau = 0; });
 btnR.addEventListener('click', () => { st.eta = ETA_PLANCK; sE.value = String(ETA_PLANCK); vE.textContent = ETA_PLANCK.toFixed(2); st.tau = 0; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });

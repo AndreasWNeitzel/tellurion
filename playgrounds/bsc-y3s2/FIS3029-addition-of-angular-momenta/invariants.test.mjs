@@ -10,7 +10,7 @@ describe('addition-of-angular-momenta', () => {
     expect(j).toEqual([0.5, 1.5]);
   });
   it('total state count = (2j1+1)(2j2+1) for any j1, j2', () => {
-    for (let j1 of [0.5, 1, 1.5, 2]) for (let j2 of [0.5, 1]) {
+    for (const j1 of [0.5, 1, 1.5, 2]) for (const j2 of [0.5, 1]) {
       expect(totalMultiplicityFromJ(j1, j2)).toBe(multiplicity(j1, j2));
     }
   });

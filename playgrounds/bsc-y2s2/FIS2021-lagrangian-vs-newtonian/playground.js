@@ -11,7 +11,7 @@ const sTh = document.getElementById('slider-th'), vTh = document.getElementById(
 const sOm = document.getElementById('slider-om'), vOm = document.getElementById('value-om');
 const selV = document.getElementById('select-v');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { theta: 1.5, omega: 0, view: 'all' };
+const st = { theta: 1.5, omega: 0, view: 'all' };
 let trail = []; let running = true;
 sTh.addEventListener('input', () => { st.theta = parseFloat(sTh.value); vTh.textContent = st.theta.toFixed(2); trail = []; });
 sOm.addEventListener('input', () => { st.omega = parseFloat(sOm.value); vOm.textContent = st.omega.toFixed(2); trail = []; });

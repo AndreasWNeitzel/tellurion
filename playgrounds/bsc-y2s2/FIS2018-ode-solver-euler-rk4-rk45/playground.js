@@ -10,7 +10,7 @@ const rE = document.getElementById('readout-e');
 const sDT = document.getElementById('slider-dt'), vDT = document.getElementById('value-dt');
 const sW = document.getElementById('slider-w'), vW = document.getElementById('value-w');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { dt: 0.05, omega: 0.5 };
+const st = { dt: 0.05, omega: 0.5 };
 let yE, yR, yA, trailE = [], trailR = [], trailA = [], errE = [], errR = [], errA = [], E0 = 0, t = 0, running = true;
 function reset() {
   yE = [1, 0]; yR = [1, 0]; yA = [1, 0]; E0 = energy(yE, st.omega);

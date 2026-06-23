@@ -9,7 +9,7 @@ const canvas = document.getElementById('stage'); const ctx = canvas.getContext('
 const rN = document.getElementById('readout-n');
 const selS = document.getElementById('select-s'); const tf = document.getElementById('toggle-f');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause'), btnSeed = document.getElementById('btn-seed');
-let st = { system: 'pendulum', showFlow: true };
+const st = { system: 'pendulum', showFlow: true };
 let tracers = []; let running = true;
 selS.addEventListener('change', () => { st.system = selS.value; tracers = []; });
 tf.addEventListener('change', () => { st.showFlow = tf.checked; });

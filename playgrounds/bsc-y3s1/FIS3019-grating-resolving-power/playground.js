@@ -9,7 +9,7 @@ const canvas = document.getElementById('stage'); const ctx = canvas.getContext('
 const rR = document.getElementById('readout-r');
 const ids = ['N','d','a','l','dl'];
 const sliders = ids.map(k => ({ k, s: document.getElementById('slider-'+k), v: document.getElementById('value-'+k) }));
-let st = { N: 20, d: 2, a: 0.5, l: 589, dl: 6 };
+const st = { N: 20, d: 2, a: 0.5, l: 589, dl: 6 };
 let running = !prefersReducedMotion();
 let Nf = 20, Ndir = 1;
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');

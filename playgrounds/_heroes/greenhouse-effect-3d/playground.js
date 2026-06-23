@@ -115,7 +115,7 @@ function spawnLWPhoton(rng) {
   };
 }
 
-let _rng = makeRng(0xC0FFEE);
+const _rng = makeRng(0xC0FFEE);
 
 // Fractional-spawn accumulators so a sub-unit rate per frame still
 // produces a steady stream. Without these, a rate of 0.3 photons/frame

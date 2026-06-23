@@ -10,7 +10,7 @@ const rL = document.getElementById('readout-l');
 const sE = document.getElementById('slider-e'), vE = document.getElementById('value-e');
 const sV = document.getElementById('slider-v'), vV = document.getElementById('value-v');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { eps: 0, v0: 0.8 };
+const st = { eps: 0, v0: 0.8 };
 let state, trail = [], lHist = [], eHist = [], L0, E0, running = true;
 function reset() { state = [1, 0, 0, st.v0]; L0 = angularMomentum(state); E0 = energy(state, st.eps); trail = []; lHist = []; eHist = []; }
 reset();

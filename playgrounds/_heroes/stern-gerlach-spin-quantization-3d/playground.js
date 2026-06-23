@@ -67,9 +67,9 @@ function projectScene(p, center, scale) {
   const cP = Math.cos(pitch), sP = Math.sin(pitch);
   // Translate so beam axis is centered.
   const x = p.x - 0.65, y = p.y, z = p.z;
-  let X = cY * x + sY * y;
+  const X = cY * x + sY * y;
   let Y = -sY * x + cY * y;
-  let Zw = cP * z - sP * Y;
+  const Zw = cP * z - sP * Y;
   Y = sP * z + cP * Y;
   const k = 1 / (1 + Y / 2.5);
   return { x: center.x + X * scale * k, y: center.y - Zw * scale * k, k };

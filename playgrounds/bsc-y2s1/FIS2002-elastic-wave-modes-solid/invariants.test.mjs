@@ -71,8 +71,8 @@ describe('elastic-wave-modes-solid invariants', () => {
       tArr.push(s.t);
     }
     const dMax = Math.max(...dvT), cMax = Math.max(...cvT);
-    let nP = dvT.findIndex(v => v > 0.15 * dMax);
-    let nS = cvT.findIndex((v, n) => v > 0.15 * cMax && tArr[n] > tArr[nP]);
+    const nP = dvT.findIndex(v => v > 0.15 * dMax);
+    const nS = cvT.findIndex((v, n) => v > 0.15 * cMax && tArr[n] > tArr[nP]);
     expect(nP).toBeGreaterThanOrEqual(0);
     expect(nS).toBeGreaterThan(nP);
     const tP = tArr[nP], tS = tArr[nS];

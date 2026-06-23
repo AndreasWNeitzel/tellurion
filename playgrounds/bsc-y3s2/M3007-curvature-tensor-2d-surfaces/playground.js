@@ -15,7 +15,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 
 const SURFACE_NAMES = ['torus', 'sphere', 'cylinder', 'saddle'];
 const urlSurface = params.get('surface');
-let st = {
+const st = {
   Rr: 3, t: 1, yaw: 0, pitch: 0,
   surface: SURFACE_NAMES.includes(urlSurface) ? urlSurface : 'torus',
 };

@@ -271,7 +271,7 @@ function drawSpectrum() {
 
   // Log-log of F(x) for x in [0.01, 10].
   const N = 200;
-  let logMin = -2, logMax = 1;
+  const logMin = -2, logMax = 1;
   ctx.strokeStyle = 'rgba(120, 240, 200, 0.95)';
   ctx.lineWidth = 1.7;
   ctx.beginPath();

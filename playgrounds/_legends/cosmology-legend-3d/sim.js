@@ -32,7 +32,7 @@ export const FATE_PRESETS = {
 // =========================================================================
 export function cmbDeltaT(theta, phi, seed = 0xC0FFEE) {
   // Multi-octave value noise; magnitude scaled so RMS ~ 1.
-  let s = seed >>> 0;
+  const s = seed >>> 0;
   function hash(x, y) {
     let h = (x * 374761393 ^ y * 668265263 ^ s) >>> 0;
     h = (h ^ (h >>> 13)) * 1274126177 >>> 0;

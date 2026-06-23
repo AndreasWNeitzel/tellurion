@@ -228,7 +228,7 @@ function drawDisc() {
       let f = 0.62 * vnoise(lr * 3.6 + 12, (psi * 2.4) / (2 * Math.PI) * NG + 7);
       f += 0.38 * vnoise(lr * 7.4 + 40, (psi * 5.6) / (2 * Math.PI) * NG + 19);
       const arm = Math.pow(0.5 + 0.5 * Math.sin(7 * psi + 2.8 * lr), 1.6);
-      let bright = 0.22 + 1.05 * f * (0.4 + 0.85 * arm);
+      const bright = 0.22 + 1.05 * f * (0.4 + 0.85 * arm);
       // Schematic special-relativistic Doppler beaming: approaching side
       // (cos phi > 0) is boosted as delta^3, delta = sqrt(1-b^2)/(1-b_los).
       const beta = BETA_IN * Math.sqrt(R_IN / r);
@@ -240,7 +240,7 @@ function drawDisc() {
       const rim = r < 1.9 ? 1 + 1.4 * Math.exp(-((r - R_TMAX) * (r - R_TMAX)) / 0.5) : 1;
       // Soft fade to the outer edge so the disc dissolves into space.
       const ef = 1 - Math.pow(Math.max(0, (r - 0.55 * rmax)) / (0.45 * rmax), 1.7);
-      let m = bright * boost * rim * (ef < 0 ? 0 : ef);
+      const m = bright * boost * rim * (ef < 0 ? 0 : ef);
       colorAtR(r, col);
       // Approaching side also colour-shifts slightly bluewards.
       const blu = blos > 0 ? 1 + 1.7 * blos : 1;

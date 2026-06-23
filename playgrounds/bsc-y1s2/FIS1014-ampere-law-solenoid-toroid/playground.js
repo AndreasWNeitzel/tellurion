@@ -24,7 +24,7 @@ const btnReset = document.getElementById('btn-reset');
 const SOL = { n: 6, Rsol: 1.0 };
 const TOR = { N: 24, a: 1.0, b: 2.0 };
 const st = { kase: 'wire', I: 2, loop: 1.2, t: 0 };
-let running = !DETERMINISTIC;
+const running = !DETERMINISTIC;
 
 function pars() { return st.kase === 'solenoid' ? { I: st.I, n: SOL.n, Rsol: SOL.Rsol } : st.kase === 'toroid' ? { I: st.I, N: TOR.N, a: TOR.a, b: TOR.b } : { I: st.I }; }
 function Bof(r) { return st.kase === 'wire' ? fieldWire(st.I, r) : st.kase === 'solenoid' ? fieldSolenoid(st.I, SOL.n, SOL.Rsol, r) : fieldToroid(st.I, TOR.N, TOR.a, TOR.b, r); }

@@ -29,7 +29,7 @@ const R_MAX   = 220 * R_SUN;
 const K_MP    = 1.38e-23 / 1.66e-27;
 const TIME_ACCEL = 7.0e4;             // physical seconds per animation second-ish
 
-let st = { T: 1.4, t: 0 };
+const st = { T: 1.4, t: 0 };
 let running = !prefersReducedMotion();
 
 function csOf(Tmk) { return Math.sqrt(2 * K_MP * Tmk * 1e6); }

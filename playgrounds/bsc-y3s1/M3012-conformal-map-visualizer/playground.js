@@ -21,7 +21,7 @@ const btnReset = document.getElementById('btn-reset');
 
 const st = { fn: 'square', z0: [0.7, 0.5] };
 function fn() { return FUNCS[st.fn]; }
-let wECache = {};
+const wECache = {};
 
 let view = { w: 820, h: 1040, dpr: 1 }, REG = null;
 function relayout() { view = setupCanvas(canvas, ctx); REG = stack({ width: view.w, height: view.h }, [{ name: 'scene', weight: 1.28 }, { name: 'diag', weight: 0.84 }]); }

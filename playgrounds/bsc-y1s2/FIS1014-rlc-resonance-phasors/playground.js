@@ -24,7 +24,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPlay = document.getElementById('btn-playpause');
 
 const TWO_PI = 2 * Math.PI;
-let cir = createCircuit();
+const cir = createCircuit();
 let driveF = omega0(cir.L, cir.C) / TWO_PI;     // Hz, default at resonance
 let running = !DETERMINISTIC;
 let theta = 0;                                   // visual rotation of the phasor clock

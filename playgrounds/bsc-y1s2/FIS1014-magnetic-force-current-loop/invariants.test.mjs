@@ -36,7 +36,7 @@ describe('Free magnetic pendulum conserves energy (no damping)', () => {
     const s = createState(0.04, 0);          // small amplitude
     const Tpred = smallAnglePeriod(p);
     // measure one period by detecting the return through theta=0 with omega>0.
-    let tPrev = 0, crossings = [];
+    const tPrev = 0, crossings = [];
     let last = s.theta;
     for (let i = 0; i < 200000 && crossings.length < 3; i += 1) {
       const dt = 0.001; step(s, dt, p);

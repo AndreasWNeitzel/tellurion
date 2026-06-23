@@ -58,7 +58,7 @@ function render() {
   ctx.fillStyle = '#9aa0a6'; ctx.fillText(`log10 ||r||  (iters: ${hist.length})`, pad + 30, top2 + 10);
   if (hist.length > 0) {
     let lmin = Math.log10(hist[hist.length - 1] + 1e-30);
-    let lmax = Math.log10(hist[0] + 1e-30);
+    const lmax = Math.log10(hist[0] + 1e-30);
     if (lmax - lmin < 1) { lmin -= 1; }
     ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 1.5; ctx.beginPath();
     hist.forEach((r, i) => {

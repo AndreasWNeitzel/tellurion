@@ -17,7 +17,7 @@ const sB = document.getElementById('slider-b'), vB = document.getElementById('va
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const T_ORBIT = 4.0;                       // seconds per orbit, fixed
-let st = { beta: 0.5, t: 0, precess: 0 };  // precess = accumulated lab-frame axis angle (rad)
+const st = { beta: 0.5, t: 0, precess: 0 };  // precess = accumulated lab-frame axis angle (rad)
 let running = !prefersReducedMotion();
 let last = performance.now();
 

@@ -11,7 +11,7 @@ import { gaussLegendre, trapezoid, testFns, GL } from './sim.js';
 
 describe('GL: nodes symmetric', () => {
   it('nodes(n) symmetric about zero', () => {
-    for (let n of [2, 4, 6, 8, 10]) {
+    for (const n of [2, 4, 6, 8, 10]) {
       const nodes = GL[n].nodes;
       for (let i = 0; i < n; i += 1) {
         expect(nodes[i]).toBeCloseTo(-nodes[n - 1 - i], 12);

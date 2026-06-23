@@ -45,7 +45,7 @@ const PHp = canvas.height - (SY + SH + 44) - 40, PW = PHp, PX = Math.round((canv
 // rotate (x,y,z) by yaw (about z) then pitch (about x), project ortho
 function project(x, y, z, yaw, pitch, scale) {
   const cy = Math.cos(yaw), sy = Math.sin(yaw);
-  let X = x * cy - y * sy, Y = x * sy + y * cy, Z = z;
+  const X = x * cy - y * sy, Y = x * sy + y * cy, Z = z;
   const cp = Math.cos(pitch), sp = Math.sin(pitch);
   const Y2 = Y * cp - Z * sp, Z2 = Y * sp + Z * cp;
   return [cx3 + X * scale, cy3 - Z2 * scale, Y2];              // returns [sx, sy, depth]

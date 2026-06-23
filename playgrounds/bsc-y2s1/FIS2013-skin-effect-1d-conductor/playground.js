@@ -10,7 +10,7 @@ const rD = document.getElementById('readout-d');
 const sF = document.getElementById('slider-f'), vF = document.getElementById('value-f');
 const selM = document.getElementById('select-mat');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { fExp: 6, mat: 'cu', t: 0 };
+const st = { fExp: 6, mat: 'cu', t: 0 };
 let running = !prefersReducedMotion();
 sF.addEventListener('input', () => { st.fExp = parseFloat(sF.value); vF.textContent = `1e${st.fExp.toFixed(1)}`; });
 selM.addEventListener('change', () => { st.mat = selM.value; });

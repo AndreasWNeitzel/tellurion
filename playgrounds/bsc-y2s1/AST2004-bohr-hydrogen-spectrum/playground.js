@@ -28,7 +28,7 @@ const btnReset = document.getElementById('btn-reset');
 const NMAX = 9, HC_EV_NM = 1239.841984, LMIN = 90, LMAX = 2500;
 let running = !DETERMINISTIC;
 let phase = 0;        // electron-drop animation 0..1 then photon flight
-let allLines = buildLines(NMAX + 4);
+const allLines = buildLines(NMAX + 4);
 
 function nLow() { return SERIES.find((s) => s.name === selSeries.value).nLow; }
 function nHigh() { return Math.max(nLow() + 1, parseInt(sliderNhigh.value, 10)); }

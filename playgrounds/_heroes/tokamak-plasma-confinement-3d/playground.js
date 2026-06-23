@@ -168,7 +168,7 @@ function stepPlasma(dt) {
   const speed = SPEED_SCALE * Math.sqrt(B0 / 5.3);
   const v2 = VTOT * VTOT;
   for (let i = 0; i < NPART; i += 1) {
-    let r = pr[i], th = pth[i];
+    const r = pr[i], th = pth[i];
     const Rcyl = R + r * Math.cos(th);
     const B = bToroidal(Rcyl, B0, R);
     // Energy + mu conservation set v_par; sign flips at the mirror point.

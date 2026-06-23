@@ -92,7 +92,7 @@ function drawStreamlines() {
     let x = 0, y = y0;
     const sStart = world2screen(x, y);
     ctx.moveTo(sStart.x, sStart.y);
-    let dt = 0.04, steps = 320;
+    const dt = 0.04, steps = 320;
     for (let k = 0; k < steps; k++) {
       const r = rk4Step(x, y, st.A, dt);
       x = r.x; y = r.y;

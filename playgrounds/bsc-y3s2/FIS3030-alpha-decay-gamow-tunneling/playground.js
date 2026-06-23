@@ -26,7 +26,7 @@ const btnR   = document.getElementById('btn-reset'), btnP = document.getElementB
 const W = canvas.width, H = canvas.height;
 const rng = makeRng(SEED);
 
-let st = { Z: 90, Q: 4.5 };
+const st = { Z: 90, Q: 4.5 };
 let running = !prefersReducedMotion();
 let clock = 0;
 let emitClock = 0;

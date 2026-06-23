@@ -122,7 +122,7 @@ function drawScene(col, r) {
     const seg = paths[k]; const segLen = [Math.hypot(seg[1].x - seg[0].x, seg[1].y - seg[0].y), Math.hypot(seg[2].x - seg[1].x, seg[2].y - seg[1].y)];
     const tot = segLen[0] + segLen[1];
     for (let q = 0; q < 3; q += 1) {
-      let p = ((frame * 0.006) + k * 0.13 + q / 3) % 1; let dpos = p * tot; let pt;
+      const p = ((frame * 0.006) + k * 0.13 + q / 3) % 1; const dpos = p * tot; let pt;
       if (dpos < segLen[0]) { const u = dpos / segLen[0]; pt = { x: seg[0].x + (seg[1].x - seg[0].x) * u, y: seg[0].y + (seg[1].y - seg[0].y) * u }; }
       else { const u = (dpos - segLen[0]) / segLen[1]; pt = { x: seg[1].x + (seg[2].x - seg[1].x) * u, y: seg[1].y + (seg[2].y - seg[1].y) * u }; }
       ctx.fillStyle = lensPts[k].c; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(sx(pt.x), sy(pt.y), 2.6, 0, 6.2832); ctx.fill();

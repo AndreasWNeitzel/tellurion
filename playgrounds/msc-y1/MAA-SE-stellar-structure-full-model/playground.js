@@ -136,7 +136,7 @@ function drawStar(x, y, w, h) {
   }
   // legend (only zones that occur)
   const present = new Set(); for (let i = 1; i <= n; i += 1) present.add(zoneOf(m, i));
-  let ly = y + h - 10;
+  const ly = y + h - 10;
   ctx.font = fontString(canvas, 'caption', 'mono');
   let lx = x + 10;
   for (let z = 0; z < 4; z += 1) {
