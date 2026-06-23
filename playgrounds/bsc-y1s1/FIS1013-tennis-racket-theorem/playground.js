@@ -281,7 +281,7 @@ function drawScene(col, r) {
   const items = [
     [selObject.options[selObject.selectedIndex].text, col.fg],
     [`I ${I[0].toFixed(1)}:${I[1].toFixed(1)}:${I[2].toFixed(1)}`, col.muted],
-    [fp ? `flip ${fp.toFixed(1)}s` : 'flip —', spinAxis === 1 ? col.accent : col.muted],
+    [fp ? `flip ${fp.toFixed(1)}s` : 'no flip', spinAxis === 1 ? col.accent : col.muted],
     [`flips ${flips}`, spinAxis === 1 ? col.ax1 : col.muted],
   ];
   ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textBaseline = 'middle';

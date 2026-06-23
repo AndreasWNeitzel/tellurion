@@ -332,7 +332,7 @@ function polhodeGuide() {
 }
 
 function drawDiagnostic(col, r) {
-  panel(col, r, 'The polhode: spin axis traced in the ω₁–ω₃ plane');
+  panel(col, r, 'The polhode: spin axis traced in the ω₁-ω₃ plane');
 
   const inner = { x: r.x + 44, y: r.y + 30, w: r.w - 44 - 16, h: r.h - 30 - 42 };
   const guide = polhodeGuide();

@@ -332,7 +332,7 @@ function drawClickedLocation() {
   //   - The Moon as a dark disc, offset from the Sun by dRel * R_sun
   //     pixels along a fixed direction so the bite reads visually.
   //   - When the observer is OUTSIDE the penumbra (dRel > 1 + R_moon),
-  //     we skip drawing the Moon entirely — the Sun is fully visible.
+  //     we skip drawing the Moon entirely, so the Sun is fully visible.
   // ====================================================================
   const insetX = MAP_X + MAP_W - 150, insetY = MAP_Y + 12;
   const insetW = 130, insetH = 130;

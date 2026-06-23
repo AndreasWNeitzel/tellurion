@@ -256,8 +256,12 @@ function renderCaustics() {
   ctx.fillText('drag the source; cyan = critical curve, gold = caustic', 24, 52);
   // Legend keys bottom-left.
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = '#5bc0eb'; ctx.fillText('— critical curve (image plane)', 24, H - 30);
-  ctx.fillStyle = '#ffc45a'; ctx.fillText('— caustic / astroid (source plane)', 24, H - 14);
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(24, H - 34); ctx.lineTo(44, H - 34); ctx.stroke();
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText('critical curve (image plane)', 50, H - 30);
+  ctx.strokeStyle = '#ffc45a';
+  ctx.beginPath(); ctx.moveTo(24, H - 18); ctx.lineTo(44, H - 18); ctx.stroke();
+  ctx.fillStyle = '#ffc45a'; ctx.fillText('caustic / astroid (source plane)', 50, H - 14);
 
   rBeta.textContent = `(${st.bx.toFixed(2)}, ${st.by.toFixed(2)})`;
   rRadii.textContent = `${nImg} images`;

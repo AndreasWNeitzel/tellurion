@@ -213,7 +213,7 @@ function drawGallery(col) {
   panel(col, r);
   ctx.font = fontString(canvas, 'caption', 'sans', 600);
   ctx.fillStyle = col.muted; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText('ratio matrix a:b  (every cell at the shared phase δ — tap one)', r.x + 8, r.y + 6);
+  ctx.fillText('ratio matrix a:b  (every cell at the shared phase δ, tap one)', r.x + 8, r.y + 6);
 
   const pad = 8, top = r.y + 24;
   const cw = (r.w - pad * 2) / A_MAX;
