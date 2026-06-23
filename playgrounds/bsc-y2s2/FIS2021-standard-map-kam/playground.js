@@ -10,8 +10,7 @@
 // and Lieberman, Regular and Chaotic Dynamics, Ch. 4.
 
 import { DEFAULT_SEED } from '../../../shared/js/render/rng.js';
-import { iterateOrbit, phasePortrait, maxLyapunov, K_CRITICAL } from './sim.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { phasePortrait, maxLyapunov, K_CRITICAL } from './sim.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
 const urlParams = new URLSearchParams(location.search);
@@ -33,9 +32,11 @@ const btnPlayPause = document.getElementById('btn-playpause');
 const W = canvas.width, H = canvas.height;
 const TWO_PI = 2 * Math.PI;
 
-// left rotor panel, right phase portrait
-const RP = { x: 8, y: 8, w: 232, h: H - 16 };
-const PP = { x: 256, y: 8, w: W - 264, h: H - 16 };
+// top band: rotor (left) + readouts (right); below: the square phase portrait.
+// The (theta, p) torus is square, so the portrait must not be stretched.
+const RP = { x: 16, y: 14, w: 252, h: 286 };
+const RO = { x: 284, y: 14, w: W - 300, h: 286 };
+const PP = { x: 60, y: 322, w: 700, h: 700 };
 
 const state = {
   K: 0.971, nPerOrbit: 1200, baseOrbits: null,
@@ -95,8 +96,9 @@ function drawPortrait() {
 }
 
 function drawRotor() {
+  // rotor panel (top-left)
   ctx.fillStyle = '#05060c'; ctx.fillRect(RP.x - 2, RP.y - 2, RP.w + 4, RP.h + 4);
-  const cx = RP.x + RP.w / 2, cy = RP.y + 150, R = 78;
+  const cx = RP.x + RP.w / 2, cy = RP.y + RP.h / 2 - 4, R = 98;
   ctx.strokeStyle = 'rgba(150,160,185,0.25)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, TWO_PI); ctx.stroke();
   // the rod free-rotates by p across the period, kicked at the end
@@ -113,22 +115,31 @@ function drawRotor() {
   const tx = -Math.sin(ang), ty = -Math.cos(ang);
   ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex + tx * kk * 40, ey + ty * kk * 40); ctx.stroke();
   ctx.fillStyle = '#9fb0cc'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('kicked rotor', cx, cy - R - 18);
-  ctx.fillText('free spin, then a', cx, cy + R + 26);
-  ctx.fillText('kick of K sin(θ)', cx, cy + R + 41);
+  ctx.fillText('kicked rotor', cx, RP.y + 18);
+  ctx.fillText('free spin, then kick K sin(θ)', cx, RP.y + RP.h - 8);
+
+  // readout panel (right of the rotor) -- fills the rest of the top band
+  ctx.fillStyle = '#070a10'; ctx.fillRect(RO.x - 2, RO.y - 2, RO.w + 4, RO.h + 4);
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.strokeRect(RO.x, RO.y, RO.w, RO.h);
+  const lx = RO.x + 20; let yy = RO.y + 40;
+  ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'body', 'mono');
   // p gauge
-  const gy = cy + R + 64, gw = RP.w - 30;
-  ctx.strokeStyle = 'rgba(150,160,185,0.4)'; ctx.strokeRect(RP.x + 15, gy, gw, 10);
-  ctx.fillStyle = '#6dccc2'; ctx.fillRect(RP.x + 15, gy, gw * (state.tr.p / TWO_PI), 10);
-  ctx.fillStyle = '#9fb0cc'; ctx.textAlign = 'left';
-  ctx.fillText(`p (spin) = ${state.tr.p.toFixed(3)}`, RP.x + 15, gy + 26);
-  ctx.fillText(`theta = ${state.tr.theta.toFixed(3)}`, RP.x + 15, gy + 41);
-  ctx.fillText(`kick # ${state.kicks}`, RP.x + 15, gy + 56);
-  // readout
+  ctx.fillStyle = '#9fb0cc'; ctx.fillText('p (spin)', lx, yy);
+  const gx = lx + 96, gw = RO.w - 96 - 40;
+  ctx.strokeStyle = 'rgba(150,160,185,0.4)'; ctx.strokeRect(gx, yy - 12, gw, 13);
+  ctx.fillStyle = '#6dccc2'; ctx.fillRect(gx, yy - 12, gw * (state.tr.p / TWO_PI), 13);
+  yy += 38;
+  ctx.fillStyle = '#cdd3e2';
+  ctx.fillText(`p = ${state.tr.p.toFixed(3)}      theta = ${state.tr.theta.toFixed(3)}`, lx, yy); yy += 28;
+  ctx.fillText(`kick #  ${state.kicks}`, lx, yy); yy += 40;
   const lyap = maxLyapunov({ K: state.K, theta0: 0.5, p0: 0.3, nIter: 4000 });
+  ctx.fillStyle = '#9fb0cc';
+  ctx.fillText(`K = ${state.K.toFixed(3)}      K_crit = ${K_CRITICAL.toFixed(3)}`, lx, yy); yy += 28;
   ctx.fillStyle = lyap > 0.1 ? '#f87272' : '#34d399';
-  ctx.fillText(`K = ${state.K.toFixed(3)}   K_crit = ${K_CRITICAL.toFixed(3)}`, RP.x + 15, gy + 80);
-  ctx.fillText(`lambda_1 = ${lyap.toFixed(3)}  ${lyap > 0.1 ? '(chaotic)' : '(regular)'}`, RP.x + 15, gy + 95);
+  ctx.fillText(`lambda_1 = ${lyap.toFixed(3)}   ${lyap > 0.1 ? '(chaotic)' : '(regular)'}`, lx, yy); yy += 36;
+  const regime = state.K < 0.4 ? 'integrable: nested tori' : (state.K < K_CRITICAL ? 'mixed: islands + chaos' : 'global chaos: p diffuses');
+  ctx.fillStyle = state.K < K_CRITICAL ? '#34d399' : '#f87272';
+  ctx.fillText(regime, lx, yy);
 }
 
 function draw() { drawRotor(); drawPortrait(); }
