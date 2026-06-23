@@ -15,8 +15,8 @@ VO: The ideal model I(V) = I L - I 0[exp(V/(n V T)) - 1] gives I sc = I L at V =
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Tune the bandgap E_g: the Shockley-Queisser efficiency peaks near 1.3 eV.
+VO: Read the I-V and power curves: the maximum-power point sits at the knee where the product I times V peaks, between the short-circuit current I_sc and the open-circuit voltage V_oc.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

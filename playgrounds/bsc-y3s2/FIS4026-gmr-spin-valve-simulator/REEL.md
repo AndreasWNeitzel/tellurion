@@ -15,8 +15,8 @@ VO: In the metallic case the two-current model (Mott 1936; Baibich et al. 1988) 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep the applied field H around the hysteresis loop: the free layer flips at its coercive field while the pinned layer stays put, switching the stack between parallel (low R) and antiparallel (high R).
+VO: Raise the spin polarization P: the magnetoresistance ratio climbs steeply, since the two-current model gives MR proportional to P squared over (1 - P squared).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

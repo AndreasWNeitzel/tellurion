@@ -15,8 +15,8 @@ VO: 13, 25; Saleh and Teich 2007, Ch. 16).
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the pump r past the threshold r_th = 1/q0: the output stays dark below it, then climbs linearly above it.
+VO: Watch the turn-on transient: the photon number and inversion trade energy back and forth in damped relaxation oscillations before settling to steady state, the ringing every laser shows at switch-on.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

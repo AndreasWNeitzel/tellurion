@@ -15,8 +15,8 @@ VO: A parton distribution f(x) gives the probability of finding a constituent th
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Move the x cursor: valence quarks pile up near x ~ 0.2 while the sea and gluon blow up at small x.
+VO: Switch the x axis to logarithmic: the small-x rise of the sea and gluon, hidden on a linear scale, dominates the picture.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

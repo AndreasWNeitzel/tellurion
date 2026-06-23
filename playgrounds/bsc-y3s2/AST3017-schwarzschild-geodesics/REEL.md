@@ -15,8 +15,8 @@ VO: The playground fires a plane wave of photons past a non-rotating black hole:
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the photon count N: the plane wave fills in and you see the sharp divide at the critical impact parameter b_crit = 3 sqrt(3) M.
+VO: Watch the rays that graze b_crit: they loop multiple times around the photon sphere at r = 3 M before escaping, the strong-lensing winding that makes a black hole shadow.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

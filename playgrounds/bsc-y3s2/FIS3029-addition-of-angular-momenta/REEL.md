@@ -15,8 +15,8 @@ VO: The playground shows the uncoupled product basis reorganizing into the coupl
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Set 2j1 and 2j2: the total J runs over |j1 - j2| to j1 + j2 in integer steps, and each allowed J appears as one rung.
+VO: Check the dimension count in the readout: the (2J+1) substates summed over all allowed J always equal (2j1+1)(2j2+1).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

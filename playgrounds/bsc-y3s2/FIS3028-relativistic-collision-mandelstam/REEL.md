@@ -15,8 +15,8 @@ VO: The playground contrasts the two ways to collide beams: against a fixed targ
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the geometry between fixed-target and symmetric collider: at the same beam energy the collider reaches a far higher sqrt(s), the invariant collision energy.
+VO: Raise the beam energy E: the collision fireball runs hotter and whiter and more outgoing tracks spray out, because the track multiplicity climbs as ln sqrt(s).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

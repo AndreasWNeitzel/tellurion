@@ -15,8 +15,8 @@ VO: Two channels contribute: Fermi transitions (electron and neutrino spins anti
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Set the spin change between initial and final state: a Fermi transition needs Delta J = 0 with no parity flip, Gamow-Teller allows Delta J = 0 or 1 (but not 0 to 0).
+VO: Toggle the parity change: an allowed decay forbids it, so flipping parity forces the transition to be forbidden, suppressing the rate by orders of magnitude.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

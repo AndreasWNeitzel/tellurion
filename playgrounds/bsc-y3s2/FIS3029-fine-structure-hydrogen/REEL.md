@@ -15,8 +15,8 @@ VO: Adding the leading relativistic kinetic correction and spin-orbit coupling, 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag zoom n to expand a different principal level: the middle panel rebuilds its j-sublevels and the connector traces which Bohr level you are magnifying.
+VO: Read the rungs: states with the same total j sit on one line (2S1/2 and 2P1/2 are degenerate), because the Dirac fine structure depends on n and j, not on the orbital l.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

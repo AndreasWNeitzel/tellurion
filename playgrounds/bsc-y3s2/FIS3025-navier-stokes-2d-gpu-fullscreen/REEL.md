@@ -15,8 +15,8 @@ VO: The incompressibility constraint div u = 0 is enforced by the pressure-proje
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the Reynolds number through the regimes: creeping Stokes flow is fore-aft symmetric, a steady wake forms two attached eddies, and past Re about 100 the wake sheds a von Karman vortex street.
+VO: Switch the obstacle between a disk and a square: the sharp corners fix the separation points and change the shedding, while the round cylinder lets the separation point wander.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

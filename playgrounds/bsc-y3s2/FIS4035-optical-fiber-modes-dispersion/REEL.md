@@ -15,8 +15,8 @@ VO: Opt. 10, 2252, 1971; Snyder and Love, Optical Waveguide Theory, 1983).
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Lower the V-number below 2.405: all higher modes cut off and the fibre is single-mode, carrying only LP01.
+VO: Pick a higher mode and read its intensity cross-section: LP01 is a single central spot, while higher LP modes split into lobes with azimuthal and radial nodes, the patterns a multimode fibre actually carries.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: A reticle (mask) transmission t(x) is imaged through a lens of numerical ape
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the wavelength down the lithography roadmap from i-line to KrF to ArF to EUV: the Rayleigh resolution R = k1 lambda / NA shrinks, and more of the fine-pitch zones turn from red (unresolved) to blue (resolved) in the contrast panel.
+VO: Raise the numerical aperture NA: the lens pupil passes higher spatial frequencies, so finer pitches keep their contrast in the aerial image.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

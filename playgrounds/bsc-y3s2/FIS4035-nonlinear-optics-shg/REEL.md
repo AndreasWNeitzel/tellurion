@@ -15,8 +15,8 @@ VO: 2). In the undepleted-pump limit the second-harmonic intensity is I 2w(z) = 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Detune the phase mismatch dk away from zero: the second-harmonic intensity stops growing and instead oscillates with propagation, sloshing energy back to the fundamental every coherence length L_c.
+VO: Phase-match by tuning the BBO crystal angle so the curve in the dispersion panel crosses: the ordinary index at the fundamental meets the extraordinary index at the second harmonic, the birefringent trick that makes SHG efficient.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

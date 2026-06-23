@@ -15,8 +15,8 @@ VO: The closed-form perfect-diamagnet solution gives B = 0 inside, B r = 0 at th
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Cool below T/Tc = 1: the field lines bend out of the sphere and the state flips to superconducting.
+VO: Raise the applied field B0 past the critical field Bc(T): superconductivity is quenched and the field floods back in.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

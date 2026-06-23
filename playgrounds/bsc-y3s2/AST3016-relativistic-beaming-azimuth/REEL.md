@@ -15,8 +15,8 @@ VO: Sweeping gamma tightens the lobe from a broad teardrop to a pencil beam (the
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the Lorentz factor gamma: the lab-frame lobe collapses from a near-sphere into a tight forward pencil, the relativistic headlight effect.
+VO: Drag the scene to rotate it: the lobe is a real solid of revolution about the velocity axis, coloured by intensity (brightest dead ahead).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
