@@ -84,7 +84,21 @@ function render() {
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; render(); requestAnimationFrame(tick); }
 function bootSync() {
-  if (CAPTURE_NAME) { tracers = []; for (let i = -2; i <= 2; i += 1) for (let j = -2; j <= 2; j += 1) tracers.push({ q: i * 0.8, p: j * 0.8, trail: [] }); for (let n = 0; n < 200; n += 1) for (const tr of tracers) { const nx = leapfrog(tr.q, tr.p, 0.05, st.system); tr.q = nx.q; tr.p = nx.p; tr.trail.push([tr.q, tr.p]); } }
+  if (CAPTURE_NAME) {
+    // Seed the same 7x7 grid the live view uses, and advance by the capture
+    // fraction so the golden frames span the flow (the old path used a denser
+    // 5x5 seed and a fixed 200 steps, so every fraction produced the same,
+    // sparser still).
+    tracers = [];
+    for (let i = -3; i <= 3; i += 1) for (let j = -3; j <= 3; j += 1) tracers.push({ q: i * 0.7, p: j * 0.6, trail: [] });
+    const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    const steps = Math.round(60 + 540 * f);
+    for (let n = 0; n < steps; n += 1) for (const tr of tracers) {
+      const nx = leapfrog(tr.q, tr.p, 0.05, st.system); tr.q = nx.q; tr.p = nx.p;
+      if (st.system === 'pendulum') { if (tr.q > Math.PI) tr.q -= 2 * Math.PI; if (tr.q < -Math.PI) tr.q += 2 * Math.PI; }
+      tr.trail.push([tr.q, tr.p]);
+    }
+  }
   else if (!DETERMINISTIC) {
     // Seed a grid of orbits on load so the symplectic flow is moving
     // immediately. With no tracers the page shows only the static flow
