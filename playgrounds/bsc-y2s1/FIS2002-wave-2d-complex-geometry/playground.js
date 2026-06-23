@@ -150,14 +150,18 @@ function tick(now) {
     // Keep driving indefinitely: the source-driven field settles into
     // a steady oscillation and stays alive. It used to stop at
     // HORIZON, which read as the animation randomly halting.
-    let budget = 4;
+    let budget = 10;
     while (acc > 1 / 60 && budget-- > 0) { scene.drive(phase, 0.7); phase += scene.omega * DT; stepScene(scene, C, st.gamma, DT); simT += DT; st.nstep += 1; acc -= 1 / 60; }
     if (acc > 0.1) acc = 0;
   }
   render(); requestAnimationFrame(tick);
 }
 function bootSync() {
-  rebuild(CAPTURE_NAME ? Math.round(CAPTURE_FRAC * HORIZON) : 0);
+  // Warm up the live load too (not just capture): otherwise the field starts
+  // at t=0 and the screen-intensity panel reads empty for several seconds
+  // until the wave first reaches the screen. 600 steps lands the steady
+  // diffraction pattern on the screen immediately.
+  rebuild(CAPTURE_NAME ? Math.round(CAPTURE_FRAC * HORIZON) : 600);
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
     window.__simulationReady = true;
