@@ -36,7 +36,7 @@ const params3 = () => ({ w0: st.w0, w1: st.w1, wrf: wrf() });
 
 // Interactive 3D view (drag to orbit). World axes: z up (poles |0>,
 // |1>), x toward |+>. Trig is cached and refreshed on view change.
-const R = 168, CX = W * 0.40, CY = H * 0.52;
+const R = 298, CX = W / 2, CY = H * 0.47;
 let ca, sa, ce, se;
 function updView() { ca = Math.cos(st.az); sa = Math.sin(st.az); ce = Math.cos(st.el); se = Math.sin(st.el); }
 updView();
