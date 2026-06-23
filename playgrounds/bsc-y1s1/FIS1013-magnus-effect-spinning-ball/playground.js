@@ -45,8 +45,8 @@ let REG = null;
 function relayout() {
   view = setupCanvas(canvas, ctx);
   REG = stack({ width: view.w, height: view.h }, [
-    { name: 'scene', weight: 2.5 },
-    { name: 'diag', weight: 1.5 },
+    { name: 'scene', weight: 2.0 },
+    { name: 'diag', weight: 1.7 },
   ]);
 }
 
@@ -86,11 +86,11 @@ function rebuild() {
 }
 
 function bbox() {
-  let xMax = 10, yMax = 5;
+  let xMax = 10, yMax = 1;   // small floor; the real apex (a few metres) should set the vertical scale, not a fixed 5 m headroom
   for (const key of ['current', 'zero', 'opposite']) {
     for (const p of state.trails[key]) { if (p.x > xMax) xMax = p.x; if (p.y > yMax) yMax = p.y; }
   }
-  return { xMax: xMax * 1.05, yMax: yMax * 1.4 };
+  return { xMax: xMax * 1.05, yMax: yMax * 1.15 };
 }
 
 function drawScene(col) {
