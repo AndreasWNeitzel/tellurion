@@ -50,7 +50,10 @@ window.addEventListener('pointermove', (e) => {
 
 // 3D projection.
 function project(x, y, z) {
-  const cx = canvas.width / 2, cy = canvas.height / 2;
+  // Origin sits below centre so the forward (+y) beam fills the upper two
+  // thirds rather than a small patch around the middle; scale enlarged so the
+  // lobe reads as a substantial solid.
+  const cx = canvas.width / 2, cy = Math.round(canvas.height * 0.62);
   const ca = Math.cos(st.az), sa = Math.sin(st.az);
   const ce = Math.cos(st.el), se = Math.sin(st.el);
   // Rotate about y by az, then about x by el.
@@ -58,7 +61,7 @@ function project(x, y, z) {
   const zp = -sa * x + ca * z;
   const yp = ce * y - se * zp;
   const zr = se * y + ce * zp;
-  return { x: cx + xp * 200, y: cy - yp * 200, depth: zr };
+  return { x: cx + xp * 290, y: cy - yp * 290, depth: zr };
 }
 
 // Sample the radiation pattern as a function of (theta, phi) -- theta
