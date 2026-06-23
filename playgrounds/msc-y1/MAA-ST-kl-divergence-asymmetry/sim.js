@@ -78,7 +78,12 @@ export function klQP(p, q) {
 export function findArgmins({ p } = {}) {
   const mus = [];
   for (let i = -40; i <= 40; i += 1) mus.push(i * 0.1);
-  const sigmas = [0.5, 0.8, 1.1, 1.4, 1.7, 2.0, 2.4, 2.8, 3.2, 3.6];
+  // Dense sigma grid down to 0.3: the coarse old grid (min 0.5, wide steps)
+  // missed the narrower Q that the mode-seeking reverse KL actually prefers, so
+  // the reported argmin could exceed the live divergence of a hand-set Q, which
+  // is logically impossible for a true minimum.
+  const sigmas = [];
+  for (let s = 0.3; s <= 3.6 + 1e-9; s += 0.1) sigmas.push(Math.round(s * 100) / 100);
   let bestPQ = { val: Infinity, mu: 0, sigma: 1 };
   let bestQP = { val: Infinity, mu: 0, sigma: 1 };
   for (const mu of mus) for (const sigma of sigmas) {
