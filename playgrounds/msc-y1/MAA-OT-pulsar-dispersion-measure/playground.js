@@ -158,16 +158,17 @@ function render() {
   ctx.fillText(flag === 'MATCH' ? 'aligned: the sweep stands vertical'
     : 'mis-set DM: the f^-2 sweep is still tilted', wx0 + wW / 2, wy0 + wHh + 12);
 
-  // bottom: de-dispersed summed profile
-  const py0 = 392, pH = H - py0 - 26;
-  ctx.fillStyle = '#0d1117'; ctx.fillRect(wx0, py0, wW, pH);
-  ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(wx0 + 0.5, py0 + 0.5, wW - 1, pH - 1);
+  // bottom: de-dispersed summed profile, full width across the portrait
+  // (was right-column only, which left the bottom-left quadrant empty).
+  const px0 = 20, pW = W - 40, py0 = 392, pH = H - py0 - 40;
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(px0, py0, pW, pH);
+  ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(px0 + 0.5, py0 + 0.5, pW - 1, pH - 1);
   ctx.fillStyle = '#cdd3e2'; ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('de-dispersed profile (sum over channels)', wx0 + 6, py0 + 14);
+  ctx.fillText('de-dispersed profile (sum over channels)', px0 + 6, py0 + 14);
   let mx = 1e-9; for (let j = 0; j < NT; j += 1) if (ded[j] > mx) mx = ded[j];
   ctx.strokeStyle = flagCol; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let j = 0; j < NT; j += 1) {
-    const x = wx0 + 8 + j / (NT - 1) * (wW - 16);
+    const x = px0 + 8 + j / (NT - 1) * (pW - 16);
     const y = py0 + pH - 8 - (ded[j] / mx) * (pH - 26);
     j === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   }
@@ -175,7 +176,7 @@ function render() {
 
   // left-of-profile: the f^-2 law reminder + DM meaning
   ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('dt = DM/2.41e-4 (1/f^2 - 1/fref^2) ms     DM = integral n_e dl  (electron column -> distance)', 22, py0 + pH - 4);
+  ctx.fillText('dt = DM/2.41e-4 (1/f^2 - 1/fref^2) ms     DM = integral n_e dl  (electron column -> distance)', 22, py0 + pH + 22);
 
   if (readoutEl) readoutEl.textContent = `true DM ${st.trueDM}, trial DM ${st.guessDM}, S/N ${sn.toFixed(1)} [${flag}]`;
 }
