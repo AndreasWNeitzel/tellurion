@@ -7,7 +7,10 @@
 
 import { fontString } from '../../../shared/js/canvas-type.js';
 import { setupCanvas, stack, clipTo } from '../../../shared/js/render/vertical-layout.js';
+import { makeRng } from '../../../shared/js/render/rng.js';
 import { E_CHARGE, PLATE_GAP, charge, dropWeight, balanceVoltage, terminalVelocity, radiusFromFall, chargeFromBalance } from './sim.js';
+
+const rng = makeRng(0xC0FFEE);   // seeded: Brownian jitter must be reproducible
 
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
@@ -127,7 +130,7 @@ function tick() {
   if (running) {
     const d = drop(), Veff = st.field ? st.V : 0;
     const v = terminalVelocity(d.r, d.n, Veff);
-    st.y += (v / PLATE_GAP) * 0.9 + (Math.random() - 0.5) * 0.006;   // drift plus Brownian jitter (real drops wobble from air-molecule collisions)
+    st.y += (v / PLATE_GAP) * 0.9 + (rng() - 0.5) * 0.006;   // drift plus Brownian jitter (real drops wobble from air-molecule collisions)
     if (st.y < 0.04) st.y = 0.04; if (st.y > 0.96) st.y = 0.96;
   }
   render(); if (running) requestAnimationFrame(tick);

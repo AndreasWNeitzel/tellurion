@@ -9,6 +9,9 @@ import { pipeArea, velocity, pressure, diagnostics, airfoilLift } from './sim.js
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { makeRng } from '../../../shared/js/render/rng.js';
+
+const rng = makeRng(0xC0FFEE);   // seeded tracer seeding (reproducible capture)
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -37,7 +40,7 @@ const parts = [];
 function seedParts() {
   parts.length = 0;
   for (let i = 0; i < NPART; i += 1) {
-    parts.push({ x: Math.random(), yo: (Math.random() * 2 - 1) * 0.82 });
+    parts.push({ x: rng(), yo: (rng() * 2 - 1) * 0.82 });
   }
 }
 // deterministic seed for capture (no RNG dependence on Math.random)

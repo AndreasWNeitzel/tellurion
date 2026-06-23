@@ -10,6 +10,9 @@ import {
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { makeRng } from '../../../shared/js/render/rng.js';
+
+const rng = makeRng(0xC0FFEE);   // seeded tracer placement (reproducible capture)
 
 const qp = new URLSearchParams(location.search);
 const DETERMINISTIC = qp.get('deterministic') === '1';
@@ -43,7 +46,7 @@ function buildTracers(deterministic) {
   for (let i = 0; i < N; i += 1) {
     let rx, ry;
     if (deterministic) { rx = ((i * 73) % 100) / 100 * 2 * VIEW - VIEW; ry = ((i * 31) % 100) / 100 * 2 * VIEW - VIEW; }
-    else { rx = (Math.random() * 2 - 1) * VIEW; ry = (Math.random() * 2 - 1) * VIEW; }
+    else { rx = (rng() * 2 - 1) * VIEW; ry = (rng() * 2 - 1) * VIEW; }
     tracers.push([rx, ry]);
   }
 }
