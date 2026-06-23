@@ -23,25 +23,27 @@ const rP = document.getElementById('readout-p');
 const sP = document.getElementById('slider-p'), vP = document.getElementById('value-p');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
-const st = { phi: 0, t: 0 };
+const st = { phi: 0, t: 0, sweep: true, sweepDir: 1 };
 let running = !prefersReducedMotion();
-sP.addEventListener('input', () => { st.phi = parseFloat(sP.value); vP.textContent = st.phi.toFixed(2); });
+sP.addEventListener('input', () => { st.phi = parseFloat(sP.value); vP.textContent = st.phi.toFixed(2); st.sweep = false; });
 btnR.addEventListener('click', () => {
-  st.phi = 0; sP.value = '0'; vP.textContent = '0.00'; st.t = 0;
+  st.phi = 0; sP.value = '0'; vP.textContent = '0.00'; st.t = 0; st.sweep = true; st.sweepDir = 1;
   running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false');
 });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
-const CY = H / 2;
+// Wavefield occupies the top; an Aharonov-Bohm diagnostic panel sits below.
+const FY0 = 60, FH = 560;                            // wavefield region (top)
+const CY = FY0 + FH / 2;                             // field centre
 const SRC = [50, CY];
-const SLIT_X = 200, SLIT_Y1 = CY - 50, SLIT_Y2 = CY + 50;
-const SCREEN_X = W - 100;
-const SOL = [(SLIT_X + SCREEN_X) / 2, CY];          // solenoid (flux line)
-const K = 0.30;                                     // electron wavenumber (rad/px)
-const OMEGA = K * 3.2;                               // phase speed for the animation
+const SLIT_X = 200, SLIT_Y1 = CY - 52, SLIT_Y2 = CY + 52;
+const SCREEN_X = W - 96;
+const SOL = [(SLIT_X + SCREEN_X) / 2, CY];           // solenoid (flux line)
+const K = 0.30;                                      // electron wavenumber (rad/px)
+const OMEGA = K * 2.2;                               // phase speed (slowed so wavefronts are followable)
 
 // Field buffer (half resolution), allocated once.
-const FX0 = SLIT_X, FY0 = 70, FW = SCREEN_X - SLIT_X, FH = H - 140;
+const FX0 = SLIT_X, FW = SCREEN_X - SLIT_X;
 const NX = FW >> 1, NY = FH >> 1;
 const off = document.createElement('canvas'); off.width = NX; off.height = NY;
 const offctx = off.getContext('2d');
@@ -132,36 +134,84 @@ function render() {
   ctx.fillStyle = '#ffe6a8'; ctx.font = fontString(canvas, 'caption', 'mono');
   tlabel('B = 0 on both paths; only A is nonzero', SOL[0] - 116, SOL[1] + 42);
 
-  // screen and the time-averaged intensity it records (diagnostic strip)
+  // path-phase labels: the enclosed flux splits the two partial waves by
+  // +-pi Phi/Phi_0 (gauge-invariant), even though B = 0 along both paths.
+  ctx.fillStyle = 'rgba(170,225,255,0.95)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  tlabel(`upper path phase  +${st.phi.toFixed(2)} pi`, SOL[0] - 150, CY - 80);
+  tlabel(`lower path phase  -${st.phi.toFixed(2)} pi`, SOL[0] - 150, CY + 92);
+
+  // detector screen + the time-averaged fringe pattern it records
+  const yTop = FY0 + 10, yBot = FY0 + FH - 10;
   ctx.strokeStyle = '#cdd3da'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(SCREEN_X, 70); ctx.lineTo(SCREEN_X, H - 70); ctx.stroke();
-  ctx.fillStyle = '#cdd3da'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('detector', SCREEN_X - 4, 62);
-  ctx.beginPath();
-  for (let y = 72; y <= H - 72; y += 1) {
-    const xc = (y - CY) / 200;
-    const I = intensity(xc, 1, 1, 30, 2 * Math.PI * st.phi);   // 0..2
+  ctx.beginPath(); ctx.moveTo(SCREEN_X, yTop); ctx.lineTo(SCREEN_X, yBot); ctx.stroke();
+  ctx.fillStyle = '#cdd3da'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('detector', SCREEN_X - 6, yTop - 6);
+  for (let y = yTop; y <= yBot; y += 1) {
+    const I = intensity((y - CY) / 150, 1, 1, 30, 2 * Math.PI * st.phi);
     const a = Math.max(0, Math.min(255, Math.floor(I * 120 + 8)));
     ctx.fillStyle = `rgb(${a},${Math.floor(a * 0.9)},${Math.floor(a * 0.55)})`;
-    ctx.fillRect(SCREEN_X + 5, y, 34, 1);
+    ctx.fillRect(SCREEN_X + 5, y, 30, 1);
   }
-  // intensity profile curve drawn off the screen line
+  // intensity profile curve off the screen, plus the moving central fringe
+  let yPeak = CY, Ipeak = -1;
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.6; ctx.beginPath();
-  for (let y = 72; y <= H - 72; y += 2) {
-    const xc = (y - CY) / 200;
-    const I = intensity(xc, 1, 1, 30, 2 * Math.PI * st.phi);
-    const px = SCREEN_X + 45 + I * 26;
-    if (y === 72) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+  for (let y = yTop; y <= yBot; y += 2) {
+    const I = intensity((y - CY) / 150, 1, 1, 30, 2 * Math.PI * st.phi);
+    if (I > Ipeak) { Ipeak = I; yPeak = y; }
+    const px = SCREEN_X + 40 + I * 24;
+    if (y === yTop) ctx.moveTo(px, y); else ctx.lineTo(px, y);
   }
   ctx.stroke();
+  // central bright fringe: the AB phase slides it as the flux changes
+  ctx.strokeStyle = '#ff5c8a'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(SCREEN_X - 8, yPeak); ctx.lineTo(SCREEN_X + 38, yPeak); ctx.stroke();
+  ctx.fillStyle = '#ff5c8a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
+  tlabel('central fringe', SCREEN_X - 12, yPeak + 4);
+  ctx.textAlign = 'left';
 
-  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'body', 'mono');
-  ctx.fillText(`Phi / Phi_0 = ${st.phi.toFixed(2)}    fringe shift = ${st.phi.toFixed(2)} cycles    path phase split = ${(2 * st.phi).toFixed(2)} pi`, 14, H - 16);
+  // ===== AUX PANEL: the Aharonov-Bohm fringe-shift law =====
+  const ax0 = 24, ay0 = FY0 + FH + 24, aw = W - 48, ah = H - ay0 - 14;
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(ax0, ay0, aw, ah);
+  ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(ax0 + 0.5, ay0 + 0.5, aw - 1, ah - 1);
+  ctx.fillStyle = '#9aa3b2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('fringe shift = Phi / Phi_0  (one fringe per flux quantum; B = 0 on both paths)', ax0 + 10, ay0 + 18);
+  const plX = ax0 + 50, plR = ax0 + aw - 24, plT = ay0 + 34, plB = ay0 + ah - 32;
+  const PMIN = -2, PMAX = 2, PSPAN = PMAX - PMIN;
+  const xOf = (p) => plX + ((p - PMIN) / PSPAN) * (plR - plX);
+  const yOf = (s) => plB - ((s - PMIN) / PSPAN) * (plB - plT);
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.6)';
+  for (let p = PMIN; p <= PMAX; p += 1) {
+    ctx.strokeStyle = 'rgba(226,232,240,0.06)'; ctx.beginPath(); ctx.moveTo(xOf(p), plT); ctx.lineTo(xOf(p), plB); ctx.stroke();
+    ctx.textAlign = 'center'; ctx.fillText(`${p}`, xOf(p), plB + 15);
+    ctx.textAlign = 'right'; ctx.fillText(`${p}`, plX - 6, yOf(p) + 3);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xOf(0), plT); ctx.lineTo(xOf(0), plB); ctx.moveTo(plX, yOf(0)); ctx.lineTo(plR, yOf(0)); ctx.stroke();
+  ctx.fillStyle = '#8893a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('Phi / Phi_0', (plX + plR) / 2, plB + 30);
+  ctx.save(); ctx.translate(ax0 + 14, (plT + plB) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('fringe shift', 0, 0); ctx.restore();
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(xOf(PMIN), yOf(PMIN)); ctx.lineTo(xOf(PMAX), yOf(PMAX)); ctx.stroke();
+  const ps = Math.max(PMIN, Math.min(PMAX, st.phi));
+  ctx.strokeStyle = 'rgba(255,92,138,0.5)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xOf(ps), yOf(0)); ctx.lineTo(xOf(ps), yOf(ps)); ctx.lineTo(xOf(0), yOf(ps)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#ff5c8a'; ctx.beginPath(); ctx.arc(xOf(ps), yOf(ps), 5, 0, 6.2832); ctx.fill();
+
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(`Phi / Phi_0 = ${st.phi.toFixed(2)}    path phase split = ${(2 * st.phi).toFixed(2)} pi`, ax0 + 10, ay0 - 8);
   rP.textContent = st.phi.toFixed(2);
 }
 
 function tick() {
-  if (running) st.t += 1;
+  if (running) {
+    st.t += 0.22;                    // slow enough that the wavefronts can be followed
+    if (st.sweep) {                  // auto-ramp the flux so the fringes visibly march
+      st.phi += 0.006 * st.sweepDir;
+      if (st.phi >= 2) { st.phi = 2; st.sweepDir = -1; }
+      else if (st.phi <= -2) { st.phi = -2; st.sweepDir = 1; }
+      sP.value = st.phi.toFixed(2); vP.textContent = st.phi.toFixed(2);
+    }
+  }
   render();
   if (!CAPTURE_NAME) requestAnimationFrame(tick);
 }
