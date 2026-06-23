@@ -15,8 +15,8 @@ VO: The animation is driven by the real equations, not a canned loop.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Set I_in below the source function S: the slab adds more than it absorbs and the line goes up, an emission line.
+VO: Raise the optical depth tau: thin slabs barely change the beam, but as tau grows the emergent intensity relaxes exponentially toward S and forgets I_in entirely.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

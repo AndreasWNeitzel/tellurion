@@ -15,8 +15,8 @@ VO: The leading-order delay grows logarithmically with how closely the ray graze
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Lower the impact parameter b toward the Sun: the logarithmic Shapiro delay grows, and the race panel shows the real photon falling further behind the flat-space reference.
+VO: Read the delta-t vs b curve: the delay diverges logarithmically as b goes to zero, which is why the classic test times radar echoes off planets passing near the solar limb.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

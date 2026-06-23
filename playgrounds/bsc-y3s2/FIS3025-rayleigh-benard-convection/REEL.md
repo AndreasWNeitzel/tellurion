@@ -15,8 +15,8 @@ VO: The control parameter is the Rayleigh number Ra; for stress-free, perfectly 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Push Ra above the critical value Ra_c: the motionless conducting layer breaks into counter-rotating rolls and the state readout flips to convecting.
+VO: Tune the wavenumber k: the growth rate sigma is largest near k = pi/sqrt(2), the most unstable mode that sets the natural roll width.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

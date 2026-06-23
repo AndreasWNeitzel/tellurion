@@ -15,8 +15,8 @@ VO: The built-in potential V bi = (kT/q) ln(NA ND / ni 2) bends the bands; the d
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep the bias V: forward bias shrinks the depletion width and floods the junction with current, reverse bias widens it and chokes the current off.
+VO: Raise the doping with the N_A and N_D sliders: the built-in potential climbs as the log of the doping product, and the depletion layer narrows.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: 10-11; Sze and Ng). Below threshold (V GS < V th) the device is off and the 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise V_GS above the threshold V_th: an inversion channel forms and the device turns on.
+VO: Increase V_DS at fixed V_GS: the channel pinches off at the drain (visible in the cross-section) and the device enters saturation, where I_D flattens.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

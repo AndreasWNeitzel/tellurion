@@ -15,8 +15,8 @@ VO: The Fermi surface, the constant-energy contour at the filling level, changes
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide the filling f: the Fermi surface grows from a small loop around the zone centre to the perfect diamond at half filling, where it touches the zone edges.
+VO: Park the filling right at half: the Fermi surface is a nested square and the density of states spikes at a van Hove singularity, the logarithmic divergence visible as the tall peak in the DOS panel.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

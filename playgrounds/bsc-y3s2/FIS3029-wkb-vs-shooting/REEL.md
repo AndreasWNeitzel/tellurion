@@ -15,8 +15,8 @@ VO: This playground puts that rule head to head with the exact energy levels fou
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Start at p=2, the harmonic oscillator: the WKB and shooting ladders coincide exactly, because Bohr-Sommerfeld is exact for a quadratic potential and the connector lines lie flat.
+VO: Slide p up toward 6 so the well steepens toward a box: the two ladders pull apart, most at the ground state.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

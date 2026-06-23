@@ -15,8 +15,8 @@ VO: You watch the packet split into reflected and transmitted parts, tunnel thro
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Lower k_0 so the incident energy E = k_0 squared over 2 drops below the barrier height V_0: the packet almost entirely reflects and only a faint tunnelling ripple leaks through.
+VO: Raise k_0 past E = V_0: transmission jumps up and then oscillates with energy.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

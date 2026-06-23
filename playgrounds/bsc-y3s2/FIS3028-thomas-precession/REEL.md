@@ -15,8 +15,8 @@ VO: It is the factor-of-2 correction that reconciles the naive spin-orbit coupli
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise beta = v/c toward 1: the gyroscope axis lags more per orbit, and the (gamma - 1) curve at the bottom steepens sharply.
+VO: Let several orbits accumulate: the lab-frame spin axis winds around by (gamma - 1) radians each revolution, a purely kinematic rotation with no torque applied.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

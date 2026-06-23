@@ -15,8 +15,8 @@ VO: The gap obeys a self-consistent equation, Delta appears on both sides, so it
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise T toward T_c: the gap Delta(T) collapses to zero with the characteristic vertical-tangent BCS shape, and the glowing gap band on the Fermi surface narrows to nothing.
+VO: Increase the coupling N(0)V: the zero-temperature gap and T_c both grow, but their ratio 2 Delta(0)/k_B T_c stays pinned near the universal 3.53.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

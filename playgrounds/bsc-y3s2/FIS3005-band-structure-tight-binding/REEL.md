@@ -15,8 +15,8 @@ VO: Bloch theorem gives E(k) = eps0 - 2t cos(ka) for the 1D chain (width 4t, ban
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the hopping t: the band E(k) = e0 - 2t cos(ka) widens to 4t and its curvature at the bottom sharpens, lowering the effective mass.
+VO: Switch to the dimerized (SSH) chain: a gap opens at the zone boundary as the alternating bonds split the single band into two.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: The playground puts the three canonical cases on one axis: the infinite squa
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the well between infinite, finite and harmonic: the whole stack of eigenfunctions rebuilds.
+VO: Drag the level n: the bright filled state sweeps up the ladder and gains one node at each step, and the highlighted stem in the bottom spectrum tracks which level you are on.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

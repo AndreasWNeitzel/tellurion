@@ -15,8 +15,8 @@ VO: The image plane is the main view: the lens (single point mass or a binary), 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag the source toward the lens: the two images stretch along the Einstein ring and brighten, and the magnification A(t) climbs the Paczynski peak.
+VO: Switch to the binary lens: the single smooth bump breaks into sharp caustic-crossing spikes as the source crosses the diamond caustic, the signature that flags a planet in real microlensing surveys.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

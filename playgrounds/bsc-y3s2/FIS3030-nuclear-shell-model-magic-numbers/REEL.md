@@ -15,8 +15,8 @@ VO: A plain oscillator potential gives the wrong shell closures; adding the stro
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Pour nucleons in with the N slider: levels fill bottom-up, and the readout flags each closed shell.
+VO: Stop at a magic number: the next level sits across a wide energy gap, so the nucleus is extra bound and spherical.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

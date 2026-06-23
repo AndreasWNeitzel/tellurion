@@ -15,8 +15,8 @@ VO: 4): a two-level atom, initially excited, coupled to one quantised cavity mod
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the mean photon number nbar (a brighter coherent cavity field): the atomic inversion W(t) shows a clean Rabi collapse, a quiet stretch, then a spontaneous revival as the photon-number components rephase.
+VO: Increase the coupling g: the Rabi oscillations speed up and the collapse and revival times t_c and t_r both shorten.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: A particle in an infinite square well of side L has quantised energies E n =
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Shrink the box size L: the confinement energy E_1 and the level spacing both blow up as 1/L^2, so the absorption onset shifts to higher energy.
+VO: Change the dimensionality from 3D bulk to 2D well to 1D wire to 0D dot: the density of states on the right morphs from a smooth square-root edge to a staircase to a sawtooth to a comb of delta peaks.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: In the weak-field Zeeman regime the shift is g J m J mu B B with the Lande f
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep B up from zero: at weak field the 2p sublevels fan out linearly as g_J m_J mu_B B (the anomalous Zeeman effect), each level keeping its total-J character.
+VO: Push past the crossover field marked on the plot: L and S decouple and the levels regroup into the Paschen-Back pattern, splitting as (m_L + 2 m_S) mu_B B.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
