@@ -38,7 +38,7 @@ const XMAX = 24;                                     // angstrom scan window
 const st = { mode: 'stm-cc', gap: 5, phi: 5, running: !prefersReducedMotion(), scanY: 0 };
 
 // Micrograph panel (left, square) + law panel + scan-trace panel.
-const MG = { x: 22, y: 40, s: Math.min(360, H - 200) };
+const MG = { x: (W - 564) / 2, y: 38, s: 564 };   // big centred micrograph hero; diagnostics in a bottom row
 const GN = 300;                                       // micrograph pixels
 const mc = document.createElement('canvas'); mc.width = GN; mc.height = GN;
 const mctx = mc.getContext('2d');
@@ -195,9 +195,10 @@ function drawScan(px0, py0, pw, ph) {
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   drawMicrograph();
-  const RX = MG.x + MG.s + 26, RW = W - RX - 22;
-  drawLaw(RX, MG.y, RW, 150);
-  drawScan(RX, MG.y + 168, RW, MG.s - 168);
+  // Two diagnostics side by side across the bottom, below the micrograph hero.
+  const colW = (W - 24 * 3) / 2, by = MG.y + MG.s + 34, bh = H - by - 16;
+  drawLaw(24, by, colW, bh);
+  drawScan(24 + colW + 24, by, colW, bh);
 
   const d = (st.mode === 'afm') ? ljMinDistance(SIG) + st.gap : st.gap;
   rGap.textContent = d.toFixed(2) + ' A';
