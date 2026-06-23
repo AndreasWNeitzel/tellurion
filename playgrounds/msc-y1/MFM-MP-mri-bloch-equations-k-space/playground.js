@@ -137,6 +137,41 @@ function drawBloch(x, y, w, h) {
   ctx.fillText(`t = ${T.toFixed(0)} ms   Mz = ${m.mz.toFixed(3)}   |Mxy| = ${Math.hypot(m.mx, m.my).toFixed(3)}`, x + 12, y + h - 10);
 }
 
+// Longitudinal recovery Mz(t) = 1 - e^{-t/T1} and transverse decay
+// |Mxy|(t) = e^{-t/T2} after the 90-degree pulse, over one TR, with a
+// marker at the current time. The Bloch-sphere trajectory above is these
+// two envelopes combined.
+function drawRelax(x, y, w, h) {
+  panel(x, y, w, h, 'relaxation: Mz recovery (T1), |Mxy| decay (T2)');
+  const ax = x + 44, ay = y + 32, aw = w - 58, ah = h - 60;
+  const T = st.ph * cache.p.TR, tMax = cache.p.TR;
+  const xOf = (t) => ax + aw * t / tMax;
+  const yOf = (v) => ay + ah * (1 - v);
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.textAlign = 'right';
+  for (const v of [0, 0.5, 1]) {
+    const yy = yOf(v);
+    ctx.fillText(v.toFixed(1), ax - 5, yy + 3);
+    ctx.strokeStyle = 'rgba(226,232,240,0.06)'; ctx.beginPath(); ctx.moveTo(ax, yy); ctx.lineTo(ax + aw, yy); ctx.stroke();
+  }
+  ctx.textAlign = 'center';
+  for (let k = 0; k <= 4; k += 1) { const t = tMax * k / 4; ctx.fillText(`${Math.round(t)}`, xOf(t), ay + ah + 16); }
+  ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
+  ctx.fillText('t (ms)', ax + aw, ay + ah + 16);
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) { const t = tMax * i / 120; const xx = xOf(t), yy = yOf(1 - Math.exp(-t / GM_T1)); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
+  ctx.stroke();
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) { const t = tMax * i / 120; const xx = xOf(t), yy = yOf(Math.exp(-t / GM_T2)); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(xOf(T), ay); ctx.lineTo(xOf(T), ay + ah); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText('Mz = 1 - e^{-t/T1}', ax + 8, ay + 14);
+  ctx.fillStyle = '#ffd166'; ctx.fillText('|Mxy| = e^{-t/T2}', ax + 8, ay + 30);
+}
+
 function drawFID(x, y, w, h) {
   panel(x, y, w, h, 'free induction decay and its spectrum');
   const p = cache.p;
@@ -175,29 +210,32 @@ function drawFID(x, y, w, h) {
 function drawImage(x, y, w, h) {
   const p = cache.p;
   panel(x, y, w, h, `${st.seq === 'gre' ? 'gradient-echo' : 'spin-echo'} image, ${PRESET[st.w].name}-weighted`);
-  const sz = Math.min((w - 40) / 2, h - 50);
-  const iy = y + 26;
+  // image and k-space stacked vertically so each fills this tall panel.
+  const sz = Math.min(w - 28, (h - 92) / 2);
+  const ix = x + (w - sz) / 2;
+  const iy1 = y + 26, iy2 = iy1 + sz + 28;
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(imgCanvas(cache.recon, N, cache.imax, false), x + 14, iy, sz, sz);
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(x + 14, iy, sz, sz);
+  ctx.drawImage(imgCanvas(cache.recon, N, cache.imax, false), ix, iy1, sz, sz);
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(ix, iy1, sz, sz);
   ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`image (${st.kf}% of k-space)`, x + 14, iy + sz + 14);
-  const kx = x + 14 + sz + 14;
-  ctx.drawImage(imgCanvas(kCentred(cache.kmag, N), N, cache.kmax, true), kx, iy, sz, sz);
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(kx, iy, sz, sz);
+  ctx.fillText(`image (${st.kf}% of k-space)`, ix, iy1 + sz + 14);
+  ctx.drawImage(imgCanvas(kCentred(cache.kmag, N), N, cache.kmax, true), ix, iy2, sz, sz);
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(ix, iy2, sz, sz);
   // acquired-fraction overlay box on k-space
   const keep = Math.max(2, Math.floor(sz * st.kf / 100));
   ctx.strokeStyle = 'rgba(255,209,102,0.7)'; ctx.setLineDash([3, 3]);
-  ctx.strokeRect(kx + sz / 2 - keep / 2, iy + sz / 2 - keep / 2, keep, keep); ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.fillText('k-space (log |.|)', kx, iy + sz + 14);
+  ctx.strokeRect(ix + sz / 2 - keep / 2, iy2 + sz / 2 - keep / 2, keep, keep); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(200,210,235,0.7)'; ctx.fillText('k-space (log |.|)', ix, iy2 + sz + 14);
   ctx.fillStyle = 'rgba(155,232,176,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('CSF / grey / white contrast set by TR and TE', x + 14, y + h - 10);
+  ctx.fillText('CSF / grey / white contrast set by TR and TE', x + 14, y + h - 8);
 }
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
   const half = (W - 52) / 2;
-  drawBloch(20, 20, half, H - 34);
+  const blochH = 466;
+  drawBloch(20, 20, half, blochH);
+  drawRelax(20, 20 + blochH + 12, half, H - (20 + blochH + 12) - 14);
   drawFID(20 + half + 12, 20, half, (H - 46) / 2);
   drawImage(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
 }
