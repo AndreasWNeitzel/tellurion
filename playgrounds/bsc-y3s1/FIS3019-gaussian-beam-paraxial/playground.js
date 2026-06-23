@@ -29,7 +29,7 @@ const valueZmax    = document.getElementById('value-zmax');
 const W = canvas.width, H = canvas.height;
 
 const state = {
-  w0: 0.20,
+  w0: 0.12,
   lambda: 0.020,
   zMax: 4.0,
 };
@@ -40,7 +40,11 @@ function drawAll() {
 
   const PLOT_X = 60, PLOT_W = W - 100;
   const PLOT_Y = 30, PLOT_H = H - 100;
-  const rMax = 4 * state.w0;
+  // Frame the vertical view to the actual beam edge (1.18x the spot radius at
+  // zMax) rather than a fixed multiple of the waist, so the diverging cone
+  // always fills the panel without clipping its tails or leaving a flat void.
+  const zRpre = Math.PI * state.w0 * state.w0 / state.lambda;
+  const rMax = 1.18 * state.w0 * Math.sqrt(1 + (state.zMax / zRpre) ** 2);
 
   const Nz = 320, Nr = 200;
   const { field, zR } = intensityField({ Nz, Nr, zMax: state.zMax, rMax, w0: state.w0, lambda: state.lambda });
@@ -222,7 +226,7 @@ if (btnPlayPause) {
 function tick() {
   if (!paused && !userOverride && !CAPTURE_NAME) {
     animTime += 0.008;
-    state.w0 = 0.22 + 0.16 * Math.sin(animTime);
+    state.w0 = 0.12 + 0.05 * Math.sin(animTime);   // stay in the divergent regime (z_R < zMax) so the waist-and-spread hourglass is always on screen
     sliderW0.value = state.w0.toFixed(3);
     valueW0.textContent = state.w0.toFixed(3);
     drawAll();
