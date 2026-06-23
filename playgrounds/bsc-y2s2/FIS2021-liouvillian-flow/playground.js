@@ -40,24 +40,28 @@ const W = canvas.width, H = canvas.height;
 // pendulum panel centred below, instead of a landscape pair that ran the
 // pendulum panel off the right edge and left the lower half of the canvas
 // black.
-const PHASE = { x: 56, y: 44, w: 708, h: 470,
+const PHASE = { x: 56, y: 40, w: 708, h: 524,
                 thetaMin: -Math.PI, thetaMax: Math.PI,
                 pMin: -3,           pMax: 3 };
-// Physical pendulum panel below. Each tracer's angular position is shown as
-// a faint bob hanging from the panel origin so the user can watch the cloud
-// librate, rotate, and filament in physical space.
-const PEND = { cx: 410, cy: 700, L: 160 };
+// Bottom row: physical pendulum panel (left) and the covariance-area-vs-time
+// diagnostic (right), filling what used to be empty canvas. Each tracer's
+// angular position is a faint bob so the cloud can be watched librate, rotate
+// and filament in physical space.
+const PEND = { cx: 208, cy: 730, L: 142 };
+const AREA = { x: 398, y: 600, w: 366, h: 414 };
+const AREA_MAX = 420;                                   // samples kept in the area-vs-time plot
 
 const TRACER_RADIUS = 1.2;
 
 const state = {
-  blob: { theta: 0.6, p: 0 },
+  blob: { theta: 0.2, p: 1.78 },
   swarm: null,
   A0: 1,
   E0: 0,
   playing: !(DETERMINISTIC || prefersReducedMotion()),
   dragging: false,
   steps: 0,
+  areaHist: [],                                         // covariance area / A0 vs time
 };
 
 function cssVar(name, fallback) {
@@ -86,6 +90,14 @@ function rebuildSwarm() {
   state.A0 = covarianceArea(state.swarm.inst.q, state.swarm.inst.qdot);
   state.E0 = tracerEnergy(state.swarm.inst.q[0], state.swarm.inst.qdot[0], DEFAULT_OMEGA);
   state.steps = 0;
+  state.areaHist = [1];
+}
+
+function recordArea() {
+  if (!state.swarm) return;
+  const A = covarianceArea(state.swarm.inst.q, state.swarm.inst.qdot);
+  state.areaHist.push(state.A0 ? A / state.A0 : 1);
+  if (state.areaHist.length > AREA_MAX) state.areaHist.shift();
 }
 
 function px(theta, p) {
@@ -257,6 +269,34 @@ function drawTitles() {
   ctx.restore();
 }
 
+function drawAreaPlot() {
+  const { x, y, w, h } = AREA;
+  ctx.fillStyle = tokens.surface; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = tokens.grid; ctx.lineWidth = 0.5; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.fillStyle = tokens.fgMuted; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'left';
+  ctx.fillText('Covariance-ellipse area / initial', x + 8, y + 16);
+  const plT = y + 30, plB = y + h - 28, plL = x + 38, plR = x + w - 12;
+  const hist = state.areaHist;
+  let hi = 1.2; for (const v of hist) if (v > hi) hi = v;
+  hi = Math.max(2, Math.ceil(hi * 1.05));
+  const yOf = (v) => plB - (v / hi) * (plB - plT);
+  const xOf = (i) => plL + (i / Math.max(1, AREA_MAX - 1)) * (plR - plL);
+  ctx.fillStyle = tokens.fgFaint; ctx.font = fontString(canvas, 'tick'); ctx.textAlign = 'right';
+  const stepV = Math.max(1, Math.round(hi / 4));
+  for (let v = 0; v <= hi; v += stepV) { const yy = yOf(v); ctx.fillText(String(v), plL - 4, yy + 3); ctx.strokeStyle = tokens.grid; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(plL, yy); ctx.lineTo(plR, yy); ctx.stroke(); }
+  ctx.strokeStyle = tokens.fgFaint; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plL, plT); ctx.lineTo(plL, plB); ctx.lineTo(plR, plB); ctx.stroke();
+  // true conserved area (Liouville): ratio stays exactly 1
+  ctx.strokeStyle = tokens.accentWarm; ctx.setLineDash([4, 4]); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plL, yOf(1)); ctx.lineTo(plR, yOf(1)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = tokens.accentWarm; ctx.textAlign = 'left'; ctx.fillText('true area = 1 (Liouville)', plL + 4, yOf(1) - 4);
+  if (hist.length > 1) {
+    ctx.strokeStyle = tokens.accent; ctx.lineWidth = 1.6; ctx.beginPath();
+    hist.forEach((v, i) => { const X = xOf(i), Y = Math.max(plT, Math.min(plB, yOf(v))); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); });
+    ctx.stroke();
+  }
+  ctx.fillStyle = tokens.fgMuted; ctx.font = fontString(canvas, 'caption'); ctx.textAlign = 'center';
+  ctx.fillText('time -> (ellipse grows as the blob filaments)', (plL + plR) / 2, plB + 20);
+}
+
 function drawAll() {
   ctx.fillStyle = tokens.bg;
   ctx.fillRect(0, 0, W, H);
@@ -265,6 +305,7 @@ function drawAll() {
   drawTracers();
   drawBlobHandle();
   drawPendulumPanel();
+  drawAreaPlot();
   drawTitles();
 }
 
@@ -332,14 +373,14 @@ canvas.addEventListener('pointermove', (e) => {
 canvas.addEventListener('pointerup', () => { state.dragging = false; });
 canvas.addEventListener('pointercancel', () => { state.dragging = false; });
 canvas.addEventListener('dblclick', () => {
-  state.blob = { theta: 0.6, p: 0 };
+  state.blob = { theta: 0.2, p: 1.78 };
   rebuildSwarm();
   drawAll();
   updateReadouts(true);
 });
 
 btnReset.addEventListener('click', () => {
-  state.blob = { theta: 0.6, p: 0 };
+  state.blob = { theta: 0.2, p: 1.78 };
   rebuildSwarm();
   drawAll();
   updateReadouts(true);
@@ -357,7 +398,7 @@ function bootSync() {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     const target_t = CAPTURE_TOTAL_T * frac;
     const stepsNeeded = Math.round(target_t / DEFAULT_PHYSICS_DT);
-    for (let i = 0; i < stepsNeeded; i += 1) stepSwarm(state.swarm, DEFAULT_PHYSICS_DT);
+    for (let i = 0; i < stepsNeeded; i += 1) { stepSwarm(state.swarm, DEFAULT_PHYSICS_DT); if (i % 6 === 0) recordArea(); }
     state.steps = stepsNeeded;
     state.playing = false;
   }
@@ -395,6 +436,7 @@ function tick(now) {
     state.steps += 1;
     safety += 1;
   }
+  recordArea();
   drawAll();
   updateReadouts(false);
   requestAnimationFrame(tick);
