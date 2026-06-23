@@ -63,8 +63,11 @@ function drawAll() {
   // tower whose height equals the local grain count. The user sees the
   // pile literally build up and avalanche down. Reference toppling
   // threshold zc is read from state.sim.
-  const latticeSize = Math.min(360, H - panelTop - 80);
-  const latticeX = padL;
+  // Portrait stack: a large isometric sandpile across the top, the avalanche
+  // histogram full width below (was a 360 px panel beside the histogram with
+  // the lower half of the canvas empty).
+  const latticeSize = Math.min(W - 2 * padL, H - panelTop - 320);
+  const latticeX = Math.round((W - latticeSize) / 2);
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(latticeX, panelTop, latticeSize, latticeSize);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
@@ -120,11 +123,11 @@ function drawAll() {
   ctx.textAlign = 'left';
   ctx.fillText(`sandpile heights, toppling threshold z_c = ${zc}`, latticeX + 6, panelTop - 6);
 
-  // Histogram panel
-  const histX = latticeX + latticeSize + panelGap;
-  const histW = W - histX - padR;
-  const histY = panelTop;
-  const histH = latticeSize;
+  // Histogram panel: full width below the sandpile
+  const histX = padL;
+  const histW = W - 2 * padL;
+  const histY = panelTop + latticeSize + 50;
+  const histH = H - histY - 30;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(histX, histY, histW, histH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';

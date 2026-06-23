@@ -26,6 +26,14 @@ const btnHot       = document.getElementById('btn-hot');
 const W = canvas.width, H = canvas.height;
 const LEFT_W = 560;
 const LATTICE_L = 96;
+// Portrait composition: a large lattice square across the top, the readouts and
+// the M(t) trace full width below (was a 480 px lattice in a left column with
+// the lower half of the canvas empty).
+const LAT_SIDE = Math.min(W - 80, 700);
+const LAT_CELL = Math.floor(LAT_SIDE / LATTICE_L);
+const LAT_X0 = Math.round((W - LAT_CELL * LATTICE_L) / 2);
+const LAT_Y0 = 24;
+const LAT_BOT = LAT_Y0 + LAT_CELL * LATTICE_L;
 
 const state = {
   potts: null,
@@ -62,8 +70,7 @@ function drawLattice() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
   const { L, spins } = state.potts;
-  const cell = Math.floor((LEFT_W - 30) / L);
-  const x0 = 15, y0 = 15;
+  const cell = LAT_CELL, x0 = LAT_X0, y0 = LAT_Y0;
   for (let j = 0; j < L; j += 1) {
     for (let i = 0; i < L; i += 1) {
       const s = spins[j * L + i];
@@ -77,8 +84,6 @@ function drawLattice() {
 }
 
 function drawTraceAndReadout() {
-  const xL = LEFT_W + 12;
-  const xR = W - 12;
   const Tc = critTemperature(state.potts.q);
   const m = orderParameter(state.potts);
   const e = energyPerSite(state.potts);
@@ -95,23 +100,24 @@ function drawTraceAndReadout() {
     ['e/site', e.toFixed(3)],
     ['accept', (100 * acc).toFixed(1) + '%'],
   ];
+  // readouts as a single row below the lattice
+  const ry = LAT_BOT + 30;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  let y = 30;
-  for (const [k, v] of rows) {
+  const colW = (W - 60) / rows.length;
+  rows.forEach(([k, v], i) => {
+    const cx = 30 + i * colW;
     ctx.textAlign = 'left';
-    ctx.fillText(k, xL, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(v, xR, y);
-    y += 14;
-  }
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'; ctx.fillText(k, cx, ry);
+    ctx.fillStyle = '#f1d28a'; ctx.fillText(v, cx, ry + 16);
+  });
 
-  const inset = { x: xL, y: y + 8, w: xR - xL, h: H - y - 30 };
+  // M(t) trace, full width below the readouts
+  const inset = { x: 30, y: ry + 38, w: W - 60, h: H - (ry + 38) - 26 };
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
   ctx.strokeRect(inset.x + 0.5, inset.y + 0.5, inset.w - 1, inset.h - 1);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('M(t) over MC sweeps', inset.x + 4, inset.y - 4);
+  ctx.fillText('order parameter M(t) over Monte Carlo sweeps', inset.x + 4, inset.y - 4);
 
   ctx.strokeStyle = 'rgba(255, 80, 80, 0.7)';
   ctx.lineWidth = 0.7;

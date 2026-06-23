@@ -41,8 +41,9 @@ let running = !prefersReducedMotion();
 // =========================================================================
 // LAYOUT. Split canvas into a piston column (left) and PV plot (right).
 // =========================================================================
-const PISTON = { x: 24, y: 36, w: 220, h: 380 };
-const PV = { x: 290, y: 36, w: W - 290 - 24, h: 380 };
+const PISTON = { x: 24, y: 36, w: 220, h: H - 36 - 28 };       // pistons fill the left column
+const PV = { x: 290, y: 36, w: W - 290 - 24, h: 520 };          // square-ish PV; work bars fill below
+const WORKBAR = { x: 290, y: 36 + 520 + 44, w: W - 290 - 24, h: H - (36 + 520 + 44) - 26 };
 
 // =========================================================================
 // PARTICLES. Two independent gases (isothermal + adiabatic). Each lives in
@@ -360,6 +361,25 @@ function drawPVPanel() {
     ctx.beginPath();
     ctx.arc(txOf(st.V), tyOf(Math.min(Tmax, adiabaticTemperature(st.V, 1, st.T0, st.gamma))), 2.4, 0, 6.2832);
     ctx.fill();
+  }
+
+  // Work comparison bars below the PV plot: the area under each curve is the
+  // work done. Isothermal does more work than adiabatic for the same
+  // compression (it draws heat from the reservoir to stay warm). Fills what
+  // was empty canvas below the diagram.
+  const wb = WORKBAR;
+  ctx.fillStyle = 'rgba(120,170,235,0.05)'; ctx.fillRect(wb.x, wb.y, wb.w, wb.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(wb.x + 0.5, wb.y + 0.5, wb.w - 1, wb.h - 1);
+  ctx.fillStyle = 'rgba(220,230,255,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('work done = area under the P-V curve  (J/mol)', wb.x + 6, wb.y - 8);
+  const wmax = Math.max(Math.abs(W_iso), Math.abs(W_adi), 1) * 1.15;
+  const baseY = wb.y + wb.h - 30, barTop = wb.y + 26, barMaxH = baseY - barTop;
+  for (const [lab, val, col, cx] of [['isothermal', W_iso, '#5bc0eb', wb.x + wb.w * 0.30], ['adiabatic', W_adi, '#ffd166', wb.x + wb.w * 0.70]]) {
+    const hgt = Math.max(0, Math.abs(val) / wmax * barMaxH);
+    ctx.fillStyle = col; ctx.fillRect(cx - 62, baseY - hgt, 124, hgt);
+    ctx.fillStyle = 'rgba(230,235,255,0.9)'; ctx.textAlign = 'center';
+    ctx.fillText(lab, cx, baseY + 18);
+    ctx.fillText(`${val.toFixed(0)}`, cx, baseY - hgt - 8);
   }
 
   // Live readouts beside the canvas (HTML elements).
