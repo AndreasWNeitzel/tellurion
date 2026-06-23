@@ -51,21 +51,22 @@ function drawScattering(SX, SY, SW, SH) {
   // (0.5..1). Position by phase. Beam 1 from left, beam 2 from right.
   const span = SW * 0.40;
   const collideX = cx;
+  // The beams reach the interaction point quickly (by phase 0.30) so the rest
+  // of the cycle is the visually full outgoing jet spray, not two dots
+  // crawling toward each other through an empty frame.
+  const approach = Math.min(1, phase / 0.30);
   let x1, x2;
   if (st.geom === 'fixed') {
-    // m1 (beam) moves left -> right; m2 stationary
-    x1 = SX + 30 + phase * 2 * (collideX - SX - 30);
+    x1 = SX + 30 + approach * (collideX - SX - 30);
     x2 = collideX;
-    if (phase > 0.5) { x1 = collideX; }
   } else {
-    // both beams move toward the centre
-    x1 = SX + 30 + Math.min(1, phase * 2) * span;
-    x2 = SX + SW - 30 - Math.min(1, phase * 2) * span;
+    x1 = SX + 30 + approach * span;
+    x2 = SX + SW - 30 - approach * span;
   }
 
   // Pre-collision incoming particles, with momentum arrows showing each
   // beam's direction of travel toward the interaction point.
-  if (phase < 0.55) {
+  if (phase < 0.34) {
     drawMomentumArrow(x1, cy, 1, '#5bc0eb');
     if (st.geom !== 'fixed') drawMomentumArrow(x2, cy, -1, '#ffd166');
     drawParticle(x1, cy, 15, '#5bc0eb', `m1 = ${st.m1.toFixed(2)}`);
@@ -74,9 +75,9 @@ function drawScattering(SX, SY, SW, SH) {
     if (st.geom !== 'fixed') drawStreak(x2 + 10, cy, '#ffd166', 1);
   }
 
-  // Collision fireball at phase ~ 0.5
-  if (phase >= 0.40 && phase < 0.70) {
-    const fp = (phase - 0.40) / 0.30;     // 0..1 collision burst
+  // Collision fireball just after the beams meet
+  if (phase >= 0.28 && phase < 0.48) {
+    const fp = (phase - 0.28) / 0.20;     // 0..1 collision burst
     const r = 8 + SH * 0.17 * fp * (1 - fp) * 4;   // grows then shrinks, scaled to the scene
     const fireG = ctx.createRadialGradient(collideX, cy, 0, collideX, cy, r);
     // Colour saturation grows with sqrt(s): high-energy collisions are
@@ -92,10 +93,10 @@ function drawScattering(SX, SY, SW, SH) {
   // Outgoing decay products (phase >= 0.55): radiate from the collision
   // point with random-looking but seeded angles. The number of jets
   // and their colour intensity scale with log10(sqrt s).
-  if (phase >= 0.55) {
-    const op = (phase - 0.55) / 0.45;
+  if (phase >= 0.36) {
+    const op = (phase - 0.36) / 0.64;
     const N_JETS = Math.max(4, Math.min(14, Math.round(4 + 2 * Math.log10(Math.max(1, roots)))));
-    const rxMax = SW * 0.42, ryMax = SH * 0.40;   // fill the scene in both axes
+    const rxMax = SW * 0.42, ryMax = SH * 0.46;   // fill the scene in both axes
     for (let i = 0; i < N_JETS; i += 1) {
       const ang = (i / N_JETS) * Math.PI * 2 + 0.31;
       const grow = 0.22 + 0.78 * op;
@@ -201,7 +202,7 @@ function drawPlot(SX, SY, SW, SH) {
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  const SCH = Math.floor(H * 0.60), PLH = H - SCH - 4;
+  const SCH = Math.floor(H * 0.52), PLH = H - SCH - 4;
   drawScattering(0, 0, W, SCH);
   drawPlot(12, SCH + 4, W - 24, PLH - 8);
   const Ecur = Math.pow(10, st.logE);
