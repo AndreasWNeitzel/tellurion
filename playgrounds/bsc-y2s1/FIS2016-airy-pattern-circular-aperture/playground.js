@@ -124,7 +124,7 @@ function drawAll() {
     ctx.beginPath();
     ctx.moveTo(px, PROF_Y); ctx.lineTo(px, PROF_Y + PROF_H);
     ctx.stroke();
-    ctx.fillText('z=' + z.toFixed(2), px + 2, PROF_Y + 12);
+    ctx.fillText('z=' + z.toFixed(2), Math.min(px + 2, canvas.width - 52), PROF_Y + 12);
   }
 
   // Profile curve I(x) on linear scale [0, 1].
