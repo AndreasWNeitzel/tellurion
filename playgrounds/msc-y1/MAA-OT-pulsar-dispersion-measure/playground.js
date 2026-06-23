@@ -176,7 +176,7 @@ function render() {
 
   // left-of-profile: the f^-2 law reminder + DM meaning
   ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('dt = DM/2.41e-4 (1/f^2 - 1/fref^2) ms     DM = integral n_e dl  (electron column -> distance)', 22, py0 + pH + 22);
+  ctx.fillText('dt = DM/2.41e-4 (1/f^2 - 1/fref^2) s     DM = integral n_e dl  (electron column -> distance)', 22, py0 + pH + 22);
 
   if (readoutEl) readoutEl.textContent = `true DM ${st.trueDM}, trial DM ${st.guessDM}, S/N ${sn.toFixed(1)} [${flag}]`;
 }
