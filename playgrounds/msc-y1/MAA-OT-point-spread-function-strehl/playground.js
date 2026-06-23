@@ -105,8 +105,8 @@ function render() {
   ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Two stars through one telescope: resolve them, or lose them', 18, 24);
 
-  // the sky image (fixed FOV; PSF size is physical)
-  const IMG = 332, x0 = 22, y0 = 42;
+  // the sky image (fixed FOV; PSF size is physical), a large centred hero
+  const IMG = 600, x0 = (W - 600) / 2, y0 = 40;
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(off, 0, 0, GW, GH, x0, y0, IMG, IMG);
   ctx.strokeStyle = 'rgba(226,232,240,0.22)'; ctx.lineWidth = 1;
@@ -120,10 +120,10 @@ function render() {
   ctx.fillStyle = '#94a3b8';
   ctx.fillText(`FOV ${(2 * FOV).toFixed(2)}"   sep ${SEP.toFixed(2)}"`, x0 + 8, y0 + IMG + 16);
 
-  // right column: readouts + verdict
-  const rx = x0 + IMG + 26;
+  // readouts + verdict, bottom-left below the hero
+  const rx = 24;
   ctx.font = fontString(canvas, 'body', 'mono');
-  let yy = y0 + 16;
+  let yy = y0 + IMG + 48;
   ctx.fillStyle = '#cbd5e1';
   ctx.fillText(`lambda = ${st.lambda} nm`, rx, yy); yy += 20;
   ctx.fillText(`D      = ${st.D.toFixed(1)} m`, rx, yy); yy += 20;
@@ -137,12 +137,13 @@ function render() {
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   for (const ln of ['Bigger D or shorter', 'lambda shrinks the', 'Airy disk: the pair', 'splits. Wavefront', 'error drains the core', 'into the speckle halo', 'and S collapses.']) { ctx.fillText(ln, rx, yy); yy += 14; }
 
-  // demoted diagnostic: log radial cut through both stars
-  const dx0 = x0, dx1 = W - 22, dy0 = H - 96, dy1 = H - 12;
+  // demoted diagnostic: log radial cut through both stars, bottom-right
+  // beside the readouts (below the enlarged hero image).
+  const dx0 = 408, dx1 = W - 22, dy0 = y0 + IMG + 32, dy1 = H - 14;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('diagnostic: log I along the line through the two stars (dashed = star positions)', dx0 + 8, dy0 + 12);
+  ctx.fillText('log I cut through the pair (dashed = stars)', dx0 + 8, dy0 + 14);
   const xP = (ax) => dx0 + 12 + (ax + FOV) / (2 * FOV) * (dx1 - dx0 - 24);
   const yP = (logI) => dy1 - 6 - (logI + 5) / 5 * (dy1 - dy0 - 24);
   for (const sgn of [-1, 1]) {
