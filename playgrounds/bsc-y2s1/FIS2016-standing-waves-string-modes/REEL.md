@@ -15,8 +15,9 @@ VO: Mode n has n antinodes and n - 1 interior nodes, and any motion of the strin
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step the mode number n: the string fixed at both ends fits exactly n half-wavelengths, with n-1 nodes held still while the antinodes swing.
+VO: The frequencies climb a harmonic ladder f_n = n f_1, the same overtone series that gives a plucked string its pitch and timbre.
+VO: Slow it down and watch one mode: every point moves in phase and crosses the flat line at the same instant, the signature of a normal mode.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

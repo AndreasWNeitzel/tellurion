@@ -15,8 +15,9 @@ VO: The primary scene is the physical nucleus, protons and neutrons packed and i
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the nucleus transmute step by step: alpha decay sheds a helium-4 cluster, beta-minus turns a neutron into a proton, each move a jump on the chart of nuclides.
+VO: Follow the cascade toward stable lead: a heavy parent like uranium cannot reach stability in one step, it walks a fixed sequence of daughters set by which decay lowers the energy.
+VO: Notice the branch points: some isotopes can go either alpha or beta, splitting the series into parallel routes that rejoin further down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

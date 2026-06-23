@@ -15,8 +15,9 @@ VO: Isothermal compression is slow enough to dump heat and hold the temperature 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Compress the gas both ways: the isotherm PV = nRT and the adiabat PV^gamma = const start together, but the adiabat is steeper because no heat escapes and the trapped energy heats the gas.
+VO: Raise gamma toward 5/3 for a monatomic gas and the adiabat steepens further: fewer internal degrees of freedom mean compression heats it more.
+VO: Switch to adiabatic only and watch the temperature climb on compression, the reason a bicycle pump warms and rising air cools as it expands.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

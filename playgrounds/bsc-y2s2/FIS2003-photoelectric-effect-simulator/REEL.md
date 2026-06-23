@@ -15,8 +15,9 @@ VO: Below the threshold nu0 = phi/h no electrons appear at any intensity, the re
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the light frequency: below threshold no electrons come off however bright the beam; above it they emerge with energy h nu - phi. That threshold is what classical waves cannot explain.
+VO: Crank the intensity: more photons give more current but not more energy per electron, and the stopping voltage stays put. Energy arrives in quanta, not in proportion to brightness.
+VO: Dial the retarding voltage to the stopping potential: e V_stop = h nu - phi, the straight line whose slope handed Millikan a value for Planck constant.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

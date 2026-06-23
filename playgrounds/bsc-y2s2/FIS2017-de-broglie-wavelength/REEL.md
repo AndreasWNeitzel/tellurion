@@ -15,8 +15,9 @@ VO: Particles of the chosen species and kinetic energy are fired one at a time a
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch species and slide the energy: lambda = h/p drops as a particle speeds up, and heavier particles sit lower. A thermal neutron lands near atomic spacings, which is why it diffracts off crystals.
+VO: Push the energy until T/mc^2 approaches one: the curve bends as the relativistic momentum takes over from the classical sqrt(2mT).
+VO: Compare the electron and the carbon atom at the same energy: matter waves shrink as mass grows, the reason everyday objects never show interference.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

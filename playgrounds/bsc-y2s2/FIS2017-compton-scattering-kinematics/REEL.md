@@ -15,8 +15,9 @@ VO: The wavelength shift is Delta lambda = (h / m e c)(1 - cos theta), independe
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Dial up the scattering angle theta: the wavelength shift (h/m_e c)(1 - cos theta) grows and maxes out at backscatter, the Compton edge.
+VO: The shift is independent of the incident wavelength, set only by the electron mass through the Compton wavelength h/m_e c = 2.43 pm. That fixed recoil is what proved light carries momentum.
+VO: Read the recoil electron energy: every bit the photon loses the electron gains, energy and momentum conserved between a particle of light and a particle of matter.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

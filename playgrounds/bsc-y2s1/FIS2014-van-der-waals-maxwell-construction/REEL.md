@@ -15,8 +15,9 @@ VO: Compressing an isotherm below the critical temperature drives condensation: 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Lower the temperature below critical and compress: the isotherm develops the van der Waals wiggle, but the real fluid condenses at constant pressure along the flat Maxwell tie-line instead.
+VO: Watch the lever rule: as the piston pushes in, the fraction of liquid grows in exact proportion to how far along the flat coexistence segment you sit.
+VO: Warm back above the critical temperature and the kink vanishes: gas and liquid become indistinguishable, the critical point where the meniscus disappears.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

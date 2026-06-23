@@ -15,8 +15,9 @@ VO: The radius r = m v / (q B) grows with speed, but the cyclotron frequency ome
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: The magnetic force stays perpendicular to the velocity, so it does no work: the speed never changes and the particle circles forever at radius r = m v / q B.
+VO: Raise B to tighten the circle or the speed to widen it, yet the cyclotron frequency q B / m holds fixed, independent of speed. That constancy is what makes a cyclotron work.
+VO: Flip the charge sign and the orbit reverses, the handedness that separates positive from negative carriers in a magnetic field.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
