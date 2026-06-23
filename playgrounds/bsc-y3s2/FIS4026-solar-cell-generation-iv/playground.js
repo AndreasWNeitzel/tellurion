@@ -104,7 +104,7 @@ function drawIV(x, y, w, h) {
 }
 
 function drawGeneration(x, y, w, h) {
-  panel(x, y, w, h, 'photon rain above the gap and electron-hole generation');
+  panel(x, y, w, h, 'photon rain: e-h generation above E_g');
   const cellTop = y + h - 46, cx0 = x + 16, cx1 = x + w - 16;
   ctx.fillStyle = '#1d2740'; ctx.fillRect(cx0, cellTop, cx1 - cx0, 34);          // the cell
   ctx.fillStyle = 'rgba(220,230,250,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
