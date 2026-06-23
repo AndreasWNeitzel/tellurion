@@ -60,8 +60,11 @@ function buildMask() {
 
 // Square dart board on the left; the right column carries the
 // readouts and the convergence panel.
-const BS = Math.min(H - 82, Math.floor(W * 0.46));
-const BX = 24, BY = 58;
+// Large centred dart board across the top; the readouts and convergence panel
+// sit full width below (was a 377 px board beside them with the lower half of
+// the canvas empty).
+const BS = Math.min(W - 48, H - 420);
+const BX = Math.round((W - BS) / 2), BY = 44;
 const bx = (x) => BX + x * BS;
 const by = (y) => BY + (1 - y) * BS;
 
@@ -102,9 +105,10 @@ function draw() {
     ctx.fillRect(bx(dd.x) - 1.1, by(dd.y) - 1.1, 2.2, 2.2);
   }
 
-  // Right column: readouts.
-  const RX = BX + BS + 30, RW = W - RX - 24;
-  let ry = BY + 8;
+  // Readouts block, bottom-left below the board.
+  const botY = BY + BS + 22;
+  const RX = 28, RW = 280;
+  let ry = botY + 18;
   ctx.fillStyle = '#e8ecf4';
   ctx.font = fontString(canvas, 'body', 'mono', 600);
   ctx.fillText(state.shape.name, RX, ry);
@@ -125,18 +129,19 @@ function draw() {
   ctx.fillText(state.shape.note, RX, ry);
   ry += 20;
 
-  // Right column: convergence panel.
-  const cy0 = ry + 6, cy1 = BY + BS;
+  // Convergence panel: fills the bottom-right beside the readouts.
+  const CX = RX + RW + 26, CW = W - CX - 24;
+  const cy0 = botY, cy1 = H - 24;
   if (cy1 - cy0 > 70) {
     ctx.fillStyle = '#0a0a0e';
-    ctx.fillRect(RX, cy0, RW, cy1 - cy0);
+    ctx.fillRect(CX, cy0, CW, cy1 - cy0);
     ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    ctx.strokeRect(RX + 0.5, cy0 + 0.5, RW - 1, cy1 - cy0 - 1);
+    ctx.strokeRect(CX + 0.5, cy0 + 0.5, CW - 1, cy1 - cy0 - 1);
     ctx.fillStyle = 'rgba(255,255,255,0.62)';
-    ctx.fillText('abs error vs N (log-log); dashed = 1/sqrt(N)', RX + 6, cy0 + 14);
+    ctx.fillText('abs error vs N (log-log); dashed = 1/sqrt(N)', CX + 6, cy0 + 14);
     const nMax = Math.max(256, e.n);
     const logNMax = Math.log10(nMax);
-    const lxN = (n) => RX + 34 + (RW - 48) * Math.log10(Math.max(1, n)) / logNMax;
+    const lxN = (n) => CX + 34 + (CW - 48) * Math.log10(Math.max(1, n)) / logNMax;
     const errLo = -4, errHi = 0;
     const lyE = (err) => {
       const l = Math.max(errLo, Math.min(errHi, Math.log10(Math.max(1e-9, err))));
