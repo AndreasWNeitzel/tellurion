@@ -40,8 +40,9 @@ const PALETTE = ['#5bc0eb', '#06d6a0', '#ef476f', '#ffd166', '#b48cff', '#4dd0e1
 // started on the golden-ratio torus as a function of K. It stays small while the
 // torus is an intact barrier and grows once it is destroyed near K_c (Greene).
 const GOLDEN = (Math.sqrt(5) - 1) / 2;
+const DK = 0.02, NK = 150;                              // dense, uniform sampling so the live marker can sit exactly on the curve
 const gSpreadCurve = [];
-for (let kk = 0; kk <= 3.0001; kk += 0.05) gSpreadCurve.push([kk, pSpread(0.0, TWO_PI * GOLDEN, kk, 1200)]);
+for (let i = 0; i <= NK; i += 1) { const kk = i * DK; gSpreadCurve.push([kk, pSpread(0.0, TWO_PI * GOLDEN, kk, 1200)]); }
 const gSpreadMax = gSpreadCurve.reduce((m, e) => Math.max(m, e[1]), 1e-6);
 
 function render() {
@@ -115,8 +116,11 @@ function drawDiagnostic(K) {
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
   gSpreadCurve.forEach(([k, s], i) => { const X = xK(k), Y = yS(s); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); });
   ctx.stroke();
-  // current operating point
-  const sNow = pSpread(0.0, TWO_PI * GOLDEN, K, 1200);
+  // current operating point: read off the SAME sampled curve (linear
+  // interpolation between its nodes) so the marker lies exactly on the line
+  const idxF = Math.max(0, Math.min(NK, K / DK));
+  const i0 = Math.floor(idxF), i1 = Math.min(NK, i0 + 1), fr = idxF - i0;
+  const sNow = gSpreadCurve[i0][1] * (1 - fr) + gSpreadCurve[i1][1] * fr;
   ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(xK(K), yS(sNow), 4.5, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(xK(K), plB); ctx.lineTo(xK(K), yS(sNow)); ctx.stroke(); ctx.setLineDash([]);
