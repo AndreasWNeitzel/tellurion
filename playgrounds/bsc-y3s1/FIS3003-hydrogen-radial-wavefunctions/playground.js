@@ -98,7 +98,7 @@ function drawDiag(col, r) {
     if (sel) for (let li = 0; li < n; li += 1) { ctx.fillStyle = li === st.l ? col.sel : 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.arc(inner.x + 36 + li * 16, Y, li === st.l ? 4 : 2.4, 0, 6.28); ctx.fill(); } }
   ctx.restore();
   ctx.fillStyle = col.fg; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(`${orbitalLabel(st.n, st.l)}:  E = ${energy(st.n).toFixed(2)} eV`, inner.x + 6, inner.y + 4);
-  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText('0 (ionized)', inner.x - 4, yOf(0)); ctx.fillText('-13.6', inner.x - 4, yOf(-13.6));
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText('0 (ion.)', inner.x - 4, yOf(0)); ctx.fillText('-13.6', inner.x - 4, yOf(-13.6));
 }
 
 function render() {

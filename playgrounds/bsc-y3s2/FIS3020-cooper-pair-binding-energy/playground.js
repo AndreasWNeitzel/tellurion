@@ -12,7 +12,7 @@ const sV = document.getElementById('slider-V'), vV = document.getElementById('va
 const sN = document.getElementById('slider-N'), vN = document.getElementById('value-N');
 const sOD = document.getElementById('slider-OD'), vOD = document.getElementById('value-OD');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-let st = { V: 0.3, N0: 1.0, omega_D: 1.0 };
+const st = { V: 0.3, N0: 1.0, omega_D: 1.0 };
 let running = !prefersReducedMotion();
 
 sV.addEventListener('input', () => { st.V = parseFloat(sV.value); vV.textContent = st.V.toFixed(2); render(); });
@@ -149,7 +149,7 @@ function renderRightPanel(x0, y0, w, h) {
   ctx.setLineDash([]);
 
   ctx.fillStyle = '#9aa0a6';
-  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('FWHM ~ E_b (broadens with coupling)', x0 + pad.l + 5, y0 + pad.t + 15);
 }
 
