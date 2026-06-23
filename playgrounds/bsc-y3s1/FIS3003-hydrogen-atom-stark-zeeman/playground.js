@@ -45,21 +45,23 @@ function render() {
   // term diagram: energy axis (eV), levels n=1..4 fanning into sublevels
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(DX, DY, DW, DH);
   ctx.strokeStyle = 'rgba(220,225,235,0.5)'; ctx.strokeRect(DX, DY, DW, DH);
-  const Emin = -13.9, Emax = 0.3;
-  const ey = (E) => DY + 18 + ((Emax - E) / (Emax - Emin)) * (DH - 36);
-  // Zeeman and Stark shifts differ by orders of magnitude, so each
-  // level's fan is auto-normalised to a fixed pixel spread (the term
-  // diagram is schematic; true magnitudes are in the readout and the
-  // zoomed spectrum panel).
-  const FAN = 17;
+  // Levels are spaced evenly by n (a Grotrian-style ladder), not by their
+  // true 1/n^2 energy, so the diagram fills the panel instead of stranding
+  // n=1 at the bottom under a huge empty gap. The true energy is labelled
+  // on each rung. The Zeeman/Stark fan spread is schematic (the magnitudes
+  // are in the readout and the spectrum panel).
+  const rungY = (n) => DY + DH - 56 - (DH - 116) * (n - 1) / 3;
+  const FAN = 26;
   for (let n = 1; n <= 4; n += 1) {
     const subs = sublevels(n, B, F).map(s => s.E - energyLevel(n));
     let mxd = 0; for (const d of subs) mxd = Math.max(mxd, Math.abs(d));
-    const y0 = ey(energyLevel(n));
-    ctx.strokeStyle = 'rgba(150,160,180,0.35)';
+    const y0 = rungY(n);
+    ctx.strokeStyle = 'rgba(150,160,180,0.30)';
     ctx.beginPath(); ctx.moveTo(DX + 10, y0); ctx.lineTo(DX + DW - 60, y0); ctx.stroke();
     ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
     ctx.fillText(`n=${n}`, DX + DW - 52, y0 + 4);
+    ctx.fillStyle = 'rgba(150,160,180,0.6)';
+    ctx.fillText(`${energyLevel(n).toFixed(2)} eV`, DX + 12, y0 - FAN - 8);
     const onU = n === nU, onL = n === nL;
     for (const d of subs) {
       const yy = y0 - (mxd > 1e-12 ? (d / mxd) * FAN : 0);
@@ -70,7 +72,7 @@ function render() {
     ctx.lineWidth = 1;
   }
   // transition arrow (upper -> lower)
-  const yU = ey(energyLevel(nU)), yL = ey(energyLevel(nL)), ax = DX + 40;
+  const yU = rungY(nU), yL = rungY(nL), ax = DX + 40;
   ctx.strokeStyle = '#ff8a5d'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(ax, yU); ctx.lineTo(ax, yL); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(ax, yL); ctx.lineTo(ax - 5, yL - 8); ctx.lineTo(ax + 5, yL - 8); ctx.closePath(); ctx.fill();
@@ -78,7 +80,7 @@ function render() {
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`hydrogen term diagram (${label})`, DX + DW / 2, DY + DH + 18);
   ctx.fillStyle = '#ff8a8a'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('n=1: no linear Stark', DX + 24, ey(energyLevel(1)) + 22);
+  ctx.fillText('n=1: no linear Stark', DX + 24, rungY(1) + FAN + 18);
   ctx.textAlign = 'left';
 
   // synthetic spectrum: the emission line and its field-split multiplet
@@ -91,8 +93,8 @@ function render() {
   let span = 0; for (const e of lines) span = Math.max(span, Math.abs(e - E0));
   span = Math.max(span, 1e-5) * 1.25;
   const lx = (e) => SX + SW / 2 + ((e - E0) / span) * (SW / 2 - 24);
-  // a wavelength-style strip
-  const stripY = SY + 70, stripH = 260;
+  // a wavelength-style strip filling the upper part of the panel
+  const stripY = SY + 64, stripH = Math.round(SH * 0.42);
   ctx.fillStyle = 'rgba(20,22,30,0.9)'; ctx.fillRect(SX + 14, stripY, SW - 28, stripH);
   ctx.strokeStyle = 'rgba(120,130,150,0.4)'; ctx.strokeRect(SX + 14, stripY, SW - 28, stripH);
   // unsplit reference (faint, dashed)
@@ -106,7 +108,31 @@ function render() {
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(`E0 = ${E0.toFixed(3)} eV`, lx(E0), stripY + stripH + 18);
   ctx.fillText(`${lines.length} component${lines.length === 1 ? '' : 's'}  (split <- 0 -> )`, SX + SW / 2, stripY - 8);
-  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono');
+
+  // diagnostic: the normal-Zeeman splitting dE = 2 mu_B B grows linearly with
+  // field. Fills the lower half of the panel and marks the live operating point.
+  const dgY = stripY + stripH + 50, dgX = SX + 30, dgW = SW - 56;
+  const dgH = SY + SH - 30 - dgY;
+  if (dgH > 70) {
+    ctx.strokeStyle = 'rgba(200,205,215,0.28)'; ctx.strokeRect(dgX, dgY, dgW, dgH);
+    ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+    ctx.fillText('Zeeman splitting dE = 2 mu_B B', dgX + 4, dgY - 6);
+    const Bmax = 12, dEmax = 2 * MU_B * Bmax * 1.12;
+    const bX = (b) => dgX + 36 + (dgW - 50) * b / Bmax;
+    const dY = (de) => dgY + dgH - 22 - (dgH - 40) * de / dEmax;
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(dgX + 36, dgY + 10); ctx.lineTo(dgX + 36, dgY + dgH - 22); ctx.lineTo(dgX + dgW - 8, dgY + dgH - 22); ctx.stroke();
+    ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.8; ctx.beginPath();
+    for (let i = 0; i <= 60; i += 1) { const b = Bmax * i / 60; const px = bX(b), py = dY(2 * MU_B * b); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+    ctx.stroke();
+    const de0 = 2 * MU_B * B;
+    ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.arc(bX(B), dY(de0), 4.5, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.textAlign = 'center';
+    ctx.fillText('B (T)', dgX + dgW / 2, dgY + dgH - 6);
+    ctx.textAlign = 'left'; ctx.fillText('dE', dgX + 6, dgY + 16);
+  }
+
+  ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('B = Zeeman triplet,  F = Stark multiplet', SX + SW / 2, SY + SH + 18);
   ctx.textAlign = 'left';
 
