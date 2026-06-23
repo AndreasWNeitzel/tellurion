@@ -39,9 +39,9 @@ function curSigma() {
 }
 
 // geometry
-const XP = { x: 28, y: 44, w: 568, h: 206 };     // |psi(x)|^2 panel
-const KP = { x: 28, y: 292, w: 568, h: 206 };    // |phi(k)|^2 panel
-const GA = { x: 604, y: 250, w: 120, h: 236 };   // sigma_x sigma_p gauge (below the DOM readout panel, no overlap)
+const XP = { x: 28, y: 44, w: 560, h: 440 };     // |psi(x)|^2 panel
+const KP = { x: 28, y: 508, w: 560, h: 440 };    // |phi(k)|^2 panel
+const GA = { x: 606, y: 150, w: 158, h: 720 };   // sigma_x sigma_p gauge, full-height right column
 
 function drawPacket(panel, dens, coord, sig, mean, color, label, unitMax) {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(panel.x, panel.y, panel.w, panel.h);
