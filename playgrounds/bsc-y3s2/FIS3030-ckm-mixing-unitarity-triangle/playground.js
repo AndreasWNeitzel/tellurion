@@ -22,7 +22,7 @@ const sE     = document.getElementById('slider-e'), vE = document.getElementById
 const btnR   = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
 
 const W = canvas.width, H = canvas.height;
-let st = { rho: 0.157, eta: 0.355 };
+const st = { rho: 0.157, eta: 0.355 };
 let running = !prefersReducedMotion();
 let clock = 0;
 
@@ -156,7 +156,7 @@ function drawCP() {
   ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`sin 2beta = ${s2b.toFixed(3)}`, bx + 6, by + bh + 16);
   ctx.fillStyle = '#9aa0a6';
-  ctx.fillText(cpv ? 'rates differ: CP is violated' : 'near-flat triangle: CP suppressed', bx + 6, by + bh + 30);
+  ctx.fillText(cpv ? 'rates differ: CP violated' : 'near-flat: CP suppressed', bx + 6, by + bh + 30);
 }
 
 function render() {

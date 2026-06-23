@@ -109,7 +109,7 @@ function drawProfile(x, y, w, h) {
   const px = X(st.zNow);
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.moveTo(px, y0); ctx.lineTo(px, y1); ctx.stroke();
   ctx.fillStyle = 'rgba(200,215,240,0.6)';
-  ctx.fillText('propagation z  (crystal length, micron)', x1 - 250, y + h - 8);
+  ctx.fillText('propagation z (micron)', x1 - 250, y + h - 8);
   if (st.regime !== 'depleted') ctx.fillText(`I_2w / max = ${st.i2max.toExponential(1)}`, x + 26, y + h - 8);
 }
 
@@ -139,7 +139,7 @@ function drawAcceptance(x, y, w, h) {
 }
 
 function drawDispersion(x, y, w, h) {
-  panel(x, y, w, h, 'beta-BBO type-I dispersion: n_o(lambda) vs the SH index band');
+  panel(x, y, w, h, 'beta-BBO type-I dispersion: n_o(lambda)');
   const x0 = x + 34, x1 = x + w - 12, y0 = y + 28, y1 = y + h - 24;
   const lo = 0.5, hi = 1.6;
   const ns = [];

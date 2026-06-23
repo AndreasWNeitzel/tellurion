@@ -140,7 +140,7 @@ function drawGeneration(x, y, w, h) {
 }
 
 function drawSQ(x, y, w, h) {
-  panel(x, y, w, h, 'Shockley-Queisser detailed-balance limit: eta vs bandgap');
+  panel(x, y, w, h, 'Shockley-Queisser limit: eta vs bandgap');
   const x0 = x + 36, x1 = x + w - 14, y0 = y + 28, y1 = y + h - 24;
   const eMin = st.sq.Eg[0], eMax = st.sq.Eg[st.sq.Eg.length - 1];
   let ym = 1e-6; for (let i = 0; i < st.sq.eta.length; i += 1) ym = Math.max(ym, st.sq.eta[i]);

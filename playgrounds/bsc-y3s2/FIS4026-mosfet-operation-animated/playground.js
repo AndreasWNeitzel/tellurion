@@ -123,7 +123,7 @@ function drawDevice(x, y, w, h) {
 }
 
 function drawTransfer(x, y, w, h) {
-  panel(x, y, w, h, 'transfer characteristic I_D vs V_GS at the operating V_DS');
+  panel(x, y, w, h, 'transfer characteristic: I_D vs V_GS');
   const x0 = x + 40, x1 = x + w - 14, y0 = y + 26, y1 = y + h - 24;
   const tc = transferCurve(Math.max(st.vds, 0.05), VGS_MAX, 240, opts());
   let Im = 1e-9; for (let i = 0; i <= 240; i += 1) Im = Math.max(Im, tc.id[i]);

@@ -169,7 +169,7 @@ function drawModeShape(x, y, w, h) {
 }
 
 function drawPulse(x, y, w, h) {
-  panel(x, y, w, h, 'GVD pulse broadening: T(z) = T0 sqrt(1 + (z/L_D)^2)');
+  panel(x, y, w, h, 'GVD pulse broadening T(z)/T0');
   const x0 = x + 30, x1 = x + w - 14, y0 = y + 28, y1 = y + h - 24;
   const T0 = 1, beta2 = -1 / st.LD;                       // L_D = T0^2/|beta2| = st.LD
   const Tt = pulseWidth(st.zNow, T0, beta2);

@@ -127,7 +127,7 @@ function drawPhotonDist(x, y, w, h) {
 }
 
 function drawWigner(x, y, w, h) {
-  panel(x, y, w, h, 'field phase space: Wigner W(x,p) of the coherent state');
+  panel(x, y, w, h, 'field phase space: Wigner W(x,p)');
   const x0c = x + 30, x1c = x + w - 14, y0c = y + 26, y1c = y + h - 24;
   const xq = Math.sqrt(2 * st.nbar);
   const XR = [-3.2, Math.max(6, xq + 3.4)], PR = [-3.6, 3.6];
