@@ -140,8 +140,11 @@ function render() {
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  drawBZ(c, 0, 0, W * 0.5, H);
-  drawDOS(c, W * 0.5, 0, W * 0.5, H);
+  // Stack the square Brillouin zone (top, full width) over the DOS (bottom)
+  // instead of side by side, where the square BZ left large top/bottom voids.
+  const bzH = 600;
+  drawBZ(c, 0, 0, W, bzH);
+  drawDOS(c, 0, bzH, W, H - bzH);
   // Fermi-velocity arrow at the clicked k-point.
   if (vArrow) {
     const { cxPx, cyPx, size } = bzXf;

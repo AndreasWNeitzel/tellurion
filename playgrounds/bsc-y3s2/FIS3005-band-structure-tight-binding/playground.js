@@ -42,7 +42,14 @@ const DX0 = 520, DX1 = W - 24;                            // DOS box
 
 // Fixed energy axis so the hopping t changes the visible band
 // amplitude (an autoscaled axis would hide it).
-function dispBounds() { return [-6.5, 6.5]; }
+function dispBounds() {
+  // Fit the energy axis to the actual band extremes (SSH max |E| = t1+t2 =
+  // t(1+dim); single band max |E| = 2t) plus a margin, and keep E_F visible,
+  // instead of a fixed [-6.5, 6.5] that left the bands compressed in the middle.
+  const m = st.lat === 'ssh' ? st.t * (1 + st.dim) : 2 * st.t;
+  const lim = Math.max(0.5, m * 1.15);
+  return [-lim, Math.max(lim, st.EF + 0.3)];
+}
 
 function drawLattice(xStart, yStart, width, height) {
   // Schematic of the 1D chain with atoms and hoppings.
