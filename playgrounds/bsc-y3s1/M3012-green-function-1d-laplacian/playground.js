@@ -73,10 +73,12 @@ function pinnedString(yBase, disp, scale, color, glow) {
 
 // fixed, bounded vertical scales so a string can never leave its
 // panel or collide with the next one. G_max <= 0.25; u_max <= ~0.125.
-const TOP = { y0: 50, h: 168, base: 80, sag: 110 };   // string sags base..base+sag
-const BOT = { y0: 240, h: 168, base: 270, sag: 110 };
+// The three sections fill the full portrait height: the single-poke string,
+// the distributed-load superposition string, then a tall diagnostic panel.
+const TOP = { y0: 54, h: 268, base: 120, sag: 184 };  // string sags base..base+sag
+const BOT = { y0: 356, h: 268, base: 420, sag: 184 };
 const SC_T = TOP.sag / 0.25;                            // 0..0.25 -> 0..sag
-const STRIP = { y: 426, h: 60 };
+const STRIP = { y: 660, h: 322 };
 
 function render() {
   if (!CAPTURE_NAME && running) { st.t += 1; if (st.sweep < 1) st.sweep = Math.min(1, st.sweep + 0.012); }
