@@ -236,7 +236,13 @@ function drawPLDiagram() {
     ctx.beginPath(); ctx.arc(xx, yy, 5, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
     ctx.font = fontString(canvas, 'caption');
-    ctx.fillText(c.name, xx + 7, yy + 4);
+    // flip the name to the left of the point near the right edge so it stays
+    // on-canvas for the longest-period Cepheids.
+    if (xx + 7 + ctx.measureText(c.name).width > canvas.width - 6) {
+      ctx.textAlign = 'right'; ctx.fillText(c.name, xx - 7, yy + 4); ctx.textAlign = 'left';
+    } else {
+      ctx.fillText(c.name, xx + 7, yy + 4);
+    }
     ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   }
 
