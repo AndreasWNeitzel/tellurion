@@ -15,8 +15,8 @@ VO: Their pulsation period (1 to 100 days) is tightly correlated with their mean
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step through the Cepheid presets: longer-period stars are intrinsically brighter, the Leavitt period-luminosity law.
+VO: Watch the star pulsate: it swells and cools then shrinks and heats, and the light curve traces the characteristic sawtooth.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

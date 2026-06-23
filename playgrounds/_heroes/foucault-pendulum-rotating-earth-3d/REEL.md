@@ -15,8 +15,8 @@ VO: In the Earth-co-rotating frame the Coriolis force rotates its plane of oscil
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Set the latitude to the pole: the swing plane precesses a full turn per sidereal day (Omega sin(phi) at 90 degrees).
+VO: Move to a mid-latitude like Paris: the plane rotates partway each day, the rate falling as sin(latitude), the original 1851 demonstration that Earth turns.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: Mass conservation fixes the interface radii, hydrostatic equilibrium gives a
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Add or remove layers: an iron core, a silicate mantle, an optional water-ice shell and an H/He envelope stack up under the constant-density approximation.
+VO: Grow the iron core fraction: the planet becomes denser and smaller, sliding along the mass-radius relation toward the rocky, metal-rich end.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

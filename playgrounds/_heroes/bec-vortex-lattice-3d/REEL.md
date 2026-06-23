@@ -15,8 +15,8 @@ VO: When the trap is rotated at angular frequency Omega < omega trap, the conden
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Spin the trap faster (Omega/omega_trap toward 1): the condensate cannot rotate as a rigid body, so it threads itself with quantized vortices that arrange into a triangular Abrikosov lattice.
+VO: Raise the interaction strength: the Thomas-Fermi cloud swells (R_TF grows) and the healing length xi shrinks, setting the vortex core size.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

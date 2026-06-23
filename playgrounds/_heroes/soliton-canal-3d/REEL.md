@@ -15,8 +15,8 @@ VO: A soliton is a single smooth hump that travels at constant speed without spr
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the hump travel without changing shape: in the KdV equation nonlinear steepening exactly balances dispersive spreading, so the soliton holds together, as Russell first saw on a canal in 1834.
+VO: Launch a taller soliton: it is narrower and travels faster, the height-speed-width relation unique to KdV solitary waves.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

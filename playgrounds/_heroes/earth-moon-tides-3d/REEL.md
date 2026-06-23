@@ -15,8 +15,8 @@ VO: Expanded as a multipole the leading term is L=2, which produces two bulges (
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Move the lunar phase: the L=2 tidal bulge always points along the Earth-Moon line, with a second bulge on the far side, so there are two high tides a day as Earth rotates under them.
+VO: Watch the Sun line up at new and full moon: the solar and lunar bulges add to give the large spring tides, and at quarter phase they partly cancel into weak neap tides.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

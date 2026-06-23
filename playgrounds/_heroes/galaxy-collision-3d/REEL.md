@@ -15,8 +15,8 @@ VO: Forces are computed by the shared 2D Barnes-Hut quadtree at O(N log N); each
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the two disks fly past: the Barnes-Hut gravity pulls long tidal tails and bridges out of each galaxy, the same structures seen in the Antennae and Mice galaxies.
+VO: Lower the approach speed or separation: a slower, closer pass does far more tidal damage, dragging out longer tails and eventually merging the cores.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

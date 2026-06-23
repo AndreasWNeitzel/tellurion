@@ -15,8 +15,8 @@ VO: The depth is the square of the radius ratio, the timing pins down the period
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the planet cross the star: the light curve dips by the area ratio, and the rounded ingress and egress come from the limb-darkened stellar disk being covered gradually.
+VO: A bigger planet drops the flux more deeply, since the transit depth is the planet-to-star area ratio.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

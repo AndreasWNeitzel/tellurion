@@ -15,8 +15,8 @@ VO: Surface tension stabilises wavelengths smaller than the capillary length. In
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the Atwood number A: the denser fluid on top sinks faster into the lighter one below, since the growth rate sigma scales with the density contrast.
+VO: Pick a shorter wavelength (higher k): small ripples grow faster initially, but they soon roll into the classic mushroom spikes and bubbles.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

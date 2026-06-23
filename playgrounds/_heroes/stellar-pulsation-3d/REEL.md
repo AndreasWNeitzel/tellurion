@@ -15,8 +15,8 @@ VO: The playground renders the star as a 3D sphere whose surface is displaced ra
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Change the spherical-harmonic degree l and order m: the star surface oscillates in that exact pattern, the same modes asteroseismology reads from a star brightness flicker.
+VO: Raise l: more nodal lines carve the surface into finer cells, the high-degree modes that probe shallow layers of the star.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

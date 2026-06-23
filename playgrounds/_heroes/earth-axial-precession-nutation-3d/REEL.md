@@ -15,8 +15,8 @@ VO: Because the planet bulges at the equator, the gravity of the Sun and Moon pu
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the spin axis trace a slow cone: the equatorial bulge feels a torque from the Sun and Moon, so the axis precesses once every 26000 years, sweeping the pole star around the sky.
+VO: Look for the smaller nodding (nutation) superimposed: the Moon orbit plane wobble adds an 18.6-year ripple on top of the long precession cone.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

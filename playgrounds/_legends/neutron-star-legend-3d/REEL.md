@@ -15,8 +15,8 @@ VO: Five interchangeable modes: Overview (rotating 1. 4 M sun NS with tilted mag
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Cycle the five modes: the dipole-and-beam overview, the lighthouse pulse profile, a magnetar flare, the TOV mass-radius structure, and spin-down with a glitch, all for one 1.4 solar-mass star.
+VO: Change the equation of state (SLy, APR, FPS): the mass-radius curve stiffens or softens, the open question that gravitational-wave and NICER measurements are closing in on.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

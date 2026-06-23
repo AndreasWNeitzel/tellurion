@@ -15,8 +15,8 @@ VO: A solar eclipse needs the Moon to be at the right phase AND near one of the 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step through upcoming eclipses: the Moon umbral shadow traces a narrow path of totality across the map, while the lighter penumbra covers a much wider partial zone.
+VO: Scrub the time fraction: the shadow sweeps west to east as the Moon moves and Earth rotates, and the greatest-eclipse point and duration update.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: The gradient dB z/dz applies a force F z = mu z dB z/dz that depends on the 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch between quantum and classical mode: a classical magnetic moment would smear into a continuous band, but the quantum beam splits into exactly 2J+1 discrete spots, the 1922 result.
+VO: Change the spin J: the number of spots jumps to 2J+1, so spin-1/2 gives two, spin-1 gives three, the direct readout of angular-momentum quantization.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

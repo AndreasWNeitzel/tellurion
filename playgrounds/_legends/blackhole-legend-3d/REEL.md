@@ -15,8 +15,8 @@ VO: Eight modes around a Schwarzschild / Kerr central engine. Overview shows the
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step through the ten modes: from the lensed accretion disk and EHT-style photon ring to frame dragging, the Flamm embedding, ringdown bell and Hawking radiation, each is a different face of the same black hole.
+VO: Raise the spin chi toward 1: the ergosphere swells, the ISCO moves inward, and frame dragging whirls spacetime around, the Kerr features absent from a static hole.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

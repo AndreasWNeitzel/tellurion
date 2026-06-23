@@ -15,8 +15,8 @@ VO: Four interchangeable modes: Expansion (a 3D comoving lattice of galaxies who
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch between the four modes: the expanding lattice, the four fate scenarios, the last-scattering CMB sphere, and slow-roll inflation, all driven by the same Omega_m and Omega_Lambda.
+VO: Tune Omega_m against Omega_Lambda: a matter-only universe recollapses or coasts, while our Lambda-dominated one accelerates.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

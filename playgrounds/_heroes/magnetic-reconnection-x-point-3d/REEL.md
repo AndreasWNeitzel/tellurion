@@ -15,8 +15,8 @@ VO: Frozen-in flux holds until the resistive timescale becomes shorter than the 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Lower the resistivity log10 eta: the Lundquist number S soars and the current sheet thins, the regime where frozen-in field lines snap and reconnect at the X-point.
+VO: Switch to the Petschek-like preset: slow-mode shocks open the outflow and reconnection runs fast, the mechanism behind solar flares and magnetospheric substorms.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

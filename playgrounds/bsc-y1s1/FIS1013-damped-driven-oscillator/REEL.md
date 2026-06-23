@@ -15,8 +15,8 @@ VO: After a transient the oscillator forgets its start and settles into a steady
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep the drive frequency omega toward the natural omega_0: the steady-state amplitude peaks at resonance, and the response lags the drive by 90 degrees right at the peak.
+VO: Lower the damping gamma (higher Q): the resonance peak grows tall and narrow, so a lightly damped oscillator responds enormously to a drive near its natural frequency.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

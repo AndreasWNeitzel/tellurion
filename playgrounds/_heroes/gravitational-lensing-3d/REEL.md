@@ -15,8 +15,8 @@ VO: The animation is driven by the real equations, not a canned loop.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag the source position beta toward the lens: the two images stretch and brighten, and at perfect alignment they merge into a full Einstein ring.
+VO: Switch to the extended-source view: a finite source is sheared into arcs, the giant luminous arcs that galaxy clusters produce from background galaxies.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: Fraunhofer intensity is I(theta) = (sin alpha / alpha) 2 * (sin N beta / sin
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch between the four modes: the continuous wave field, the one-particle-at-a-time accumulator, the multi-slit grating, and Davisson-Germer electron diffraction, all on the same source-mask-screen setup.
+VO: Run the particle accumulator: single photons or electrons land as random dots that slowly build the interference pattern, the heart of wave-particle duality.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

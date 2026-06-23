@@ -15,8 +15,8 @@ VO: Total energy is preserved to a fixed-amplitude oscillation forever; the live
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the energy-drift readout stay near zero: the Yoshida-4 symplectic integrator conserves energy over millions of steps, which is why the orbits do not spiral in or out.
+VO: Raise the time step or substeps: bigger steps run faster but the energy error grows; the ghost planets show how a worse integrator would drift the orbits apart.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

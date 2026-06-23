@@ -15,8 +15,8 @@ VO: The playground integrates the Lorentz force F = q v x B with a Boris pusher 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the injection rate: more solar-wind particles spiral down the dipole field lines, bounce between the magnetic mirrors near the poles, and light up the auroral ovals where they hit the atmosphere.
+VO: Strengthen the dipole: the gyroradius shrinks and particles are trapped more tightly, so the radiation belts and the auroral ring sharpen.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

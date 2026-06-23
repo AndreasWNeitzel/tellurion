@@ -15,8 +15,8 @@ VO: The force is then F = -k/r d-1. Bertrand showed in 1873 that only two centra
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Set the dimension d to 3: the inverse-square force gives closed, stable elliptical orbits.
+VO: Push d to 4 or higher: the force steepens to r^-(d-1) and orbits spiral inward to a plunge or fly apart, the reason stable planetary systems need exactly three space dimensions.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

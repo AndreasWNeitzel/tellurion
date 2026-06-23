@@ -15,8 +15,8 @@ VO: Four interchangeable modes: Overview (a WebGL2 ray-marched view of the throa
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step through the four modes: the two-skies overview, a camera flythrough of the throat, the two-funnel embedding diagram, and the exotic-matter accounting.
+VO: Shrink the throat radius b_0 or move the camera: the lensed view of the far universe through the throat distorts, the optics of a Morris-Thorne wormhole.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

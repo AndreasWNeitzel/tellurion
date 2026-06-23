@@ -15,8 +15,8 @@ VO: The wavefronts it emits at successive points along its trajectory pile up co
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise beta above 1/n for the medium: the particle outruns its own light and a shock cone forms, just as a supersonic jet makes a Mach cone.
+VO: Switch the medium (water, silica, lead glass): a higher refractive index lowers the threshold speed and widens the cone, since cos(theta_C) = 1/(n beta).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

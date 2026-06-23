@@ -15,8 +15,8 @@ VO: The Heitler model (Heitler 1954; Matthews 2005) predicts that after every ra
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the primary energy log10 E_0: the cascade deepens, X_max pushes lower into the atmosphere, and the particle count N_max at shower maximum climbs.
+VO: Switch the primary (proton to iron): a heavy nucleus fragments higher up and develops faster, so its shower maximum sits higher than a proton of the same energy, the key to mass composition.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

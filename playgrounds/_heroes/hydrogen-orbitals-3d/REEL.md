@@ -15,8 +15,8 @@ VO: The electron has no definite position; the brightness at each point is the p
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Change the quantum numbers n, l, m: the electron cloud reshapes into s spheres, p dumbbells, d cloverleaves, the exact solutions of the hydrogen Schrodinger equation.
+VO: Raise n: the cloud grows and gains radial nodes (dark shells), since the orbital energy and size scale with the principal quantum number.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

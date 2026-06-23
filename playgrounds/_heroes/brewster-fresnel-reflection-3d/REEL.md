@@ -15,8 +15,8 @@ VO: Snell s law gives the refracted angle, and the Fresnel coefficients give the
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep the incidence angle to Brewster: the p-polarized reflectance R_p drops to exactly zero, so reflected light is fully s-polarized.
+VO: Go from glass to air and past the critical angle: the refracted ray vanishes and the light totally internally reflects, the principle behind optical fibres.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

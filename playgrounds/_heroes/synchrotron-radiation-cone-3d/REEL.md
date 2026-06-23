@@ -15,8 +15,8 @@ VO: Its angular frequency is omega orbit = e B / (gamma m e c), and the radiatio
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the Lorentz factor gamma: the radiation beams into an ever-tighter forward cone of half-angle 1/gamma, the searchlight that sweeps past as the electron orbits.
+VO: Raise the magnetic field B: the critical frequency nu_c and the total synchrotron power P_sync both climb steeply, which is why strong-field sources blaze across the spectrum.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

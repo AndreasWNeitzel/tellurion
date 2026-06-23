@@ -15,8 +15,8 @@ VO: The observed line profile is the limb-darkened-weighted sum of those copies.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise v sin i: the faster a star spins, the more its approaching and receding limbs Doppler-shift the line, broadening it into the rotational profile.
+VO: Tilt the inclination: only the projected rotation v sin i broadens the line, so a pole-on fast rotator looks slow, the degeneracy spectroscopy must live with.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

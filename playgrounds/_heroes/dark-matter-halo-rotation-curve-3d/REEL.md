@@ -15,8 +15,8 @@ VO: The playground sums three enclosed-mass components (Hernquist bulge, exponen
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the preset to visible matter only: the rotation curve falls off Keplerian past the disk edge.
+VO: Raise the halo mass M_DM: the plateau velocity climbs, and the dark-to-visible mass ratio grows.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

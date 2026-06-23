@@ -15,8 +15,8 @@ VO: The result has 10-fold local rotational symmetry around special points but n
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Add deflation steps: each step subdivides every rhombus into smaller ones, growing the Penrose tiling while keeping its perfect five-fold symmetry and never repeating.
+VO: Read the A/B tile ratio: the count of thick to thin rhombi converges on the golden ratio, the irrational number that forbids any periodic repeat.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

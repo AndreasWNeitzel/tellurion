@@ -15,8 +15,8 @@ VO: An observer at angle theta to the jet axis sees the approaching jet boosted 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the bulk Lorentz factor Gamma: relativistic beaming concentrates the jet emission into a forward cone, so the approaching jet brightens enormously and the receding one fades.
+VO: Tilt theta_obs toward the line of sight: the flux ratio between jet and counter-jet explodes, and the apparent transverse speed can exceed c, the superluminal motion seen in blazars.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

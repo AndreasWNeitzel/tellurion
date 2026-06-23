@@ -15,8 +15,8 @@ VO: Below a sharp pump threshold the excited atoms glow but the cavity holds onl
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the pump build the population inversion: below threshold the cavity stays dark, then once gain beats loss the photon number explodes and the beam switches on.
+VO: See the standing wave between the mirrors: only modes that fit a whole number of half-wavelengths survive, the cavity resonance that sets the lasing frequency.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

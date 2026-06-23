@@ -15,8 +15,8 @@ VO: The terrain is the potential V(x); the luminous curtain is the probability d
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the Gaussian wavepacket hit the barrier: part reflects and part tunnels through to the far side, even though classically it lacks the energy to cross.
+VO: A taller or wider barrier lets less through: the transmitted amplitude falls off exponentially with the barrier, the sensitivity that makes scanning tunnelling microscopy work.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

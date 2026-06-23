@@ -15,8 +15,8 @@ VO: The star traces a small ellipse with semi-major axis a star = a planet * m p
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the planet mass: the star wobbles on a bigger mirror-image orbit, so the line-of-sight velocity swing K grows.
+VO: Add eccentricity: the radial-velocity curve skews from a clean sine into a lopsided shape, encoding the orbit shape.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: Every visible change is the exact Lorentz transform of the incoming photons:
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Push beta toward 1: the star field crowds forward into a bright ring ahead (relativistic aberration), the headlight effect that beams the sky into your direction of flight.
+VO: Watch the colours shift: stars ahead blue-shift and brighten while those behind redshift and dim, the relativistic Doppler effect on the whole sky.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

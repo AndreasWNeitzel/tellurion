@@ -15,8 +15,8 @@ VO: In the nonlinear stage, the interface rolls up into a row of coherent vortic
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the Stuart parameter A: the sheared interface rolls up into the classic Kelvin-Helmholtz cat-eye billows, the same vortices in cloud bands and on Jupiter.
+VO: Toggle the streamlines: the flow wraps around each vortex core, showing how the velocity shear feeds energy into the growing rollers.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

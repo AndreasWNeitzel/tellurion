@@ -15,8 +15,8 @@ VO: The rotation measure RM = 8. 12e5 rad/m 2 * integral [n e (cm^-3) B par (G) 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the parallel field B_par or the electron density n_e: the rotation measure RM climbs, and the polarization angle winds through more turns along the column.
+VO: Increase the wavelength: the rotation grows as chi = RM lambda squared, so long radio waves twist far more than short ones.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

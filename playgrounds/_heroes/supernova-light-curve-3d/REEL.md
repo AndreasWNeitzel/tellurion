@@ -15,8 +15,8 @@ VO: The peak luminosity is set by the synthesised 56Ni mass via the Arnett rule 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch between a Type Ia and SN 1987A: the fireball expands homologously and the light curve is powered by the radioactive decay chain 56Ni to 56Co to 56Fe, the engine behind the peak and tail.
+VO: Raise the 56Ni mass: more radioactive fuel makes a brighter peak, the relation that makes Type Ia supernovae standardizable candles.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

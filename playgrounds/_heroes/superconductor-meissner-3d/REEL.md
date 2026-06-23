@@ -15,8 +15,8 @@ VO: Below the critical temperature the superconductor expels the magnetic field 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Cool below the critical temperature: the superconductor expels the magnetic field from its interior (the Meissner effect) and the magnet floats, locked above it.
+VO: Note this is active expulsion, not just zero resistance: screening currents flow to cancel the interior field, which is what levitates and pins the magnet.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

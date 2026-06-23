@@ -15,8 +15,8 @@ VO: This shows the result as a swarm. A few thousand trajectories (4096) all sta
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the swarm of nearby starts: they track together briefly, then diverge onto different wings of the butterfly.
+VO: Follow a single trajectory: it never repeats, looping unpredictably around the two lobes of the Lorenz attractor born from three simple convection equations.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

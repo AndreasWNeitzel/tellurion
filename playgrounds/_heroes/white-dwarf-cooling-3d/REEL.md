@@ -15,8 +15,8 @@ VO: With no nuclear burning, it slowly radiates the residual thermal energy of i
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Scrub the age: the white dwarf fades down the Mestel cooling track L ~ M t^(-7/5), its temperature and luminosity falling as it radiates its stored heat with no fuel left.
+VO: Change the mass: a heavier white dwarf is smaller and cools differently, and the HR-diagram track shifts.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

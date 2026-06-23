@@ -15,8 +15,8 @@ VO: Below, an equatorial plane lets you fire test photons and massive particles 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the star field warp: the Schwarzschild metric bends every background ray, so stars near the line of sight smear into arcs around the hole.
+VO: Find the photon sphere at 1.5 Schwarzschild radii: light there orbits the hole, glowing as a bright ring at the edge of the black shadow.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: The Earth absorbs the solar flux S (1 - A) / 4 (geometric factor 1/4 from di
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step through the presets from pre-industrial to 2x CO2 to Venus: more greenhouse gas raises the longwave optical depth tau_LW, trapping outgoing IR and lifting the surface temperature above the bare T_eff.
+VO: Raise the CO2 directly: the surface warms while the effective radiating temperature seen from space barely changes, the fingerprint of the greenhouse mechanism.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
