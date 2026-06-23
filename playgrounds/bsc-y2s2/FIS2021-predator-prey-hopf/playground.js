@@ -76,8 +76,16 @@ function drawAll() {
   ctx.fillRect(phaseX, panelY, panelW, panelH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(phaseX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
-  const xMax = Math.max(state.K * 1.05, 0.6);
-  const yMax = Math.max(eq ? eq.y * 3 : 0.6, 0.6);
+  // Autoscale to the trajectory's actual extent (like the time-series panel)
+  // rather than the carrying capacity K: the limit cycle reaches only a
+  // fraction of K, so the old xMax=K*1.05 left the orbit hugging the left edge
+  // with most of the panel empty. Use the recent trace so the axes track the
+  // developed limit cycle, with the fixed point kept in view.
+  let txMax = 0.25, tyMax = 0.25;
+  for (const p of state.trace.slice(-2500)) { if (p.x > txMax) txMax = p.x; if (p.y > tyMax) tyMax = p.y; }
+  if (eq) { txMax = Math.max(txMax, eq.x * 1.4); tyMax = Math.max(tyMax, eq.y * 1.4); }
+  const xMax = txMax * 1.12;
+  const yMax = tyMax * 1.12;
   function ppX(xx) { return phaseX + 4 + (panelW - 8) * (xx / xMax); }
   function ppY(yy) { return panelY + panelH - 4 - (panelH - 16) * (yy / yMax); }
   // axes ticks
