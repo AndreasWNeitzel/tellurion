@@ -37,10 +37,10 @@ const st = { map: 'hoScale', par: 1.7, t: 1, E: 1.0, playing: false };
 // side by side across the top ~58% of the tall canvas; an area-ratio vs
 // morph diagnostic fills the lower ~42% (was: two small panels stranded
 // in the vertical middle with large voids above and below).
-const PANEL_CY = Math.round(H * 0.30);
+const PANEL_CY = Math.round(H * 0.285);
 const LCX = Math.round(W * 0.265), RCX = Math.round(W * 0.735);
 const CY = PANEL_CY, SC = 96, HALF = 172;
-const DIAG = { x: 64, y: Math.round(H * 0.615), w: W - 128, h: Math.round(H * 0.335) };
+const DIAG = { x: 64, y: Math.round(H * 0.53), w: W - 128, h: Math.round(H * 0.42) };
 
 function fullPar() {
   if (st.map === 'rotation') return { a: (st.par - 0.3) / 2.3 * 2 * Math.PI };
@@ -138,15 +138,35 @@ function areaRatioAt(t) {
   return Aout / Ain;
 }
 
-// Area-ratio vs morph diagnostic: for a canonical map the image area
-// equals the source area for every t (flat line at 1); for p-doubling it
-// climbs to 2. The marker tracks the live morph fraction.
+// The area-naive sibling: take only the q-image of the selected map and
+// leave p untouched (drop the canonical p-transformation). For every
+// linear canonical map this is what breaks Liouville: the q-stretch alone
+// changes the area, and only the compensating p-transformation pulls the
+// ratio back to 1. Plotting it next to the real curve is what gives the
+// flat canonical line its meaning.
+function naiveRatioAt(t) {
+  const ell = hoEllipse(st.E, 1, 160);
+  const Ain = Math.abs(polyArea(ell)) || 1;
+  const Aout = Math.abs(polyArea(ell.map(([q, p]) => {
+    const [Q] = morph(q, p, t);   // keep the q-image, discard the p-image
+    return [Q, p];
+  })));
+  return Aout / Ain;
+}
+
+// Area-ratio vs morph diagnostic. Two curves: the full selected map (bright
+// blue) and its area-naive sibling (amber, same q-stretch with p left
+// untouched). For a canonical map the full curve sits flat at 1 while the
+// sibling drifts away, so the flat line reads as a result (the
+// p-transformation cancels the q-stretch exactly), not an empty plot. For
+// p-doubling the roles swap: the full curve climbs to 2. The marker tracks
+// the live morph fraction.
 function drawAreaRatio() {
   const { x, y, w, h } = DIAG;
-  const padL = 70, padR = 22, padT = 24, padB = 34;
+  const padL = 70, padR = 22, padT = 26, padB = 34;
   const ax = x + padL, aw = w - padL - padR;
   const ayTop = y + padT, ah = h - padT - padB;
-  const rMax = 2.2;
+  const rMax = 2.8;
   const PX = (t) => ax + t * aw;
   const PY = (r) => ayTop + ah - Math.min(r, rMax) / rMax * ah;
 
@@ -157,9 +177,15 @@ function drawAreaRatio() {
   ctx.strokeStyle = 'rgba(6,214,160,0.5)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(ax, PY(1)); ctx.lineTo(ax + aw, PY(1)); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('ratio = 1: area preserved (canonical)', ax + 8, PY(1) - 7);
+  ctx.fillText('ratio = 1: Liouville (area preserved)', ax + 8, PY(1) - 7);
 
-  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.4; ctx.beginPath();
+  // area-naive sibling: same q-stretch, p left untouched
+  ctx.strokeStyle = 'rgba(255,180,71,0.85)'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]); ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) { const t = i / 120; const px = PX(t), py = PY(naiveRatioAt(t)); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // full selected map
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.6; ctx.beginPath();
   for (let i = 0; i <= 120; i += 1) { const t = i / 120; const px = PX(t), py = PY(areaRatioAt(t)); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
   ctx.stroke();
 
@@ -167,6 +193,14 @@ function drawAreaRatio() {
   ctx.strokeStyle = 'rgba(239,71,111,0.35)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(PX(st.t), ayTop); ctx.lineTo(PX(st.t), ayTop + ah); ctx.stroke();
   ctx.fillStyle = '#ef476f'; ctx.beginPath(); ctx.arc(PX(st.t), PY(rc), 5.5, 0, 2 * Math.PI); ctx.fill();
+
+  // legend keying the two curves
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  const lx = ax + aw - 244, ly = ayTop + 6;
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 26, ly); ctx.stroke();
+  ctx.fillStyle = 'rgba(150,160,180,0.9)'; ctx.fillText('full map (q and p)', lx + 32, ly + 4);
+  ctx.strokeStyle = 'rgba(255,180,71,0.85)'; ctx.setLineDash([6, 4]); ctx.beginPath(); ctx.moveTo(lx, ly + 18); ctx.lineTo(lx + 26, ly + 18); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(150,160,180,0.9)'; ctx.fillText('q-stretch only, p untouched', lx + 32, ly + 22);
 
   ctx.fillStyle = 'rgba(150,160,180,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('morph fraction  t', ax + aw / 2, y + h - 10);

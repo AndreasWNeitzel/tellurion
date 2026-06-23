@@ -16,7 +16,7 @@ Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
 VO: Switch the map: harmonic scaling squashes a circle into an ellipse, a phase rotation spins it, and an area-preserving squeeze stretches one axis while shrinking the other.
-VO: Watch the area ratio: every canonical map keeps it pinned at 1, since the Poisson bracket {Q,P} = 1.
+VO: Watch the two diagnostic curves: the solid line stays pinned at 1, while the dashed q-stretch-only line drifts away, and the gap is exactly what the p-transformation cancels.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
