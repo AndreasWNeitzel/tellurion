@@ -45,8 +45,10 @@ function reflectedColor(d, n) {
     const [cr, cg, cb] = wavelengthToRGB(lambda);
     R += r * cr; G += r * cg; B += r * cb;
   }
-  // normalize so a max-reflecting white film gives white
-  const norm = N_LAM * 255 * 0.45;
+  // Normalize for display. The factor is small (0.14) because n_film between
+  // n_top and n_sub reflects only a few percent, and a soap-film-style demo
+  // should still show the interference hue rather than a near-black swatch.
+  const norm = N_LAM * 255 * 0.14;
   return [
     Math.min(255, R / norm * 255) | 0,
     Math.min(255, G / norm * 255) | 0,
@@ -62,82 +64,103 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
-  ctx.fillText(`d = ${state.d} nm   n_film = ${state.n.toFixed(2)}   n_top = 1.0 (air), n_sub = 1.5 (glass)`, 30, 22);
+  ctx.fillText(`d = ${state.d} nm   n_film = ${state.n.toFixed(2)}   n_top = 1.0 (air), n_sub = 1.5 (glass)`, 30, 24);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText(`reflectance R(lambda) at normal incidence`, 30, 40);
+  ctx.fillText(`reflectance R(lambda) at normal incidence`, 30, 44);
 
   // Layout
   const padL = 30, padR = 30;
   const PANEL_W = W - padL - padR;
+  const NPTS = PANEL_W - 4;
 
-  // Top panel: R(lambda) curve
-  const curveY = 60, curveH = 200;
+  // Per-frame autoscale: a film whose index sits between the surrounding media
+  // reflects only a few percent, so a fixed R/0.4 axis flattened the curve to
+  // the floor. Find the visible-band peak and scale to that with headroom.
+  const Rvals = new Float64Array(NPTS);
+  let Rmax = 0;
+  for (let i = 0; i < NPTS; i += 1) {
+    const lambda = 380 + (780 - 380) * i / (NPTS - 1);
+    const R = reflectance(lambda, state.n, state.d, 1.0, 1.5);
+    Rvals[i] = R;
+    if (R > Rmax) Rmax = R;
+  }
+  const Rtop = Math.max(0.02, Rmax * 1.14);
+
+  // Top panel: R(lambda) curve, filling most of the portrait height.
+  const curveY = 66, curveH = 470;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(padL, curveY, PANEL_W, curveH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(padL + 0.5, curveY + 0.5, PANEL_W - 1, curveH - 1);
+  // Faint horizontal gridlines at quarters of the autoscaled range.
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  for (let q = 1; q < 4; q += 1) {
+    const gy = curveY + curveH - 6 - (curveH - 12) * (q / 4);
+    ctx.beginPath(); ctx.moveTo(padL + 1, gy); ctx.lineTo(padL + PANEL_W - 1, gy); ctx.stroke();
+  }
   // Curve
   ctx.strokeStyle = '#f1d28a';
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 1.6;
   ctx.beginPath();
-  const NPTS = PANEL_W - 4;
   for (let i = 0; i < NPTS; i += 1) {
-    const lambda = 380 + (780 - 380) * i / (NPTS - 1);
-    const R = reflectance(lambda, state.n, state.d, 1.0, 1.5);
     const px = padL + 2 + i;
-    const py = curveY + curveH - 4 - (curveH - 8) * Math.min(1, R / 0.4);
+    const py = curveY + curveH - 6 - (curveH - 12) * Math.min(1, Rvals[i] / Rtop);
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
+  // R-axis labels (autoscaled top, zero bottom).
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.textAlign = 'left';
+  ctx.fillText(`R = ${(Rtop * 100).toFixed(1)}%`, padL + 8, curveY + 16);
+  ctx.fillText('R = 0', padL + 8, curveY + curveH - 8);
   // Background strip showing spectrum colors
   for (let i = 0; i < NPTS; i += 1) {
     const lambda = 380 + (780 - 380) * i / (NPTS - 1);
     const [r, g, b] = wavelengthToRGB(lambda);
     ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-    ctx.fillRect(padL + 2 + i, curveY + curveH + 4, 1, 12);
+    ctx.fillRect(padL + 2 + i, curveY + curveH + 6, 1, 16);
   }
   // wavelength ticks
-  ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'center';
   for (const lam of [400, 500, 600, 700]) {
     const px = padL + 2 + (NPTS - 1) * (lam - 380) / 400;
-    ctx.fillText(`${lam}`, px, curveY + curveH + 30);
+    ctx.fillText(`${lam} nm`, px, curveY + curveH + 38);
   }
-  ctx.textAlign = 'left';
-  ctx.fillText('R(λ)', padL + 6, curveY + 14);
 
-  // Bottom: color swatch + history strip
-  const swatchY = curveY + curveH + 50;
-  const swatchH = 80;
-  ctx.fillStyle = `rgb(${cr}, ${cg}, ${cb})`;
-  ctx.fillRect(padL, swatchY, 140, swatchH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
-  ctx.strokeRect(padL + 0.5, swatchY + 0.5, 139, swatchH - 1);
+  // Bottom: large reflected-color swatch + color-vs-d history strip, filling
+  // the lower portion of the portrait.
+  const swatchY = curveY + curveH + 70;
+  const swatchH = H - swatchY - 36;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
-  ctx.fillText('reflected color', padL, swatchY - 6);
+  ctx.fillText('reflected color', padL, swatchY - 8);
+  ctx.fillStyle = `rgb(${cr}, ${cg}, ${cb})`;
+  ctx.fillRect(padL, swatchY, 150, swatchH);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
+  ctx.strokeRect(padL + 0.5, swatchY + 0.5, 149, swatchH - 1);
 
-  // History strip
-  const stripX = padL + 160;
+  // History strip: each past thickness as a vertical colour band.
+  const stripX = padL + 170;
   const stripW = W - padR - stripX;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.fillText('color vs d (recent sweep history)', stripX, swatchY - 8);
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(stripX, swatchY, stripW, swatchH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(stripX + 0.5, swatchY + 0.5, stripW - 1, swatchH - 1);
   const NHIST = state.history.length;
   if (NHIST > 0) {
+    const bw = (stripW - 2) / NHIST + 1;
     for (let i = 0; i < NHIST; i += 1) {
       const c = state.history[i].color;
       const x = stripX + 1 + (stripW - 2) * i / Math.max(1, NHIST - 1);
       ctx.fillStyle = `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
-      ctx.fillRect(x, swatchY + 1, (stripW - 2) / NHIST + 1, swatchH - 2);
+      ctx.fillRect(x, swatchY + 1, bw, swatchH - 2);
     }
   }
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.textAlign = 'left';
-  ctx.fillText('color vs d (recent sweep history)', stripX, swatchY - 6);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.strokeRect(stripX + 0.5, swatchY + 0.5, stripW - 1, swatchH - 1);
 }
 
 function tickN(n) {
