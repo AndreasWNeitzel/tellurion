@@ -88,7 +88,7 @@ function drawSeries(x, y, w, h) {
 }
 
 function drawEpicycles(x, y, w, h) {
-  panel(x, y, w, h, 'epicycles: rotating vectors whose tip draws the sum');
+  panel(x, y, w, h, 'epicycles: rotating vectors draw the sum');
   const c = coeffs(st.tgt, st.n);
   const cx = x + w * 0.36, cy = y + h / 2 + 6, sc = (h - 70) / 2.8;
   const xParam = st.ph * 2 * PI - PI;                       // sweeps the period, loops
@@ -127,7 +127,7 @@ function drawEpicycles(x, y, w, h) {
 }
 
 function drawConvergence(x, y, w, h) {
-  panel(x, y, w, h, 'convergence: Parseval energy and the Gibbs overshoot vs N');
+  panel(x, y, w, h, 'convergence: Parseval energy + Gibbs overshoot');
   const px = x + 36, py = y + 24, pw = w - 50, ph = h - 50;
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, py, pw, ph);
   const Nmax = 80, ms = meanSquare(st.tgt);
