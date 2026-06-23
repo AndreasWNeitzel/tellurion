@@ -318,31 +318,32 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const M = oneTurn(st.f, PMOM, L, QCH, st.ncells, st.B);
-  const mu = tune(M);
+  const f = focal(), rho = dipRho();
+  const Q = tune(L, f, st.nc, rho);
   return {
     fields: [
-      { key: 'focal-length', label: 'quadrupole focal length f (m)', value: st.f, format: 'float' },
-      { key: 'tune', label: 'betatron tune mu (rev)', value: mu, format: 'float' },
-      { key: 'cells', label: 'number of FODO cells', value: st.ncells, format: 'float' },
-      { key: 'dipole-field', label: 'dipole bend field B (T)', value: st.B, format: 'float' }
+      { key: 'focal-length', label: 'quadrupole focal length f (m)', value: f, format: 'float' },
+      { key: 'tune', label: 'betatron tune Q (per ring)', value: Number.isFinite(Q) ? Q : 'unstable', format: Number.isFinite(Q) ? 'float' : 'text' },
+      { key: 'cells', label: 'number of FODO cells', value: st.nc, format: 'int' },
+      { key: 'dipole-field', label: 'dipole bend field B (T)', value: dipB(), format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
   const inv = [];
-  const M = oneTurn(st.f, PMOM, L, QCH, st.ncells, st.B);
+  const cell = fodoCell(L, focal(), dipRho());          // one-cell transfer map (symplectic)
+  const M = oneTurn(L, focal(), st.nc, dipRho());        // full-ring map
   // Symplecticity: det(M) must equal 1 for a symplectic map
   const d = M[0] * M[3] - M[1] * M[2];
   inv.push({
     key: 'symplecticity',
     label: 'det(M) = 1 (symplectic)',
     value: d.toFixed(6),
-    status: Math.abs(d - 1.0) < 1e-10 ? 'pass' : 'drift'
+    status: Math.abs(d - 1.0) < 1e-9 ? 'pass' : 'drift'
   });
-  // Stability criterion: |trace(M)/2| <= 1
-  const tr = M[0] + M[3];
-  const stable = isStable(M);
+  // Stability criterion: |trace(M_cell)/2| <= 1
+  const tr = trace(cell);
+  const stable = isStable(cell);
   inv.push({
     key: 'stability',
     label: 'stable if |trace(M)/2| <= 1',

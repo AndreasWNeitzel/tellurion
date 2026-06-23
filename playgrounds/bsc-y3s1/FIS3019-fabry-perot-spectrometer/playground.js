@@ -226,9 +226,10 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const fsr = fsrNm(st.d_um, NA_D2[0]);
+  const d0 = st.d_um * 1e-6;
+  const fsr = fsrNm(NA_D2, d0);                         // match render: fsrNm(NA_D2, d0)
   const fin = reflFinesse(st.R);
-  const rp = resolvingPower(st.d_um, NA_D2[0], st.R);
+  const rp = resolvingPower(NA_D2 * 1e-9, d0, st.R);
   const fields = [
     { key: 'reflectance', label: 'mirror reflectance R', value: parseFloat(st.R.toFixed(3)), format: 'float' },
     { key: 'spacing-um', label: 'plate spacing (um)', value: parseFloat(st.d_um.toFixed(1)), format: 'float' },

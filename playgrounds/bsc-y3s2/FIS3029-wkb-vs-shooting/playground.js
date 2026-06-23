@@ -231,7 +231,7 @@ window.playground.getState = function () {
     { key: 'exponent-p', label: 'potential exponent p', value: parseFloat(state.p.toFixed(2)), format: 'float' },
     { key: 'nmax', label: 'maximum quantum level', value: state.nMax, format: 'float' },
     { key: 'e0-bs', label: 'E0 Bohr-Sommerfeld', value: parseFloat(bs[0].toFixed(3)), format: 'float' },
-    { key: 'e0-exact', label: 'E0 exact reference', value: ex !== null ? parseFloat(ex.toFixed(3)) : null, format: 'float' },
+    { key: 'e0-exact', label: 'E0 exact reference', value: ex !== null ? parseFloat(ex.toFixed(3)) : 'n/a (p = 2 or 4 only)', format: ex !== null ? 'float' : 'text' },
   ];
   return { fields };
 };

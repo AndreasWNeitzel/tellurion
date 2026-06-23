@@ -200,7 +200,7 @@ window.playground.getState = function () {
   return {
     fields: [
       { key: 'K', label: 'Kick strength K', value: state.K, format: 'float' },
-      { key: 'n_orbits', label: 'Orbit count', value: state.norbits, format: 'float' },
+      { key: 'n_orbits', label: 'Orbit count', value: state.baseOrbits ? state.baseOrbits.length : 24, format: 'int' },
       { key: 'K_crit', label: 'Critical K (KAM)', value: K_CRITICAL, format: 'float' }
     ]
   };

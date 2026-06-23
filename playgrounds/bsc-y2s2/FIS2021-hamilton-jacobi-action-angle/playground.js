@@ -245,9 +245,10 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const J = action(st.pot, Epar(), st.w0);
+  const wE = baseW();                                  // remapped freq/ang-mom, as render uses
+  const J = action(st.pot, Epar(), wE);
   const E = Epar();
-  const w = omegaOfE(st.pot, E, st.w0);
+  const w = omegaOfE(st.pot, E, wE);
   return {
     fields: [
       { key: 'potential', label: 'Potential', value: st.pot, format: undefined },
@@ -258,8 +259,8 @@ window.playground.getState = function () {
   };
 };
 window.playground.getInvariants = function () {
-  const J = action(st.pot, Epar(), st.w0);
-  const dJ = jHist.length > 1 ? Math.abs(J - jHist[0]) : 0;
+  const J = action(st.pot, Epar(), baseW());
+  const dJ = jHist.length > 1 ? Math.abs(J - jHist[0][1]) : 0;   // jHist stores [t, J] pairs
   const ramp_speed = Math.abs(st.ramp);
   const is_adiabatic = ramp_speed < 0.1;
   const acceptable_drift = is_adiabatic ? 0.05 * J : 0.3 * J;

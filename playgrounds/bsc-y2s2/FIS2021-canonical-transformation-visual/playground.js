@@ -250,8 +250,7 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
-  const par = fullPar();
-  const pb = poissonBracket(st.map, par, st.t);
+  const pb = poissonBracket(st.map, 0.6, 0.4, fullPar());   // match render: poissonBracket(map, q, p, params)
   const areaIn = polyArea(hoEllipse(st.E, 1));
   const [Q, P] = morph(0.8, 0, st.t);
   const areaOut = polyArea(hoEllipse(st.E, st.t < 1 ? 1 : 0.5)); // Rough estimate; full calc requires blob resampling
@@ -265,8 +264,7 @@ window.playground.getState = function () {
   };
 };
 window.playground.getInvariants = function () {
-  const par = fullPar();
-  const pb = poissonBracket(st.map, par, st.t);
+  const pb = poissonBracket(st.map, 0.6, 0.4, fullPar());
   const canonical = st.map !== 'pDouble';
   const pb_target = canonical ? 1.0 : (1 + st.t);
   const pb_drift = Math.abs(pb - pb_target);

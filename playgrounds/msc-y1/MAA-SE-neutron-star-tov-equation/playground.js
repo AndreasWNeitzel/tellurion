@@ -264,24 +264,24 @@ if (document.readyState === 'loading') {
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const rc = rhoC();
-  const star = tovStar(st.eos, rc);
+  const star = tovStar(st.eos, rc, 30);
   return {
     fields: [
       { key: 'eos-name', label: 'equation of state', value: st.eos, format: undefined },
       { key: 'central-density', label: 'central density log10(rho, kg/m^3)', value: st.rRaw / 10, format: 'float' },
-      { key: 'mass', label: 'total mass (Msun)', value: star ? (star.m / MSUN).toFixed(2) : 0, format: 'float' },
-      { key: 'radius', label: 'radius (km)', value: star ? (star.r / KM).toFixed(1) : 0, format: 'float' }
+      { key: 'mass', label: 'total mass (Msun)', value: star ? (star.M / MSUN).toFixed(2) : 0, format: 'float' },
+      { key: 'radius', label: 'radius (km)', value: star ? (star.R / KM).toFixed(1) : 0, format: 'float' }
     ]
   };
 };
 window.playground.getInvariants = function () {
   const inv = [];
   const rc = rhoC();
-  const star = tovStar(st.eos, rc);
+  const star = tovStar(st.eos, rc, 30);
   if (!star) return inv;
   // Causality: sound speed must be <= c (Shapiro-Teukolsky), enforced by EOS design
-  const m = star.m / MSUN;
-  const r = star.r / KM;
+  const m = star.M / MSUN;
+  const r = star.R / KM;
   inv.push({
     key: 'compactness',
     label: 'compactness 2GM/c^2 < R (stable config)',

@@ -195,8 +195,16 @@ if (document.readyState === 'loading') {
 
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
+function peakIntensity() {                              // scan the screen for the fringe-pattern max
+  let m = 0;
+  for (let xc = -1.5; xc <= 1.5; xc += 0.01) {
+    const I = intensity(xc, 1, 1, 30, 2 * Math.PI * st.phi);
+    if (I > m) m = I;
+  }
+  return m;
+}
 window.playground.getState = function () {
-  const Imax = intensity(st.phi);
+  const Imax = peakIntensity();
   return {
     fields: [
       { key: 'flux-phase', label: 'AB phase $\\Phi/\\Phi_0$', value: st.phi, format: 'float' },
@@ -208,7 +216,7 @@ window.playground.getState = function () {
 };
 window.playground.getInvariants = function () {
   const phi = st.phi % (2 * Math.PI);
-  const Imax = intensity(st.phi);
+  const Imax = peakIntensity();
   return [
     { key: 'phase-periodic', label: 'Phase mod $2\\pi$', value: phi.toFixed(3), status: 'pass' },
     { key: 'intensity-nonneg', label: '$I \\geq 0$', value: Imax >= 0 ? 'yes' : 'no', status: Imax >= 0 ? 'pass' : 'drift' }

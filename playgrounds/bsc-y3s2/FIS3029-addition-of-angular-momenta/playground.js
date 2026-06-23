@@ -266,7 +266,8 @@ if (document.readyState === 'loading') {
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const allowedJs = allowedJ(st.j1, st.j2);
-  const mult = allowedJs.length > 0 ? multiplicity(allowedJs[st.jIdx % allowedJs.length]) : 0;
+  const Jsel = allowedJs.length > 0 ? allowedJs[st.jIdx % allowedJs.length] : 0;
+  const mult = 2 * Jsel + 1;                            // multiplicity 2J+1 of the selected total J
   return {
     fields: [
       { key: 'j1-quantum', label: 'j1 (quantum number)', value: st.j1, format: 'float' },
