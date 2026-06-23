@@ -28,6 +28,13 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
+const PAD = { L: 30, R: 30, T: 70, B: 80 };
+const DRAW_W = W - PAD.L - PAD.R, DRAW_H = H - PAD.T - PAD.B;
+const SCALE = Math.min(DRAW_W, DRAW_H) / 12;
+const ORIGIN_PX = PAD.L + DRAW_W * 0.5;        // world x = 0 at the horizontal centre
+const ORIGIN_PY = PAD.T + DRAW_H * 0.12;       // world y = 0 near the top; the drift carries it down
+const BOX_WORLD_H = DRAW_H / SCALE;
+const Y_WRAP = (ORIGIN_PY - (H - PAD.B)) / SCALE;   // world y at the box bottom
 
 const state = {
   E: 0.5,
@@ -52,15 +59,7 @@ function rebuild() {
 }
 
 function worldToPx(x, y) {
-  const padL = 30, padR = 30, padT = 70, padB = 80;
-  const drawW = W - padL - padR;
-  const drawH = H - padT - padB;
-  const wbox = 12;
-  const scale = Math.min(drawW / wbox, drawH / wbox);
-  return {
-    px: padL + drawW * 0.3 + x * scale,
-    py: padT + drawH * 0.3 - y * scale,
-  };
+  return { px: ORIGIN_PX + x * SCALE, py: ORIGIN_PY - y * SCALE };
 }
 
 function drawAll() {
@@ -85,42 +84,29 @@ function drawAll() {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.strokeRect(padL + 0.5, padT + 0.5, W - padL - padR - 1, H - padT - padB - 1);
 
-  // B-field "dots"
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-  for (let i = 0; i < 14; i += 1) {
-    for (let j = 0; j < 10; j += 1) {
-      const x = -3 + i * 0.6;
-      const y = 3 - j * 0.8;
-      const p = worldToPx(x, y);
-      ctx.beginPath();
-      ctx.arc(p.px, p.py, 1.2, 0, Math.PI * 2);
-      ctx.fill();
+  // B-field "dots" (out of the page), filling the field region in screen space
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+  const NCx = 13, NCy = 22;
+  for (let i = 0; i < NCx; i += 1) {
+    for (let j = 0; j < NCy; j += 1) {
+      const dx = padL + 26 + i * ((W - padL - padR - 52) / (NCx - 1));
+      const dy = padT + 22 + j * ((H - padT - padB - 44) / (NCy - 1));
+      ctx.beginPath(); ctx.arc(dx, dy, 1.2, 0, Math.PI * 2); ctx.fill();
     }
   }
 
-  // E-field arrow row
-  ctx.strokeStyle = 'rgba(241, 210, 138, 0.50)';
-  ctx.lineWidth = 1.0;
-  for (let j = 0; j < 6; j += 1) {
-    const y = 3 - j * 1.5;
-    const p0 = worldToPx(-3, y);
-    const p1 = worldToPx(-2.5, y);
-    ctx.beginPath();
-    ctx.moveTo(p0.px, p0.py); ctx.lineTo(p1.px, p1.py);
-    ctx.stroke();
-    // arrowhead
-    ctx.beginPath();
-    ctx.moveTo(p1.px, p1.py);
-    ctx.lineTo(p1.px - 5, p1.py - 3);
-    ctx.lineTo(p1.px - 5, p1.py + 3);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(241, 210, 138, 0.50)';
-    ctx.fill();
+  // E-field arrows (uniform, pointing +x) spread down the field region
+  ctx.strokeStyle = 'rgba(241, 210, 138, 0.45)'; ctx.fillStyle = 'rgba(241, 210, 138, 0.45)'; ctx.lineWidth = 1.0;
+  for (let j = 0; j < 9; j += 1) {
+    const ay = padT + 40 + j * ((H - padT - padB - 70) / 8);
+    const ax0 = padL + 16, ax1 = padL + 52;
+    ctx.beginPath(); ctx.moveTo(ax0, ay); ctx.lineTo(ax1, ay); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax1, ay); ctx.lineTo(ax1 - 5, ay - 3); ctx.lineTo(ax1 - 5, ay + 3); ctx.closePath(); ctx.fill();
   }
   ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(241, 210, 138, 0.85)';
   ctx.textAlign = 'left';
-  ctx.fillText('E -> +x', worldToPx(-3, 3.5).px, worldToPx(-3, 3.5).py);
+  ctx.fillText('E -> +x   B out of page', padL + 12, padT + 18);
 
   // Trail
   if (state.trail.length >= 2) {
@@ -175,10 +161,11 @@ function drawAll() {
 function tickN(n) {
   for (let i = 0; i < n; i += 1) {
     stepExB(state.sim, 0.01);
-    if (state.sim.nSteps % 1 === 0) {
-      state.trail.push([state.sim.x, state.sim.y]);
-      if (state.trail.length > 1500) state.trail.shift();
-    }
+    // wrap back to the top once the drift carries the guiding centre past the
+    // bottom edge, so the cycloid keeps marching through the field region
+    if (state.sim.y < Y_WRAP - 0.3) { state.sim.y += BOX_WORLD_H; state.trail = []; }
+    state.trail.push([state.sim.x, state.sim.y]);
+    if (state.trail.length > 2600) state.trail.shift();
   }
 }
 
@@ -202,7 +189,7 @@ function bootSync() {
   rebuild();
   if (CAPTURE_NAME) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const target = Math.round(frac * 800);
+    const target = Math.round(200 + frac * 2400);
     tickN(target);
     drawAll();
     if (DETERMINISTIC) {
