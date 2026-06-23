@@ -53,9 +53,13 @@ function clearWaterfall() {
 
 const st = { ...DEF, running: !prefersReducedMotion(), sim: null, hist: [], steady: null };
 
-function build() {
+function build(keepTrail) {
   st.hist = []; st.steady = null;
-  clearWaterfall();
+  // The per-loop rebuild (clean animation reset) keeps the space-time history
+  // so the waterfall fills across loops; only a user change clears it. One
+  // loop pushes far fewer rows than the buffer holds, so clearing every loop
+  // left the panel almost entirely blank.
+  if (!keepTrail) clearWaterfall();
   const p = st.p;
   if (st.eq === 'wave') st.sim = makeWave(N, 1.0, p);
   else if (st.eq === 'heat') st.sim = makeHeat(N, 0.02, p);
@@ -365,7 +369,7 @@ function tick() {
     if (st.eq === 'schrodinger') st.hist.push(schrodingerNorm(st.sim));
     else if (st.eq === 'burgers') st.hist.push(burgersEnergy(st.sim));
     if (st.hist.length > 240) st.hist.shift();
-    if (looped()) build();                                  // clean loop
+    if (looped()) build(true);                              // clean loop, keep the space-time history
   }
   draw();
   requestAnimationFrame(tick);
@@ -401,7 +405,14 @@ function boot() {
     const fr = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
     if (st.eq !== 'laplace') {
       const target = fr * (st.eq === 'wave' ? 1.6 / st.p : st.eq === 'heat' ? 5 : st.eq === 'schrodinger' ? 0.05 : 0.4);
-      while (st.sim.t < target) substep();
+      // Fill the space-time buffer one row per 6 substeps (the capture path
+      // used to step without pushing, so the panel rendered blank white). One
+      // loop pushes fewer rows than the buffer holds, so fill a whole buffer
+      // first, then advance the target window to set the captured phase.
+      let acc = 0, pushes = 0;
+      while (pushes < WATERFALL_ROWS) { substep(); if (++acc >= 6) { pushWaterfall(curve()); acc = 0; pushes += 1; } }
+      const tEnd = st.sim.t + target;
+      while (st.sim.t < tEnd) { substep(); if (++acc >= 6) { pushWaterfall(curve()); acc = 0; } }
       if (st.eq === 'schrodinger') st.hist.push(schrodingerNorm(st.sim));
       else if (st.eq === 'burgers') st.hist.push(burgersEnergy(st.sim));
     }
