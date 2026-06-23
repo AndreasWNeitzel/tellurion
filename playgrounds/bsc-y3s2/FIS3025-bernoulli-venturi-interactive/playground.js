@@ -33,8 +33,11 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 const PT = 2.0;                                      // total (stagnation) pressure, arbitrary units
 const st = { ratio: 0.4, Q: 0.7, rho: 1.2, running: !prefersReducedMotion(), t: 0 };
 
-const PIPE_X0 = 70, PIPE_X1 = W - 70, PIPE_CY = Math.round(H * 0.56), PIPE_HALF = 64;
-const COL_MAXH = (PIPE_CY - PIPE_HALF) - 104;        // tallest column stays clear of the readout panel
+const PIPE_X0 = 70, PIPE_X1 = W - 70, PIPE_CY = 330, PIPE_HALF = 66;
+const COL_MAXH = (PIPE_CY - PIPE_HALF) - 54;         // tallest column rises near the top edge
+const PANEL_Y0 = 470, PANEL_Y1 = H - 18;             // bottom diagnostic zone (was empty space)
+const PLOT_X0 = 70, PLOT_X1 = 528;                   // Bernoulli energy-split plot (left of the zone)
+const AF_CX = 652, AF_CY = (PANEL_Y0 + PANEL_Y1) / 2 + 30;  // airfoil inset (right of the zone)
 const NPART = 260;
 const parts = [];
 function seedParts() {
@@ -86,8 +89,8 @@ function drawColumns() {
     ctx.strokeStyle = '#7fb2ff'; ctx.lineWidth = 1; ctx.strokeRect(px - 6, top - colH, 12, colH);
     ctx.fillStyle = '#bcd6ff'; ctx.fillRect(px - 6, top - colH, 12, 3);
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('piezometer columns: height ~ static pressure (lowest at the throat)', PIPE_X0, H - 14);
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('piezometer columns: height ~ static pressure (lowest at the throat)', PIPE_X0, PIPE_CY + PIPE_HALF + 30);
 }
 
 function drawParticles(dt) {
@@ -108,10 +111,20 @@ function drawParticles(dt) {
 
 function drawAirfoil() {
   // Same Bernoulli principle: faster over the curved top -> lower
-  // pressure -> upward lift. Cartoon inset, bottom-right.
-  const cx = Math.round(W * 0.5), cy = PIPE_CY + PIPE_HALF + 82, ch = 92;
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('same Bernoulli principle: airfoil lift', cx - 100, cy - 50);
+  // pressure -> upward lift. Cartoon inset, bottom-right of the panel.
+  const x0 = PLOT_X1 + 26;
+  ctx.fillStyle = '#0a0b10'; ctx.fillRect(x0, PANEL_Y0, PIPE_X1 - x0, PANEL_Y1 - PANEL_Y0);
+  ctx.strokeStyle = 'rgba(226,232,240,0.18)'; ctx.strokeRect(x0 + 0.5, PANEL_Y0 + 0.5, PIPE_X1 - x0 - 1, PANEL_Y1 - PANEL_Y0 - 1);
+  const cx = AF_CX, cy = AF_CY, ch = 84, mid = (x0 + PIPE_X1) / 2;
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('same principle: airfoil lift', x0 + 10, PANEL_Y0 + 16);
+  // teaching labels filling the tall inset
+  ctx.fillStyle = 'rgba(127,210,255,0.85)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('fast flow over top', mid, cy - ch - 4);
+  ctx.fillText('lower pressure', mid, cy - ch + 12);
+  ctx.fillStyle = 'rgba(255,154,90,0.85)';
+  ctx.fillText('slower below, higher pressure', mid, cy + ch + 18);
+  ctx.fillText(`net lift L = ${airfoilLift(st.rho, velocity(st.Q, 1), 1.35, 1).toFixed(2)}`, mid, cy + ch + 36);
   ctx.beginPath();
   ctx.moveTo(cx - ch / 2, cy);
   ctx.quadraticCurveTo(cx, cy - 30, cx + ch / 2, cy);
@@ -137,6 +150,57 @@ function drawAirfoil() {
   ctx.fillStyle = '#ffb27a'; ctx.fillText('L', cx + 8, cy - 4 - La + 6);
 }
 
+function drawDiagnostic() {
+  // Energy split along the pipe: static pressure p dips and dynamic
+  // pressure 1/2 rho v^2 peaks at the throat, but their sum (the Bernoulli
+  // constant) is flat. This is the quantitative companion to the columns.
+  const x0 = PLOT_X0, y0 = PANEL_Y0, x1 = PLOT_X1, y1 = PANEL_Y1;
+  ctx.fillStyle = '#0a0b10'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+  ctx.strokeStyle = 'rgba(226,232,240,0.18)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, x1 - x0 - 1, y1 - y0 - 1);
+  ctx.fillStyle = 'rgba(226,232,240,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('energy split along the pipe', x0 + 10, y0 + 16);
+  const plT = y0 + 30, plB = y1 - 44, plL = x0 + 48, plR = x1 - 14, samp = 120;
+  let lo = 0, hi = PT;
+  for (let i = 0; i <= samp; i += 1) {
+    const v = velocity(st.Q, pipeArea(i / samp, st.ratio));
+    const p = pressure(PT, st.rho, v), q = 0.5 * st.rho * v * v;
+    if (p < lo) lo = p; if (q > hi) hi = q;
+  }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const xOf = (xx) => plL + xx * (plR - plL);
+  const yOf = (val) => plB - (val - lo) / (hi - lo) * (plB - plT);
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(plL, plT); ctx.lineTo(plL, plB); ctx.lineTo(plR, plB); ctx.stroke();
+  if (lo < 0) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath(); ctx.moveTo(plL, yOf(0)); ctx.lineTo(plR, yOf(0)); ctx.stroke();
+    ctx.fillStyle = 'rgba(200,206,224,0.5)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.fillText('0', plL - 4, yOf(0) + 3);
+  }
+  ctx.strokeStyle = 'rgba(255,210,120,0.4)'; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(xOf(0.5), plT); ctx.lineTo(xOf(0.5), plB); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,210,120,0.7)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('throat', xOf(0.5), plB + 14);
+  ctx.save(); ctx.beginPath(); ctx.rect(plL, plT - 4, plR - plL, plB - plT + 8); ctx.clip();
+  const curve = (fn, color, w) => {
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.beginPath();
+    for (let i = 0; i <= samp; i += 1) { const xx = i / samp; const v = velocity(st.Q, pipeArea(xx, st.ratio)); const X = xOf(xx), Y = yOf(fn(v)); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
+    ctx.stroke();
+  };
+  curve(() => PT, 'rgba(120,230,170,0.95)', 2.4);          // total: flat (Bernoulli constant)
+  curve((v) => pressure(PT, st.rho, v), '#7fb2ff', 2);     // static pressure: dips at throat
+  curve((v) => 0.5 * st.rho * v * v, '#ff9a5a', 2);        // dynamic pressure: peaks at throat
+  ctx.restore();
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
+  const leg = [['static p', '#7fb2ff'], ['dynamic q', '#ff9a5a'], ['total p+q', 'rgba(120,230,170,0.95)']];
+  let lxx = x0 + 12; const lyy = y1 - 12;
+  for (const [lab, col] of leg) {
+    ctx.fillStyle = col; ctx.fillRect(lxx, lyy - 7, 14, 3);
+    ctx.fillStyle = 'rgba(220,226,235,0.85)'; ctx.fillText(lab, lxx + 18, lyy);
+    lxx += 18 + ctx.measureText(lab).width + 18;
+  }
+  ctx.save(); ctx.translate(x0 + 14, (plT + plB) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = 'rgba(180,190,210,0.7)'; ctx.textAlign = 'center'; ctx.fillText('pressure (a.u.)', 0, 0); ctx.restore();
+}
+
 function readout() {
   const d = diagnostics(PT, st.rho, st.Q, st.ratio, 200);
   rB.textContent = d.bernoulliSpread.toExponential(1);
@@ -150,6 +214,7 @@ function frame(dt) {
   drawPipe();
   drawColumns();
   drawParticles(dt);
+  drawDiagnostic();
   drawAirfoil();
   readout();
 }
