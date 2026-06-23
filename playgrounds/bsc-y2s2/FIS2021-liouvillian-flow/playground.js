@@ -36,13 +36,17 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const PHASE = { x: 60, y: 30, w: 480, h: 400,
+// Portrait stack: the phase-space plot full width on top, the physical
+// pendulum panel centred below, instead of a landscape pair that ran the
+// pendulum panel off the right edge and left the lower half of the canvas
+// black.
+const PHASE = { x: 56, y: 44, w: 708, h: 470,
                 thetaMin: -Math.PI, thetaMax: Math.PI,
                 pMin: -3,           pMax: 3 };
-// Physical pendulum panel on the right. Each tracer's angular position is
-// shown as a faint bob hanging from the panel origin so the user can watch
-// the cloud librate, rotate, and filament in physical space.
-const PEND = { cx: 700, cy: 220, L: 140 };
+// Physical pendulum panel below. Each tracer's angular position is shown as
+// a faint bob hanging from the panel origin so the user can watch the cloud
+// librate, rotate, and filament in physical space.
+const PEND = { cx: 410, cy: 700, L: 160 };
 
 const TRACER_RADIUS = 1.2;
 

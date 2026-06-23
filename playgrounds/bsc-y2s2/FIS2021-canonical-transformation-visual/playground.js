@@ -174,8 +174,12 @@ function drawAreaRatio() {
   ctx.fillText('area(image) / area(source)', 0, 0); ctx.restore();
   ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(120,130,150,0.85)';
   ctx.fillText('0', ax - 8, PY(0) + 4); ctx.fillText('1', ax - 8, PY(1) + 4); ctx.fillText('2', ax - 8, PY(2) + 4);
-  ctx.textAlign = 'left'; ctx.fillStyle = '#ef476f';
-  ctx.fillText(`t = ${st.t.toFixed(2)},  ratio = ${rc.toFixed(3)}`, PX(st.t) + 9, PY(rc) - 9);
+  ctx.fillStyle = '#ef476f';
+  const lblTxt = `t = ${st.t.toFixed(2)},  ratio = ${rc.toFixed(3)}`, lblX = PX(st.t);
+  // follow the operating point but flip to its left near the right edge so the
+  // readout never runs off the plot.
+  if (lblX > ax + aw - 180) { ctx.textAlign = 'right'; ctx.fillText(lblTxt, lblX - 9, PY(rc) - 9); }
+  else { ctx.textAlign = 'left'; ctx.fillText(lblTxt, lblX + 9, PY(rc) - 9); }
 }
 
 function render() {

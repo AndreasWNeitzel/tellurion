@@ -349,7 +349,7 @@ function drawSegre() {
   ctx.fillStyle = '#0a0c12'; ctx.fillRect(CHX, CHY, CHW, CHH);
   ctx.strokeStyle = 'rgba(220,225,235,0.45)'; ctx.strokeRect(CHX, CHY, CHW, CHH);
   ctx.fillStyle = '#9aa0ad'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('Segre chart: N (right) vs Z (up); zigzag = α down-left, β up-left', CHX + 10, CHY + 18);
+  ctx.fillText('Segre chart: N vs Z; α down-left, β up-left', CHX + 10, CHY + 18);
 
   let nMin = 1e9, nMax = -1e9, zMin = 1e9, zMax = -1e9;
   for (const p of path) { nMin = Math.min(nMin, p.N); nMax = Math.max(nMax, p.N); zMin = Math.min(zMin, p.Z); zMax = Math.max(zMax, p.Z); }

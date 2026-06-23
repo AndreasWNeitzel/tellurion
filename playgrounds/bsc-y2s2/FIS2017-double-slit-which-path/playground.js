@@ -85,7 +85,7 @@ function drawScene(col, r) {
 }
 
 function drawDiag(col, r) {
-  panel(col, r, 'Intensity along the screen (curve) and the detections (bars); the bottom bar is the complementarity V^2 + D^2 = 1');
+  panel(col, r, 'Screen intensity (curve), detections (bars), complementarity V^2 + D^2 = 1');
   const inner = { x: r.x + 16, y: r.y + 26, w: r.w - 32, h: r.h - 26 - 56 };
   const thmax = THMAX();
   const xOf = (th) => inner.x + (th + thmax) / (2 * thmax) * inner.w;
