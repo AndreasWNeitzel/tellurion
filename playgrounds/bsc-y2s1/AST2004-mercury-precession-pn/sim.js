@@ -99,7 +99,6 @@ export function findPerihelionAngle(merc, nSteps, dt = DEFAULT_DT) {
   let rPrev = Infinity, rCurr = Infinity, rNext = Infinity;
   let theta = NaN;
   const y = merc.inst.q;
-  const v = merc.inst.qdot;
   for (let i = 0; i < nSteps; i += 1) {
     stepMercury(merc, dt);
     rPrev = rCurr; rCurr = rNext;
@@ -111,5 +110,4 @@ export function findPerihelionAngle(merc, nSteps, dt = DEFAULT_DT) {
     }
   }
   return theta;
-  void v;
 }

@@ -246,7 +246,7 @@ function drawScene(col, r) {
   ctx.stroke();
 
   // principal axes at the balance point (valley green, hill red).
-  if (eq.ok || true) {
+  if (eq.ok) {
     const drawAxis = (u, c) => {
       const aX = WX(eq.x - u[0] * 0.7), aY = WY(eq.y - u[1] * 0.7), bX = WX(eq.x + u[0] * 0.7), bY = WY(eq.y + u[1] * 0.7);
       ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(aX, aY); ctx.lineTo(bX, bY); ctx.stroke(); ctx.setLineDash([]);

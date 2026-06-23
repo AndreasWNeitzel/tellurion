@@ -291,7 +291,7 @@ canvas.addEventListener('pointermove', (ev) => {
 function endProbe(ev) {
   if (!probing) return;
   probing = false;
-  try { canvas.releasePointerCapture(ev.pointerId); } catch {}
+  try { canvas.releasePointerCapture(ev.pointerId); } catch { /* no capture to release */ }
 }
 canvas.addEventListener('pointerup', endProbe);
 canvas.addEventListener('pointercancel', endProbe);

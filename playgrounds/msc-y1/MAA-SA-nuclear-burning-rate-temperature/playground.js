@@ -157,7 +157,7 @@ window.playground.getState = function () {
   return { fields: [
     { key: 'logT', label: 'log$_{10}$ T (K)', value: st.logT, format: 'float' },
     { key: 'rho', label: 'density (g/cm$^3$)', value: st.rho, format: 'float' },
-    { key: 'eps-tot', label: 'total $\epsilon$ (erg g$^{-1}$ s$^{-1}$)', value: epsTot.toExponential(2), format: 'string' },
+    { key: 'eps-tot', label: 'total $\\epsilon$ (erg g$^{-1}$ s$^{-1}$)', value: epsTot.toExponential(2), format: 'string' },
   ] };
 };
 window.playground.getInvariants = function () {
@@ -166,6 +166,6 @@ window.playground.getInvariants = function () {
   const epsTot = eps[0] + eps[1] + eps[2];
   return [
     { key: 'T-valid', label: 'T in valid range', value: st.logT >= LOGT_LO && st.logT <= LOGT_HI ? 'pass' : 'drift', status: st.logT >= LOGT_LO && st.logT <= LOGT_HI ? 'pass' : 'drift' },
-    { key: 'eps-positive', label: 'total $\epsilon$ > 0', value: epsTot > 0 ? 'pass' : 'drift', status: epsTot > 0 ? 'pass' : 'drift' },
+    { key: 'eps-positive', label: 'total $\\epsilon$ > 0', value: epsTot > 0 ? 'pass' : 'drift', status: epsTot > 0 ? 'pass' : 'drift' },
   ];
 };

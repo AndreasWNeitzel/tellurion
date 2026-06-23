@@ -13,7 +13,7 @@
 // (3rd ed.), Ch. 7-8; Reif, Fundamentals of Statistical and Thermal
 // Physics, Ch. 9.
 
-export const ZETA32 = 2.6123753486854883;       // zeta(3/2)
+export const ZETA32 = 2.612375348685488;        // zeta(3/2)
 export const GAMMA32 = Math.sqrt(Math.PI) / 2;   // Gamma(3/2)
 export const C = 1;                              // density-of-states constant
 export const NTOT = 1;                           // fixed particle number
