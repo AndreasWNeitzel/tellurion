@@ -32,83 +32,105 @@ btnP.addEventListener('click', () => {
   btnP.setAttribute('aria-pressed', String(!running));
 });
 
+function arrowHead(x0, y0, dirx, diry, size, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x0 - size * dirx + 0.55 * size * diry, y0 - size * diry - 0.55 * size * dirx);
+  ctx.lineTo(x0 - size * dirx - 0.55 * size * diry, y0 - size * diry + 0.55 * size * dirx);
+  ctx.closePath(); ctx.fill();
+}
+
 function render() {
   const W = canvas.width, H = canvas.height;
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
 
-  // Primary scene occupies the top 70%.
-  const sceneH = H * 0.7;
-  const cx = W / 2, cy = sceneH / 2;
-  const R = Math.min(W, sceneH) * 0.34;
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('gyroscope on a circular orbit: spin axis turns (gamma-1) rad per orbit', 12, 18);
 
-  // Orbit ellipse (projected circle, slight foreshortening in y).
+  // ORBIT (top third). A projected circle with the gyroscope riding it.
+  const cx = W / 2, cy = H * 0.245, R = W * 0.40, ry = R * 0.46;
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, R, R * 0.55, 0, 0, 2 * Math.PI);
-  ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(cx, cy, R, ry, 0, 0, 2 * Math.PI); ctx.stroke();
 
-  // Gyroscope position on the orbit.
-  const orbitFrac = (st.t / T_ORBIT);
-  const theta = 2 * Math.PI * orbitFrac;
-  const px = cx + R * Math.cos(theta);
-  const py = cy + R * 0.55 * Math.sin(theta);
+  const theta = 2 * Math.PI * (st.t / T_ORBIT);
+  const px = cx + R * Math.cos(theta), py = cy + ry * Math.sin(theta);
 
-  // Gyroscope drawn as a small disk (ellipse) with a spin-axis arrow.
-  ctx.fillStyle = 'rgba(255,209,102,0.85)';
-  ctx.beginPath();
-  ctx.ellipse(px, py, 14, 7, 0, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.strokeStyle = '#9aa0a6';
-  ctx.beginPath();
-  ctx.ellipse(px, py, 14, 7, 0, 0, 2 * Math.PI);
-  ctx.stroke();
-
-  // Spin axis: starts pointing +x in the lab frame; rotates by st.precess.
-  const ax = Math.cos(st.precess), ay = Math.sin(st.precess);
-  const L = 46;
+  // Gyroscope disk with its (precessing) spin-axis arrow.
+  ctx.fillStyle = 'rgba(255,209,102,0.9)';
+  ctx.beginPath(); ctx.ellipse(px, py, 15, 8, 0, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(px, py, 15, 8, 0, 0, 2 * Math.PI); ctx.stroke();
+  const ax = Math.cos(st.precess), ay = Math.sin(st.precess), L = 50;
   ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(px, py);
-  ctx.lineTo(px + L * ax, py + L * ay);
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + L * ax, py + L * ay); ctx.stroke();
+  arrowHead(px + L * ax, py + L * ay, ax, ay, 9, '#ef476f');
+
+  // PRECESSION DIAL (middle): magnifies the accumulated lab-frame axis angle,
+  // which on the small gyroscope is invisible. Initial direction dashed,
+  // current direction solid, swept sector filled, full turns counted.
+  const dcx = W / 2, dcy = H * 0.515, rd = 96;
+  ctx.strokeStyle = 'rgba(220,220,240,0.22)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(dcx, dcy, rd, 0, 2 * Math.PI); ctx.stroke();
+  const principal = st.precess - 2 * Math.PI * Math.floor(st.precess / (2 * Math.PI));
+  ctx.fillStyle = 'rgba(239,71,111,0.16)';
+  ctx.beginPath(); ctx.moveTo(dcx, dcy); ctx.arc(dcx, dcy, rd, 0, principal); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(154,160,166,0.55)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(dcx, dcy); ctx.lineTo(dcx + rd, dcy); ctx.stroke(); ctx.setLineDash([]);
+  const cax = Math.cos(st.precess), cay = Math.sin(st.precess);
+  ctx.strokeStyle = '#ef476f'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(dcx, dcy); ctx.lineTo(dcx + rd * cax, dcy + rd * cay); ctx.stroke();
+  arrowHead(dcx + rd * cax, dcy + rd * cay, cax, cay, 10, '#ef476f');
+  ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(dcx, dcy, 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('lab-frame spin axis', dcx, dcy - rd - 10);
   ctx.fillStyle = '#ef476f';
-  ctx.beginPath();
-  ctx.moveTo(px + L * ax, py + L * ay);
-  ctx.lineTo(px + (L - 8) * ax + 5 * ay, py + (L - 8) * ay - 5 * ax);
-  ctx.lineTo(px + (L - 8) * ax - 5 * ay, py + (L - 8) * ay + 5 * ax);
-  ctx.closePath(); ctx.fill();
+  ctx.fillText(`${st.precess.toFixed(3)} rad   ${(st.precess / (2 * Math.PI)).toFixed(2)} turns`, dcx, dcy + rd + 20);
+  ctx.textAlign = 'left';
 
-  // Reference: the initial inertial direction (+x), faint dashed.
-  ctx.strokeStyle = 'rgba(154,160,166,0.4)';
-  ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + R + 40, cy); ctx.stroke();
-  ctx.setLineDash([]);
+  // DIAGNOSTIC: (gamma-1) per orbit vs beta, with labelled axes.
+  const px0 = 64, py0 = H * 0.665, pw = W - 100, ph = H * 0.27;
+  const YMAX = 6;
+  const xFor = (b) => px0 + (b / 0.99) * pw;
+  const yFor = (v) => py0 + ph - Math.min(1, v / YMAX) * ph;
+  ctx.fillStyle = '#0a0b12'; ctx.fillRect(px0, py0, pw, ph);
+  ctx.strokeStyle = 'rgba(220,220,240,0.30)'; ctx.lineWidth = 1; ctx.strokeRect(px0 + 0.5, py0 + 0.5, pw, ph);
 
-  // Secondary panel: precession-rate-per-orbit vs beta curve.
-  const py0 = sceneH + 10, ph = H - py0 - 30, px0 = 60, pw = W - 90;
-  ctx.strokeStyle = 'rgba(220,220,240,0.35)';
-  ctx.strokeRect(px0, py0, pw, ph);
-  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.5;
-  ctx.beginPath();
+  // Y ticks (gamma-1) and gridlines.
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.62)'; ctx.textAlign = 'right';
+  for (const v of [0, 2, 4, 6]) {
+    const yy = yFor(v);
+    ctx.fillText(`${v}`, px0 - 6, yy + 3);
+    ctx.strokeStyle = 'rgba(226,232,240,0.07)';
+    ctx.beginPath(); ctx.moveTo(px0, yy); ctx.lineTo(px0 + pw, yy); ctx.stroke();
+  }
+  // X ticks (beta).
+  ctx.textAlign = 'center';
+  for (const b of [0, 0.2, 0.4, 0.6, 0.8]) {
+    const xx = xFor(b);
+    ctx.strokeStyle = 'rgba(226,232,240,0.10)';
+    ctx.beginPath(); ctx.moveTo(xx, py0 + ph); ctx.lineTo(xx, py0 + ph + 4); ctx.stroke();
+    ctx.fillText(b.toFixed(1), xx, py0 + ph + 16);
+  }
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'right'; ctx.fillText('beta = v/c', px0 + pw, py0 + ph + 16);
+  ctx.textAlign = 'left'; ctx.fillText('(gamma-1) per orbit', px0 + 6, py0 + 14);
+
+  // Curve and current-beta marker.
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.8; ctx.beginPath();
   for (let i = 0; i <= 100; i += 1) {
     const b = i / 100 * 0.99;
-    const f = thomasFactor(b);                  // (gamma - 1)
-    const x = px0 + (b / 0.99) * pw;
-    const y = py0 + ph - Math.min(1, f / 6) * ph;
+    const x = xFor(b), y = yFor(thomasFactor(b));
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  // Current-beta marker.
-  const mx = px0 + (st.beta / 0.99) * pw;
-  const my = py0 + ph - Math.min(1, thomasFactor(st.beta) / 6) * ph;
   ctx.fillStyle = '#ffd166';
-  ctx.beginPath(); ctx.arc(mx, my, 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(xFor(st.beta), yFor(thomasFactor(st.beta)), 5, 0, 2 * Math.PI); ctx.fill();
 
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`(gamma-1) per orbit vs beta`, px0 + 6, py0 + 14);
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(
-    `beta=${st.beta.toFixed(2)} gamma=${gamma(st.beta).toFixed(3)}  accumulated axis angle = ${st.precess.toFixed(3)} rad (${(st.precess / (2 * Math.PI)).toFixed(2)} turns)`,
+    `beta=${st.beta.toFixed(2)} gamma=${gamma(st.beta).toFixed(3)}  (gamma-1)=${thomasFactor(st.beta).toFixed(3)} rad/orbit`,
     12, H - 10);
   rW.textContent = thomasFactor(st.beta).toFixed(3);
 }
