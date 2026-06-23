@@ -26,10 +26,9 @@ const btnShuffle    = document.getElementById('btn-shuffle');
 
 const W = canvas.width, H = canvas.height;
 const KEY = { x: Math.round((W - 480) / 2), y: 30, w: 480, h: 480, xmin: -3, xmax: 3, ymin: -3, ymax: 3 };
-const VAL = { x: 60, y: 540, w: W - 120, h: H - 540 - 30 };
+const VAL = { x: 60, y: 540, w: W - 120, h: H - 540 - 96 };
 
 const N_KEYS = 6;
-const D = 2;
 let rng = makeRng(0xC0FFEE);
 
 const state = {
@@ -145,8 +144,10 @@ function drawKeyPanel(weights) {
   ctx.stroke();
   ctx.fillStyle = tok.fg;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillText('drag query', qPx.px + 9, qPx.py - 4);
+  // keep the label inside the panel: flip it to the left of the dot when the
+  // query approaches the right edge.
+  if (qPx.px > KEY.x + KEY.w - 80) { ctx.textAlign = 'right'; ctx.fillText('drag query', qPx.px - 9, qPx.py - 4); }
+  else { ctx.textAlign = 'left'; ctx.fillText('drag query', qPx.px + 9, qPx.py - 4); }
 
   // panel label
   ctx.fillStyle = tok.fgMuted;
@@ -236,14 +237,16 @@ function drawReadout(weights, output) {
     ['w[argmax]',   weights[am].toFixed(3)],
     ['output',      output[0].toFixed(3)],
   ];
-  const xL = VAL.x;
-  const xR = VAL.x + VAL.w;
-  let y = VAL.y + VAL.h + 18;
-  for (const [k, v] of rows) {
+  // two columns of three rows, kept clear of the canvas bottom edge.
+  const colW = VAL.w / 2;
+  const y0 = VAL.y + VAL.h + 20, rowH = 16;
+  rows.forEach(([k, v], i) => {
+    const col = i < 3 ? 0 : 1, row = i % 3;
+    const xL = VAL.x + col * colW, xR = VAL.x + col * colW + colW - 24;
+    const y = y0 + row * rowH;
     ctx.textAlign = 'left';  ctx.fillStyle = tok.fgMuted; ctx.fillText(k, xL, y);
     ctx.textAlign = 'right'; ctx.fillStyle = tok.fg; ctx.fillText(v, xR, y);
-    y += 14;
-  }
+  });
 }
 
 function drawAll() {
