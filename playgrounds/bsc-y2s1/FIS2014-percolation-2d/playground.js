@@ -148,7 +148,7 @@ function drawAll() {
   // steeply. The current (p, P_inf) is highlighted with a dot.
   // ====================================================================
   if (!pInfReady) buildPInfCurve();
-  const opX = lattW + 40, opY = 24, opW = W - opX - 20, opH = H - 180;
+  const opX = lattW + 40, opY = 24, opW = W - opX - 20, opH = H - 64;
   ctx.fillStyle = 'rgba(15, 18, 28, 0.85)';
   ctx.fillRect(opX, opY, opW, opH);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
@@ -231,9 +231,9 @@ function drawAll() {
   ctx.restore();
 
   // Cluster-size histogram: log-log bin counts so the power-law
-  // n(s) ~ s^-tau at the critical point is visible. Placed directly
-  // below the P_inf(p) panel so layout stays clean.
-  const hX = opX, hY = opY + opH + 16, hW = opW, hH = 120;
+  // n(s) ~ s^-tau at the critical point is visible. Placed in the wide
+  // space below the lattice so the bottom-left is not left empty.
+  const hX = 20, hY = y0 + cell * state.L + 22, hW = lattW, hH = H - hY - 120;
   ctx.fillStyle = 'rgba(15, 18, 28, 0.85)'; ctx.fillRect(hX, hY, hW, hH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.strokeRect(hX + 0.5, hY + 0.5, hW - 1, hH - 1);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
