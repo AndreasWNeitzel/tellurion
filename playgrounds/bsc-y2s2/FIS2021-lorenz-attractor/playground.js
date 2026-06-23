@@ -37,7 +37,9 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const CX = W / 2, CY = H / 2, ELEV = 0.34;
+const CX = W / 2, CY = 366, ELEV = 0.34;        // attractor in the upper region; x(t) strip below
+const VIEW_SCALE = 1.7;                          // enlarge the projection so it fills the portrait
+const DIAG = { x: 40, y: 716, w: W - 80, h: H - 716 - 14 };
 
 const state = {
   key: 'lorenz',
@@ -81,7 +83,7 @@ function rebuild() {
 }
 
 function project(p) {
-  const c = state.at.def.center, sc = state.at.def.scale;
+  const c = state.at.def.center, sc = state.at.def.scale * VIEW_SCALE;
   const x = (p[0] - c[0]) * sc, y = (p[1] - c[1]) * sc, z = (p[2] - c[2]) * sc;
   const ca = Math.cos(state.az), sa = Math.sin(state.az);
   const ex = x * ca - y * sa;
@@ -121,7 +123,28 @@ function drawAll() {
     ctx.fillText('dissipative chaotic attractor; drag the speed slider, pick another from the menu', 18, 44);
   }
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
-  ctx.fillText('points ~ trail length; colour = age (viridis)', 18, H - 16);
+  ctx.fillText('points ~ trail length; colour = age (viridis)', 18, 700);
+  drawDiagnostic();
+}
+
+function drawDiagnostic() {
+  const { x: x0, y: y0, w, h } = DIAG, x1 = x0 + w, y1 = y0 + h;
+  ctx.fillStyle = '#0a0b10'; ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  ctx.fillStyle = 'rgba(226,232,240,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('x(t): the chaotic signal  (for Lorenz, the sign tracks which wing the orbit is on)', x0 + 10, y0 + 16);
+  const tr = state.trail, n = tr.length;
+  if (n < 3) return;
+  const plT = y0 + 24, plB = y1 - 12, plL = x0 + 12, plR = x1 - 10;
+  let lo = Infinity, hi = -Infinity;
+  for (const p of tr) { const v = p[0]; if (v < lo) lo = v; if (v > hi) hi = v; }
+  if (hi - lo < 1e-6) hi = lo + 1;
+  const yV = (v) => plB - (v - lo) / (hi - lo) * (plB - plT);
+  if (lo < 0 && hi > 0) { ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plL, yV(0)); ctx.lineTo(plR, yV(0)); ctx.stroke(); }
+  ctx.save(); ctx.beginPath(); ctx.rect(plL, plT - 2, plR - plL, plB - plT + 4); ctx.clip();
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.2; ctx.beginPath();
+  for (let i = 0; i < n; i += 1) { const X = plL + (i / (n - 1)) * (plR - plL); const Y = yV(tr[i][0]); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
+  ctx.stroke(); ctx.restore();
 }
 
 function stepFrame() {
