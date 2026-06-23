@@ -109,6 +109,10 @@ function mapP(P) { return PV.y + PV.h - 30 - ((P - Pmin) / (Pmax - Pmin)) * (PV.
 // Each cylinder shows a particle gas whose mean speed tracks T.
 // =========================================================================
 function drawPistonPanel() {
+  // Left-align every label in this column; otherwise they inherit centre
+  // alignment from an earlier panel and the left-margin labels (at x ~ 24)
+  // run off the left edge of the canvas.
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   // Frame.
   ctx.fillStyle = 'rgba(20, 28, 44, 0.55)';
   ctx.fillRect(PISTON.x - 8, PISTON.y - 8, PISTON.w + 16, PISTON.h + 16);
@@ -397,7 +401,7 @@ function render() {
   drawPVPanel();
   // Direction indicator.
   ctx.fillStyle = 'rgba(220, 230, 255, 0.65)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(st.dir > 0 ? 'compression -> expansion' : 'expansion -> compression', PISTON.x, H - 12);
 }
 
