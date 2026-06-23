@@ -40,21 +40,23 @@ function py(y) { return CYp - y * SY; }
 const st = { presetName: 'dipole', strength: 1, speed: 3, running: !prefersReducedMotion(), t: 0, H0: 0 };
 let s, tracers = [];
 
-function buildTracers(deterministic) {
+function buildTracers() {
+  // A fresh seeded RNG per build keeps the capture perfectly reproducible
+  // while scattering the tracers uniformly. The old deterministic branch
+  // hashed i with (i*73)%100, which aliased every tracer onto a sparse
+  // ~100-value lattice, so the still read as a thin regular dot grid.
+  const trng = makeRng(0xC0FFEE);
   tracers = [];
-  const N = 2200;
+  const N = 3000;
   for (let i = 0; i < N; i += 1) {
-    let rx, ry;
-    if (deterministic) { rx = ((i * 73) % 100) / 100 * 2 * VIEW - VIEW; ry = ((i * 31) % 100) / 100 * 2 * VIEW - VIEW; }
-    else { rx = (rng() * 2 - 1) * VIEW; ry = (rng() * 2 - 1) * VIEW; }
-    tracers.push([rx, ry]);
+    tracers.push([(trng() * 2 - 1) * VIEW, (trng() * 2 - 1) * VIEW]);
   }
 }
 function build(deterministic) {
   const v = preset(st.presetName).map(o => ({ x: o.x, y: o.y, gamma: o.gamma * st.strength }));
   s = createState(v);
   st.H0 = hamiltonian(s) || 1e-12;
-  buildTracers(deterministic);
+  buildTracers();
 }
 
 function advance(dt) {
@@ -83,8 +85,8 @@ function advance(dt) {
 function render() {
   // Persistence fade: tracers accumulate into streaklines that reveal
   // the induced flow, then slowly fade (the standard dye technique).
-  ctx.fillStyle = 'rgba(7,8,12,0.12)'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(150,195,240,0.62)';
+  ctx.fillStyle = 'rgba(7,8,12,0.085)'; ctx.fillRect(0, 0, W, H);   // gentler fade -> longer streaklines reveal the flow
+  ctx.fillStyle = 'rgba(160,205,245,0.72)';
   for (const tr of tracers) {
     const X = px(tr[0]), Y = py(tr[1]);
     if (X >= 0 && X < W && Y >= 0 && Y < H) ctx.fillRect(X, Y, 2, 2);
