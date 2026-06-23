@@ -15,8 +15,9 @@ VO: Elastic collisions conserve total energy and momentum, yet they reshuffle sp
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Let the disks collide: they start at a single speed, but elastic collisions reshuffle energy until the histogram settles onto the 2D Maxwell-Boltzmann curve, with no thermostat imposing it.
+VO: Compare the live mean speed against the prediction: equilibrium emerges purely from momentum-conserving collisions, the microscopic origin of temperature.
+VO: Speed it up and watch the tail fill in: the rare fast disks of the high-energy tail are exactly the ones that drive reaction rates and evaporation.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

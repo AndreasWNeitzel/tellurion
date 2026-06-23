@@ -15,8 +15,9 @@ VO: The playground shows two views: a cobweb diagram that staircases the iterati
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag r up through the bifurcation diagram: the single fixed point splits to a 2-cycle, then 4, 8, and on into chaos, the period-doubling cascade traced live in the cobweb.
+VO: Watch the Lyapunov exponent: it stays negative on stable cycles and turns positive once the map is chaotic, the quantitative onset of sensitive dependence on initial conditions.
+VO: The ratio of successive bifurcation spacings converges to the Feigenbaum constant 4.669, a universal number shared by every smooth single-humped map.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

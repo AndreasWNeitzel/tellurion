@@ -15,8 +15,9 @@ VO: Each has a cutoff frequency f c = (c/2) sqrt((m/a) 2 + (n/b) 2); above it th
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the frequency past a mode cutoff (blue on the spectrum) and it begins to propagate; below cutoff it is evanescent and dies away. Only modes left of the operating line carry power.
+VO: Watch the guide wavelength lambda_g stretch as you approach the TE10 cutoff: the wave slows along the guide and its wavelength diverges right at cutoff.
+VO: Widen the guide and the cutoff frequencies drop, letting more modes through, the bandwidth-versus-single-mode trade-off at the heart of microwave plumbing.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

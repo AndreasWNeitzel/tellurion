@@ -15,8 +15,9 @@ VO: The monatomic chain has exactly N modes at omega n = 2 sqrt(K/m) sin(n pi / 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Click the dispersion curve to pick a mode: long-wavelength points on the acoustic branch rock the whole chain together, while the optical branch has neighbouring atoms beating out of phase.
+VO: Mind the band gap: between the top of the acoustic branch and the bottom of the optical branch lies a forbidden frequency range, the phononic analogue of an electronic band gap.
+VO: At the zone boundary the two atom species move oppositely and the group velocity drops to zero, a standing wave that transports no energy.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

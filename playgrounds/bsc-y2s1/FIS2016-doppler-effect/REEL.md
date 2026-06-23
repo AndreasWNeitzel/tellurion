@@ -15,8 +15,9 @@ VO: The animation is driven by the real equations, not a canned loop.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Push v/c toward 1: the wavefronts bunch up ahead of the source and stretch out behind, the blue-shifted front and red-shifted wake of the Doppler effect.
+VO: Drag the observer around the source: the received frequency runs from compressed ahead, through f = 1 at the side, to stretched behind, traced live on the bottom frequency-versus-angle curve.
+VO: The forward and backward shifts are not symmetric, lambda_front = c/f - v/f against lambda_back = c/f + v/f, an asymmetry that grows as the source nears the wave speed.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
