@@ -31,13 +31,14 @@ const sStr = document.getElementById('slider-strength'), vStr = document.getElem
 const sSpd = document.getElementById('slider-speed'), vSpd = document.getElementById('value-speed');
 const bR = document.getElementById('btn-reset'), bP = document.getElementById('btn-pause');
 
-const VIEW = 4.2;                                     // world half-extent (tighter framing)
+const VIEW = 4.2;                                     // world half-extent along x (sets the scale)
 const SX = W / (2 * VIEW), SY = SX;                   // isotropic world->pixel
+const VIEW_Y = (H / 2) / SY;                          // taller half-extent so the flow fills the portrait
 const CXp = W / 2, CYp = H / 2;
 function px(x) { return CXp + x * SX; }
 function py(y) { return CYp - y * SY; }
 
-const st = { presetName: 'dipole', strength: 1, speed: 3, running: !prefersReducedMotion(), t: 0, H0: 0 };
+const st = { presetName: 'corotating', strength: 1, speed: 3, running: !prefersReducedMotion(), t: 0, H0: 0 };
 let s, tracers = [];
 
 function buildTracers() {
@@ -47,9 +48,11 @@ function buildTracers() {
   // ~100-value lattice, so the still read as a thin regular dot grid.
   const trng = makeRng(0xC0FFEE);
   tracers = [];
-  const N = 3000;
+  const N = 5500;
+  // [x, y, vx, vy]: the velocity slots let render() draw each tracer as a
+  // short streak along its motion, which reads as a flow line instead of a dot.
   for (let i = 0; i < N; i += 1) {
-    tracers.push([(trng() * 2 - 1) * VIEW, (trng() * 2 - 1) * VIEW]);
+    tracers.push([(trng() * 2 - 1) * VIEW, (trng() * 2 - 1) * VIEW_Y, 0, 0]);
   }
 }
 function build(deterministic) {
@@ -69,28 +72,38 @@ function advance(dt) {
   let allOut = true;
   for (let i = 0; i < s.n; i += 1) {
     if (s.x[i] >= -VIEW * 1.2 && s.x[i] <= VIEW * 1.2
-        && s.y[i] >= -VIEW * 1.2 && s.y[i] <= VIEW * 1.2) { allOut = false; break; }
+        && s.y[i] >= -VIEW_Y * 1.2 && s.y[i] <= VIEW_Y * 1.2) { allOut = false; break; }
   }
   if (allOut) { build(false); }
   for (const tr of tracers) {
     const [vx, vy] = inducedVelocity(s, tr[0], tr[1]);
     tr[0] += vx * dt; tr[1] += vy * dt;
-    if (tr[0] < -VIEW || tr[0] > VIEW || tr[1] < -VIEW || tr[1] > VIEW) {
-      tr[0] = (((tr[0] + 3 * VIEW) % (2 * VIEW)) - VIEW);
-      tr[1] = (((tr[1] + 3 * VIEW) % (2 * VIEW)) - VIEW);
-    }
+    tr[2] = vx; tr[3] = vy;            // remember velocity for the streak render
+    // Re-inject tracers that leave the (anisotropic) view box from the
+    // opposite edge so the streakline field never depletes.
+    if (tr[0] < -VIEW) tr[0] += 2 * VIEW; else if (tr[0] > VIEW) tr[0] -= 2 * VIEW;
+    if (tr[1] < -VIEW_Y) tr[1] += 2 * VIEW_Y; else if (tr[1] > VIEW_Y) tr[1] -= 2 * VIEW_Y;
   }
 }
 
 function render() {
   // Persistence fade: tracers accumulate into streaklines that reveal
   // the induced flow, then slowly fade (the standard dye technique).
-  ctx.fillStyle = 'rgba(7,8,12,0.085)'; ctx.fillRect(0, 0, W, H);   // gentler fade -> longer streaklines reveal the flow
-  ctx.fillStyle = 'rgba(160,205,245,0.72)';
+  ctx.fillStyle = 'rgba(7,8,12,0.06)'; ctx.fillRect(0, 0, W, H);    // gentle fade -> long streaklines reveal the wound flow
+  // Each tracer is drawn as a short streak along its instantaneous velocity:
+  // a streak reads as a flow line where a dot reads as noise, and its length
+  // (K time-units of motion) encodes local speed, so the field self-decorates
+  // with the 1/r vortex flow. All segments batch into one stroke.
+  const K = 0.7;
+  ctx.strokeStyle = 'rgba(170,210,248,0.55)'; ctx.lineWidth = 1.1; ctx.lineCap = 'round';
+  ctx.beginPath();
   for (const tr of tracers) {
     const X = px(tr[0]), Y = py(tr[1]);
-    if (X >= 0 && X < W && Y >= 0 && Y < H) ctx.fillRect(X, Y, 2, 2);
+    if (X < -4 || X > W + 4 || Y < -4 || Y > H + 4) continue;
+    ctx.moveTo(px(tr[0] - tr[2] * K), py(tr[1] - tr[3] * K));
+    ctx.lineTo(X, Y);
   }
+  ctx.stroke();
   // vortices
   for (let i = 0; i < s.n; i += 1) {
     const X = px(s.x[i]), Y = py(s.y[i]);
@@ -173,8 +186,8 @@ selPre.addEventListener('change', () => { st.presetName = selPre.value; build(fa
 sStr.addEventListener('input', () => { st.strength = parseFloat(sStr.value) / 100; syncLabels(); build(false); render(); });
 sSpd.addEventListener('input', () => { st.speed = parseInt(sSpd.value, 10); syncLabels(); });
 bR.addEventListener('click', () => {
-  st.presetName = 'dipole'; st.strength = 1; st.speed = 3; st.running = true;
-  selPre.value = 'dipole'; sStr.value = '100'; sSpd.value = '3';
+  st.presetName = 'corotating'; st.strength = 1; st.speed = 3; st.running = true;
+  selPre.value = 'corotating'; sStr.value = '100'; sSpd.value = '3';
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false');
   syncLabels(); build(false); render();
 });
@@ -196,14 +209,20 @@ function boot() {
   restoreState(); syncLabels();
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   if (CAPTURE_NAME) {
-    st.presetName = 'dipole'; st.strength = 1;
+    st.presetName = 'corotating'; st.strength = 1;
     build(true);
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    const steps = Math.round(f * 520);
-    // render every step so the streakline persistence builds up
-    // deterministically into the golden frame (matches the live look)
-    for (let n = 0; n < steps; n += 1) { advance(0.004 * st.speed); render(); }
-    if (steps === 0) render();
+    const dtc = 0.012;
+    // Point-vortex orbits are slow, so wind the flow to a developed state
+    // first (position-only advance, no render), then render only a short tail
+    // so the streaklines build into the already-wound spiral rather than
+    // catching it barely started. The base 6 time-units keep even low
+    // fractions visibly structured.
+    const total = Math.round((6 + 40 * f) / dtc);
+    const tail = Math.min(total, 90);
+    for (let n = 0; n < total - tail; n += 1) advance(dtc);
+    for (let n = 0; n < tail; n += 1) { advance(dtc); render(); }
+    if (total === 0) render();
   } else {
     build(false); render();
   }
