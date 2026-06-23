@@ -167,9 +167,12 @@ function drawPanel(u, label, idx, color) {
   ctx.fillText(label, x0 + 8, y0 + 14);
   const tv = totalVariation(u);
   const err = l2Error(u, uExact);
+  // The unstable FTCS scheme overflows to enormous values; show those in
+  // compact scientific form instead of a 40-digit decimal string.
+  const fmt = (v, dp) => (!Number.isFinite(v) || Math.abs(v) >= 1e4) ? v.toExponential(2) : v.toFixed(dp);
   ctx.textAlign = 'right';
-  ctx.fillText(`TV=${tv.toFixed(2)}`, x0 + PANEL_W - 8, y0 + 14);
-  ctx.fillText(`L2=${err.toFixed(3)}`, x0 + PANEL_W - 8, y0 + 28);
+  ctx.fillText(`TV=${fmt(tv, 2)}`, x0 + PANEL_W - 8, y0 + 14);
+  ctx.fillText(`L2=${fmt(err, 3)}`, x0 + PANEL_W - 8, y0 + 28);
 }
 
 function drawAll() {
