@@ -103,9 +103,15 @@ function drawAll() {
     if (Number.isFinite(v)) { if (v < vLo) vLo = v; if (v > vHi) vHi = v; }
   }
   if (!Number.isFinite(vLo)) { vLo = -0.06; vHi = 0.06; }
-  const vpad = ((vHi - vLo) || 0.02) * 0.18;
-  const vMin = Math.min(vLo, 0) - vpad;
-  const vMax = Math.max(vHi, 0) + vpad;
+  // Fit the V axis to the curve itself (peak to well) so it fills the panel at
+  // every L. The escape threshold V = 0 is only forced into view when it is
+  // close to the curve; otherwise the bound-orbit peak (which sits below 0)
+  // would leave the upper third of the panel empty.
+  const vRange = (vHi - vLo) || 0.02;
+  let vMin = vLo - vRange * 0.12;
+  let vMax = vHi + vRange * 0.22;
+  if (0 > vMax && 0 < vMax + vRange * 0.6) vMax = 0 + vRange * 0.08;
+  if (0 < vMin && 0 > vMin - vRange * 0.6) vMin = 0 - vRange * 0.08;
   function yV(v) {
     const clamped = Math.max(vMin, Math.min(vMax, v));
     return padT + drawH - (drawH * (clamped - vMin) / (vMax - vMin));
@@ -114,13 +120,15 @@ function drawAll() {
   ctx.save(); ctx.translate(18, padT + drawH / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(isMassive ? 'V_eff (specific energy)' : 'V_eff (photon)', 0, 0); ctx.restore();
-  // Zero line
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-  ctx.setLineDash([3, 3]);
-  ctx.beginPath();
-  ctx.moveTo(padL, yV(0)); ctx.lineTo(padL + drawW, yV(0));
-  ctx.stroke();
-  ctx.setLineDash([]);
+  // Zero line (escape threshold), only when it falls within the fitted range
+  if (0 >= vMin && 0 <= vMax) {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(padL, yV(0)); ctx.lineTo(padL + drawW, yV(0));
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
 
   // V_eff curve
   ctx.strokeStyle = isMassive ? tok.accentCool : tok.accentWarm;
