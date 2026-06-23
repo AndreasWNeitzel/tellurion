@@ -300,6 +300,13 @@ function tick(now) {
 }
 
 function bootSync() {
+  if (CAPTURE_NAME) {
+    // Map the capture fraction onto the scale-factor sweep (log a from -3 to 0,
+    // i.e. a from 1e-3 to 1) that the live tick animates. Without this the
+    // captured frames were frozen at a = 1e-3, an empty featureless universe.
+    const f = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
+    st.loga = -3 + 3 * f;
+  }
   render();
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
