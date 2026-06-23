@@ -9,8 +9,7 @@
 // byte-identical; surfaceProfile2D appended). Canvas2D,
 // deterministic.
 import {
-  ljForce, ljMinDistance, kappa, stmCurrent, decadePerAngstrom,
-  surfaceProfile, surfaceProfile2D, stmConstantHeight, stmTopograph, afmForceScan,
+  ljForce, ljMinDistance, kappa, stmCurrent, decadePerAngstrom, surfaceProfile2D,
 } from './sim.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
@@ -24,10 +23,6 @@ const CAPTURE_FRAC = parseFloat(qp.get('captureFraction') ?? '0');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const W = canvas.width, H = canvas.height;
-const rGap = document.getElementById('readout-gap');
-const rKap = document.getElementById('readout-kappa');
-const rDec = document.getElementById('readout-decade');
-const rSig = document.getElementById('readout-signal');
 const selMode = document.getElementById('select-mode');
 const sGap = document.getElementById('slider-gap'), vGap = document.getElementById('value-gap');
 const sPhi = document.getElementById('slider-phi'), vPhi = document.getElementById('value-phi');
@@ -35,7 +30,10 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const LAT = 4, AMP = 0.6, EPS = 0.02, SIG = 3, BIAS = 0.1, ISET = 2e-3;
 const XMAX = 24;                                     // angstrom scan window
-const st = { mode: 'stm-cc', gap: 5, phi: 5, running: !prefersReducedMotion(), scanY: 0 };
+// Default to constant-height STM: there the gap and work function visibly
+// brighten/sharpen the current map. Constant-current and AFM are alternates.
+const st = { mode: 'stm-ch', gap: 5, phi: 5, running: !prefersReducedMotion(), scanY: 0, scanX: 0 };
+const IREF = stmCurrent(5 + AMP, BIAS, 5);          // brightness reference at the default setpoint
 
 // Micrograph panel (left, square) + law panel + scan-trace panel.
 const MG = { x: (W - 564) / 2, y: 38, s: 564 };   // big centred micrograph hero; diagnostics in a bottom row
@@ -78,10 +76,19 @@ function buildMicrograph() {
     }
   }
   const range = (hi - lo) || 1;
+  // Absolute brightness: in constant-height STM the current (so the image
+  // brightness) falls exponentially with the gap, so a small gap glows and a
+  // large gap goes dark. This makes the gap slider visibly drive the headline.
+  let bright = 1;
+  if (st.mode === 'stm-ch') {
+    const mean = (lo + hi) * 0.5;
+    bright = Math.max(0.30, Math.min(1.7, 1 + 0.22 * Math.log10(Math.max(1e-30, mean) / IREF)));
+  }
   const lx = -0.55, ly = -0.55, lz = 0.63;            // light direction
   for (let j = 0; j < GN; j += 1) {
     for (let i = 0; i < GN; i += 1) {
       const n = (field[j * GN + i] - lo) / range;
+      const nn = n * n * (3 - 2 * n);                  // smootherstep: crisper atomic contrast
       const il = field[j * GN + Math.max(0, i - 1)];
       const ir = field[j * GN + Math.min(GN - 1, i + 1)];
       const ju = field[Math.max(0, j - 1) * GN + i];
@@ -90,7 +97,7 @@ function buildMicrograph() {
       const nl = Math.hypot(zx, zy, 1) || 1;
       const sh = Math.max(0, (-zx * lx - zy * ly + lz) / nl);
       const grain = (hash(i * 7 + j * 131) - 0.5) * 0.05;
-      const v = Math.max(0, Math.min(1, 0.10 + 0.52 * n + 0.48 * sh + grain));
+      const v = Math.max(0, Math.min(1, (0.06 + 0.60 * nn + 0.46 * sh) * bright + grain));
       const g = (16 + 232 * v) | 0;
       const k = (j * GN + i) * 4;
       d[k] = g; d[k + 1] = g; d[k + 2] = g; d[k + 3] = 255;
@@ -107,10 +114,13 @@ function drawMicrograph() {
   const sy = y + st.scanY * s;
   ctx.fillStyle = 'rgba(5,6,12,0.62)';
   ctx.fillRect(x, sy, s, y + s - sy);
-  ctx.strokeStyle = 'rgba(255,235,150,0.9)'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(255,235,150,0.55)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(x, sy); ctx.lineTo(x + s, sy); ctx.stroke();
-  // the tip apex riding the scan line
-  const tipX = x + (0.5 + 0.42 * Math.sin(st.scanY * 40)) * s;
+  // the tip apex sweeping left-to-right along the scan line (a true raster),
+  // with the bright segment marking the part of the row already acquired
+  const tipX = x + st.scanX * s;
+  ctx.strokeStyle = 'rgba(255,235,150,0.95)'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(x, sy); ctx.lineTo(tipX, sy); ctx.stroke();
   ctx.fillStyle = '#ffcf6b';
   ctx.beginPath(); ctx.moveTo(tipX - 7, sy - 26); ctx.lineTo(tipX, sy); ctx.lineTo(tipX + 7, sy - 26); ctx.closePath(); ctx.fill();
   ctx.strokeStyle = 'rgba(226,232,240,0.3)'; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, s - 1, s - 1);
@@ -139,6 +149,13 @@ function drawLaw(px0, py0, pw, ph) {
     ctx.stroke();
     const dm = ljMinDistance(SIG);
     ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(X(dm), Y(0), 4, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = 'rgba(255,210,120,0.8)'; ctx.fillText('F = 0', X(dm) + 6, Y(0) - 6);
+    // operating point: the nominal tip-sample distance set by the gap slider
+    const dop = Math.max(dMin, Math.min(dMax, dm + st.gap));
+    const xx = X(dop), yy = Y(ljForce(dop, EPS, SIG));
+    ctx.strokeStyle = 'rgba(127,209,255,0.5)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xx, py0 + 18); ctx.lineTo(xx, py0 + ph - 8); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#7fd1ff'; ctx.beginPath(); ctx.arc(xx, yy, 4.5, 0, 6.2832); ctx.fill();
   } else {
     ctx.fillText('STM current I ~ V e^(-2 κ d)', px0 + 8, py0 + 14);
     const dMin = 2, dMax = 12;
@@ -153,6 +170,13 @@ function drawLaw(px0, py0, pw, ph) {
     ctx.stroke();
     ctx.fillStyle = 'rgba(255,210,120,0.85)';
     ctx.fillText(`x${decadePerAngstrom(st.phi).toFixed(1)} drop per 1 A`, px0 + pw - 150, py0 + ph - 8);
+    // operating point: where the current gap sits on the decay curve
+    const dop = Math.max(dMin, Math.min(dMax, st.gap));
+    const xx = X(dop), yy = Y(stmCurrent(dop, BIAS, st.phi));
+    ctx.strokeStyle = 'rgba(255,210,120,0.5)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xx, py0 + 20); ctx.lineTo(xx, py0 + ph - 6); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(xx, yy, 4.5, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = 'rgba(255,225,170,0.95)'; ctx.fillText(`gap ${dop.toFixed(1)} A`, Math.min(xx + 7, px0 + pw - 64), py0 + 32);
   }
   ctx.restore();
 }
@@ -199,18 +223,16 @@ function draw() {
   const colW = (W - 24 * 3) / 2, by = MG.y + MG.s + 34, bh = H - by - 16;
   drawLaw(24, by, colW, bh);
   drawScan(24 + colW + 24, by, colW, bh);
-
-  const d = (st.mode === 'afm') ? ljMinDistance(SIG) + st.gap : st.gap;
-  rGap.textContent = d.toFixed(2) + ' A';
-  rKap.textContent = kappa(st.phi).toFixed(3) + ' /A';
-  rDec.textContent = 'x' + decadePerAngstrom(st.phi).toFixed(1) + ' /A';
-  rSig.textContent = st.mode === 'afm'
-    ? afmForceScan(0, ljMinDistance(SIG) + st.gap, EPS, SIG, AMP, LAT).toExponential(2) + ' eV/A'
-    : stmCurrent(st.gap, BIAS, st.phi).toExponential(2);
 }
 
 function tick() {
-  if (st.running) { st.scanY += 0.006; if (st.scanY >= 1) st.scanY = 0; }
+  if (st.running) {
+    st.scanX += 0.05;                                 // fast horizontal sweep along the row
+    if (st.scanX >= 1) {                              // row done: drop to the next raster line
+      st.scanX = 0; st.scanY += 1 / 14;
+      if (st.scanY >= 1) st.scanY = 0;
+    }
+  }
   draw();
   requestAnimationFrame(tick);
 }
@@ -220,8 +242,8 @@ selMode.addEventListener('change', () => { st.mode = selMode.value; buildMicrogr
 sGap.addEventListener('input', () => { st.gap = parseFloat(sGap.value) / 100; syncLabels(); buildMicrograph(); draw(); });
 sPhi.addEventListener('input', () => { st.phi = parseFloat(sPhi.value) / 100; syncLabels(); buildMicrograph(); draw(); });
 bR.addEventListener('click', () => {
-  st.mode = 'stm-cc'; st.gap = 5; st.phi = 5; st.running = true; st.scanY = 0;
-  selMode.value = 'stm-cc'; sGap.value = '500'; sPhi.value = '500';
+  st.mode = 'stm-ch'; st.gap = 5; st.phi = 5; st.running = true; st.scanY = 0; st.scanX = 0;
+  selMode.value = 'stm-ch'; sGap.value = '500'; sPhi.value = '500';
   bP.textContent = 'Pause'; bP.setAttribute('aria-pressed', 'false'); syncLabels(); buildMicrograph(); draw();
 });
 bP.addEventListener('click', () => { st.running = !st.running; bP.textContent = st.running ? 'Pause' : 'Play'; bP.setAttribute('aria-pressed', String(!st.running)); });
@@ -237,9 +259,10 @@ function restoreState() {
 
 function boot() {
   restoreState(); syncLabels();
+  selMode.value = st.mode;                            // reflect the active mode in the dropdown
   mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
   buildMicrograph();
-  if (CAPTURE_NAME) { st.scanY = (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 0.98 + 0.01; }
+  if (CAPTURE_NAME) { st.scanX = 0.5; st.scanY = (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) * 0.98 + 0.01; }
   draw();
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
