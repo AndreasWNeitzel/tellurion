@@ -26,8 +26,8 @@ const W = canvas.width, H = canvas.height;
 
 const st = { logE: 51, logn: 0, t: 0 };
 let running = !prefersReducedMotion();
-const CX = W / 2, CY = 250, RMAX = 210;       // remnant centre + max px radius
-const PC = 3.086e16, YR = 3.155e7, WIN_PC = 55;
+const CX = W / 2, CY = 338, RMAX = 300;       // remnant centre + max px radius
+const PC = 3.086e16, YR = 3.155e7, WIN_PC = 16;
 
 // seeded ambient ISM: base radius (px from centre) + angle
 let _s = 0x51D0;
@@ -73,7 +73,7 @@ function render() {
       r = p.rb; br = 0.12 + 0.10 * p.j; col = 'rgb(150,165,200)';
     }
     const x = CX + r * Math.cos(p.a), y = CY + r * Math.sin(p.a);
-    if (x < 16 || x > W - 16 || y < 36 || y > H - 86) continue;
+    if (x < 16 || x > W - 16 || y < 36 || y > 666) continue;
     ctx.globalAlpha = br; ctx.fillStyle = col;
     ctx.fillRect(x, y, 1.8, 1.8);
   }
@@ -92,10 +92,10 @@ function render() {
   ctx.fillText(`E = 10^${st.logE.toFixed(1)} erg   n = 10^${st.logn.toFixed(1)} cm^-3`, 18, 50);
   ctx.fillText(`R = ${(Rphys / PC).toFixed(1)} pc   v_s = ${(vs / 1e3).toFixed(0)} km/s   t = ${(tcyc / YR / 1e3).toFixed(1)} kyr`, 18, 68);
   ctx.fillStyle = '#ffd166';
-  ctx.fillText(`R proportional to (E/rho) ^1/5 t^2/5    shell compression rho2/rho1 = ${postShockDensity(1)}`, 18, H - 96);
+  ctx.fillText(`R proportional to (E/rho) ^1/5 t^2/5    shell compression rho2/rho1 = ${postShockDensity(1)}`, 18, 700);
 
   // diagnostic: log R vs log t, the self-similar 2/5 slope
-  const dx0 = 60, dx1 = W - 30, dy0 = H - 84, dy1 = H - 24;
+  const dx0 = 60, dx1 = W - 30, dy0 = 716, dy1 = H - 18;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
