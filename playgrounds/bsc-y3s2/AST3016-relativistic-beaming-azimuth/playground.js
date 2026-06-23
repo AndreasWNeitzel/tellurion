@@ -35,8 +35,10 @@ const st = {
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
-// Make 3D scene narrower so a diagnostic plot fits on the right.
-const CX = W / 2, CY = Math.round(H * 0.28), SC = 150;
+// The lab-frame lobe sits in the right of the scene band; the isotropic
+// rest-frame sphere sits to its left at the same scale, so the pair reads as
+// "isotropic source, boosted, beams forward". Diagnostic fills the lower half.
+const CX = Math.round(W * 0.60), CY = Math.round(H * 0.26), SC = 150;
 function proj(x, y, z) {
   const ca = Math.cos(st.az), sa = Math.sin(st.az);
   const ey = y * ca - z * sa;
@@ -120,10 +122,10 @@ function drawLobe() {
 }
 
 function drawRestInset() {
-  // Small isotropic sphere = the rest frame, for contrast. Placed in
-  // the lower-left of the 3D scene area (was top-right, where it
-  // overlapped the diagnostic panel).
-  const ix = 86, iy = H - 96, r = 40;
+  // The rest-frame emission is isotropic: a plain sphere, drawn to the LEFT of
+  // the lab-frame lobe at the same scale, with a boost arrow between them, so
+  // the comparison fills the scene band instead of hiding in a corner.
+  const ix = Math.round(W * 0.20), iy = CY, r = 66;
   ctx.strokeStyle = 'rgba(160,170,190,0.45)'; ctx.lineWidth = 1;
   for (let k = 0; k < 6; k += 1) {
     ctx.beginPath();
@@ -131,9 +133,16 @@ function drawRestInset() {
     ctx.stroke();
   }
   ctx.beginPath(); ctx.arc(ix, iy, r, 0, 2 * Math.PI); ctx.stroke();
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ix, iy, 3, 0, 2 * Math.PI); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('rest frame: isotropic', ix, iy + r + 16);
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ix, iy, 3.5, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('rest frame: isotropic', ix, iy + r + 18);
+  // boost arrow from the sphere toward the lab-frame lobe
+  ctx.strokeStyle = 'rgba(200,210,235,0.5)'; ctx.fillStyle = 'rgba(200,210,235,0.5)'; ctx.lineWidth = 2;
+  const ax0 = ix + r + 14, ax1 = Math.round(W * 0.40);
+  ctx.beginPath(); ctx.moveTo(ax0, iy); ctx.lineTo(ax1, iy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ax1, iy); ctx.lineTo(ax1 - 11, iy - 6); ctx.lineTo(ax1 - 11, iy + 6); ctx.closePath(); ctx.fill();
+  ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(200,210,235,0.65)';
+  ctx.fillText('boost', (ax0 + ax1) / 2, iy - 10);
 }
 
 function drawReadout() {
@@ -165,7 +174,8 @@ function drawDiagPanel() {
   // RIGHT-side panel: intensity I(theta_lab) = D(theta_lab)^{3+alpha}
   // vs theta_lab on a log y-axis. Shows the headlight effect
   // mathematically: a sharp peak at theta=0 whose width is ~ 1/gamma.
-  const px = 60, py = Math.round(H * 0.56), pw = W - 120, ph = H - Math.round(H * 0.56) - 40;
+  const py0 = Math.round(H * 0.47);
+  const px = 60, py = py0, pw = W - 120, ph = H - py0 - 40;
   ctx.fillStyle = 'rgba(15, 22, 36, 0.85)'; ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)'; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
