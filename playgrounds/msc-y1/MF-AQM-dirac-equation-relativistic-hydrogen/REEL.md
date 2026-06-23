@@ -15,8 +15,8 @@ VO: The Schrodinger levels are E n = -Ry Z 2/n 2; the exact Dirac-Coulomb (Somme
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep the nuclear charge Z up: the Dirac levels deepen below the Schrodinger ones and the fine-structure splitting grows as (Z alpha)^4.
+VO: Watch 2s(1/2) and 2p(1/2) stay degenerate while 2p(3/2) sits above: the Dirac energy depends only on n and j, which is the exact fine structure before the Lamb shift.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

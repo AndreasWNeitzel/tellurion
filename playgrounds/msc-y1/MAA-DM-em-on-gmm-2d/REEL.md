@@ -15,8 +15,8 @@ VO: Expectation-Maximization alternates an E-step (given the current parameters,
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Pick two overlapping clusters or unequal weights: EM soft assignments blur where the clusters overlap, and the fitted ellipses settle onto the true faint ones over a few E and M steps.
+VO: Change the init seed: EM is non-convex, so a bad seed converges to a wrong local optimum (one cluster swallowing two).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

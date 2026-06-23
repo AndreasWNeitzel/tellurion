@@ -15,8 +15,8 @@ VO: Mixing-length theory closes the problem with one free parameter: a blob trav
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Push the gradient excess (nabla - nabla_ad) above zero: the layer flips from radiative to convective by the Schwarzschild criterion and the regime readout switches.
+VO: Raise the mixing length alpha = l_m/H_P: convective blobs travel farther before dissolving and carry more flux.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

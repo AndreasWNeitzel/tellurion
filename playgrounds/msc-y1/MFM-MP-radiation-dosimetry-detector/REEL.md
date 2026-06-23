@@ -15,8 +15,8 @@ VO: Photons Compton-scatter in the cavity gas (Klein-Nishina recoil sampling); t
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the collecting voltage: the Boag efficiency f = 1/(1 + xi^2/6) climbs toward 1 along the saturation curve as fewer ion pairs recombine before reaching the electrodes.
+VO: Raise the dose rate: recombination losses grow (xi scales with sqrt(dose rate)), so the same chamber under-collects more at high intensity and needs a higher voltage to saturate.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

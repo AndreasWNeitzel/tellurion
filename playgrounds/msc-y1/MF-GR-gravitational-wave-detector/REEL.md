@@ -15,8 +15,8 @@ VO: The main view is the physical system: two black holes orbit on a Keplerian s
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the component masses m1 and m2: the chirp mass climbs, the inspiral sweeps to higher frequency faster, and the two-arm radiation spiral tightens and brightens into merger.
+VO: Push the distance out in Mpc: the strain h_peak falls as 1/distance and the matched-filter SNR drops with it.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

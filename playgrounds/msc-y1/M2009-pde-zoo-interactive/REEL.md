@@ -15,8 +15,8 @@ VO: The wave equation conserves energy and oscillates; the heat equation only ev
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step through the five equations on the same grid: wave oscillates and conserves energy, heat only smooths and fades, Laplace jumps straight to the steady shape, Schrodinger holds probability fixed while the packet spreads, and Burgers steepens into a shock.
+VO: Watch the conserved readout: it stays flat for wave, Schrodinger and Laplace but decays for heat.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

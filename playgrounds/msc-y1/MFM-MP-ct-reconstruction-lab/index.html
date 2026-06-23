@@ -76,8 +76,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Raise the number of projection angles: the filtered back-projection reconstruction sharpens and the RMSE drops along the diagnostic curve. Too few angles and streak artifacts smear the Shepp-Logan phantom.</li>
+        <li class="t-body">Switch the FBP filter (Ram-Lak, Shepp-Logan, none): the unfiltered back-projection is a blurry mess, since the ramp filter is what undoes the 1/r smearing of the Radon transform.</li>
+        <li class="t-body">Switch the method to MLEM: the iterative statistical reconstruction handles sparse angles differently from analytic FBP, trading streaks for a slower converging but noise-aware estimate.</li>
       </ul>
     </section>
 

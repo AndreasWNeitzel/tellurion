@@ -15,8 +15,8 @@ VO: Solving the transfer equation with the Eddington-Barbier relation yields the
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide T_eff: the whole T(tau) profile scales with it, but the three marked points stay at fixed optical depths.
+VO: Read the surface boundary: at tau = 0 the temperature is T_eff/2^(1/4), not zero.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

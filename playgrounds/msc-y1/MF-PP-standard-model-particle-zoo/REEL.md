@@ -15,8 +15,8 @@ VO: The animation is driven by the real equations, not a canned loop.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Set the force filter to strong, electromagnetic or weak: particles that do not feel the chosen interaction dim out.
+VO: Pick a decay and read the checker: it tests baryon number, lepton number, charge and energy conservation.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

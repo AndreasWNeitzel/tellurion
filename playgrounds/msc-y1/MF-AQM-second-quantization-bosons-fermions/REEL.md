@@ -15,8 +15,8 @@ VO: A state is a coefficient vector over the number basis |0>, |1>,... ; the ann
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Apply the creation operator repeatedly: a boson climbs the number ladder without limit (a-dagger|n> = sqrt(n+1)|n+1>), while a fermion saturates at |1> by the Pauli principle.
+VO: Switch to the bosonic coherent state and tune alpha: the amplitudes settle into a Poisson distribution over number states, the closest a quantum field comes to a classical wave.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

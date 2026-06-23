@@ -15,8 +15,8 @@ VO: The slow-roll parameters epsilon = (1/2)(V''/V) 2 and eta = V''''/V give the
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the potential between the Starobinsky plateau and m^2 phi^2: the Planck-favoured plateau predicts a small tensor-to-scalar ratio r while the quadratic potential predicts a large one.
+VO: Raise the e-fold count N: the spectral index n_s = 1 - 6 epsilon + 2 eta drifts toward 1 and the modes that exit the horizon shift.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

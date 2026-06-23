@@ -15,8 +15,8 @@ VO: A single dimensionless number, Toomre''s Q = kappa sigma R / (3. 36 G Sigma)
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Lower the surface-density term or raise sigma until Toomre Q drops below 1: nu^2 goes negative at some wavenumber and the disk is axisymmetrically unstable.
+VO: Tune kappa (epicyclic frequency): it sets the long-wavelength stabilization.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

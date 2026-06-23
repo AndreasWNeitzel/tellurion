@@ -15,8 +15,8 @@ VO: A density perturbation launched a spherical sound wave that traveled outward
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise R (baryon loading): the sound speed c_s = c/sqrt(3(1+R)) drops, so the pressure wave freezes at a smaller sound horizon.
+VO: Watch the shell form around the central peak: at recombination the photon-baryon wave stalls and leaves baryons piled in a roughly 150 Mpc shell.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

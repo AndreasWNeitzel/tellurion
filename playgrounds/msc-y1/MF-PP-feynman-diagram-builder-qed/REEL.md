@@ -15,8 +15,8 @@ VO: 5; Halzen and Martin Ch. 6; Feynman 1949).
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide sqrt(s) up the resonance: the s-channel cross section for e+e- to mu+mu- peaks and the angular distribution sharpens.
+VO: Switch the diagram order from tree (two vertices, alpha^2) to one loop (four vertices, alpha^4): the vacuum-polarization bubble is suppressed by alpha^2, which is why tree level is such a good first approximation.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

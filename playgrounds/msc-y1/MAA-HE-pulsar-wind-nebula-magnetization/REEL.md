@@ -15,8 +15,8 @@ VO: The wind coasts until its ram pressure can no longer hold off the nebula and
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the spin-down luminosity L_sd: the termination shock R_TS = sqrt(L_sd/(4 pi c P_ext)) pushes outward.
+VO: Raise the external pressure P_ext: the shock is squeezed inward.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

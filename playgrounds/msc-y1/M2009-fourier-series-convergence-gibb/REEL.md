@@ -15,8 +15,8 @@ VO: Pick a target wave and watch its N-term partial sum converge to it, while a 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the target to the square or sawtooth wave and raise N: the partial sum hugs the curve everywhere except at the jumps, where the overshoot ear keeps the same height (about 8.95 percent of the jump) and only gets narrower.
+VO: Switch to the triangle wave, which is continuous: the overshoot vanishes and the sum converges uniformly.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

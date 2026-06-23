@@ -15,8 +15,8 @@ VO: The corotating Roche potential gives the five Lagrange points and the figure
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Push the donor fill factor R/R_L to 1: the star overflows its Roche lobe through the inner Lagrange point L1 and mass transfer switches on.
+VO: Transfer mass and watch the separation respond: conservative transfer holds total mass and angular momentum fixed, so the orbit shrinks while the donor is heavier and widens once the ratio flips.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

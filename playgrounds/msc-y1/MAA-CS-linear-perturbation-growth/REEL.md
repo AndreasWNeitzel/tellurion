@@ -15,8 +15,8 @@ VO: In the matter-dominated era the linear growing mode is simple: the density c
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Lower Omega_m: dark energy takes over earlier and structure growth freezes sooner.
+VO: Watch the growth factor f = dln delta / dln a track Omega_m(a)^0.55: near 1 during matter domination, falling toward zero once Lambda dominates.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

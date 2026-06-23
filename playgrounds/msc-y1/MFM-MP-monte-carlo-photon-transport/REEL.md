@@ -15,8 +15,8 @@ VO: Photons normally incident on a water slab are followed history by history: a
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the photon energy: the interaction mix shifts from photoelectric (steep low-energy) toward Compton, the attenuation coefficient mu drops, and photons penetrate deeper into the slab.
+VO: Thicken the slab: more histories deposit their energy inside and the transmitted fraction falls.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

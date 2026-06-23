@@ -15,8 +15,8 @@ VO: Its capacity is C(p) = 1 - H(p) bits per use, where H(p) = -p log2 p - (1-p)
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide the flip probability p toward 0.5: the capacity C = 1 - H(p) collapses to zero.
+VO: Push p to 0 or 1: capacity returns to 1 bit per use.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

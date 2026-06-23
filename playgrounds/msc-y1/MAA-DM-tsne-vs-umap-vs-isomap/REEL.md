@@ -15,8 +15,8 @@ VO: The original data rotates so its true shape is visible; three panels show it
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Pick the torus or Hopf link and compare the three: Isomap preserves global geodesic distances, t-SNE and UMAP preserve local neighborhoods.
+VO: Sweep the t-SNE perplexity: small values fragment the manifold into islands, large values smear it into one blob.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

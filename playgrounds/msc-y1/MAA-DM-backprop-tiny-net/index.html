@@ -114,8 +114,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch the dataset to XOR or Spiral: a single hidden layer struggles and the loss plateaus while the decision surface fails to separate the classes. Add neurons or a layer and it bends to fit.</li>
+        <li class="t-body">Crank the learning rate up: training speeds up until it overshoots, the loss spikes and the boundary thrashes. Too small and it crawls. The sweet spot shows in the loss curve.</li>
+        <li class="t-body">Watch the background decision surface deform live: every frame is one backprop step reshaping the boundary toward the data.</li>
       </ul>
     </section>
 

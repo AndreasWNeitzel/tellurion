@@ -15,8 +15,8 @@ VO: The animation is driven by the real equations, not a canned loop.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Tune the trial DM toward the true value: the dynamic-spectrum sweep straightens and the dedispersed series collapses from a smear into a sharp pulse.
+VO: Watch the f^-2 sweep: low frequencies arrive later because the ionized medium delays them more.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

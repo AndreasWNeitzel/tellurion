@@ -15,8 +15,8 @@ VO: The first peak''s position fixes the spatial geometry (flat, open, or closed
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide l_peak1 (first acoustic peak): it encodes the geometry of the universe.
+VO: Pull l_damp inward: the high-l damping tail rolls off sooner, mimicking stronger Silk damping as photons diffuse out of small-scale perturbations before recombination.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

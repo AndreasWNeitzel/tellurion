@@ -15,8 +15,8 @@ VO: Writing the complex eccentricity vector z (components e cos(varpi), e sin(va
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the coupling between the two planets: they exchange eccentricity faster and the e(t) curves beat against each other more rapidly.
+VO: Set the initial eccentricity e_0: the system splits it between the two Laplace-Lagrange eigenmodes, and the beat pattern is those eigenfrequencies interfering.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

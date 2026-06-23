@@ -15,8 +15,8 @@ VO: This steepness is the thermostat of a star: a small contraction raises T, th
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the central temperature past about 2e7 K: the CNO cycle (steep T^~17) overtakes the pp chain (T^~4).
+VO: Increase the density rho: the rates rise, since burning depends on the product of reactant densities, but the crossover temperature barely moves.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

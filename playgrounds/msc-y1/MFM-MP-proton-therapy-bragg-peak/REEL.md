@@ -15,8 +15,8 @@ VO: The Bragg-Kleeman rule R = alpha E0 p with p = 1. 77 gives the proton range;
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide the proton energy: the Bragg peak marches deeper as R = alpha E^1.77, depositing almost nothing on the way in and stopping sharply at the end of range.
+VO: Switch to spread-out Bragg peak and widen the SOBP: the middle panel sums many weighted, range-shifted pristine peaks into a flat plateau that covers a whole tumour while still sparing tissue beyond.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

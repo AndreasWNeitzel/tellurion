@@ -15,8 +15,8 @@ VO: The animation is driven by the real equations, not a canned loop.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag a telescope to a different latitude: its UV-plane arc changes shape as Earth rotation sweeps the baseline, and the dirty image of the three-source sky re-sharpens.
+VO: Watch the arcs fill in over a rotation: each baseline traces an ellipse in the UV plane, and the image is the direct inverse Fourier transform of that sampled coverage.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

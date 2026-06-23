@@ -15,8 +15,8 @@ VO: For a bivariate Gaussian with correlation coefficient rho everything collaps
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide rho toward 1: the joint density collapses onto a line and the mutual information I(X;Y) grows without bound.
+VO: Set rho to 0: the heatmap becomes an axis-aligned blob, the joint factorizes into its marginals, and I(X;Y) drops to zero.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

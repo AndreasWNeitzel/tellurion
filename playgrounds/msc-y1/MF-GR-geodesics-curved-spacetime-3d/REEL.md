@@ -15,8 +15,8 @@ VO: Schwarzschild: the equatorial null-geodesic fan from the orbit equation u'' 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: In Schwarzschild, sweep the impact parameter b across b_c = 3 sqrt(3) M: rays just outside whirl around the photon sphere and escape, rays just inside are captured.
+VO: Switch to Kerr and change the spin a: frame dragging twists the geodesics and the ergosphere appears, so prograde and retrograde rays bend by different amounts around the same hole.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

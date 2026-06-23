@@ -15,8 +15,8 @@ VO: Early on a hot photon gas dominates (rho r ~ a^-4, photons redshift and dilu
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise Omega_r: equality moves to later times (lower z_eq), since more radiation keeps the photon gas dominant longer.
+VO: Watch the three eras hand off: radiation (rho ~ a^-4) dilutes fastest, then matter (rho ~ a^-3) takes over and gravity switches structure on, then the constant Lambda term wins.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: Fixing only the support [a, b] gives the uniform; a mean on [0, infinity) gi
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the family: fix only the support and you get the uniform, fix mean and variance and you get the Gaussian, fix the mean on a positive half-line and you get the exponential.
+VO: Slide the scale (sigma, b, mean, width): the maximum-entropy density stretches to match while staying the flattest shape consistent with what you fixed.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

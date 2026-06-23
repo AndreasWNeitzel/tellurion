@@ -15,8 +15,8 @@ VO: Drag the planet, change Teff or albedo, and watch the surface state.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag the planet in and out: the equilibrium temperature follows T_eq ~ (L/d^2)^(1/4), and the surface state flips between frozen, habitable and runaway as it crosses the band edges.
+VO: Raise the albedo: more reflected light cools the planet, shifting the habitable zone inward.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

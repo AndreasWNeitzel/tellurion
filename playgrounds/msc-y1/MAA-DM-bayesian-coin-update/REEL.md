@@ -15,8 +15,8 @@ VO: Belief about theta is a Beta(alpha, beta) density. The prior Beta(alpha 0, b
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Start from a flat prior and add data with k and n: the posterior Beta(alpha+k, beta+n-k) sharpens around the empirical head rate.
+VO: Switch to a strong heads or tails prior: now the same data barely moves the posterior.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

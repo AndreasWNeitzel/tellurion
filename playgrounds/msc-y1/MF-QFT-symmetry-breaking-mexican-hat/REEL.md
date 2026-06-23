@@ -15,8 +15,8 @@ VO: 11). V(rho) = -mu 2 rho 2 + lambda rho 4 with rho = |phi| has an unstable ma
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Roll the field to the brim: it picks one point on the degenerate circle of minima at v = sqrt(mu^2/2 lambda), spontaneously breaking the U(1) symmetry.
+VO: Switch to heat up: raising T/T_c lifts the minima back toward the origin and restores the symmetry.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

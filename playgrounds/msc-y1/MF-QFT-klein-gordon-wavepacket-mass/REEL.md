@@ -15,8 +15,8 @@ VO: A Gaussian packet psi(x,0) = exp(-x 2/2 sigma0 2) e i k0 x is Fourier-synthe
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the mass m: the dispersion omega = sqrt(k^2 + m^2) flattens at low k, so the packet spreads faster and the group velocity v_g = k/omega drops below c.
+VO: Increase the momentum k0: the group velocity climbs toward c but never reaches it, while the phase velocity omega/k exceeds c and carries no signal.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

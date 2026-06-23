@@ -15,8 +15,8 @@ VO: Fitting an approximating Q to a bimodal target P by minimizing the forward K
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide the single Gaussian Q across the bimodal target P: KL(Q||P) is minimized by Q sitting on one mode (mode-seeking), while KL(P||Q) prefers Q spanning both (mean-seeking).
+VO: Widen Q sigma: KL(P||Q) rewards covering both modes even at the cost of mass in the valley, which is why reverse-KL variational inference collapses to one mode instead.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

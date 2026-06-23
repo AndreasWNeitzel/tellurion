@@ -15,8 +15,8 @@ VO: A Shepp-Logan phantom is projected by the parallel-beam Radon transform into
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the number of projection angles: the filtered back-projection reconstruction sharpens and the RMSE drops along the diagnostic curve.
+VO: Switch the FBP filter (Ram-Lak, Shepp-Logan, none): the unfiltered back-projection is a blurry mess, since the ramp filter is what undoes the 1/r smearing of the Radon transform.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

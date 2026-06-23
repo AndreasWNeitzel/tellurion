@@ -88,8 +88,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Watch the axis-aligned Gaussian try to fit the curved banana: mean-field VI cannot tilt, so it collapses onto one part of the valley and underestimates the variance. That is the classic failure mode.</li>
+        <li class="t-body">Raise K (Monte Carlo samples): the ELBO gradient gets less noisy and the fit settles more smoothly, at higher cost per step. Lower K and it jitters.</li>
+        <li class="t-body">Tune the learning rate: too high and the variational parameters oscillate around the valley, too low and they crawl. The ELBO trace shows convergence.</li>
       </ul>
     </section>
 

@@ -73,8 +73,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Switch the weighting (T1, T2, proton density): the same phantom changes contrast as TR and TE move, since each tissue has different T1 and T2. That is how one scanner produces many image types.</li>
+        <li class="t-body">Reduce the k-space kept (%): the image blurs as you discard the high-frequency outer k-space, the direct trade-off behind fast undersampled acquisition.</li>
+        <li class="t-body">Switch the sequence (spin echo versus gradient echo): the spin echo refocuses static dephasing and depends on the true T2, while gradient echo decays with T2-star and keeps field inhomogeneity.</li>
       </ul>
     </section>
 

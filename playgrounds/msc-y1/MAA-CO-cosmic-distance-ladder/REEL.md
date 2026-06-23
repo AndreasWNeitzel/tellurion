@@ -15,8 +15,8 @@ VO: Each rung shows distance range and error; the cumulative error bar grows as 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Climb the ladder rung by rung, parallax to Cepheids to Type Ia supernovae to Hubble flow: each method only works over the band where it overlaps the one below, and that overlap is where it gets calibrated.
+VO: Watch the cumulative error bar grow at every handoff: each rung inherits all the uncertainty beneath it, so Hubble-flow distances carry the whole chain budget.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

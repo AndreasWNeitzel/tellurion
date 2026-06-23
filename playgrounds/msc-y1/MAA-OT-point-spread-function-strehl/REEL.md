@@ -15,8 +15,8 @@ VO: Optical aberrations or atmospheric turbulence add a wavefront phase error of
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Increase the aperture D: the Airy core narrows as 1.22 lambda/D, so resolution improves.
+VO: Dial up the RMS wavefront error: the Strehl ratio collapses as exp(-(2 pi sigma)^2), light bleeds from the core into the halo, and you cross below the S = 0.8 diffraction-limited line.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

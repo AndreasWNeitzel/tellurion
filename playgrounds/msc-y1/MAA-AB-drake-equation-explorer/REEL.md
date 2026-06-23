@@ -15,8 +15,8 @@ VO: The factors span many orders of magnitude and are deeply uncertain, so a sin
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Widen the f_i slider (fraction that become intelligent), the least-known factor: the Monte Carlo histogram of log N smears across many orders of magnitude.
+VO: Pull L (civilization lifetime) up: the whole distribution shifts right, since N scales linearly with L.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

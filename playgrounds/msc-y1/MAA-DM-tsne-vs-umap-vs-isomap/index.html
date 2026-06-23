@@ -119,8 +119,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Pick the torus or Hopf link and compare the three: Isomap preserves global geodesic distances, t-SNE and UMAP preserve local neighborhoods. Same-color points clustering tells you which kept the structure.</li>
+        <li class="t-body">Sweep the t-SNE perplexity: small values fragment the manifold into islands, large values smear it into one blob. There is no single right setting, which is the point.</li>
+        <li class="t-body">Change k for Isomap: too small and the neighbor graph disconnects (the manifold tears), too large and it short-circuits across the gap. The embedding degrades at both extremes.</li>
       </ul>
     </section>
 

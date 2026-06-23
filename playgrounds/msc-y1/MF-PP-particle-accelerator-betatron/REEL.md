@@ -15,8 +15,8 @@ VO: Each thin quadrupole and drift is a 2x2 symplectic transfer matrix; the one-
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Tune the quad focal length f: the FODO one-turn map stays stable only while |trace(M)/2| < 1, so push f until the stability readout flips and the betatron motion blows up.
+VO: Add FODO cells: the tune Q (betatron oscillations per turn) accumulates, and the Twiss beta function ripples down the lattice.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

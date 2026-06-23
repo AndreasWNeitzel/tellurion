@@ -15,8 +15,8 @@ VO: The Bloch equations are solved analytically in the rotating frame: after a 9
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the weighting (T1, T2, proton density): the same phantom changes contrast as TR and TE move, since each tissue has different T1 and T2.
+VO: Reduce the k-space kept (%): the image blurs as you discard the high-frequency outer k-space, the direct trade-off behind fast undersampled acquisition.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

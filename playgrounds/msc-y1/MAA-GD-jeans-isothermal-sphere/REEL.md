@@ -15,8 +15,8 @@ VO: Hydrostatic equilibrium against its own gravity (equivalently the isotropic 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the velocity dispersion sigma: the circular velocity v_c = sqrt(2) sigma rises with it and the flat rotation curve sits higher.
+VO: Note the rotation curve stays flat at all radii: rho ~ r^-2 and M(<r) ~ r conspire to give a constant v_c.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

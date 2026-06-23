@@ -15,8 +15,8 @@ VO: Since the available nuclear fuel scales only as M while the burn rate scales
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide the mass up: luminosity climbs far faster (roughly L ~ M^3.5), so a 10 solar-mass star is thousands of times brighter than the Sun.
+VO: Note the lifetime scaling M/L: massive stars burn through their fuel fast and die young despite having more of it.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

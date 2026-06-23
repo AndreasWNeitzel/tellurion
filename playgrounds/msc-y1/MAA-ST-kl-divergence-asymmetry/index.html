@@ -94,8 +94,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Slide the single Gaussian Q across the bimodal target P: KL(Q||P) is minimized by Q sitting on one mode (mode-seeking), while KL(P||Q) prefers Q spanning both (mean-seeking). The asymmetry is the lesson.</li>
+        <li class="t-body">Widen Q sigma: KL(P||Q) rewards covering both modes even at the cost of mass in the valley, which is why reverse-KL variational inference collapses to one mode instead.</li>
+        <li class="t-body">Increase the mode separation: the two KL directions disagree more strongly, since no single Gaussian can be both narrow on one peak and broad across both.</li>
       </ul>
     </section>
 
