@@ -160,13 +160,13 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   const pLo = -12, pHi = -6;
   const rLo = -3, rHi = 1;   // log10(R_TS / pc) range
   const axY = tp.y + tp.h - 22, axX = tp.x + 30;
-  const axW = tp.w - 36, axH = tp.h - 50;
+  const axW = tp.w - 36, axH = tp.h - 64;   // extra header room so the top tick clears the subtitle
   function xOfP(lp) { return axX + ((lp - pLo) / (pHi - pLo)) * axW; }
   function yOfR(lr) { return axY - ((lr - rLo) / (rHi - rLo)) * axH; }
   // Grid.
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
   for (let lp = pLo; lp <= pHi; lp += 1) {
-    ctx.beginPath(); ctx.moveTo(xOfP(lp), tp.y + 30); ctx.lineTo(xOfP(lp), axY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xOfP(lp), yOfR(rHi)); ctx.lineTo(xOfP(lp), axY); ctx.stroke();
   }
   for (let lr = rLo; lr <= rHi; lr += 1) {
     ctx.beginPath(); ctx.moveTo(axX, yOfR(lr)); ctx.lineTo(axX + axW, yOfR(lr)); ctx.stroke();
@@ -214,7 +214,7 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   ctx.fillStyle = 'rgba(200, 210, 240, 0.70)';
   ctx.fillText('jet: σ/(1+σ),  torus: 1/(1+σ)', bp.x + 2, bp.y + 24);
   const bAxY = bp.y + bp.h - 22, bAxX = bp.x + 36;
-  const bAxW = bp.w - 44, bAxH = bp.h - 52;
+  const bAxW = bp.w - 44, bAxH = bp.h - 68;   // extra header room for the title, subtitle, and legend
   const sLo = -4, sHi = 1;        // log10(σ) sweep range.
   function xOfS(ls) { return bAxX + ((ls - sLo) / (sHi - sLo)) * bAxW; }
   function yOfF(f) { return bAxY - f * bAxH; }
@@ -224,7 +224,7 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
     ctx.beginPath(); ctx.moveTo(bAxX, yOfF(f)); ctx.lineTo(bAxX + bAxW, yOfF(f)); ctx.stroke();
   }
   for (let ls = sLo; ls <= sHi; ls += 1) {
-    ctx.beginPath(); ctx.moveTo(xOfS(ls), bp.y + 30); ctx.lineTo(xOfS(ls), bAxY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xOfS(ls), yOfF(1)); ctx.lineTo(xOfS(ls), bAxY); ctx.stroke();
   }
   // Curves.
   function curve(fn, col) {
@@ -246,7 +246,7 @@ function drawDiagPanels(d, L, Pext, R_TS_pc, s) {
   if (lsNow >= sLo && lsNow <= sHi) {
     ctx.strokeStyle = 'rgba(255, 209, 102, 0.7)';
     ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(xOfS(lsNow), bp.y + 30); ctx.lineTo(xOfS(lsNow), bAxY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xOfS(lsNow), yOfF(1)); ctx.lineTo(xOfS(lsNow), bAxY); ctx.stroke();
     ctx.setLineDash([]);
     const jf = s / (1 + s), tf = 1 / (1 + s);
     ctx.fillStyle = '#7cdfff'; ctx.beginPath(); ctx.arc(xOfS(lsNow), yOfF(jf), 4, 0, 6.28); ctx.fill();
