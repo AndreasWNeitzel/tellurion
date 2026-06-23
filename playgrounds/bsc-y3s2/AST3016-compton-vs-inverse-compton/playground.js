@@ -104,18 +104,53 @@ function render() {
     ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(label, x + 8, y - 6);
   }
-  const yIn = padT + plotH * 0.7;
-  const yDown = padT + plotH * 0.5;
-  const yUp = padT + plotH * 0.3;
+  const yIn = padT + plotH * 0.20;
+  const yDown = padT + plotH * 0.33;
+  const yUp = padT + plotH * 0.46;
+  // Connectors first (so the markers sit on top).
+  ctx.strokeStyle = c.muted;
+  ctx.lineWidth = 1;
+  if (Edown > 0) { ctx.beginPath(); ctx.moveTo(xFor(logE), yIn); ctx.lineTo(xFor(Math.log10(Edown)), yDown); ctx.stroke(); }
+  if (Eup > 0) { ctx.beginPath(); ctx.moveTo(xFor(logE), yIn); ctx.lineTo(xFor(Math.log10(Eup)), yUp); ctx.stroke(); }
   marker(xFor(logE), yIn, c.blue, `E_in = ${E.toExponential(2)} eV`);
   if (Edown > 0) marker(xFor(Math.log10(Edown)), yDown, c.orange, `Compton backscatter`);
   if (Eup > 0)   marker(xFor(Math.log10(Eup)), yUp, c.accent, `IC max (gamma=${gam.toExponential(1)})`);
 
-  // Connectors.
-  ctx.strokeStyle = c.muted;
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(xFor(logE), yIn); ctx.lineTo(xFor(Math.log10(Edown)), yDown); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(xFor(logE), yIn); ctx.lineTo(xFor(Math.log10(Eup)), yUp); ctx.stroke();
+  // Inverse-Compton single-electron spectrum (lower half). One electron does
+  // not emit a single photon at E_max, it fills a spectrum up to E_max ~ 4
+  // gamma^2 E_in. Plot the SED E^2 dN/dE against E / E_max so the Thomson,
+  // isotropic kernel f(q) = 2q ln q + q + 1 - 2q^2 fills the panel: a broad
+  // bump that peaks below E_max and cuts off sharply there.
+  const sedTop = padT + plotH * 0.60, sedBase = padT + plotH * 0.90, sedH = sedBase - sedTop;
+  const sx0 = padL, sx1 = padL + plotW, qMax = 1.12;
+  const qToX = (q) => sx0 + (sx1 - sx0) * q / qMax;
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('inverse-Compton spectrum shape: a bump that peaks below E_max and cuts off there', sx0, sedTop - 12);
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(sx0, sedBase); ctx.lineTo(sx1, sedBase); ctx.stroke();
+  if (Eup > E) {
+    const N = 220; const sed = []; let smax = 1e-12;
+    for (let i = 0; i <= N; i += 1) {
+      const q = qMax * i / N;
+      const f = (q > 0 && q < 1) ? (2 * q * Math.log(q) + q + 1 - 2 * q * q) : 0;
+      const s = q * q * Math.max(0, f);
+      sed.push({ q, s }); if (s > smax) smax = s;
+    }
+    ctx.fillStyle = 'rgba(255,209,102,0.16)'; ctx.beginPath(); ctx.moveTo(qToX(0), sedBase);
+    for (const p of sed) ctx.lineTo(qToX(p.q), sedBase - (p.s / smax) * sedH);
+    ctx.lineTo(qToX(qMax), sedBase); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = c.accent; ctx.lineWidth = 2.2; ctx.beginPath();
+    sed.forEach((p, i) => { const x = qToX(p.q), y = sedBase - (p.s / smax) * sedH; if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+    ctx.stroke();
+    // typical photon energy (number-weighted, E_typ = E_max/3) and the cutoff
+    for (const [q, col, lab] of [[Etyp / Eup, c.blue, 'E_typ'], [1, c.red, 'E_max = 4 γ² E_in']]) {
+      const x = qToX(q);
+      ctx.strokeStyle = col; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, sedTop); ctx.lineTo(x, sedBase); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = col; ctx.textAlign = 'center'; ctx.fillText(lab, x, sedBase + 14);
+    }
+  }
+  ctx.fillStyle = c.muted; ctx.textAlign = 'center'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillText('photon energy  E / E_max', (sx0 + sx1) / 2, sedBase + 30); ctx.textAlign = 'left';
 }
 
 // Auto-sweep the electron Lorentz factor so the inverse-Compton boost plays
