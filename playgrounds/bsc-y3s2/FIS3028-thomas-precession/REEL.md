@@ -7,7 +7,7 @@ VO: Carry a gyroscope around a circle at relativistic speed and it comes back ro
 Caption: Carry a gyroscope around a circle at rela…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: Thomas precession is a purely kinematic relativistic rotation: a gyroscope carried around a closed path picks up an extra (gamma - 1) radians of rotation per revolution with no applied torque, because two non-collinear Lorentz boosts compose into a boost plus a rotation.
+VO: Thomas precession is a purely kinematic relativistic rotation: a gyroscope carried around a closed path picks up an extra (gamma - 1) turns, that is 2 pi (gamma - 1) radians, of rotation per revolution with no applied torque, because two non-collinear Lorentz boosts compose into a boost plus a rotation.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
@@ -16,7 +16,7 @@ Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
 VO: Raise beta = v/c toward 1: the gyroscope axis lags more per orbit, and the (gamma - 1) curve at the bottom steepens sharply.
-VO: Let several orbits accumulate: the lab-frame spin axis winds around by (gamma - 1) radians each revolution, a purely kinematic rotation with no torque applied.
+VO: Let several orbits accumulate: the lab-frame spin axis winds around by (gamma - 1) turns each revolution, a purely kinematic rotation with no torque applied.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -7,7 +7,7 @@ VO: A radio pulse sweeps from high to low frequency through the ionized interste
 Caption: A radio pulse sweeps from high to low fre…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: Delay Delta t = DM / (2.41e-4) (1/f MHz 2 - 1/f ref 2) ms; the dynamic spectrum shows the f^-2 sweep, the dedispersed time series peaks sharply at the true DM and flattens out everywhere else.
+VO: Delay Delta t = DM / (2.41e-4) (1/f MHz 2 - 1/f ref 2) seconds; the dynamic spectrum shows the f^-2 sweep, the dedispersed time series peaks sharply at the true DM and flattens out everywhere else.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
