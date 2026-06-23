@@ -195,7 +195,10 @@ function bootSync() {
 
 function tick() {
   if (state.playing) {
-    tickN(state.speed);
+    // 3 steps per frame left the spiral barely half a cycle developed after a
+    // few seconds; x4 lets the limit cycle (or the decay to the fixed point)
+    // trace out and fill both panels within a couple of seconds.
+    tickN(state.speed * 4);
     drawAll();
   }
   requestAnimationFrame(tick);
