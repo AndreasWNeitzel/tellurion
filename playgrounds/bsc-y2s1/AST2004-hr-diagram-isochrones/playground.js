@@ -213,7 +213,7 @@ function drawHR(col, r) {
 }
 
 function drawDiag(col, r) {
-  panel(col, r, 'Where a star lingers: model evolutionary speed vs age (slow on the main sequence, fast through the giant phases)');
+  panel(col, r, 'Where a star lingers: evolutionary speed vs age');
   const pad = { l: 50, r: 16, t: 24, b: 30 };
   const box = { x: r.x + pad.l, y: r.y + pad.t, w: r.w - pad.l - pad.r, h: r.h - pad.t - pad.b };
   const xOf = (a) => box.x + (a - AGE_MIN) / (AGE_MAX - AGE_MIN) * box.w;

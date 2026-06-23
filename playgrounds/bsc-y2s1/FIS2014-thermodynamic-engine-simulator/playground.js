@@ -142,7 +142,7 @@ function render() {
   const bh = (val) => 10 + 66 * val / total;
   let yy = 214;
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(st.reverse ? 'energy flow (refrigerator)' : 'energy flow (engine)', ex0, yy - 10);
+  ctx.fillText(st.reverse ? 'refrigerator' : 'heat engine', ex0, yy - 10);
   ctx.fillStyle = '#ff5a46'; ctx.fillRect(ex0, yy, ew, bh(Qin)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`Q_hot ${Qin.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Qin) + 14;
   ctx.fillStyle = '#ffd166'; ctx.fillRect(ex0, yy, ew * Wn / total, bh(Wn)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`W ${Wn.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Wn) + 14;
   ctx.fillStyle = '#5b8cff'; ctx.fillRect(ex0, yy, ew * Qout / total, bh(Qout)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`Q_cold ${Qout.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Qout) + 22;
