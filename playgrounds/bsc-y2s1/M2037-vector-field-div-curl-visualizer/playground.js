@@ -34,7 +34,7 @@ const state = {
 // the deterministic capture stable.
 let _pseed = 0xC0FFEE >>> 0;
 function _prnd() { _pseed = (_pseed * 1664525 + 1013904223) >>> 0; return _pseed / 4294967296; }
-const NPART = 150, DOMX = 3.6, DOMY = 2.6;
+const NPART = 260, DOMX = 5.6, DOMY = 7.2;
 const particles = [];
 function seedParticle(p) { p.x = (_prnd() * 2 - 1) * DOMX; p.y = (_prnd() * 2 - 1) * DOMY; p.age = 0; p.life = 1.6 + _prnd() * 3.2; }
 for (let i = 0; i < NPART; i += 1) { const p = {}; seedParticle(p); p.age = _prnd() * p.life; particles.push(p); }
@@ -192,9 +192,9 @@ function render() {
   ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
 
-  // Vector arrows.
-  for (let ix = -3; ix <= 3; ix += 0.5) {
-    for (let iy = -2; iy <= 2; iy += 0.5) {
+  // Vector arrows: span the whole portrait, not just a central band.
+  for (let ix = -5.5; ix <= 5.5; ix += 0.5) {
+    for (let iy = -7; iy <= 7; iy += 0.5) {
       const x = ix, y = iy;
       const u = f.P(x, y, a), v = f.Q(x, y, a);
       const mag = Math.hypot(u, v);
