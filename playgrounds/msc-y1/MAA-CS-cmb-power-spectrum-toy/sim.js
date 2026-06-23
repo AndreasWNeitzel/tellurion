@@ -1,14 +1,22 @@
 // Toy CMB temperature power spectrum: D_l = l(l+1) C_l / 2 pi.
-// Simple model with acoustic peaks: D_l ~ A_s exp(-l^2 / l_damp^2) (1 + sum_k B_k cos(l / l_k))
-// Reference: Liddle Cosmology Ch. 12 (`liddle-cosmology`); Weinberg Cosmology Ch. 7
-// (`weinberg-cosmology`).
-export function Dl(l, ls = 220, damp = 2000, amps = [1, 0.4, 0.5, 0.25, 0.3]) {
-  // Acoustic peaks at integer multiples of ls (~ 220).
-  let s = 1;
-  for (let k = 1; k <= amps.length; k += 1) {
-    s += amps[k - 1] * Math.cos(Math.PI * l / (k * ls));
+// A series of acoustic peaks at l_n = ls + (n-1) * 1.4 ls (first peak near
+// ls ~ 220, peak spacing ~ 310), each a Gaussian bump, multiplied by the
+// Silk diffusion-damping envelope exp(-(l/l_damp)^2) so the first peak
+// dominates and the series declines toward small angular scales, plus a
+// low-l Sachs-Wolfe shoulder rising into the first peak. The alternating
+// peak amplitudes mimic baryon loading (odd peaks enhanced).
+// Reference: Liddle Cosmology Ch. 12 (`liddle-cosmology`); Weinberg Cosmology
+// Ch. 7 (`weinberg-cosmology`).
+export function Dl(l, ls = 220, damp = 2000, amps = [1, 0.45, 0.55, 0.32, 0.40, 0.24, 0.28, 0.16]) {
+  const spacing = 1.4 * ls, width = 0.42 * ls;
+  const silk = Math.exp(-Math.pow(l / damp, 2));         // photon-diffusion damping
+  let peaks = 0;
+  for (let n = 1; n <= amps.length; n += 1) {
+    const ln = ls + (n - 1) * spacing;                   // n-th acoustic-peak multipole
+    peaks += amps[n - 1] * Math.exp(-Math.pow((l - ln) / width, 2));
   }
-  return 1.5 * Math.max(0.05, s) * Math.exp(-Math.pow(l / damp, 2)) * Math.pow(l / 200, 1.2);
+  const sw = 0.22 * Math.exp(-Math.pow((l - 0.45 * ls) / (0.5 * ls), 2));  // low-l shoulder
+  return 1.5 * (peaks + sw) * silk + 2e-3;
 }
 export function firstPeakL(Omega_m) {
   // l_A roughly = pi (D_A / r_s). Slight shift with Omega_m.

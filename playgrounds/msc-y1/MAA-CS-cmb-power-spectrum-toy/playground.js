@@ -150,23 +150,39 @@ function render() {
   ctx.fillText('size; l_damp smooths', rx, ty); ty += 15;
   ctx.fillText('the fine structure.', rx, ty);
 
-  // demoted diagnostic: the toy D_l vs l curve, with the peak marked
-  const dx0 = SX, dx1 = W - 22, dy0 = H - 64, dy1 = H - 10;
+  // The power spectrum D_l vs l: the iconic CMB acoustic peaks, a full
+  // panel filling the lower half (was a thin demoted strip).
+  const dx0 = SX, dx1 = W - 22, dy0 = 470, dy1 = H - 16;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
-  ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('diagnostic: power spectrum  D_l vs l', dx0 + 8, dy0 + 12);
+  ctx.fillStyle = '#cbd5e1'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('power spectrum  D_l = l(l+1)C_l / 2pi  vs multipole l  (acoustic peaks)', dx0 + 8, dy0 + 16);
   const lMin = 2, lMax = 2600, NS = 360;
+  const axL = dx0 + 46, axR = dx1 - 12, axT = dy0 + 30, axB = dy1 - 26;
   const vals = new Float64Array(NS); let dmax = 1e-30;
   for (let i = 0; i < NS; i += 1) { const l = lMin + (lMax - lMin) * i / (NS - 1); vals[i] = Dl(l, st.lPeak, st.lDamp); if (vals[i] > dmax) dmax = vals[i]; }
-  const xP = (l) => dx0 + 8 + (l - lMin) / (lMax - lMin) * (dx1 - dx0 - 16);
-  const yP = (d) => dy1 - 6 - d / dmax * (dy1 - dy0 - 22);
+  const xP = (l) => axL + (l - lMin) / (lMax - lMin) * (axR - axL);
+  const yP = (d) => axB - d / dmax * (axB - axT);
+  // x ticks (multipole l) with faint gridlines
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.textAlign = 'center';
+  for (const l of [200, 500, 1000, 1500, 2000, 2500]) {
+    const x = xP(l);
+    ctx.strokeStyle = 'rgba(226,232,240,0.06)'; ctx.beginPath(); ctx.moveTo(x, axT); ctx.lineTo(x, axB); ctx.stroke();
+    ctx.fillText(`${l}`, x, axB + 16);
+  }
+  ctx.fillStyle = '#8893a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right';
+  ctx.fillText('multipole l', axR, axB + 16);
+  ctx.save(); ctx.translate(dx0 + 16, (axT + axB) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#8893a6'; ctx.fillText('D_l', 0, 0); ctx.restore();
+  // current acoustic-scale marker
   ctx.strokeStyle = 'rgba(91,192,235,0.6)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(xP(st.lPeak), dy0 + 16); ctx.lineTo(xP(st.lPeak), dy1 - 5); ctx.stroke(); ctx.setLineDash([]);
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8; ctx.beginPath();
-  for (let i = 0; i < NS; i += 1) { const l = lMin + (lMax - lMin) * i / (NS - 1); const p = { x: xP(l), y: yP(vals[i]) }; i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); }
+  ctx.beginPath(); ctx.moveTo(xP(st.lPeak), axT); ctx.lineTo(xP(st.lPeak), axB); ctx.stroke(); ctx.setLineDash([]);
+  // spectrum curve
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i < NS; i += 1) { const l = lMin + (lMax - lMin) * i / (NS - 1); const x = xP(l), y = yP(vals[i]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
   ctx.stroke();
-  ctx.fillStyle = '#5bc0eb'; ctx.fillText(`acoustic scale  l ~ ${st.lPeak.toFixed(0)}`, xP(st.lPeak) + 5, dy0 + 24);
+  ctx.fillStyle = '#5bc0eb'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(`acoustic scale  l ~ ${st.lPeak.toFixed(0)}`, xP(st.lPeak) + 5, axT + 8);
 
   rL.textContent = st.lPeak.toFixed(0);
 }
