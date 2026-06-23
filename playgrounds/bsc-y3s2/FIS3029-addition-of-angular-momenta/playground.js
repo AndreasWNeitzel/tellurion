@@ -63,7 +63,7 @@ btnR.addEventListener('click', () => {
 });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
-const CX = 280, CY = 250;                       // 3D view centre
+const CX = 410, CY = 395;                       // 3D view centre (full-width hero, panel below)
 const YAW0 = 0.6, PITCH = 0.46;
 
 function rot(v, yaw) {                           // yaw about z, fixed pitch
@@ -112,7 +112,7 @@ function render() {
   const idx = Math.min(Js.length - 1, st.jIdx % Js.length);
   const J = Js[idx];
   const L1 = Math.sqrt(casimir(j1)), L2 = Math.sqrt(casimir(j2)), LJ = Math.sqrt(casimir(J));
-  const S = 188 / (L1 + L2 + 0.55);
+  const S = 500 / (L1 + L2 + 0.55);
   const yaw = CAPTURE_NAME ? YAW0 + 0.5 * (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0) : YAW0 + st.t * 0.004;
   const psi = CAPTURE_NAME ? 0.6 : st.t * 0.03;       // j1,j2 precess about J
   const Psi = CAPTURE_NAME ? 0.4 : st.t * 0.012;      // J precesses about z
@@ -181,47 +181,48 @@ function render() {
   tlabel(`j1 = ${jLabel(j1)}`, pj1.px + 9, pj1.py + 14, '#5bc0eb');
   tlabel(`j2 = ${jLabel(j2)}`, pj2t.px + 9, pj2t.py - 6, '#ef476f');
   const th = Math.acos(cosTheta12(j1, j2, J)) * 180 / Math.PI;
-  tlabel(`angle(j1,j2) = ${th.toFixed(1)} deg`, CX - 90, CY + 168, 'rgba(200,206,224,0.9)');
+  tlabel(`angle(j1,j2) = ${th.toFixed(1)} deg`, CX - 90, CY + 0.95 * S + 14, 'rgba(200,206,224,0.9)');
   tlabel('semiclassical vector model: j1 + j2 = J, precessing about z', CX - 168, 36, 'rgba(160,170,190,0.85)');
 
   // Clebsch-Gordan decomposition panel: each J row is a CLICKABLE
   // rectangle (the user feedback asked for clickable squares). The
   // hit-test rectangles are stored in clickRegions so the click
   // handler below can map screen->jIdx.
-  const PX = 540;
-  ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(PX - 12, 60, W - PX - 8, 360);
-  ctx.strokeStyle = 'rgba(226,232,240,0.12)'; ctx.strokeRect(PX - 11.5, 60.5, W - PX - 9, 359);
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('click to select J', PX, 78);
+  const PX = 44, PY = 726, panW = W - 48, rowW = 300;
+  ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(24, PY, panW, H - PY - 16);
+  ctx.strokeStyle = 'rgba(226,232,240,0.12)'; ctx.strokeRect(24.5, PY + 0.5, panW - 1, H - PY - 17);
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('click to select total J', PX, PY + 24);
   ctx.fillStyle = '#ffd166'; ctx.font = fontString(canvas, 'body', 'mono');
-  ctx.fillText(`${jLabel(j1)} (x) ${jLabel(j2)} =`, PX, 104);
+  ctx.fillText(`${jLabel(j1)} (x) ${jLabel(j2)} =`, PX, PY + 52);
   clickRegions.length = 0;
+  const rowY0 = PY + 80;
   Js.forEach((Jx, i) => {
-    const yy = 130 + i * 26;
+    const yy = rowY0 + i * 32;
     const sel = i === idx;
-    const rectY = yy - 16, rectH = 22, rectW = W - PX - 24;
+    const rectY = yy - 19, rectH = 28;
     // Hit-test rectangle for this J row.
-    clickRegions.push({ i, x: PX - 6, y: rectY, w: rectW, h: rectH });
-    // Selection highlight.
+    clickRegions.push({ i, x: PX - 6, y: rectY, w: rowW, h: rectH });
     if (sel) {
       ctx.fillStyle = 'rgba(255, 209, 102, 0.18)';
-      ctx.fillRect(PX - 6, rectY, rectW, rectH);
+      ctx.fillRect(PX - 6, rectY, rowW, rectH);
       ctx.strokeStyle = 'rgba(255, 209, 102, 0.55)'; ctx.lineWidth = 1.2;
-      ctx.strokeRect(PX - 6 + 0.5, rectY + 0.5, rectW - 1, rectH - 1);
+      ctx.strokeRect(PX - 5.5, rectY + 0.5, rowW - 1, rectH - 1);
     } else {
       ctx.strokeStyle = 'rgba(120, 165, 130, 0.30)'; ctx.lineWidth = 1.0;
-      ctx.strokeRect(PX - 6 + 0.5, rectY + 0.5, rectW - 1, rectH - 1);
+      ctx.strokeRect(PX - 5.5, rectY + 0.5, rowW - 1, rectH - 1);
     }
     ctx.fillStyle = sel ? '#ffd166' : '#06d6a0';
     ctx.font = fontString(canvas, 'body', 'mono', 600);
     ctx.fillText(`${sel ? '>' : ' '} J = ${jLabel(Jx)}   (2J+1 = ${2 * Jx + 1})`, PX, yy);
   });
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  const yb = 130 + Js.length * 26 + 16;
-  ctx.fillText(`dim = ${(2 * j1 + 1).toFixed(0)} x ${(2 * j2 + 1).toFixed(0)} = ${multiplicity(j1, j2)}`, PX, yb);
-  ctx.fillText(`sum (2J+1)   = ${totalMultiplicityFromJ(j1, j2)}`, PX, yb + 20);
+  // Dimension bookkeeping on the right side of the bottom panel.
+  const dimX = PX + 360, dimY = PY + 86;
+  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'body', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(`dim = ${(2 * j1 + 1).toFixed(0)} x ${(2 * j2 + 1).toFixed(0)} = ${multiplicity(j1, j2)}`, dimX, dimY);
+  ctx.fillText(`sum over J of (2J+1) = ${totalMultiplicityFromJ(j1, j2)}`, dimX, dimY + 28);
   ctx.fillStyle = '#06d6a0';
-  ctx.fillText('dims always match', PX, yb + 40);
+  ctx.fillText('dimensions always match', dimX, dimY + 56);
 
   rS.textContent = `${totalMultiplicityFromJ(j1, j2)}`;
 }
