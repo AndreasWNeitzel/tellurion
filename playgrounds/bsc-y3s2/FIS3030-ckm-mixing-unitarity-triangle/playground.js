@@ -47,7 +47,11 @@ function drawMatrix() {
       const v = ckm[j][i];
       ctx.fillStyle = `rgba(255,209,102,${Math.min(1, v) * 0.85 + 0.05})`;
       ctx.fillRect(mL + cell * i, mT + cell * j, cell - 4, cell - 4);
-      ctx.fillStyle = '#0b0b0e'; ctx.font = fontString(canvas, 'caption', 'mono');
+      // Contrast-adaptive label: dark on the bright diagonal cells, light on
+      // the near-transparent off-diagonal cells (|V_ub|, |V_td|, ...) which
+      // were previously black-on-black and unreadable.
+      ctx.fillStyle = v > 0.4 ? '#0b0b0e' : 'rgba(235,240,255,0.92)';
+      ctx.font = fontString(canvas, 'caption', 'mono');
       ctx.fillText(v.toFixed(3), mL + cell * i + 5, mT + cell * j + cell / 2 + 3);
     }
   }
