@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { makeRng } from '../../../shared/js/render/rng.js';
 import {
   FATE_PRESETS, cmbDeltaT, T_CMB_NOW, T_LAST_SCATTERING, Z_LAST_SCATTERING,
   POTENTIALS, epsilon, eta, nsOf, rOf,
@@ -32,9 +33,10 @@ describe('cosmology-legend-3d', () => {
   });
 
   it('cmbDeltaT returns values in [-1, 1]', () => {
+    const rng = makeRng(0xC0FFEE);   // seeded so the sampled directions are reproducible
     for (let i = 0; i < 20; i++) {
-      const theta = Math.random() * Math.PI;
-      const phi = Math.random() * 2 * Math.PI;
+      const theta = rng() * Math.PI;
+      const phi = rng() * 2 * Math.PI;
       const dT = cmbDeltaT(theta, phi);
       expect(dT).toBeGreaterThanOrEqual(-1);
       expect(dT).toBeLessThanOrEqual(1);
