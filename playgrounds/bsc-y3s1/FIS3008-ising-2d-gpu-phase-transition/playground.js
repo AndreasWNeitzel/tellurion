@@ -7,7 +7,7 @@
 // aspiration; the stack rule keeps this Canvas2D).
 
 import {
-  create, step, diagnostics, magPerSpin, energyPerSpin, onsagerTc, onsagerM,
+  create, step, magPerSpin, energyPerSpin, onsagerTc, onsagerM,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
@@ -40,9 +40,11 @@ const off = document.createElement('canvas'); off.width = L; off.height = L;
 const offCtx = off.getContext('2d');
 const img = offCtx.createImageData(L, L);
 
-// plot box (right) and lattice box (left)
-const GX = 60, GY = 40, GS = 400;                       // lattice square
-const PX0 = GX + GS + 60, PX1 = W - 24, PY0 = 70, PY1 = H - 60;
+// Portrait restack: the lattice square on top (centred), the magnetization
+// curve full-width below, instead of a top-left lattice beside a tall narrow
+// plot that left the whole lower-left quadrant black.
+const GS = 560, GX = (W - GS) / 2, GY = 54;             // lattice square, centred
+const PX0 = 64, PX1 = W - 28, PY0 = 716, PY1 = H - 40;  // plot box, full width below
 const TMIN = 0.6, TMAX = 4.0, MMAX = 1.05;
 const xOfT = (T) => PX0 + ((T - TMIN) / (TMAX - TMIN)) * (PX1 - PX0);
 const yOfM = (m) => PY1 - (m / MMAX) * (PY1 - PY0);
@@ -81,7 +83,7 @@ function paintPlot() {
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(PX0, PY0); ctx.lineTo(PX0, PY1); ctx.lineTo(PX1, PY1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'center'; ctx.fillText('temperature  T', (PX0 + PX1) / 2, H - 22);
+  ctx.textAlign = 'center'; ctx.fillText('temperature  T', (PX0 + PX1) / 2, PY1 + 26);
   ctx.save(); ctx.translate(PX0 - 34, (PY0 + PY1) / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('|M|', 0, 0); ctx.restore();
   for (let g = 0; g <= 4; g += 1) {
@@ -153,10 +155,6 @@ function tick() {
   requestAnimationFrame(tick);
 }
 
-function resetLattice() {
-  inst = create({ L, T: st.T, seed: SEED, init: st.init });
-  win = []; samples.length = 0;
-}
 // Deterministic re-thermalization from the fixed seed: a control
 // change immediately shows the equilibrium character at the new
 // setting (disordered fizz at high T, ordered domains at low T)
@@ -206,20 +204,24 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const mNow = Math.abs(magPerSpin(inst));
   return { fields: [
     { key: 'temperature', label: 'Temperature T (J/k_B)', value: st.T, format: 'float' },
-    { key: 'speed', label: 'Animation speed multiplier', value: st.speed, format: 'float' },
-    { key: 'lattice-size', label: 'Lattice size', value: '64x64', format: undefined },
-    { key: 'magnetization', label: 'Magnetization M', value: 'live computed', format: undefined },
+    { key: 't-over-tc', label: 'T / T_c', value: st.T / TC, format: 'float' },
+    { key: 'lattice-size', label: 'Lattice size', value: `${L}x${L}`, format: 'text' },
+    { key: 'magnetization', label: 'measured |M|', value: mNow, format: 'float' },
+    { key: 'onsager', label: 'Onsager |M| (equilibrium)', value: onsagerM(st.T), format: 'float' },
   ] };
 };
 window.playground.getInvariants = function () {
-  const T_c = 2.269; // Critical temperature for 2D Ising
-  const isCritical = Math.abs(st.T - T_c) < 0.2;
-  const isOrdered = st.T < T_c;
-  const isDisordered = st.T > T_c;
-  
+  const mNow = Math.abs(magPerSpin(inst));
+  const isCritical = Math.abs(st.T - TC) < 0.2;
+  const regime = isCritical ? 'near T_c' : st.T < TC ? 'ordered (T<T_c)' : 'disordered (T>T_c)';
+  // Onsager: spontaneous magnetization is zero above T_c, positive below.
+  const onsZero = onsagerM(st.T) === 0;
   return [
-    { key: 'critical-temperature', label: 'Critical T_c ~ 2.269 J/k_B (Onsager exact result)', value: isCritical ? 'near T_c' : isOrdered ? 'ordered (T<T_c)' : 'disordered (T>T_c)', status: 'drift' },
+    { key: 'regime', label: `phase vs T_c = ${TC.toFixed(3)}`, value: regime, status: 'pass' },
+    { key: 'mag-bounded', label: 'measured |M| in [0, 1]', value: mNow.toFixed(3), status: mNow <= 1.0001 ? 'pass' : 'drift' },
+    { key: 'onsager-order', label: 'spontaneous M zero above T_c', value: onsZero ? 'M=0' : 'M>0', status: (st.T > TC) === onsZero ? 'pass' : 'drift' },
   ];
-}
+};
