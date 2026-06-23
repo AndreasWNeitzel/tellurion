@@ -91,13 +91,29 @@ function drawAll() {
   const rMin = 1.05 * 2 * M;
   const rMax = 30 * M;
   function xR(r) { return padL + (drawW) * (r - rMin) / (rMax - rMin); }
-  // V range: massive is small around -0.05 to 0.05; photon is 0 to L^2/54
-  const vMin = isMassive ? -0.06 : 0;
-  const vMax = isMassive ?  0.06 : (state.L * state.L / 54) * 1.4;
+  // Auto-fit the V axis to the curve actually plotted (plus headroom), so the
+  // potential fills the panel instead of hugging the bottom. Keep V = 0 (the
+  // escape threshold the curve tends to at large r) on screen.
+  const SCAN = 300;
+  const rRangeMin = 3 * M;                     // fit over the orbital region; let the inner wall clip off the bottom
+  let vLo = Infinity, vHi = -Infinity;
+  for (let i = 0; i < SCAN; i += 1) {
+    const r = rRangeMin + (rMax - rRangeMin) * i / (SCAN - 1);
+    const v = isMassive ? veffMassive(r, state.L) : veffPhoton(r, state.L);
+    if (Number.isFinite(v)) { if (v < vLo) vLo = v; if (v > vHi) vHi = v; }
+  }
+  if (!Number.isFinite(vLo)) { vLo = -0.06; vHi = 0.06; }
+  const vpad = ((vHi - vLo) || 0.02) * 0.18;
+  const vMin = Math.min(vLo, 0) - vpad;
+  const vMax = Math.max(vHi, 0) + vpad;
   function yV(v) {
     const clamped = Math.max(vMin, Math.min(vMax, v));
     return padT + drawH - (drawH * (clamped - vMin) / (vMax - vMin));
   }
+  // y-axis label
+  ctx.save(); ctx.translate(18, padT + drawH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText(isMassive ? 'V_eff (specific energy)' : 'V_eff (photon)', 0, 0); ctx.restore();
   // Zero line
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
   ctx.setLineDash([3, 3]);
