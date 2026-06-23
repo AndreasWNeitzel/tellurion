@@ -257,6 +257,29 @@ function drawAll() {
   ctx.fillRect(brX + 10, botY + 132, brW - 20, 10);
   ctx.fillStyle = '#ffd166';
   ctx.fillRect(brX + 10, botY + 132, (brW - 20) * gapFrac, 10);
+
+  // Vertical race track filling the lower panel: reference (no mass, blue)
+  // and real (Shapiro-delayed, gold) photons run emitter (top) -> receiver
+  // (bottom); the reference pulls ahead and the vertical gap is the delay.
+  const tkTop = botY + 196, tkBot = botY + botH - 22;
+  for (const [lx, frac, col, lab] of [
+    [brX + brW * 0.34, Math.min(1, state.tau / pathCache.tRefTotal), '#6fb4ff', 'reference'],
+    [brX + brW * 0.66, Math.min(1, state.tau / pathCache.tRealTotal), '#ffd166', 'real'],
+  ]) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(lx, tkTop); ctx.lineTo(lx, tkBot); ctx.stroke();
+    const py = tkTop + (tkBot - tkTop) * frac;
+    const g = ctx.createRadialGradient(lx, py, 0, lx, py, 13);
+    g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(lx, py, 13, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(lx, py, 4.5, 0, 6.2832); ctx.fill();
+    ctx.textAlign = 'center'; ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono');
+    ctx.fillText(lab, lx, tkTop - 8);
+  }
+  ctx.fillStyle = 'rgba(200,210,230,0.5)'; ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillText('emitter', brX + 10, tkTop - 8);
+  ctx.fillText('receiver', brX + 10, tkBot + 16);
+  ctx.textAlign = 'left';
 }
 
 // =========================================================================

@@ -31,7 +31,7 @@ const rng = makeRng(DEFAULT_SEED);
 const PW = W, PH = Math.round(H * 0.78);
 const LY = PH + 6, LH = H - LY - 6;
 const RNG_TE = 1.6;                                   // source x-range, theta_E units
-const VIEW = 2.7;                                     // half-extent of the image plane
+const VIEW = 2.2;                                     // half-extent of the image plane (tightened so the Einstein ring fills more of the scene; still covers the source track and the major image at ~2.08 theta_E)
 const cx = PW / 2, cy = PH / 2, sc = (Math.min(PW, PH) / 2 - 16) / VIEW;
 const SX = (x) => cx + x * sc, SY = (y) => cy - y * sc;
 
