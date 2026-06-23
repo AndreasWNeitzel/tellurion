@@ -163,13 +163,12 @@ function draw() {
   const fw = W - 40;
   drawMain(20, 20, fw, 452);
   const yB = 486;
-  if (st.mode === 'sobp') drawSOBP(20, yB, fw, 250);
-  else {
-    panel(20, yB, fw, 250, 'SOBP construction (switch to spread-out mode)');
-    ctx.fillStyle = 'rgba(200,210,235,0.55)'; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText('A single pristine Bragg peak is too narrow to cover a whole tumour.', 36, yB + 60);
-    ctx.fillText('Switch to spread-out mode to see the weighted superposition.', 36, yB + 80);
-  }
+  // Always show the SOBP construction: a single pristine peak (top panel)
+  // is too narrow to cover a tumour, so the middle panel shows how many
+  // weighted, range-shifted peaks superpose into the flat spread-out
+  // plateau. Drawing it in both modes keeps the panel populated and lets
+  // the pristine-mode viewer see the build-up alongside one bare peak.
+  drawSOBP(20, yB, fw, 250);
   drawPatient(20, yB + 262, fw, H - (yB + 262) - 16);
   rE.textContent = `${st.e} MeV`;
   rR.textContent = `${cache.R.toFixed(1)} cm`;
