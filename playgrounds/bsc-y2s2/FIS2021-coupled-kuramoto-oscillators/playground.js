@@ -62,95 +62,58 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fillText(`${state.K < Kc ? 'incoherent' : 'partially synchronized'}   N = ${N}   gamma = ${state.gamma.toFixed(2)}   t = ${state.sim.t.toFixed(2)}`, 30, 40);
 
-  // Layout: unit circle on left, r(t) on right
-  const padL = 30, padR = 30;
-  const panelGap = 30;
-  const panelW = (W - padL - padR - panelGap) / 2;
-  const panelY = 60;
-  const panelH = H - panelY - 80;
-
-  // Unit circle
-  const circleX = padL;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(circleX, panelY, panelW, panelH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(circleX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
-  const cx = circleX + panelW / 2;
-  const cy = panelY + panelH / 2;
-  const R0 = Math.min(panelW, panelH) / 2 - 20;
-  // Unit circle outline
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, R0, 0, Math.PI * 2);
-  ctx.stroke();
-  // Oscillator dots
+  // Layout: big square phase circle on top, full-width r(t) plot below
+  const cpS = 564, cpX = (W - cpS) / 2, cpY = 54;
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(cpX, cpY, cpS, cpS);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.strokeRect(cpX + 0.5, cpY + 0.5, cpS - 1, cpS - 1);
+  const cx = cpX + cpS / 2, cy = cpY + cpS / 2, R0 = cpS / 2 - 34;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(cx, cy, R0, 0, Math.PI * 2); ctx.stroke();
+  // oscillator dots
   for (let i = 0; i < N; i += 1) {
     const px = cx + R0 * Math.cos(state.sim.theta[i]);
     const py = cy - R0 * Math.sin(state.sim.theta[i]);
     ctx.fillStyle = 'rgba(127, 177, 216, 0.85)';
-    ctx.beginPath();
-    ctx.arc(px, py, 2.5, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, 3.2, 0, Math.PI * 2); ctx.fill();
   }
-  // Order parameter arrow
+  // order-parameter arrow (length r, angle = mean phase)
   let sx = 0, sy = 0;
   for (let i = 0; i < N; i += 1) { sx += Math.cos(state.sim.theta[i]); sy += Math.sin(state.sim.theta[i]); }
   sx /= N; sy /= N;
   const arrowEnd = { x: cx + R0 * sx, y: cy - R0 * sy };
-  ctx.strokeStyle = tok.accentWarm;
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(arrowEnd.x, arrowEnd.y);
-  ctx.stroke();
-  ctx.fillStyle = tok.accentWarm;
-  ctx.beginPath();
-  ctx.arc(arrowEnd.x, arrowEnd.y, 4, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'left';
-  ctx.fillText('oscillator phases on unit circle', circleX + 6, panelY + 14);
+  ctx.strokeStyle = tok.accentWarm; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(arrowEnd.x, arrowEnd.y); ctx.stroke();
+  ctx.fillStyle = tok.accentWarm; ctx.beginPath(); ctx.arc(arrowEnd.x, arrowEnd.y, 5.5, 0, Math.PI * 2); ctx.fill();
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; ctx.textAlign = 'left';
+  ctx.fillText('oscillator phases on the unit circle; arrow length = r', cpX + 8, cpY + 16);
+  ctx.fillStyle = tok.accentWarm; ctx.textAlign = 'center';
+  ctx.fillText(`r = ${r.toFixed(2)}`, arrowEnd.x, arrowEnd.y - 10);
 
-  // r(t)
-  const traceX = padL + panelW + panelGap;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(traceX, panelY, panelW, panelH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(traceX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
-  // 0 and 1 lines
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-  ctx.setLineDash([3, 3]);
+  // r(t) plot (full width, bottom)
+  const traceX = 30, traceY = 648, traceW = W - 60, traceH = H - traceY - 20;
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(traceX, traceY, traceW, traceH);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.strokeRect(traceX + 0.5, traceY + 0.5, traceW - 1, traceH - 1);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)'; ctx.setLineDash([3, 3]);
   ctx.beginPath();
-  ctx.moveTo(traceX, panelY + panelH - 4);
-  ctx.lineTo(traceX + panelW, panelY + panelH - 4);
-  ctx.moveTo(traceX, panelY + 4);
-  ctx.lineTo(traceX + panelW, panelY + 4);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  // r(t) trace
+  ctx.moveTo(traceX, traceY + traceH - 4); ctx.lineTo(traceX + traceW, traceY + traceH - 4);
+  ctx.moveTo(traceX, traceY + 4); ctx.lineTo(traceX + traceW, traceY + 4);
+  ctx.stroke(); ctx.setLineDash([]);
   if (state.rHistory.length >= 2) {
-    ctx.strokeStyle = tok.accentWarm;
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    const tWindow = 40;
-    const tStart = Math.max(0, state.sim.t - tWindow);
+    ctx.strokeStyle = tok.accentWarm; ctx.lineWidth = 1.8; ctx.beginPath();
+    const tWindow = 40, tStart = Math.max(0, state.sim.t - tWindow);
     let first = true;
     for (const pt of state.rHistory) {
       if (pt.t < tStart) continue;
-      const px = traceX + 4 + (panelW - 8) * (pt.t - tStart) / tWindow;
-      const py = panelY + 4 + (panelH - 8) * (1 - pt.r);
+      const px = traceX + 6 + (traceW - 12) * (pt.t - tStart) / tWindow;
+      const py = traceY + 4 + (traceH - 8) * (1 - pt.r);
       if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
     }
     ctx.stroke();
   }
-  // r = 1 and 0 labels
-  ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'left';
-  ctx.fillText('r = 1', traceX + 6, panelY + 14);
-  ctx.fillText('r = 0', traceX + 6, panelY + panelH - 6);
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'; ctx.textAlign = 'left';
+  ctx.fillText('r = 1 (full sync)', traceX + 6, traceY + 14);
+  ctx.fillText('r = 0 (incoherent)', traceX + 6, traceY + traceH - 6);
+  ctx.textAlign = 'right'; ctx.fillText('order parameter r(t)', traceX + traceW - 6, traceY + 14);
 }
 
 function tickN(n) {
