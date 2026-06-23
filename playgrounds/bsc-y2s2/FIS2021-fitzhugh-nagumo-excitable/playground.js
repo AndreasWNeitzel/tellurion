@@ -27,7 +27,7 @@ const btnPlayPause = document.getElementById('btn-playpause');
 const W = canvas.width, H = canvas.height;
 
 const state = {
-  I: 0,
+  I: 0.5,                                              // start in the limit-cycle regime so it spikes on load
   speed: 3,
   sim: null,
   trace: [],
@@ -43,7 +43,11 @@ const tok = {
 
 function rebuild() {
   const r = restState(state.I);
-  state.sim = createFHN({ v: r.v, w: r.w, I: state.I });
+  // Start off the fixed point so that, when it is unstable (I in the
+  // oscillatory band), the trajectory spirals out to the limit cycle instead
+  // of sitting frozen on the equilibrium. In the excitable regime it relaxes
+  // back to rest after a single spike.
+  state.sim = createFHN({ v: r.v + 0.7, w: r.w, I: state.I });
   state.trace = [];
   state.phase = [];
 }
@@ -60,58 +64,41 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fillText(`I = 0: excitable rest. I > 0.4: limit cycle (periodic spikes).`, 30, 40);
 
-  const padL = 30, padR = 30;
-  const gap = 30;
-  const panelW = (W - padL - padR - gap) / 2;
-  const panelY = 60;
-  const panelH = H - panelY - 80;
-
-  // Left: v(t) and w(t) traces (stacked or overlaid)
-  const traceX = padL;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(traceX, panelY, panelW, panelH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(traceX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
-  // Zero line
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
-  ctx.beginPath();
-  ctx.moveTo(traceX, panelY + panelH / 2);
-  ctx.lineTo(traceX + panelW, panelY + panelH / 2);
-  ctx.stroke();
-  const tWin = 50;
+  // Voltage/recovery trace: full width across the top
+  const traceX = 30, traceY = 56, traceW = W - 60, traceH = 296;
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(traceX, traceY, traceW, traceH);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.strokeRect(traceX + 0.5, traceY + 0.5, traceW - 1, traceH - 1);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)'; ctx.beginPath();
+  ctx.moveTo(traceX, traceY + traceH / 2); ctx.lineTo(traceX + traceW, traceY + traceH / 2); ctx.stroke();
+  const tWin = 60, vScale = traceH * 0.17;
   if (state.trace.length >= 2) {
-    const tNow = state.sim.t;
-    const tStart = Math.max(0, tNow - tWin);
+    const tNow = state.sim.t, tStart = Math.max(0, tNow - tWin);
+    ctx.save(); ctx.beginPath(); ctx.rect(traceX, traceY, traceW, traceH); ctx.clip();
     for (const [key, color] of [['v', tok.accentCool], ['w', tok.accentWarm]]) {
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
+      ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.beginPath();
       let first = true;
       for (const pt of state.trace) {
         if (pt.t < tStart) continue;
-        const px = traceX + 4 + (panelW - 8) * (pt.t - tStart) / tWin;
-        const py = panelY + panelH / 2 - pt[key] * (panelH * 0.35);
+        const px = traceX + 4 + (traceW - 8) * (pt.t - tStart) / tWin;
+        const py = traceY + traceH / 2 - pt[key] * vScale;
         if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
       }
       ctx.stroke();
     }
+    ctx.restore();
   }
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillStyle = tok.accentCool;
-  ctx.fillText('v(t) voltage', traceX + 6, panelY + 14);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('w(t) recovery', traceX + 130, panelY + 14);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillStyle = tok.accentCool; ctx.fillText('v(t) voltage', traceX + 6, traceY + 14);
+  ctx.fillStyle = tok.accentWarm; ctx.fillText('w(t) recovery', traceX + 132, traceY + 14);
 
-  // Right: phase portrait
-  const phaseX = traceX + panelW + gap;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(phaseX, panelY, panelW, panelH);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(phaseX + 0.5, panelY + 0.5, panelW - 1, panelH - 1);
+  // Phase portrait below: 600x480 panel with a uniform v,w scale (no distortion)
   const vMin = -2.5, vMax = 2.5, wMin = -1.5, wMax = 2.5;
-  function ppX(v) { return phaseX + 4 + (panelW - 8) * (v - vMin) / (vMax - vMin); }
-  function ppY(w) { return panelY + panelH - 4 - (panelH - 12) * (w - wMin) / (wMax - wMin); }
+  const phaseW = 660, phaseH = 528, phaseX = (W - phaseW) / 2, phaseY = 384;
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(phaseX, phaseY, phaseW, phaseH);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.strokeRect(phaseX + 0.5, phaseY + 0.5, phaseW - 1, phaseH - 1);
+  ctx.save(); ctx.beginPath(); ctx.rect(phaseX, phaseY, phaseW, phaseH); ctx.clip();
+  function ppX(v) { return phaseX + 4 + (phaseW - 8) * (v - vMin) / (vMax - vMin); }
+  function ppY(w) { return phaseY + phaseH - 4 - (phaseH - 12) * (w - wMin) / (wMax - wMin); }
   // Nullclines
   // v-nullcline: w = v - v^3/3 + I
   ctx.strokeStyle = 'rgba(127, 177, 216, 0.55)';
@@ -146,13 +133,14 @@ function drawAll() {
   if (state.phase.length > 0) {
     ctx.fillStyle = '#f1d28a';
     ctx.beginPath();
-    ctx.arc(ppX(state.sim.v), ppY(state.sim.w), 4, 0, Math.PI * 2);
+    ctx.arc(ppX(state.sim.v), ppY(state.sim.w), 4.5, 0, Math.PI * 2);
     ctx.fill();
   }
+  ctx.restore();
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.textAlign = 'left';
-  ctx.fillText('phase (v, w)', phaseX + 6, panelY + 14);
+  ctx.fillText('phase (v, w):  v-nullcline cubic, w-nullcline line', phaseX + 6, phaseY + 14);
 }
 
 function tickN(n) {
