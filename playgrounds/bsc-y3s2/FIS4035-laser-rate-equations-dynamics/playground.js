@@ -126,12 +126,15 @@ function drawTraces(x, y, w, h) {
   const tEnd = st.regime === 'qswitch' ? Math.max(SAMPLE_DT, st.sim.t) : T_WINDOW;
   let pmax = 1e-9, nmax = 1e-9;
   for (const [, n, p] of st.hist) { if (p > pmax) pmax = p; if (n > nmax) nmax = n; }
+  // n_th is the gain-clamp inversion 1/q0 (steadyInversion at high pump), not
+  // the threshold pump rate; scale the inversion axis to keep it on the plot.
+  const nth = steadyInversion(1e9, st.q0);
+  nmax = Math.max(nmax, nth) * 1.08;
   const x0 = x + 8, x1 = x + w - 8, y0 = y + 22, y1 = y + h - 12;
   const X = (t) => x0 + (x1 - x0) * Math.min(1, t / tEnd);
   const Yp = (p) => y1 - (y1 - y0) * p / pmax;
   const Yn = (n) => y1 - (y1 - y0) * n / nmax;
   // steady-state reference lines (clamp targets)
-  const nth = thresholdPump(st.q0);
   const pSt = steadyPhotons(st.r, st.q0);
   ctx.strokeStyle = 'rgba(111,160,255,0.35)'; ctx.setLineDash([2, 4]);
   ctx.beginPath(); ctx.moveTo(x0, Yn(nth)); ctx.lineTo(x1, Yn(nth)); ctx.stroke();
