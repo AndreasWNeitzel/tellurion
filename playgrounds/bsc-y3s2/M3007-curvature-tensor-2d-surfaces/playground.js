@@ -135,6 +135,7 @@ function colorForK(K, kMax) {
   return `rgba(91, 192, 235, ${0.3 - t * 0.5})`;
 }
 
+const SURF_S = 1.6;   // enlarge the projected surface to fill the portrait
 function projectPoint(x, y, z, cx, cy) {
   // Auto-spin (st.t) plus the pointer-drag yaw.
   const yaw = st.yaw + st.t * 0.3;
@@ -144,14 +145,14 @@ function projectPoint(x, y, z, cx, cy) {
   const cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
   const y1 = y * cp - z1 * sp;
   const z2 = y * sp + z1 * cp;
-  return { px: cx + x1 + z2 * 0.3, py: cy - y1 + z2 * 0.2, depth: z2 };
+  return { px: cx + (x1 + z2 * 0.3) * SURF_S, py: cy + (-y1 + z2 * 0.2) * SURF_S, depth: z2 };
 }
 
 function render() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const surf = makeSurface(st.surface, st.Rr);
-  const cx = canvas.width * 0.36, cy = 232;
+  const cx = canvas.width * 0.5, cy = Math.round(canvas.height * 0.40);
 
   // Mesh the surface, then paint back-to-front so nearer cells win.
   const pts = [];
@@ -164,9 +165,10 @@ function render() {
     }
   }
   pts.sort((p, q) => p.depth - q.depth);
+  const cellR = 4 * SURF_S;
   for (const pt of pts) {
     ctx.fillStyle = colorForK(pt.K, surf.kMax);
-    ctx.fillRect(pt.px - 4, pt.py - 4, 8, 8);
+    ctx.fillRect(pt.px - cellR, pt.py - cellR, 2 * cellR, 2 * cellR);
   }
 
   // Surface caption.
@@ -201,8 +203,8 @@ function render() {
 // colouring. A flat line at zero is the cylinder; a flat positive
 // line is the sphere; the torus and saddle vary with position.
 function drawKDiagnostic(surf) {
-  const W = canvas.width;
-  const pw = 300, ph = 150, px = W - pw - 16, py = 48;
+  const W = canvas.width, H = canvas.height;
+  const pw = W - 120, ph = 168, px = 60, py = H - ph - 40;
   ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
   ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
