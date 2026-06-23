@@ -50,10 +50,9 @@ window.addEventListener('pointermove', (e) => {
 
 // 3D projection.
 function project(x, y, z) {
-  // Origin sits below centre so the forward (+y) beam fills the upper two
-  // thirds rather than a small patch around the middle; scale enlarged so the
-  // lobe reads as a substantial solid.
-  const cx = canvas.width / 2, cy = Math.round(canvas.height * 0.62);
+  // Origin in the upper-middle so the forward (+y) beam fills the top half and
+  // leaves the lower half for the angular-distribution diagnostic.
+  const cx = canvas.width / 2, cy = Math.round(canvas.height * 0.45);
   const ca = Math.cos(st.az), sa = Math.sin(st.az);
   const ce = Math.cos(st.el), se = Math.sin(st.el);
   // Rotate about y by az, then about x by el.
@@ -61,7 +60,7 @@ function project(x, y, z) {
   const zp = -sa * x + ca * z;
   const yp = ce * y - se * zp;
   const zr = se * y + ce * zp;
-  return { x: cx + xp * 290, y: cy - yp * 290, depth: zr };
+  return { x: cx + xp * 270, y: cy - yp * 270, depth: zr };
 }
 
 // Sample the radiation pattern as a function of (theta, phi) -- theta
@@ -71,6 +70,41 @@ function project(x, y, z) {
 function rOfThPh(theta, phi) {
   if (st.geom === 'par') return lobeParallel(theta, betaFromGamma(st.gamma));
   return lobePerpendicular(theta, phi, betaFromGamma(st.gamma));
+}
+
+// Bottom diagnostic: the angular power distribution dP/dOmega versus angle
+// theta from the velocity, the quantitative content of the 3D lobe. The
+// forward peak narrows and sharpens as gamma rises; the 1/gamma beaming angle
+// is marked so the half-width can be read off directly.
+function drawDiagnostic(beta) {
+  const W = canvas.width, H = canvas.height;
+  const x0 = 56, x1 = W - 24, y0 = Math.round(H * 0.58), y1 = H - 42;
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 0.5; ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+  ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('radiated power vs angle from velocity:  dP/dOmega(theta)', x0 + 4, y0 - 8);
+  const M = 260; const vals = new Float64Array(M + 1); let imax = 1e-30;
+  for (let k = 0; k <= M; k += 1) {
+    const th = Math.PI * k / M;
+    const v = st.geom === 'par' ? lobeParallel(th, beta) : lobePerpendicular(th, 0, beta);
+    vals[k] = v; if (v > imax) imax = v;
+  }
+  const ax = x0 + 44, aw = x1 - x0 - 60, ay = y0 + 14, ah = y1 - y0 - 40;
+  const thX = (th) => ax + aw * th / Math.PI;
+  const iY = (v) => ay + ah - (ah - 4) * (v / imax);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  const op = openingAngle(st.gamma);
+  ctx.strokeStyle = 'rgba(91,192,235,0.6)'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(thX(op), ay); ctx.lineTo(thX(op), ay + ah); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#5bc0eb'; ctx.textAlign = 'left';
+  ctx.fillText(`1/gamma = ${(op * 180 / Math.PI).toFixed(1)} deg`, Math.min(thX(op) + 5, x1 - 130), ay + 14);
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let k = 0; k <= M; k += 1) { const px = thX(Math.PI * k / M), py = iY(vals[k]); if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.textAlign = 'center';
+  for (const td of [0, 45, 90, 135, 180]) ctx.fillText(String(td), thX(td * Math.PI / 180), ay + ah + 16);
+  ctx.textAlign = 'right'; ctx.fillText('theta (deg)', x1 - 6, ay + ah + 16);
+  ctx.textAlign = 'left'; ctx.fillText('dP/dOmega', ax - 40, ay + 8);
 }
 
 function render() {
@@ -172,6 +206,8 @@ function render() {
     ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
   }
   ctx.setLineDash([]);
+
+  drawDiagnostic(beta);
 
   // HUD.
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
