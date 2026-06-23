@@ -6,6 +6,7 @@
 import { makeRng, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 import { samplePath, dft, reconstruct, rmsError } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
+import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params        = new URLSearchParams(location.search);
 const SEED          = parseInt(params.get('seed') ?? DEFAULT_SEED, 16) || DEFAULT_SEED;
@@ -115,6 +116,37 @@ function frame(tSimFrac) {
   // Tip marker.
   ctx.fillStyle = '#ffd57f';
   ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, 2 * Math.PI); ctx.fill();
+
+  // Title, consistent with the rest of the zoo (the card previously drew no
+  // on-canvas text and relied on the page chrome).
+  ctx.fillStyle = 'rgba(232,234,246,0.92)';
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('Fourier epicycles: rotating circles sum to trace the path', 20, 28);
+  ctx.fillStyle = 'rgba(182,188,212,0.72)';
+  ctx.fillText(`${state.preset}    M = ${Mvis} of ${N} epicycles`, 20, 48);
+
+  // Diagnostic: the sorted Fourier spectrum |C_k|. Each bar is one circle's
+  // radius (same colour as its ring); the first M bars are the coefficients
+  // currently building the figure, the faint rest are the detail M drops. This
+  // is the quantitative grounding for the epicycle chain.
+  const NB = 56;
+  const sx0 = 20, sw = W - 40, sh = 124, sy1 = H - 26, sy0 = sy1 - sh;
+  ctx.fillStyle = 'rgba(255,255,255,0.04)';
+  ctx.fillRect(sx0, sy0, sw, sh);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.strokeRect(sx0 + 0.5, sy0 + 0.5, sw - 1, sh - 1);
+  let aMax = 1e-9;
+  for (let i = 0; i < NB && i < state.coeffs.length; i += 1) aMax = Math.max(aMax, state.coeffs[i].amp);
+  const bw = sw / NB;
+  for (let i = 0; i < NB && i < state.coeffs.length; i += 1) {
+    const bh = Math.max(1, (state.coeffs[i].amp / aMax) * (sh - 22));
+    ctx.fillStyle = i < Mvis ? `hsla(${(i * 47) % 360}, 70%, 62%, 0.92)` : 'rgba(150,155,178,0.32)';
+    ctx.fillRect(sx0 + i * bw + 1, sy1 - 6 - bh, Math.max(1, bw - 1.6), bh);
+  }
+  ctx.fillStyle = 'rgba(202,207,228,0.8)';
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillText('Fourier spectrum |C_k| (sorted): the coloured bars are the M circles in use', sx0 + 6, sy0 + 15);
 }
 
 let frameNo = 0;
