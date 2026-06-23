@@ -107,9 +107,12 @@ function drawGalaxy3D() {
   const cx = W * 0.5, cy = H * 0.30;
   const scale = Math.min(W * 0.30, H * 0.22) / 8;     // 8 ~ outer disc radius
 
-  // Dark matter halo: large transparent purple sphere.
+  // Dark matter halo: large transparent purple sphere. The true virial radius
+  // r_s*c is tens of times the visible disc, so cap the drawn radius to the
+  // scene so the halo glow, its dashed boundary, and the label stay on-canvas
+  // (they were drawn at ~1700px radius, far off-screen).
   if (st.includeDM) {
-    const haloR = st.r_s * st.c / 4 * scale;
+    const haloR = Math.min(st.r_s * st.c / 4 * scale, cy * 0.9);
     const g = ctx.createRadialGradient(cx, cy, haloR * 0.4, cx, cy, haloR);
     g.addColorStop(0, 'rgba(170, 130, 220, 0.10)');
     g.addColorStop(1, 'rgba(170, 130, 220, 0)');
