@@ -47,7 +47,7 @@ function drawAll() {
   ctx.fillRect(0, 0, W, H);
   if (!state.sim) return;
   const sim = state.sim, N = sim.N;
-  const PLOT = { x: 24, y: 30, w: W - 48, h: H - 90 };
+  const PLOT = { x: 24, y: 30, w: W - 48, h: Math.round(H * 0.63) };
   const side = Math.min(PLOT.w, PLOT.h);
   const ox = PLOT.x + (PLOT.w - side) / 2, oy = PLOT.y + (PLOT.h - side) / 2;
 
@@ -111,6 +111,52 @@ function drawAll() {
   ctx.fillText(`t = ${sim.t.toFixed(2)}   N = ${N}   R = ${state.R.toFixed(2)}   M = ${M.toFixed(3)}   L_z = ${Lz.toFixed(3)}`, 24, 18);
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.fillText('colour = orbital speed (cool slow to warm fast); view zoomed to the disc', 24, H - 14);
+
+  drawRotationCurve(sim, comx, comy, N);
+}
+
+// Rotation curve: bin the particles by radius from the centre of mass and
+// plot the mean orbital speed v(r). It is the standard disc diagnostic and
+// it grounds the colour map directly (each marker is tinted with the same
+// speed ramp as the points above). A self-gravitating exponential disc rises
+// from the centre to a broad maximum near ~1 scale length, then falls.
+function drawRotationCurve(sim, comx, comy, N) {
+  const D = { x: 56, y: 690, w: W - 86, h: 308 };
+  const padL = 48, padB = 30, padT = 22, padR = 16;
+  const ax = D.x + padL, aw = D.w - padL - padR;
+  const ay = D.y + padT, ah = D.h - padT - padB;
+  const rMaxPlot = 3.4 * state.R, NB = 20;
+  const sumV = new Float64Array(NB), cnt = new Int32Array(NB);
+  for (let p = 0; p < N; p += 1) {
+    const r = Math.hypot(sim.x[2 * p] - comx, sim.x[2 * p + 1] - comy);
+    if (r >= rMaxPlot) continue;
+    const b = Math.min(NB - 1, Math.floor(r / rMaxPlot * NB));
+    sumV[b] += Math.hypot(sim.v[2 * p], sim.v[2 * p + 1]); cnt[b] += 1;
+  }
+  let vMaxC = 1e-6; const vbins = [];
+  for (let b = 0; b < NB; b += 1) { const v = cnt[b] ? sumV[b] / cnt[b] : NaN; vbins.push(v); if (Number.isFinite(v) && v > vMaxC) vMaxC = v; }
+  vMaxC *= 1.15;
+  ctx.fillStyle = 'rgba(120,150,200,0.05)'; ctx.fillRect(D.x, D.y, D.w, D.h);
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.fillStyle = 'rgba(210,220,235,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('rotation curve: mean orbital speed v(r) vs radius', D.x + padL - 32, D.y + 14);
+  const PX = (r) => ax + r / rMaxPlot * aw;
+  const PY = (v) => ay + ah - v / vMaxC * ah;
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center';
+  for (let rr = 0; rr <= 3; rr += 1) ctx.fillText(`${rr}R`, PX(rr * state.R), ay + ah + 16);
+  ctx.save(); ctx.translate(D.x + 14, ay + ah / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('v', 0, 0); ctx.restore();
+  const vsRef = (state.vmaxSmooth || vMaxC) * 0.85;
+  ctx.strokeStyle = 'rgba(180,200,235,0.7)'; ctx.lineWidth = 2; ctx.beginPath();
+  let started = false;
+  vbins.forEach((v, b) => { if (!Number.isFinite(v)) return; const r = (b + 0.5) / NB * rMaxPlot; if (!started) { ctx.moveTo(PX(r), PY(v)); started = true; } else ctx.lineTo(PX(r), PY(v)); });
+  ctx.stroke();
+  vbins.forEach((v, b) => {
+    if (!Number.isFinite(v)) return;
+    const r = (b + 0.5) / NB * rMaxPlot, c = speedColor(v / (vsRef || 1));
+    ctx.fillStyle = `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
+    ctx.beginPath(); ctx.arc(PX(r), PY(v), 3, 0, 2 * Math.PI); ctx.fill();
+  });
 }
 
 function tickN(n) {
