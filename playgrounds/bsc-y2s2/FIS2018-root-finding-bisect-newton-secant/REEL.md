@@ -15,8 +15,9 @@ VO: Bisection only needs a sign change and halves the bracket every step, guaran
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch methods on the same function: bisection halves the bracket every step (slow but sure), Newton rides the tangent (fast but can fly off), secant approximates the tangent from two points.
+VO: Give Newton a bad starting point: the tangent can overshoot, oscillate, or diverge, the price of its speed when it fails to converge.
+VO: Count iterations to a tolerance: Newton roughly doubles the correct digits each step while bisection adds a fixed fraction of one, the gap between quadratic and linear convergence.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

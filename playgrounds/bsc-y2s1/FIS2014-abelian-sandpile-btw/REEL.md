@@ -15,8 +15,9 @@ VO: Grains drop on a lattice; a site holding four or more topples, handing one g
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drop grains and watch the pile self-organize: it climbs to the critical slope on its own and then sits there, no tuning needed, the defining trick of self-organized criticality.
+VO: A single added grain may do nothing or trigger an avalanche that spans the lattice: the size distribution is a power law with no characteristic scale.
+VO: Lower the toppling threshold z_c and the pile destabilizes sooner, yet the same scale-free cascades appear, the model Bak proposed for earthquakes, forest fires and 1/f noise.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

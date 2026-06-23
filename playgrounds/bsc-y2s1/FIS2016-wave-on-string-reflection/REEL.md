@@ -15,8 +15,9 @@ VO: A fixed end (y = 0) forces an inverted reflection; a free end (zero slope) r
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Launch the pulse and watch it hit the end: a fixed end reflects it inverted, a crest returning as a trough, while a free end reflects it upright. The boundary condition flips the sign or not.
+VO: Compare the two strings side by side, same pulse and speed but opposite end conditions, the cleanest way to see why a guitar string and an open organ pipe differ.
+VO: The reflected pulse keeps its shape and speed: the wave equation is linear and non-dispersive, so information bounces without smearing.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

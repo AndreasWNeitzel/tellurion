@@ -15,8 +15,9 @@ VO: It generalizes the Ising model (q = 2) and orders below T c = 1 / ln(1 + sqr
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise q, the number of colors: with more states to disorder into the transition sharpens, and past q = 4 in two dimensions it turns first-order, jumping discontinuously instead of growing smoothly.
+VO: Cross T / T_c: above it the lattice is a fizz of random colors, below it one color wins and large monochrome domains lock in, spontaneous symmetry breaking.
+VO: Sit right at T_c and watch domains of every size flicker: critical fluctuations are scale-free, the self-similarity that links the Potts model to percolation and to real magnets.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

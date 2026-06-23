@@ -15,8 +15,9 @@ VO: Higher frequency or higher conductivity gives a thinner skin, so high-freque
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the frequency: the field crowds into a thinner and thinner skin, since the penetration depth delta scales as one over the square root of f. At microwave frequencies the current flows in a layer microns thick.
+VO: Switch material: a better conductor, or a magnetic one like iron with mu_r = 200, shrinks delta further, which is why high-frequency wires are silver-plated and why iron shields fields so well.
+VO: Watch the wave crawl inward and decay: it both attenuates and lags in phase as it penetrates, the e^(-z/delta) envelope riding a wave that dies within a few skin depths.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

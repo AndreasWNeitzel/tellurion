@@ -15,8 +15,9 @@ VO: The gas molecules and piston track the live temperature and volume, the P-V 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Pick a cycle and watch the P-V loop close: the area it encloses is the net work per cycle, and the energy-flow diagram splits each stroke into heat in, heat out, and work done.
+VO: Compare cycles: Carnot sets the ceiling efficiency 1 - T_c / T_h, while Otto, Diesel and Brayton trade some of that ideal for power density, the compromise in every real engine.
+VO: Follow the operating point around the loop: heat flows in on the hot strokes and out on the cold ones, and only the difference becomes useful work, the second law made visible.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

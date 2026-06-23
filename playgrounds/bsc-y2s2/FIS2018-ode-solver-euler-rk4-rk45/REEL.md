@@ -15,8 +15,9 @@ VO: Forward Euler is only first order and systematically injects energy, so its 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the energy: explicit Euler spirals outward, pumping energy in without bound, while RK4 hugs the true orbit and RK45 adapts its step to a tolerance.
+VO: Enlarge the time step: every method degrades, but Euler blows up first. Accuracy and stability are bought with smaller steps or higher order.
+VO: Read the energy-drift readout: for a Hamiltonian system the conserved energy is the honest scorecard, exposing which integrator is quietly lying.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

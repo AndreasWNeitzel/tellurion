@@ -15,8 +15,9 @@ VO: The darts accumulate continuously so the estimate refines in front of you, a
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Throw darts and watch the estimate settle: the fraction landing inside the shape times the box area converges on the true integral, with no formula needed.
+VO: Note how slowly it tightens: the error shrinks only as one over the square root of N, so each extra digit costs a hundredfold more darts. Monte Carlo trades precision for dimension-independence.
+VO: Switch shapes: the method does not care whether the region is a circle, a blob, or a high-dimensional volume, which is exactly why it dominates in many dimensions.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
