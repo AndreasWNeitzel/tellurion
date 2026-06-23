@@ -30,7 +30,12 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlay      = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const VIEW = { xmin: -1.5, xmax: 1.5, ymin: -0.45, ymax: 0.45 };
+// Uniform-scale view: the Henon attractor is wide and flat, so map it with one
+// scale into a top band (no per-axis stretch that distorts its true shape).
+// The lower canvas carries the Lyapunov-vs-a diagnostic.
+const ATT = { cx: W / 2, cy: 198, scale: (W - 48) / 3 };
+const DIAG = { x: 40, y: 360, w: W - 80, h: H - 360 - 16 };
+const A_MIN = 0.9, A_MAX = 1.41, NA = 68;
 
 // Background "shape buildup" buffer in pixel space. We accumulate visited
 // pixels at a low alpha so the attractor's silhouette gradually fills in
@@ -60,10 +65,21 @@ const COL = {
 };
 
 function px(x, y) {
-  return {
-    px: W * (x - VIEW.xmin) / (VIEW.xmax - VIEW.xmin),
-    py: H * (1 - (y - VIEW.ymin) / (VIEW.ymax - VIEW.ymin)),
-  };
+  return { px: ATT.cx + x * ATT.scale, py: ATT.cy - y * ATT.scale };
+}
+
+// Lyapunov exponent vs a (at the current b), built once and on each b change.
+let lyapCurve = [];
+let curveB = null;
+function buildLyapCurve() {
+  lyapCurve = [];
+  for (let i = 0; i <= NA; i += 1) {
+    const a = A_MIN + (A_MAX - A_MIN) * i / NA;
+    let l = henonMaxLyapunov(0.1, 0.1, 2200, { a, b: state.params.b }, 100, 700);
+    if (!Number.isFinite(l)) l = 0;
+    lyapCurve.push([a, Math.max(-0.8, Math.min(0.8, l))]);
+  }
+  curveB = state.params.b;
 }
 
 function clearBackground() {
@@ -133,8 +149,45 @@ function drawReadout() {
   }
 }
 
+function drawDiagnostic() {
+  const { x, y, w, h } = DIAG;
+  ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(226,232,240,0.18)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.fillStyle = 'rgba(226,232,240,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('Lyapunov exponent vs a   (> 0: chaos;  dips below 0: periodic windows)', x + 10, y + 16);
+  const plT = y + 28, plB = y + h - 30, plL = x + 46, plR = x + w - 12;
+  let lo = -0.4, hi = 0.5;
+  for (const [, l] of lyapCurve) { if (l < lo) lo = l; if (l > hi) hi = l; }
+  const xA = (a) => plL + (a - A_MIN) / (A_MAX - A_MIN) * (plR - plL);
+  const yL = (l) => plB - (l - lo) / (hi - lo) * (plB - plT);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plL, plT); ctx.lineTo(plL, plB); ctx.lineTo(plR, plB); ctx.stroke();
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.55)'; ctx.textAlign = 'center';
+  for (let a = 1.0; a <= 1.4; a += 0.1) ctx.fillText(a.toFixed(1), xA(a), plB + 14);
+  if (lo < 0 && hi > 0) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(plL, yL(0)); ctx.lineTo(plR, yL(0)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.fillText('0', plL - 4, yL(0) + 3);
+  }
+  if (lyapCurve.length > 1) {
+    ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.6; ctx.beginPath();
+    lyapCurve.forEach(([a, l], i) => { const X = xA(a), Y = yL(l); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); });
+    ctx.stroke();
+  }
+  // current operating point: read off the curve so the marker stays on the line
+  const a = state.params.a;
+  if (a >= A_MIN && a <= A_MAX && lyapCurve.length > 1) {
+    const idx = Math.max(0, Math.min(NA, (a - A_MIN) / (A_MAX - A_MIN) * NA));
+    const i0 = Math.floor(idx), i1 = Math.min(NA, i0 + 1), fr = idx - i0;
+    const lAt = lyapCurve[i0][1] * (1 - fr) + lyapCurve[i1][1] * fr;
+    ctx.strokeStyle = 'rgba(255,209,102,0.5)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xA(a), plT); ctx.lineTo(xA(a), plB); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(xA(a), yL(lAt), 4.5, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.fillStyle = '#8893a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center'; ctx.fillText('a', (plL + plR) / 2, plB + 28);
+  ctx.save(); ctx.translate(x + 14, (plT + plB) / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = 'rgba(180,190,210,0.7)'; ctx.fillText('lambda_1', 0, 0); ctx.restore();
+}
+
 function drawAll() {
   paintBg();
+  drawDiagnostic();
   drawTrail();
   drawReadout();
 }
@@ -159,6 +212,7 @@ function rebuild() {
   // warmup to land on the attractor
   for (let i = 0; i < 500; i += 1) state.current = henonStep(state.current, state.params);
   state.lambda1 = henonMaxLyapunov(0.1, 0.1, 4000, state.params, 100, 1000);
+  if (curveB !== state.params.b) buildLyapCurve();
 }
 
 function applyControls() {
