@@ -225,9 +225,11 @@ function render() {
   ctx.textAlign = 'right';
   for (const yv of [0, 0.25, 0.5, 0.75, 1.0]) ctx.fillText(yv.toFixed(2), rtX0 - 4, yOf01(yv) + 3);
   ctx.textAlign = 'left';
-  // Legend.
-  ctx.fillStyle = '#ffd166'; ctx.fillText('Ω_m(a)', rt.x1 - 80, rt.y0 + 30);
-  ctx.fillStyle = '#5bc0eb'; ctx.fillText('f(a) = Ω_m^{0.55}', rt.x1 - 100, rt.y0 + 46);
+  // Legend (right-aligned so the wider f(a) label clears the panel edge).
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#ffd166'; ctx.fillText('Ω_m(a)', rt.x1 - 8, rt.y0 + 30);
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText('f(a) = Ω_m^{0.55}', rt.x1 - 8, rt.y0 + 46);
+  ctx.textAlign = 'left';
 
   // ===== RIGHT BOTTOM: delta(a) =====
   const rb = { x0: rightX, y0: rt.y1 + 12, x1: rightX + rightW, y1: H - padB };
