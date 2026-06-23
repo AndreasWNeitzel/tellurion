@@ -19,8 +19,7 @@ selV.addEventListener('change', () => { st.view = selV.value; });
 btnR.addEventListener('click', () => { st.theta = parseFloat(sTh.value); st.omega = parseFloat(sOm.value); trail = []; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 let last = performance.now();
-function drawPendulum(cx, cy, label, showForces) {
-  const L_pix = 120;
+function drawPendulum(cx, cy, label, showForces, L_pix = 120) {
   const bx = cx + L_pix * Math.sin(st.theta), by = cy + L_pix * Math.cos(st.theta);
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(bx, by, 12, 0, 2 * Math.PI); ctx.fill();
@@ -79,11 +78,12 @@ function step() {
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (st.view === 'all') {
-    drawPendulum(canvas.width / 3, canvas.height / 3, 'Newton: m L θ̈ = -m g sin θ', true);
-    drawPendulum(2 * canvas.width / 3, canvas.height / 3, 'Lagrangian: L = T - V', false);
-    drawPhase(canvas.width / 2, 2 * canvas.height / 3 + 20, canvas.width - 60, canvas.height / 2 - 30);
+    const py = Math.round(canvas.height * 0.15);
+    drawPendulum(canvas.width / 3, py, 'Newton: m L θ̈ = -m g sin θ', true, 205);
+    drawPendulum(2 * canvas.width / 3, py, 'Lagrangian: L = T - V', false, 205);
+    drawPhase(canvas.width / 2, Math.round(canvas.height * 0.71), canvas.width - 60, Math.round(canvas.height * 0.55));
   } else if (st.view === 'newton') {
-    drawPendulum(canvas.width / 2, canvas.height / 2, 'Newton: T - m g cos θ êᵣ - m g sin θ êθ', true);
+    drawPendulum(canvas.width / 2, canvas.height / 2 - 40, 'Newton: T - m g cos θ êᵣ - m g sin θ êθ', true, 250);
   } else {
     drawPhase(canvas.width / 2, canvas.height / 2, canvas.width - 60, canvas.height - 80);
   }
