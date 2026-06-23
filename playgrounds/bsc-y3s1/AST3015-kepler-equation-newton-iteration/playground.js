@@ -113,7 +113,10 @@ function drawConvergence(c, x0, y_off, w, h) {
   // instead of a constant unwrap offset.
   const Einf = history[history.length - 1];
 
-  const maxIter = 12;
+  // Track the actual iteration count so the axis fills: Newton needs only a
+  // few steps at low e and more as e -> 1. A fixed 12 left the plot two-thirds
+  // empty at the default e.
+  const maxIter = Math.max(6, Math.min(14, r.iterations + 2));
   function xFor(i) { return x0 + padL + plotW * (i / maxIter); }
   // Log scale -16 to 1.
   function yFor(le) { return y_off + padT + plotH * (1 - (le + 16) / 17); }
