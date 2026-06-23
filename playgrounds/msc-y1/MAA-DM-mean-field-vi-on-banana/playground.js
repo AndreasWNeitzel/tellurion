@@ -128,7 +128,7 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
-  ctx.fillText('ELBO over iterations (monotone non-decreasing in expectation)', PLOT_X + 8, LOSS_Y + 12);
+  ctx.fillText('ELBO over iterations', PLOT_X + 8, LOSS_Y + 12);
   if (state.lossHistory.length >= 2) {
     let lMin = Infinity, lMax = -Infinity;
     for (const l of state.lossHistory) { if (l < lMin) lMin = l; if (l > lMax) lMax = l; }
