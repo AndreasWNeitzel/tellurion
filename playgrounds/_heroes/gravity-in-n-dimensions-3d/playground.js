@@ -42,9 +42,11 @@ function reseed() {
   st.trailLen = 0;
 }
 
+// Orbit sits in the upper part of the canvas so the lower third can carry the
+// r(t) diagnostic.
 function w2s(x, y) {
-  const scale = Math.min(W, H) * 0.5 / 2.6;
-  return { x: W / 2 + x * scale, y: H / 2 - y * scale };
+  const scale = Math.min(W, H) * 0.5 / 2.9;
+  return { x: W / 2 + x * scale, y: Math.round(H * 0.32) - y * scale };
 }
 
 function dimensionColor(d) {
@@ -116,6 +118,44 @@ function render() {
   rL.textContent = L.toFixed(3);
   rE.textContent = E.toFixed(3);
   rR.textContent = (r / st.r0).toFixed(3);
+
+  drawDiagnostic();
+}
+
+// Bottom diagnostic: the orbital radius r(t). A bound orbit (d = 3, or the
+// precessing d < 3 rosette) oscillates between a fixed perihelion and
+// aphelion; a high-d orbit spirals in and r(t) decays to zero, the visual
+// proof that stable bound orbits exist only for the inverse-square (d = 3)
+// force. Drawn over an opaque panel so the canvas-wide trail fade does not
+// ghost it.
+function drawDiagnostic() {
+  const x0 = 50, x1 = W - 24, y0 = Math.round(H * 0.66), y1 = H - 40;
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, y0 - 26, W, H - (y0 - 26));
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 0.5; ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+  ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('orbital radius r(t):  bound orbits oscillate, high-d orbits spiral to zero', x0 + 4, y0 - 8);
+  const len = st.trailLen;
+  if (len < 2) return;
+  let rmax = 1e-6;
+  for (let k = 0; k < len; k += 1) { const i = (st.trailIdx - len + k + st.trail) % st.trail; const rr = Math.hypot(st.trailBuf[i * 2], st.trailBuf[i * 2 + 1]); if (rr > rmax) rmax = rr; }
+  rmax = Math.max(rmax, st.r0 * 1.2) * 1.08;
+  const ax = x0 + 36, aw = x1 - x0 - 50, ay = y0 + 16, ah = y1 - y0 - 34;
+  const rY = (rr) => ay + ah - (ah - 4) * (rr / rmax);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(ax, rY(st.r0)); ctx.lineTo(ax + aw, rY(st.r0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.textAlign = 'right'; ctx.fillText('r0', ax - 4, rY(st.r0) + 3); ctx.fillText('0', ax - 4, ay + ah + 3);
+  const col = dimensionColor(st.d);
+  ctx.strokeStyle = col + '0.9)'; ctx.lineWidth = 1.6; ctx.beginPath();
+  for (let k = 0; k < len; k += 1) {
+    const i = (st.trailIdx - len + k + st.trail) % st.trail;
+    const rr = Math.hypot(st.trailBuf[i * 2], st.trailBuf[i * 2 + 1]);
+    const px = ax + aw * k / (len - 1), py = rY(rr);
+    if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.textAlign = 'center'; ctx.fillText('time', (ax + ax + aw) / 2, y1 - 5);
 }
 
 function tick() {
