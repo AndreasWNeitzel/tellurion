@@ -105,7 +105,7 @@ function drawDOS(c, x0, y_off, w, h) {
     ctx.fillStyle = c.muted;
     ctx.font = fontString(canvas, 'caption', 'mono');
     const E = dos.Emin + (dos.Emax - dos.Emin) * i / 4;
-    ctx.fillText(`${E.toFixed(1)}`, x - 8, y_off + padT + plotH + 14);
+    ctx.fillText(`${E.toFixed(1)}`, Math.min(x - 8, canvas.width - 26), y_off + padT + plotH + 14);
   }
 
   // Bars.
@@ -131,7 +131,7 @@ function drawDOS(c, x0, y_off, w, h) {
 
   ctx.fillStyle = c.muted;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('E / t', x0 + padL + plotW - 24, y_off + padT + plotH + 28);
+  ctx.fillText('E / t', x0 + padL + plotW - 44, y_off + padT + plotH + 28);
   ctx.fillText('DOS(E)', x0 + 12, y_off + 14);
 }
 

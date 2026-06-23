@@ -188,8 +188,8 @@ function drawSpectrum(c, x0, y0, w, h) {
     ctx.beginPath(); ctx.arc(xr, yv, 3.4, 0, 2 * Math.PI); ctx.fill();
   }
   ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('k = 1', xk(1), y0 + padT + plotH + 14);
-  ctx.fillText(`k = ${K}`, xk(K), y0 + padT + plotH + 14);
+  ctx.fillText('k = 1', Math.max(28, xk(1)), y0 + padT + plotH + 14);
+  ctx.fillText(`k = ${K}`, Math.min(canvas.width - 28, xk(K)), y0 + padT + plotH + 14);
 }
 
 // Panel 3: small multiples of every requested mode (capped only by N,

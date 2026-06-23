@@ -122,7 +122,8 @@ function drawParticle(x, y, r, col, label) {
   ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r * 0.5, 0, 6.2832); ctx.fill();
   if (label) {
     ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-    ctx.fillText(label, x, y - r - 6);
+    // clamp so a particle near the edge keeps its centred label on-canvas
+    ctx.fillText(label, Math.max(48, Math.min(canvas.width - 48, x)), y - r - 6);
   }
 }
 function drawStreak(x, y, col, dir) {

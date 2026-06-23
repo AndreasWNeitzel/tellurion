@@ -18,7 +18,7 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 // 'single' default the p slider correctly did nothing (it read as a
 // dead slider). Every handler calls render() so interaction is
 // authoritative regardless of the animation loop.
-let st = { gamma: 2000, logB: -4, p: 2.4, mode: 'ensemble' }; let running = true;
+const st = { gamma: 2000, logB: -4, p: 2.4, mode: 'ensemble' }; let running = true;
 sG.addEventListener('input', () => { st.gamma = parseFloat(sG.value); vG.textContent = st.gamma.toFixed(0); render(); });
 sB.addEventListener('input', () => { st.logB = parseFloat(sB.value); vB.textContent = st.logB.toFixed(2); render(); });
 sP.addEventListener('input', () => { st.p = parseFloat(sP.value); vP.textContent = st.p.toFixed(2); render(); });
@@ -93,7 +93,7 @@ function render() {
   for (let d = Math.ceil(lnumin); d <= Math.floor(lnumax); d += 1) {
     const px = xToPx(d);
     ctx.strokeStyle = '#1b1b1f'; ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, specBot); ctx.stroke();
-    if (d % 2 === 0) { ctx.fillStyle = '#6b7077'; ctx.fillText(`10^${d}`, px, specBot + 14); }
+    if (d % 2 === 0) { ctx.fillStyle = '#6b7077'; ctx.fillText(`10^${d}`, Math.min(px, canvas.width - 26), specBot + 14); }
   }
   ctx.textAlign = 'left';
   // The spectrum.
@@ -156,7 +156,7 @@ function render() {
     // Observer to the right; a sharp pulse strip lights when the cone
     // points at them (this sharpness is why the spectrum is broadband).
     const obsDir = 0;
-    let dphi = Math.abs(((vdir - obsDir + Math.PI) % (2 * Math.PI)) - Math.PI);
+    const dphi = Math.abs(((vdir - obsDir + Math.PI) % (2 * Math.PI)) - Math.PI);
     const hit = Math.exp(-(dphi * dphi) / (2 * halfBeam * halfBeam));
     const stripY = splitY - 16, sx0 = rPadL, sx1 = W - rPadR;
     ctx.strokeStyle = '#3a3d44'; ctx.beginPath(); ctx.moveTo(sx0, stripY); ctx.lineTo(sx1, stripY); ctx.stroke();
