@@ -28,12 +28,12 @@ const btnZero     = document.getElementById('btn-zero');
 
 const W = canvas.width, H = canvas.height;
 const MARGIN = 12;
-const TOP_MARG = 90;
-const RIGHT_MARG = 130;
-const HEAT_X = MARGIN + 80;
+const TOP_MARG = 96;
+const RIGHT_MARG = 112;
+const HEAT_X = 84;
 const HEAT_Y = TOP_MARG;
-const HEAT_W = W - HEAT_X - RIGHT_MARG;
-const HEAT_H = H - HEAT_Y - MARGIN;
+const HEAT_W = W - HEAT_X - RIGHT_MARG;   // 624
+const HEAT_H = HEAT_W;                     // square: the joint Gaussian keeps its true aspect
 
 const state = {
   rho: 0.6,
@@ -109,18 +109,24 @@ function drawAll() {
     ['I (numeric)',  numericI.toFixed(4) + ' nats'],
     ['delta I', (numericI - analyticI).toExponential(2)],
   ];
-  let y = 18;
+  // Readout panel below the square joint (was a top-left column that
+  // collided with the p(x) marginal label).
+  const rY = HEAT_Y + HEAT_H + 26, rH = H - rY - 14;
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(HEAT_X, rY, HEAT_W, rH);
+  ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(HEAT_X + 0.5, rY + 0.5, HEAT_W - 1, rH - 1);
+  ctx.font = fontString(canvas, 'body', 'mono');
+  let y = rY + 34;
   for (const [k, v] of rows) {
-    ctx.textAlign = 'left';
-    ctx.fillText(k, MARGIN, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(v, MARGIN + 230, y);
-    y += 14;
+    ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(200,210,235,0.85)';
+    ctx.fillText(k, HEAT_X + 18, y);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(v, HEAT_X + 250, y);
+    y += 30;
   }
 
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.50)';
-  ctx.fillText('x', HEAT_X + HEAT_W / 2, H - 2);
+  ctx.fillText('x', HEAT_X + HEAT_W / 2, HEAT_Y + HEAT_H + 14);
   ctx.save();
   ctx.translate(HEAT_X - 14, HEAT_Y + HEAT_H / 2);
   ctx.rotate(-Math.PI / 2);
