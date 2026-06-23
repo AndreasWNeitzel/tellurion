@@ -109,11 +109,13 @@ function drawNucleus(x0, y0, w, h, c) {
   ctx.fillText('the nucleus  (A = ' + N + ' nucleons)', x0 + 10, y0 + 16);
 
   const cx = x0 + w / 2, cy = y0 + h / 2 + 8;
-  // Nuclear radius R = r0 A^(1/3); scale so a mid-size nucleus fills
-  // the panel comfortably.
+  // Nuclear radius R = r0 A^(1/3); scale so a mid-size nucleus fills the
+  // panel (normalised to A=70 rather than 126 so small/magic nuclei are not
+  // tiny). Clip to the panel so a large nucleus cannot spill outside it.
   const A = Math.max(1, N);
   const Rworld = Math.cbrt(A);
-  const pxScale = Math.min(w, h) * 0.40 / Math.cbrt(126);
+  const pxScale = Math.min(w, h) * 0.46 / Math.cbrt(70);
+  ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, w, h); ctx.clip();
   const Rpx = Rworld * pxScale;
   const nucR = Math.max(2.4, pxScale * 0.62);     // single-nucleon radius
 
@@ -168,6 +170,7 @@ function drawNucleus(x0, y0, w, h, c) {
     ctx.font = fontString(canvas, 'caption', 'mono', 600);
     ctx.fillText('closed shell', x0 + w - 96, y0 + h - 10);
   }
+  ctx.restore();
 }
 
 function render() {

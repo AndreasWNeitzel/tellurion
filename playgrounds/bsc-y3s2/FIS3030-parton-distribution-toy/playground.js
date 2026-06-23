@@ -42,7 +42,7 @@ function rng() { _s = (Math.imul(_s, 1664525) + 1013904223) >>> 0; return _s / 4
 
 const st = { x: 0.2, scale: 'lin', t: 0 };
 let running = !prefersReducedMotion();
-const BAG = { cx: 250, cy: 198, rx: 220, ry: 130 };
+const BAG = { cx: 230, cy: 360, rx: 200, ry: 250 };
 // x (1e-3..1) -> screen inside the bag, log-spaced so the small-x
 // gluon/sea crowd is visible and the valence bump is distinct.
 const LX = (x) => (Math.log10(Math.max(1e-3, x)) + 3) / 3;          // 0..1
@@ -167,7 +167,7 @@ function drawBudget() {
 }
 
 function drawStrip() {
-  const dx0 = 60, dx1 = W - 24, dy0 = H - 116, dy1 = H - 14;
+  const dx0 = 60, dx1 = W - 24, dy0 = 660, dy1 = H - 18;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
