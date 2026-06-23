@@ -311,6 +311,33 @@ export function isomap(X, N, D, k = 8) {
       dist[j * N + i] = d2[j];
     }
   }
+  // Guarantee the neighbour graph is a single connected component by adding
+  // minimum-spanning-tree edges (Prim on the full Euclidean distances). A
+  // manifold with a gap otherwise splits into pieces, and filling the missing
+  // geodesics with a huge constant dominates the MDS and collapses the whole
+  // embedding to a line plus an outlier. The MST bridges each gap with one
+  // real edge, so the geodesics stay meaningful.
+  {
+    const inTree = new Uint8Array(N);
+    const best = new Float64Array(N).fill(Infinity);
+    const bestFrom = new Int32Array(N).fill(-1);
+    best[0] = 0;
+    for (let it = 0; it < N; it += 1) {
+      let u = -1, bu = Infinity;
+      for (let v = 0; v < N; v += 1) if (!inTree[v] && best[v] < bu) { bu = best[v]; u = v; }
+      if (u < 0) break;
+      inTree[u] = 1;
+      const f = bestFrom[u];
+      if (f >= 0) {
+        const d = Math.sqrt(sqDist(X, D, u, f));
+        if (d < dist[u * N + f]) { dist[u * N + f] = d; dist[f * N + u] = d; }
+      }
+      for (let v = 0; v < N; v += 1) if (!inTree[v]) {
+        const d2v = sqDist(X, D, u, v);
+        if (d2v < best[v]) { best[v] = d2v; bestFrom[v] = u; }
+      }
+    }
+  }
   for (let m = 0; m < N; m += 1) {
     for (let i = 0; i < N; i += 1) {
       const dim = dist[i * N + m];
