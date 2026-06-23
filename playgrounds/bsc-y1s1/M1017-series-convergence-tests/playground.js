@@ -328,7 +328,7 @@ window.playground.getState = function () {
       { key: 'verdict', label: 'verdict', value: ser.converges ? (ser.conditional ? 'conditional' : 'converges') : 'diverges', format: 'text' },
       { key: 'N', label: 'terms $N$', value: Ni, format: 'int' },
       { key: 'sum', label: 'partial sum $S_N$', value: data.S[Ni], format: 'float' },
-      { key: 'limit', label: 'limit', value: data.finite ? data.limit : Infinity, format: 'float' },
+      { key: 'limit', label: 'limit', value: data.finite ? data.limit : 'no finite limit', format: data.finite ? 'float' : 'text' },
     ],
   };
 };

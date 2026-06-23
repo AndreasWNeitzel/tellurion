@@ -129,7 +129,8 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const f = Math.pow(10, st.fExp);
-  const sk = skinDepth(f, st.mat);
+  const { sigma, mu_r } = matProps();
+  const sk = skinDepth(2 * Math.PI * f, sigma, mu_r);
   return {
     fields: [
       { key: 'material', label: 'Material', value: st.mat, format: undefined },
@@ -141,7 +142,8 @@ window.playground.getState = function () {
 };
 window.playground.getInvariants = function () {
   const f = Math.pow(10, st.fExp);
-  const sk = skinDepth(f, st.mat);
+  const { sigma, mu_r } = matProps();
+  const sk = skinDepth(2 * Math.PI * f, sigma, mu_r);
   const status = sk > 0 && sk < 1000 ? 'pass' : 'pending';
   return [
     { key: 'skin-effect', label: 'Skin depth positive', value: sk.toExponential(2) + ' m', status }

@@ -213,7 +213,7 @@ window.playground.getState = function () {
     fields: [
       { key: 'l-mode', label: 'Angular degree l', value: st.l, format: 'float' },
       { key: 'm-mode', label: 'Azimuthal order m', value: st.m, format: 'float' },
-      { key: 'frequency', label: 'Frequency (Hz)', value: st.freq, format: 'float' },
+      { key: 'speed', label: 'Pulsation speed', value: st.speed, format: 'float' },
       { key: 'amplitude', label: 'Amplitude', value: st.amp, format: 'float' }
     ]
   };

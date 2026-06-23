@@ -132,8 +132,7 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 window.playground = window.playground || {};
 window.playground.getState = function () {
   const sigma_t = spreadAt(st.s0, st.t);
-  const xc = center(st.k0, st.t);
-  const d = density(st.s0, st.k0, 0, st.t);
+  const xc = center(0, st.k0, st.t);            // center(x0, k0, t): x0 first, as render uses
   return {
     fields: [
       { key: 's0', label: 'Initial width s0', value: st.s0, format: 'float' },

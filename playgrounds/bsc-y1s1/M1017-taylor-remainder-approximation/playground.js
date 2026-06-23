@@ -170,7 +170,7 @@ window.playground.getState = function () {
     { key: 'fn', label: 'function', value: f.label, format: 'text' },
     { key: 'a', label: 'centre a', value: st.a, format: 'float' },
     { key: 'n', label: 'degree shown', value: n, format: 'int' },
-    { key: 'R', label: 'radius of convergence', value: f.radius(st.a), format: 'float' },
+    { key: 'R', label: 'radius of convergence', value: Number.isFinite(f.radius(st.a)) ? f.radius(st.a) : 'infinite', format: Number.isFinite(f.radius(st.a)) ? 'float' : 'text' },
     { key: 'err', label: 'error at x', value: Math.abs(remainder(f, st.a, n, st.xEval)), format: 'float' },
   ] };
 };
