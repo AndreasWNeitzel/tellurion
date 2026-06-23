@@ -93,7 +93,12 @@ function render() {
   ctx.fillStyle = '#ffd166';
   ctx.beginPath(); ctx.arc(xToPx(tau), by(vTau), 5, 0, 2 * Math.PI); ctx.fill();
 
-  const fwhm = Math.sqrt(8 * Math.log(2)) * st.sigma + 2 * st.gamma;
+  // Voigt FWHM via Olivero and Longbothum (1977), accurate to ~0.02%. The width
+  // of a convolution is NOT the sum of the component widths (that overestimates
+  // by ~15%): f_V = 0.5346 f_L + sqrt(0.2166 f_L^2 + f_G^2).
+  const fG = Math.sqrt(8 * Math.log(2)) * st.sigma;
+  const fL = 2 * st.gamma;
+  const fwhm = 0.5346 * fL + Math.sqrt(0.2166 * fL * fL + fG * fG);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`σ_Gauss = ${st.sigma.toFixed(2)}   γ_Lor = ${st.gamma.toFixed(2)}   Voigt FWHM ~ ${fwhm.toFixed(2)}   V(τ) = ${vTau.toFixed(3)}`, 14, H - 14);
   rF.textContent = fwhm.toFixed(2);
