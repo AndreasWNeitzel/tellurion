@@ -73,18 +73,20 @@
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="IC controls">
     <div class="row"><span class="label">log10 T (K)</span><input aria-label="log10 T (K)" type="range" id="slider-T" min="0" max="6" step="0.05" value="0.435"><span class="value" id="value-T">0.435</span></div>
+    <div class="row"><span class="label">log10 γ inj</span><input aria-label="log10 injection Lorentz factor" type="range" id="slider-g" min="2" max="8" step="0.05" value="5"><span class="value" id="value-g">5.00</span></div>
   </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">U_ph (J/m^3):</span><span class="value" id="readout-u">0</span>
-      <span class="label">t_cool at gamma=10^4:</span><span class="value" id="readout-t">0</span>
+      <span class="label">t_cool at gamma_inj:</span><span class="value" id="readout-t">0</span>
     </div></div>
     </section>
 
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Raise the bath temperature: U_ph climbs as T to the fourth power, the whole t_cool curve drops, and the electrons cool visibly faster between reinjections.</li>
+        <li class="t-body">Slide the injection energy: high-gamma electrons sit far right on the t_cool curve where the cooling time is shortest, so they crash down the axis almost at once. Low-gamma electrons barely move.</li>
+        <li class="t-body">Watch the dashed marker track gamma_inj on the cooling curve and read its t_cool against the Hubble line: above the line, the photon bath cannot cool those electrons within the age of the Universe.</li>
       </ul>
     </section>
 

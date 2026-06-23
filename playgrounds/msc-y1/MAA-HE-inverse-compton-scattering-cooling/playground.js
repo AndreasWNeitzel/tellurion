@@ -14,8 +14,7 @@
 // Ch. 7 (`rybickilightman1979`).
 
 import {
-  tCoolYears, uPhotonThermalJM3, tCoolSeconds,
-  SIGMA_T, M_E_KG, C, YEAR_S,
+  tCoolYears, uPhotonThermalJM3, tCoolSeconds, YEAR_S,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
@@ -33,8 +32,11 @@ const readoutU = document.getElementById('readout-u');
 const readoutT = document.getElementById('readout-t');
 const sliderT = document.getElementById('slider-T');
 const valueT = document.getElementById('value-T');
+const sliderG = document.getElementById('slider-g');
+const valueG = document.getElementById('value-g');
 
 let logT = parseFloat(sliderT.value);
+let gInjLog = parseFloat(sliderG.value);
 let timeElapsedYr = 0;
 const running = !prefersReducedMotion();
 
@@ -43,6 +45,12 @@ sliderT.addEventListener('input', () => {
   valueT.textContent = logT.toFixed(3);
   // Resetting the bath temperature resets the elapsed time and the
   // electron population (the cooling rate changed).
+  timeElapsedYr = 0;
+  seedElectrons();
+});
+sliderG.addEventListener('input', () => {
+  gInjLog = parseFloat(sliderG.value);
+  valueG.textContent = gInjLog.toFixed(2);
   timeElapsedYr = 0;
   seedElectrons();
 });
@@ -58,7 +66,8 @@ function rnd() { _rng = (Math.imul(_rng, 1664525) + 1013904223) >>> 0; return _r
 function seedElectrons() {
   _rng = 0xC0FFEE;
   for (let i = 0; i < N_ELECTRONS; i += 1) {
-    const lg = 2 + rnd() * 6;       // log10(gamma) uniform in [2, 8]
+    // injected in a ~1.2 dex band around the chosen injection energy
+    const lg = Math.max(1, Math.min(8.6, gInjLog + (rnd() * 2 - 1) * 1.2));
     electrons[i] = Math.pow(10, lg);
   }
 }
@@ -141,13 +150,17 @@ function render() {
     else ctx.lineTo(xLeft(lg), yTcool(lt));
   }
   ctx.stroke();
-  // Marker at gamma = 1e4.
-  const xRef = xLeft(4);
-  ctx.strokeStyle = c.blue; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+  // Marker at the injection energy gamma_inj, with a dot at its cooling time.
+  const xRef = xLeft(gInjLog);
+  ctx.strokeStyle = c.blue; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(xRef, padT); ctx.lineTo(xRef, padT + plotH); ctx.stroke();
   ctx.setLineDash([]);
+  const ltInj = Math.log10(tCoolYears(Math.pow(10, gInjLog), U));
+  if (ltInj >= tMinLog && ltInj <= tMaxLog) {
+    ctx.fillStyle = c.blue; ctx.beginPath(); ctx.arc(xRef, yTcool(ltInj), 4.5, 0, Math.PI * 2); ctx.fill();
+  }
   ctx.fillStyle = c.blue;
-  ctx.fillText('γ = 10⁴', xRef + 4, padT + 28);
+  ctx.fillText(`γ_inj = 10^${gInjLog.toFixed(1)}`, Math.min(xRef + 6, padL + leftW - 116), padT + 28);
   // Title.
   ctx.fillStyle = c.accent; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`T = ${T.toFixed(2)} K  U_ph = ${U.toExponential(2)} J/m³`, padL + 12, padT + 14);
@@ -225,7 +238,7 @@ function updateReadout() {
   const T = Math.pow(10, logT);
   const U = uPhotonThermalJM3(T);
   readoutU.textContent = U.toExponential(3);
-  readoutT.textContent = tCoolYears(1e4, U).toExponential(3);
+  readoutT.textContent = tCoolYears(Math.pow(10, gInjLog), U).toExponential(3);
 }
 
 let last = performance.now();
@@ -233,14 +246,13 @@ function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
   if (running) {
-    // Advance simulated time. The bath temperature sets the natural
-    // cooling timescale t_cool(gamma=1e4) ~ tCoolYears(1e4, U). We
-    // sweep through ~ a decade of that timescale per second of real
-    // time so the user actually sees electrons cooling.
-    const T = Math.pow(10, logT);
-    const U = uPhotonThermalJM3(T);
-    const tRef = tCoolYears(1e4, U);
-    timeElapsedYr += dt * 0.4 * tRef;
+    // Pace the clock against the cooling time of the injection energy so
+    // the cascade is always watchable, then reinject a fresh population
+    // once it has cooled well below gamma_inj (a steady inject-cool cycle).
+    const U = uPhotonThermalJM3(Math.pow(10, logT));
+    const tInjYr = tCoolYears(Math.pow(10, gInjLog), U);
+    timeElapsedYr += dt * 17 * tInjYr;
+    if (timeElapsedYr > 120 * tInjYr) { seedElectrons(); timeElapsedYr = 0; }
   }
   render();
   updateReadout();
@@ -253,12 +265,12 @@ function bootSync() {
     logT = 0 + frac * 5;
     sliderT.value = String(logT);
     valueT.textContent = logT.toFixed(3);
-    const T = Math.pow(10, logT);
-    const U = uPhotonThermalJM3(T);
-    const tRef = tCoolYears(1e4, U);
-    timeElapsedYr = frac * 1.5 * tRef;
+    const U = uPhotonThermalJM3(Math.pow(10, logT));
+    const tInjYr = tCoolYears(Math.pow(10, gInjLog), U);
+    timeElapsedYr = frac * 80 * tInjYr;
   }
   valueT.textContent = logT.toFixed(3);
+  valueG.textContent = gInjLog.toFixed(2);
   render();
   updateReadout();
   if (DETERMINISTIC) {
@@ -291,9 +303,9 @@ window.playground.getState = function () {
   return {
     fields: [
       { key: 'temperature', label: 'photon bath temperature log10(T, K)', value: logT, format: 'float' },
+      { key: 'injection-energy', label: 'injection energy log10(gamma)', value: gInjLog, format: 'float' },
       { key: 'energy-density', label: 'photon energy density U (J/m^3)', value: U, format: 'float' },
-      { key: 'elapsed-time', label: 'elapsed time (years)', value: timeElapsedYr, format: 'float' },
-      { key: 'electron-count', label: 'electron population size', value: N_ELECTRONS, format: 'float' }
+      { key: 'elapsed-time', label: 'elapsed time (years)', value: timeElapsedYr, format: 'float' }
     ]
   };
 };
