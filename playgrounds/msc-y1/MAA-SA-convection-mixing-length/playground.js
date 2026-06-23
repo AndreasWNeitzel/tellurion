@@ -15,9 +15,8 @@
 // Evolution, 2nd ed., Ch. 6-7; Hansen and Kawaler, Stellar Interiors,
 // Ch. 5.
 
-import { schwarzschild, vConv, HpScale } from './sim.js';
+import { schwarzschild, vConv } from './sim.js';
 import { makeRng } from '../../../shared/js/render/rng.js';
-import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
 const params = new URLSearchParams(location.search);
@@ -192,17 +191,24 @@ function render() {
     ctx.fillText('l_m = α·H_p', cx + 9, cy - Rc - lm / 2);
   }
 
-  // Side annotation.
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  // Annotation, anchored top-left (the corner outside the photosphere circle)
+  // so the values stay on-canvas instead of running off the right edge.
   const reg = schwarzschild(0.5 + st.dnabla, 0.5);
-  const tx = cx + R + 18;
-  ctx.fillText(conv ? 'convective envelope' : 'radiative envelope', tx, cy - 78);
-  ctx.fillText(conv ? '(buoyant plumes, MLT)' : '(photon random walk)', tx, cy - 60);
-  ctx.fillText('radiative core', tx, cy - 38);
-  ctx.fillText(`∇ − ∇_ad = ${st.dnabla.toFixed(2)}`, tx, cy - 8);
-  ctx.fillText(`Schwarzschild: ${reg}`, tx, cy + 12);
-  ctx.fillText(`α = l_m/H_p = ${st.alpha.toFixed(2)}`, tx, cy + 32);
-  ctx.fillText(`v_conv ${conv ? '~ ' + vc.toExponential(1) + ' (MLT)' : '= 0 (stable)'}`, tx, cy + 52);
+  const lines = [
+    conv ? 'convective envelope' : 'radiative envelope',
+    conv ? '(buoyant plumes, MLT)' : '(photon random walk)',
+    'radiative core',
+    `∇ − ∇_ad = ${st.dnabla.toFixed(2)}`,
+    `Schwarzschild: ${reg}`,
+    `α = l_m/H_p = ${st.alpha.toFixed(2)}`,
+    `v_conv ${conv ? '~ ' + vc.toExponential(1) + ' (MLT)' : '= 0 (stable)'}`,
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  let aw = 0; for (const s of lines) aw = Math.max(aw, ctx.measureText(s).width);
+  const ax = 16, ay = 26, rowH = 19;
+  ctx.fillStyle = 'rgba(8,10,16,0.72)'; ctx.fillRect(ax - 8, ay - 16, aw + 24, lines.length * rowH + 12);
+  ctx.fillStyle = '#9aa0a6'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  lines.forEach((s, i) => ctx.fillText(s, ax, ay + i * rowH));
   ctx.fillStyle = '#9aa0a6';
   ctx.fillText('drag ∇−∇_ad below 0 to shut off convection (Schwarzschild stable)', 14, H - 14);
   rR.textContent = reg;
