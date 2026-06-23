@@ -40,7 +40,21 @@ const btnPlayPause = document.getElementById('btn-playpause');
 const SQ3 = Math.sqrt(3) / 2;
 const UP = '#f5b942', DOWN = '#3f74b8';            // spin colours
 const DOMHUE = ['#6c8ef5', '#f0883e', '#52c98a'];  // chirality sublattice hues
-const FRUST = 'rgba(244,86,86,0.55)';              // fully-frustrated triangle flag
+const FRUST = 'rgba(255,72,72,0.72)';              // fully-frustrated triangle flag
+const SAT_GREEN = '#52c98a';
+const perfNow = () => (typeof performance !== 'undefined' ? performance.now() : 0);
+
+// A spin disc drawn as a small sphere: flat fill, a soft specular highlight,
+// and a thin rim so neighbouring same-colour discs stay crisp instead of
+// melting into one flat texture.
+function disc(cx, cy, rad, up) {
+  ctx.fillStyle = up ? UP : DOWN;
+  ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.26)';
+  ctx.beginPath(); ctx.arc(cx - rad * 0.32, cy - rad * 0.32, rad * 0.34, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.32)'; ctx.lineWidth = Math.max(0.6, rad * 0.12);
+  ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 2 * Math.PI); ctx.stroke();
+}
 
 const state = {
   af: null, L: 40, T: 0.5, speed: 3, view: 'spins',
@@ -116,14 +130,15 @@ function drawScene(col, r) {
       if (sA === sB && sB === sC) { ctx.fillStyle = FRUST; ctx.beginPath(); ctx.moveTo(SX(i, j, g), SY(j, g)); ctx.lineTo(SX(i + 1, j, g), SY(j, g)); ctx.lineTo(SX(i, j + 1, g), SY(j + 1, g)); ctx.closePath(); ctx.fill(); }
       if (sB === sC && sC === sD) { ctx.fillStyle = FRUST; ctx.beginPath(); ctx.moveTo(SX(i + 1, j, g), SY(j, g)); ctx.lineTo(SX(i, j + 1, g), SY(j + 1, g)); ctx.lineTo(SX(i + 1, j + 1, g), SY(j + 1, g)); ctx.closePath(); ctx.fill(); }
     }
-    // spins as discs.
-    const rad = g.dx * 0.42;
+    // spins as little spheres.
+    const rad = g.dx * 0.44;
     for (let j = 0; j < L; j += 1) for (let i = 0; i < L; i += 1) {
-      ctx.fillStyle = sp[j * L + i] > 0 ? UP : DOWN;
-      ctx.beginPath(); ctx.arc(SX(i, j, g), SY(j, g), rad, 0, 2 * Math.PI); ctx.fill();
+      disc(SX(i, j, g), SY(j, g), rad, sp[j * L + i] > 0);
     }
   }
   ctx.restore();
+
+  if (state.view === 'spins') drawFrustrationHero(col, r);
 
   // readout strip.
   const m = magnetization(state.af), e = energyPerSite(state.af), ff = frustratedFraction(state.af);
@@ -133,6 +148,42 @@ function drawScene(col, r) {
   let need = 0; for (const [t] of items) need += ctx.measureText(t).width + 18;
   if (need <= r.w) { ctx.textAlign = 'center'; items.forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, r.x + r.w * (i + 0.5) / 4, r.y + r.h - 12); }); }
   else { ctx.textAlign = 'center'; items.forEach(([t, c], i) => { ctx.fillStyle = c; ctx.fillText(t, r.x + r.w * ((i % 2) + 0.5) / 2, r.y + r.h - (i < 2 ? 22 : 8)); }); }
+}
+
+// Hero inset: a single triangle of three antiferromagnetic spins. Two corners
+// are fixed (one up, one down); the third flips, and whichever way it points
+// exactly one of its two bonds is frustrated. The red bond is the one that
+// always loses, which is the whole story of geometric frustration.
+function drawFrustrationHero(col, r) {
+  const bw = 196, bh = 188;
+  const bx = r.x + r.w - bw - 14, by = r.y + 34;
+  ctx.fillStyle = 'rgba(7,9,15,0.93)'; ctx.fillRect(bx, by, bw, bh);
+  ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = 1; ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
+  ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.fillStyle = col.fg; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('Why it cannot order', bx + 12, by + 9);
+
+  const cx = bx + bw / 2, cy = by + 104, R = 50;
+  const P = [[cx, cy - R], [cx - R * 0.87, cy + R * 0.5], [cx + R * 0.87, cy + R * 0.5]];
+  const flip = Math.floor(perfNow() / 950) % 2;
+  const S = [1, -1, flip ? 1 : -1];                   // A up, B down, C flips
+  const bonds = [[0, 1], [1, 2], [2, 0]];
+  let frustMid = null;
+  bonds.forEach(([a, b]) => {
+    const sat = S[a] !== S[b];                         // opposite spins satisfy an AF bond
+    ctx.strokeStyle = sat ? SAT_GREEN : '#ff5050';
+    ctx.lineWidth = sat ? 3 : 5;
+    ctx.beginPath(); ctx.moveTo(P[a][0], P[a][1]); ctx.lineTo(P[b][0], P[b][1]); ctx.stroke();
+    if (!sat) frustMid = [(P[a][0] + P[b][0]) / 2, (P[a][1] + P[b][1]) / 2];
+  });
+  S.forEach((s, k) => disc(P[k][0], P[k][1], 15, s > 0));
+  if (frustMid) {
+    // a small red "broken bond" cross at the frustrated edge
+    const [mx, my] = frustMid, d = 5;
+    ctx.strokeStyle = '#ff8a8a'; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(mx - d, my - d); ctx.lineTo(mx + d, my + d); ctx.moveTo(mx + d, my - d); ctx.lineTo(mx - d, my + d); ctx.stroke();
+  }
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'sans'); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('one bond is always frustrated', cx, by + bh - 8);
 }
 
 function drawDiagnostic(col, r) {
