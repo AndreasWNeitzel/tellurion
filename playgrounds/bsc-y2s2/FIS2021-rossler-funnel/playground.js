@@ -34,12 +34,15 @@ const W = canvas.width, H = canvas.height;
 const VIEW = { xmin: -12, xmax: 14, ymin: -13, ymax: 12 };
 const TRAIL_MAX = 9000;
 const RESCALE_EVERY = 50;
-const STEPS_PER_FRAME = 12;
+// The trail must trace out the whole funnel within a few seconds of live play,
+// not 75 (12 steps x 0.2 speed = 2 per frame filled the 9000-point trail
+// glacially). At 60 steps per frame the default speed fills it in about 5 s.
+const STEPS_PER_FRAME = 60;
 const WARMUP_STEPS = 1500;
 
 const state = {
   params:  { ...DEFAULT_PARAMS },
-  speed:   0.2,
+  speed:   0.5,
   rossler: null,
   trail:   [],
   playing: !(DETERMINISTIC || prefersReducedMotion()),
