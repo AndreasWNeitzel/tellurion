@@ -115,18 +115,25 @@ function drawAll() {
     for (let i = 0; i < NPTS; i += 1) {
       const p = 0.5 * i / (NPTS - 1);
       const e = n === 1 ? p : repetitionCodeError(n, p);
-      const px = padL + 4 + i * 2;  // 0..0.5 range maps to first half of panel
+      const px = padL + 4 + (PW - 8) * (i / (NPTS - 1));  // p in [0,0.5] across the full panel width
       const py = botY + botH - 4 - (botH - 12) * Math.min(0.5, e) / 0.5;
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.stroke();
+  }
+  // Y ticks: decode-error probability (0..0.5, its max under majority vote).
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.6)'; ctx.textAlign = 'right';
+  for (const ev of [0, 0.25, 0.5]) {
+    const py = botY + botH - 4 - (botH - 12) * ev / 0.5;
+    ctx.fillText(ev.toFixed(2), padL + 30, py + 3);
+    ctx.strokeStyle = 'rgba(226,232,240,0.06)'; ctx.beginPath(); ctx.moveTo(padL + 36, py); ctx.lineTo(padL + PW - 4, py); ctx.stroke();
   }
   // Labels
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   for (let ni = 0; ni < ns.length; ni += 1) {
     ctx.fillStyle = colors[ni];
-    ctx.fillText(`n = ${ns[ni]}`, padL + 6 + ni * 60, botY + 14);
+    ctx.fillText(`n = ${ns[ni]}`, padL + 50 + ni * 60, botY + 14);
   }
   // p cursor on bottom
   const cPx2 = padL + 4 + (PW - 8) * Math.min(1, state.p / 0.5);
