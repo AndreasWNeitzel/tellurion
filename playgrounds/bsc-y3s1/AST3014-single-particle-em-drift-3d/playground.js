@@ -32,7 +32,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const PRESETS = {
   cyclotron: { r0: [0, 0, 0], v0: [1, 0, 0.35], scale: 70, dt: 2 * Math.PI / 240 },
-  exb: { r0: [0, 0, 0], v0: [0.2, 0, 0.1], scale: 26, dt: 2 * Math.PI / 240 },
+  exb: { r0: [0, 0, 0], v0: [0.2, 0, 0.1], scale: 110, dt: 2 * Math.PI / 240 },
   gradB: { r0: [-2, 0, 0], v0: [0.9, 0, 0.2], scale: 34, dt: 0.01 },
   curvature: { r0: [3, 0, 0], v0: [0.2, 0, 0.9], scale: 34, dt: 0.01 },
   mirror: { r0: [0, 0, -3], v0: [0.5, 0, 0.7], scale: 30, dt: 2 * Math.PI / 240 },
@@ -47,12 +47,16 @@ const gc = { x: 0, y: 0, z: 0, init: false };
 const cam = { x: 0, y: 0, z: 0 };
 const az = 0.62, el = 0.42;                          // fixed view angles
 const ca = Math.cos(az), sa = Math.sin(az), ce = Math.cos(el), se = Math.sin(el);
+// The 3D scene occupies the upper band; the lower band holds the velocity
+// diagnostic. The projection is centred in the scene band, not the canvas.
+const SCENE = { cx: W / 2, cy: Math.round(H * 0.345), bot: Math.round(H * 0.66) };
+const vbuf = [];                                     // recent (vx, vy) for the diagnostic
 function proj(p) {
   // orthographic: translate by the camera, rotate about z (az), tilt (el)
   const X0 = p[0] - cam.x, Y0 = p[1] - cam.y, Z0 = p[2] - cam.z;
   const x = X0 * ca - Y0 * sa;
   const y = X0 * sa + Y0 * ca;
-  return [W / 2 + x * scale, H / 2 + (y * se - Z0 * ce) * scale];
+  return [SCENE.cx + x * scale, SCENE.cy + (y * se - Z0 * ce) * scale];
 }
 
 function rebuild() {
@@ -60,6 +64,7 @@ function rebuild() {
   scale = cfg.scale;
   s = createState({ q: st.q, m: 1, r0: cfg.r0.slice(), v0: cfg.v0.slice(), preset: st.preset, params: { B0: st.B0, E0: 0.4 * st.B0, grad: 0.06, mirror: 0.05 } });
   s.trail = [];
+  vbuf.length = 0;
   gc.init = false; cam.x = cam.y = cam.z = 0;
 }
 
@@ -69,6 +74,8 @@ function advance() {
     step(s, dt);
     s.trail.push(s.r.slice());
     if (s.trail.length > 2600) s.trail.shift();
+    vbuf.push([s.v[0], s.v[1]]);
+    if (vbuf.length > 480) vbuf.shift();
     // Guiding centre = slow EMA of position (gyration averages out).
     if (!gc.init) { gc.x = s.r[0]; gc.y = s.r[1]; gc.z = s.r[2]; gc.init = true; }
     else { const a = 0.02; gc.x += a * (s.r[0] - gc.x); gc.y += a * (s.r[1] - gc.y); gc.z += a * (s.r[2] - gc.z); }
@@ -111,7 +118,7 @@ const DRIFT_LABEL = {
 };
 
 function render() {
-  ctx.fillStyle = 'rgba(7,8,12,0.16)'; ctx.fillRect(0, 0, W, H);  // persistence fade
+  ctx.fillStyle = 'rgba(7,8,12,0.16)'; ctx.fillRect(0, 0, W, SCENE.bot);  // persistence fade (scene band only)
   axes();
   // B-field hint: a faint grid of +z arrows around the camera (B is
   // predominantly along z for these presets) so the field is visible.
@@ -154,8 +161,10 @@ function render() {
   ctx.fillStyle = st.q >= 0 ? '#ffcaa0' : '#a8ccff';
   ctx.beginPath(); ctx.arc(P[0], P[1], 4, 0, 2 * Math.PI); ctx.fill();
   // active-drift explanation (educational, not just a projection note)
-  ctx.fillStyle = 'rgba(220,228,245,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(DRIFT_LABEL[st.preset] || '', 12, H - 12);
+  ctx.fillStyle = 'rgba(220,228,245,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(DRIFT_LABEL[st.preset] || '', 12, SCENE.bot - 12);
+
+  drawDiag();
 
   rV.textContent = speed(s).toFixed(4);
   rMu.textContent = magneticMoment(s).toFixed(4);
@@ -163,6 +172,43 @@ function render() {
   if (st.preset === 'exb') { const d = exbDrift(s); rExtra.textContent = 'vd ' + Math.hypot(d[0], d[1], d[2]).toFixed(3); }
   else if (st.preset === 'mirror') rExtra.textContent = 'v|| ' + vParallel(s).toFixed(3);
   else rExtra.textContent = 'KE ' + (0.5 * speed(s) ** 2).toFixed(3);
+}
+
+// Velocity diagnostic: the two perpendicular components vx, vy versus time.
+// Each is a sinusoid at the gyro-frequency; the gyration is the oscillation,
+// the drift is the offset of the time-average from zero. For pure cyclotron
+// both means sit on zero (no drift); for E x B one mean is displaced by the
+// drift speed. The dashed lines are the running means, so the gap from zero
+// reads directly as the guiding-centre drift.
+function drawDiag() {
+  const x = 54, y = SCENE.bot + 8, w = W - 84, h = H - SCENE.bot - 40;
+  ctx.fillStyle = '#07080c'; ctx.fillRect(0, SCENE.bot, W, H - SCENE.bot);
+  ctx.fillStyle = 'rgba(91,192,235,0.04)'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + h); ctx.lineTo(x + w, y + h); ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,230,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('perpendicular velocity vs time: gyration (oscillation) about the drift (mean offset)', x + 4, SCENE.bot + 2);
+  if (vbuf.length < 2) { ctx.textAlign = 'left'; return; }
+  let vmax = 1e-6, mx = 0, my = 0;
+  for (const [vx, vy] of vbuf) { vmax = Math.max(vmax, Math.abs(vx), Math.abs(vy)); mx += vx; my += vy; }
+  vmax *= 1.1; mx /= vbuf.length; my /= vbuf.length;
+  const ZY = y + h / 2;
+  const PY = (v) => ZY - v / vmax * (h / 2 - 4);
+  const PX = (i) => x + i / (vbuf.length - 1) * w;
+  // zero line
+  ctx.strokeStyle = 'rgba(150,160,180,0.25)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(x, ZY); ctx.lineTo(x + w, ZY); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'right'; ctx.fillText('0', x - 5, ZY + 4);
+  for (const [arr, col, mean] of [[0, 'rgba(245,245,255,0.9)', mx], [1, '#ffd24a', my]]) {
+    ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.beginPath();
+    vbuf.forEach((vv, i) => { const py = PY(vv[arr]); if (i === 0) ctx.moveTo(PX(i), py); else ctx.lineTo(PX(i), py); });
+    ctx.stroke();
+    // running mean (the drift in that component)
+    ctx.strokeStyle = col; ctx.globalAlpha = 0.5; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(x, PY(mean)); ctx.lineTo(x + w, PY(mean)); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillStyle = 'rgba(245,245,255,0.9)'; ctx.fillText(`vx  (mean ${mx.toFixed(3)})`, x + 8, y + 14);
+  ctx.fillStyle = '#ffd24a'; ctx.fillText(`vy  (mean ${my.toFixed(3)})`, x + 168, y + 14);
 }
 
 function tick() {
