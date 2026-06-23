@@ -109,8 +109,9 @@ function drawField(aRel) {
       ctx.stroke();
     }
   }
-  // Breathing intensity lobe (instantaneous emitted power ~ a^2).
-  drawLobe(170 * (0.25 + 0.75 * aRel * aRel) + 30, 'rgba(255,209,102,0.7)', 'rgba(255,209,102,0.08)');
+  // Breathing intensity lobe (instantaneous emitted power ~ a^2), kept large
+  // enough that the sin^2(theta) directivity reads clearly at every phase.
+  drawLobe(240 * (0.42 + 0.58 * aRel * aRel) + 48, 'rgba(255,209,102,0.7)', 'rgba(255,209,102,0.08)');
   chargeAndAccel(aRel);
 }
 
@@ -144,7 +145,7 @@ function render() {
   if (st.view === '3d') draw3D();
   else if (st.view === 'lobe') {
     polarGrid();
-    drawLobe(220 * st.amp, '#ffd166', 'rgba(255,209,102,0.07)');
+    drawLobe(170 + 65 * Math.min(2, st.amp), '#ffd166', 'rgba(255,209,102,0.07)');
     chargeAndAccel(aRel);
   } else drawField(aRel);
 
