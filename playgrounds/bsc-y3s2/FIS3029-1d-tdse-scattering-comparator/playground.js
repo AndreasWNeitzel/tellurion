@@ -32,6 +32,7 @@ const state = {
   V0: 4.0,
   k0: 2.0,
   kind: 'barrier',
+  lastMeasured: null,     // {E, R, T, kind} captured at clean separation, for the diagnostic
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
@@ -41,33 +42,106 @@ const tok = {
   accentWarm: cssVar('--accent-warm', '#C13B27'),
 };
 
+// Layout: the wavefunction fills the top panel, the transmission-vs-energy
+// diagnostic the bottom. Confining the y mapping to the active panel keeps the
+// wavepacket filling its frame instead of floating in a tall empty canvas.
+const MAIN_Y0 = 22, MAIN_Y1 = Math.round(H * 0.60);
+const DIAG_Y0 = Math.round(H * 0.665), DIAG_Y1 = H - 34;
+
+function xToPx(x) { return (W - 40) * (x - X_MIN) / (X_MAX - X_MIN) + 20; }
 function toPx(x, y, ymin, ymax) {
-  return {
-    px: (W - 40) * (x - X_MIN) / (X_MAX - X_MIN) + 20,
-    py: 20 + (H - 80) * (1 - (y - ymin) / (ymax - ymin)),
-  };
+  return { px: xToPx(x), py: MAIN_Y0 + (MAIN_Y1 - MAIN_Y0) * (1 - (y - ymin) / (ymax - ymin)) };
+}
+
+// Closed-form transmission for a rectangular barrier, well or step (hbar=m=1).
+// This is the reference the simulated packet is compared against.
+function analyticT(E, V0, a, kind) {
+  if (E <= 1e-4) return 0;
+  if (kind === 'free') return 1;
+  if (kind === 'step') {
+    if (E <= V0) return 0;
+    const k1 = Math.sqrt(2 * E), k2 = Math.sqrt(2 * (E - V0));
+    return 4 * k1 * k2 / ((k1 + k2) * (k1 + k2));
+  }
+  const U = kind === 'well' ? -V0 : V0;        // a well is an attractive (negative) region
+  if (E < U - 1e-6) {
+    const kappa = Math.sqrt(2 * (U - E)), s = Math.sinh(kappa * a);
+    return 1 / (1 + (U * U * s * s) / (4 * E * (U - E)));
+  }
+  if (E > U + 1e-6) {
+    const q = Math.sqrt(2 * (E - U)), s = Math.sin(q * a);
+    return 1 / (1 + (U * U * s * s) / (4 * E * (E - U)));
+  }
+  return 1 / (1 + U * U * a * a / 2);          // E = barrier top, the limit
+}
+
+function drawDiagnostic() {
+  const x0 = 56, x1 = W - 24, y0 = DIAG_Y0, y1 = DIAG_Y1;
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 0.5;
+  ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'left';
+  ctx.fillText('transmission T vs incident energy E (analytic curve, simulated point)', x0 + 4, y0 - 6);
+  const a = 3.0;                               // barrier/well width set in rebuild()
+  const V0 = state.V0, kind = state.kind;
+  const Eop = 0.5 * state.k0 * state.k0;
+  const Emax = Math.max(2.6 * Math.abs(V0), Eop * 1.5, 6);
+  const EX = (E) => x0 + (x1 - x0) * E / Emax;
+  const TY = (T) => y1 - (y1 - y0 - 8) * Math.max(0, Math.min(1, T)) - 4;
+  for (const Tg of [0, 0.5, 1]) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(x0, TY(Tg)); ctx.lineTo(x1, TY(Tg)); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.textAlign = 'right';
+    ctx.fillText(Tg.toFixed(1), x0 - 4, TY(Tg) + 3);
+  }
+  if (kind === 'barrier' || kind === 'step') {
+    ctx.strokeStyle = 'rgba(255,120,120,0.4)'; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(EX(V0), y0); ctx.lineTo(EX(V0), y1); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,140,140,0.7)'; ctx.textAlign = 'center';
+    ctx.fillText('E = V0', EX(Math.min(V0, Emax)), y1 - 5);
+  }
+  ctx.strokeStyle = tok.accentWarm; ctx.lineWidth = 1.8; ctx.beginPath();
+  const M = 260;
+  for (let i = 0; i <= M; i += 1) {
+    const E = Emax * i / M;
+    const pt = { px: EX(E), py: TY(analyticT(E, V0, a, kind)) };
+    if (i === 0) ctx.moveTo(pt.px, pt.py); else ctx.lineTo(pt.px, pt.py);
+  }
+  ctx.stroke();
+  const Top = analyticT(Eop, V0, a, kind);
+  ctx.strokeStyle = 'rgba(255,213,127,0.55)'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
+  ctx.beginPath(); ctx.moveTo(EX(Eop), y0); ctx.lineTo(EX(Eop), y1); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(EX(Eop), TY(Top), 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.textAlign = 'left';
+  ctx.fillText(`E=${Eop.toFixed(2)}  T=${Top.toFixed(3)}`, Math.min(EX(Eop) + 6, x1 - 120), TY(Top) - 6);
+  if (state.lastMeasured && state.lastMeasured.kind === kind) {
+    const m = state.lastMeasured;
+    ctx.strokeStyle = tok.accent; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(EX(m.E), TY(m.T), 5.5, 0, 2 * Math.PI); ctx.stroke();
+    ctx.fillStyle = tok.accent; ctx.textAlign = 'right';
+    ctx.fillText(`simulated T = ${m.T.toFixed(3)}`, x1 - 6, y0 + 14);
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.textAlign = 'right';
+  ctx.fillText('E', x1 - 2, y1 - 4);
 }
 
 function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
+  const ymin = -0.45, ymax = 0.45;
 
-  // Y range covers ~ [-0.5, 0.5] for Re psi, and 0-1.0 for |psi|^2.
-  const ymin = -0.6, ymax = 0.6;
-
-  // Axis
+  // main-panel axes
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
   ctx.lineWidth = 0.5;
   const zero = toPx(0, 0, ymin, ymax);
   ctx.beginPath();
   ctx.moveTo(20, zero.py); ctx.lineTo(W - 20, zero.py);
-  ctx.moveTo(zero.px, 20); ctx.lineTo(zero.px, H - 60);
+  ctx.moveTo(zero.px, MAIN_Y0); ctx.lineTo(zero.px, MAIN_Y1);
   ctx.stroke();
 
-  if (!state.tdse) { return; }
+  if (!state.tdse) { drawDiagnostic(); return; }
 
-  // Barrier rectangle
-  const v0Px = state.V0 / 10;   // scale V_0 to a barrier-rect height in the plot
+  // Barrier / well region
   for (let i = 0; i < N_GRID; i += 1) {
     const x = X_MIN + i * (X_MAX - X_MIN) / (N_GRID - 1);
     const V = state.tdse.V[i];
@@ -109,30 +183,31 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   const rows = [
     ['t',     state.tdse.t.toFixed(2)],
-    ['steps', String(state.tdse.nSteps)],
     ['V_0',   state.tdse.V0.toFixed(2)],
     ['k_0',   state.k0.toFixed(2)],
+    ['E = k_0^2/2', (0.5 * state.k0 * state.k0).toFixed(2)],
     ['kind',  state.tdse.kind],
-    ['norm',  norm.toFixed(6)],
+    ['norm',  norm.toFixed(4)],
     ['R (x<0)', R.toFixed(3)],
     ['T (x>0)', T.toFixed(3)],
   ];
-  let y = 20;
+  let y = MAIN_Y0 + 2;
   for (const [k, v] of rows) {
     ctx.textAlign = 'left';
     ctx.fillText(k, 24, y);
     ctx.textAlign = 'right';
-    ctx.fillText(v, 240, y);
+    ctx.fillText(v, 244, y);
     y += 14;
   }
 
   // Color legend
-  ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
   ctx.fillStyle = tok.accent;
-  ctx.fillText('Re ψ', W - 24, 20);
+  ctx.fillText('Re ψ', W - 24, MAIN_Y0);
   ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('|ψ|^2 (x 1.5)', W - 24, 34);
+  ctx.fillText('|ψ|^2 (x 1.5)', W - 24, MAIN_Y0 + 14);
+
+  drawDiagnostic();
 }
 
 function rebuild() {
@@ -183,6 +258,20 @@ function bootSync() {
 function tick() {
   if (state.playing) {
     tickN(state.speed);
+    // Loop the launch, scatter and separate cycle. Once the reflected and
+    // transmitted packets reach the domain walls the hard-wall boundary starts
+    // absorbing probability, which would drive the norm below 1 and corrupt R
+    // and T. Capture the clean coefficients at that instant (the packets are
+    // then maximally separated, so R and T are well defined), pin them to the
+    // diagnostic, and relaunch.
+    if (state.tdse) {
+      const norm = totalNorm(state.tdse);
+      if (norm < 0.992 || state.tdse.nSteps > 6000) {
+        const { R, T } = reflectionTransmission(state.tdse);
+        state.lastMeasured = { E: 0.5 * state.k0 * state.k0, R, T, kind: state.kind };
+        rebuild();
+      }
+    }
     drawAll();
   }
   requestAnimationFrame(tick);
