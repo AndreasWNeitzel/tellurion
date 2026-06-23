@@ -25,12 +25,18 @@ const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
 const TRAIL_MAX = 1500;
+const SEP_MAX = 150;                                    // bounces recorded for the separation plot (then frozen)
+const TABLE = { cx: W / 2, cy: 333, w: W - 44, h: 600 };// table box (top)
+const DIAG = { x: 40, y: 648, w: W - 80, h: H - 648 - 16 }; // separation diagnostic (bottom)
 
 const state = {
   geom: 'stadium',
   speed: 6,
   billiard: null,
+  billiard2: null,                                      // companion launched 0.001 rad apart
   trail: [],
+  trail2: [],
+  sepHist: [],                                          // |r1 - r2| vs bounce number
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
@@ -42,13 +48,12 @@ const tok = {
 
 function toPx(x, y) {
   const b = GEOM_BOUNDS[state.geom];
-  const span = Math.max(b.xmax - b.xmin, b.ymax - b.ymin);
-  const scale = Math.min(W, H) / span * 0.9;
+  const scale = Math.min(TABLE.w / (b.xmax - b.xmin), TABLE.h / (b.ymax - b.ymin)) * 0.96;
   const cx = (b.xmax + b.xmin) / 2;
   const cy = (b.ymax + b.ymin) / 2;
   return {
-    px: W / 2 + (x - cx) * scale,
-    py: H / 2 - (y - cy) * scale,
+    px: TABLE.cx + (x - cx) * scale,
+    py: TABLE.cy - (y - cy) * scale,
   };
 }
 
@@ -139,7 +144,20 @@ function drawAll() {
     ctx.globalAlpha = 1;
   }
 
-  // Current position
+  // Companion trail (the 0.001-rad twin), warm and faint
+  if (state.trail2.length >= 2) {
+    ctx.strokeStyle = tok.accentWarm; ctx.lineWidth = 0.7; ctx.globalAlpha = 0.4;
+    ctx.beginPath();
+    const f = toPx(state.trail2[0].x, state.trail2[0].y); ctx.moveTo(f.px, f.py);
+    for (let i = 1; i < state.trail2.length; i += 1) { const p = toPx(state.trail2[i].x, state.trail2[i].y); ctx.lineTo(p.px, p.py); }
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
+
+  // Current positions
+  if (state.billiard2) {
+    const p = toPx(state.billiard2.x, state.billiard2.y);
+    ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(p.px, p.py, 3, 0, 2 * Math.PI); ctx.fill();
+  }
   if (state.billiard) {
     const p = toPx(state.billiard.x, state.billiard.y);
     ctx.fillStyle = tok.accentWarm;
@@ -167,6 +185,39 @@ function drawAll() {
     ctx.textAlign = 'left';
     y += 14;
   }
+
+  drawDiagnostic();
+}
+
+function drawDiagnostic() {
+  const { x, y, w, h } = DIAG;
+  ctx.fillStyle = '#0a0b10'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(226,232,240,0.18)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  const integrable = state.geom === 'circle' || state.geom === 'ellipse';
+  ctx.fillStyle = 'rgba(226,232,240,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('separation of the two trajectories vs bounce number', x + 10, y + 16);
+  const plT = y + 26, plB = y + h - 26, plL = x + 46, plR = x + w - 12;
+  const yLo = -4, yHi = 0.7;
+  const xN = (n) => plL + (n / (SEP_MAX - 1)) * (plR - plL);
+  const yL = (l) => plB - (l - yLo) / (yHi - yLo) * (plB - plT);
+  ctx.strokeStyle = 'rgba(255,255,255,0.09)'; ctx.lineWidth = 1;
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.55)'; ctx.textAlign = 'right';
+  for (let l = -4; l <= 0; l += 1) { const yy = yL(l); ctx.beginPath(); ctx.moveTo(plL, yy); ctx.lineTo(plR, yy); ctx.stroke(); ctx.fillText(`10^${l}`, plL - 4, yy + 3); }
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.beginPath(); ctx.moveTo(plL, plT); ctx.lineTo(plL, plB); ctx.lineTo(plR, plB); ctx.stroke();
+  if (state.sepHist.length > 1) {
+    ctx.strokeStyle = integrable ? '#6dccc2' : '#f87272'; ctx.lineWidth = 1.8; ctx.beginPath();
+    state.sepHist.forEach((s, i) => {
+      const l = Math.log10(Math.max(1e-9, s));
+      const X = xN(i), Y = Math.max(plT, Math.min(plB, yL(l)));
+      i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    });
+    ctx.stroke();
+  }
+  ctx.fillStyle = integrable ? '#6dccc2' : '#f87272'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(integrable ? 'integrable: separation stays bounded' : 'chaotic: separation grows exponentially', plL + 6, plT + 14);
+  ctx.fillStyle = '#8893a6'; ctx.textAlign = 'center';
+  ctx.fillText('bounce number', (plL + plR) / 2, plB + 18);
+  ctx.save(); ctx.translate(x + 12, (plT + plB) / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = 'rgba(180,190,210,0.7)'; ctx.fillText('separation', 0, 0); ctx.restore();
 }
 
 function rebuild() {
@@ -178,7 +229,13 @@ function rebuild() {
   else if (state.geom === 'ellipse') ic = { x: -ELLIPSE_AXES.c, y: 0, vx: 0.35, vy: 0.94 };  // launch from a focus
   else ic = { x: 0.55, y: 0.55, vx: 1.0, vy: 0.6 };
   state.billiard = createBilliard({ geom: state.geom, ...ic });
+  // a twin launched 0.001 rad away: identical except a hair of initial angle
+  const eps = 1e-3, cs = Math.cos(eps), sn = Math.sin(eps);
+  const vx2 = ic.vx * cs - ic.vy * sn, vy2 = ic.vx * sn + ic.vy * cs;
+  state.billiard2 = createBilliard({ geom: state.geom, x: ic.x, y: ic.y, vx: vx2, vy: vy2 });
   state.trail = [{ x: state.billiard.x, y: state.billiard.y }];
+  state.trail2 = [{ x: state.billiard2.x, y: state.billiard2.y }];
+  state.sepHist = [];
 }
 
 function tickN(nBounces) {
@@ -187,6 +244,16 @@ function tickN(nBounces) {
     step(state.billiard);
     state.trail.push({ x: state.billiard.x, y: state.billiard.y });
     if (state.trail.length > TRAIL_MAX) state.trail.shift();
+    if (state.billiard2) {
+      step(state.billiard2);
+      state.trail2.push({ x: state.billiard2.x, y: state.billiard2.y });
+      if (state.trail2.length > TRAIL_MAX) state.trail2.shift();
+      // record from launch and freeze at the cap, so the early exponential
+      // divergence (or its absence) stays on screen instead of scrolling off
+      if (state.sepHist.length < SEP_MAX) {
+        state.sepHist.push(Math.hypot(state.billiard.x - state.billiard2.x, state.billiard.y - state.billiard2.y));
+      }
+    }
   }
 }
 
