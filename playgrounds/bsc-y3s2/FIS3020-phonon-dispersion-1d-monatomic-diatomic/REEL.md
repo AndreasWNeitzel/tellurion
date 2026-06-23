@@ -15,8 +15,9 @@ VO: A monatomic chain gives a single acoustic branch: long waves are ordinary so
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Make the two masses equal: the gap closes and the optical branch folds into a single acoustic branch, the monatomic chain recovered as a special case.
+VO: Split the masses apart: a forbidden frequency gap opens between the acoustic and optical branches, where no travelling phonon exists, the lattice analogue of an electronic band gap.
+VO: At the zone boundary the two atoms move oppositely on the optical branch and together on the acoustic one, with the group velocity vanishing, a standing wave carrying no energy.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

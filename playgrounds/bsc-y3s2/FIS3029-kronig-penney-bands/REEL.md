@@ -15,8 +15,9 @@ VO: Requiring a traveling Bloch wave forces the condition cos(ka) = cos(qa) + (P
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Turn up the barrier strength P: the free-electron parabola fractures into allowed bands split by forbidden gaps, the moment a periodic potential can turn a metal into an insulator.
+VO: At P = 0 the gaps close and free electrons return; crank P high and the bands narrow toward flat atomic levels, the tight-binding limit.
+VO: The gaps open exactly at the Brillouin zone boundaries, where the electron wave Bragg-reflects off the lattice, the origin of every semiconductor band gap.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

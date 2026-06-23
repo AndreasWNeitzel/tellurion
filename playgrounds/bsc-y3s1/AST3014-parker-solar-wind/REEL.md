@@ -15,8 +15,9 @@ VO: Parcels are coloured by Mach number, so the cool dense subsonic core, the so
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the coronal temperature: the wind accelerates harder and the sonic point moves inward, since a hotter corona cannot be held by gravity and must blow off as a supersonic wind.
+VO: The unique transonic solution threads the critical point, subsonic near the Sun and supersonic far out, the only branch finite at both ends, Parker predicted in 1958.
+VO: Read u at 1 AU climbing past 400 km/s: the steady wind that shapes comet tails, drives aurorae, and carves the heliosphere out of the interstellar medium.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

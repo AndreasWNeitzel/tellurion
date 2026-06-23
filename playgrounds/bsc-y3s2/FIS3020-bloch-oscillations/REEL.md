@@ -15,8 +15,9 @@ VO: Its quasi-momentum slides steadily across the Brillouin zone, but at the zon
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Apply the force F: the quasi-momentum sweeps through the Brillouin zone at a constant rate and the group velocity flips sign at the zone edge, so the particle oscillates rather than running away. That is a Bloch oscillation.
+VO: The period T_B = h / (F a) shrinks as you push harder: a steady force gives periodic motion, the counterintuitive result that a DC field drives an AC current in a perfect lattice.
+VO: Narrow the bandwidth W: the oscillation amplitude shrinks, since the particle only roams as far as the band is wide before the zone edge turns it around.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

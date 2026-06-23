@@ -15,8 +15,9 @@ VO: The binding energy is a volume term (a V A) minus a surface term (a S A 2/3)
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Slide the mass number A along the curve: binding energy per nucleon rises, peaks near iron-56, then falls, the reason fusion releases energy below the peak and fission above it.
+VO: The terms compete: the volume term wants more nucleons while the surface and Coulomb terms penalise them, and the balance carves the valley of stability.
+VO: Watch the kinks at magic numbers: the smooth liquid-drop formula misses the extra binding from closed nuclear shells, where the real curve jumps above the fit.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

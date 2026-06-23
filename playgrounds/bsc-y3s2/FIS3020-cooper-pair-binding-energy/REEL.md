@@ -15,8 +15,9 @@ VO: The left panel shows how this energy varies logarithmically with the dimensi
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Turn on any attraction V, however weak: two electrons above a filled Fermi sea always bind, with energy 2 hbar omega_D exp(-2 / N(0)V). The Fermi sea makes the pair bound for arbitrarily small coupling.
+VO: Raise the coupling or the density of states N(0): the binding grows exponentially, the same exponential that sets the superconducting gap and transition temperature.
+VO: That non-analytic exp(-1/V) form can never be reached by perturbation theory, which is why superconductivity hid for fifty years until BCS.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: In ordinary forward Compton scattering a photon strikes a nearly-at-rest ele
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: In forward Compton a high-energy photon strikes a resting electron and comes out softer, losing energy to the recoil. Raise the photon energy and the downshift grows.
+VO: In inverse Compton a fast electron (raise log gamma) slams a soft photon up to high energy, gaining a factor of gamma squared. The same scattering runs both ways depending on who carries the energy.
+VO: Inverse Compton is how relativistic electrons make X-rays and gamma rays from starlight and the microwave background, the upscattering that lights up jets and galaxy clusters.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: Side-by-side classical binomial histogram for comparison.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Compare the quantum walk to the classical one: the classical walker piles into a Gaussian bell at the origin, while the quantum walker spreads to the edges and peaks far from the start.
+VO: Interference between the left and right amplitudes is the difference: the quantum walk spreads ballistically (distance grows with the steps) while the classical one only diffuses (distance grows with the square root).
+VO: That quadratic speedup is why quantum walks underpin fast search algorithms, the wave nature of the walker doing the work.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

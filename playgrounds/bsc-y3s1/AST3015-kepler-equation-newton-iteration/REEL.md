@@ -15,8 +15,9 @@ VO: It is transcendental, so there is no formula for E; you iterate. The playgro
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the eccentricity toward 1: the planet races through perihelion and crawls through aphelion, and the transcendental Kepler equation M = E - e sin E grows harder to invert.
+VO: Watch the Newton iteration on the right: from a guess it converges on the eccentric anomaly in a few steps, doubling the correct digits each time.
+VO: At high eccentricity a naive starting guess can stall: this little root-find, solved billions of times a day, is the workhorse behind every ephemeris and spacecraft trajectory.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

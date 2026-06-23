@@ -15,8 +15,9 @@ VO: Uniform rho recovers the closed form (phi n = sqrt(2/pi) sin n x, lambda n =
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Choose a mass-density profile: a uniform string gives clean sine modes, but loading the centre or one end warps the eigenfunctions and crowds the nodes where the string is heavy.
+VO: The eigenvalues are the squared mode frequencies: heavier loading lowers them, the same reason a thicker guitar string sounds a lower note.
+VO: Whatever the density, the modes stay orthogonal and complete, so any plucked shape is a sum of them, the Sturm-Liouville theory behind every separation of variables.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
