@@ -174,10 +174,15 @@ function drawFractions(x, y, w, h) {
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  const half = (W - 52) / 2;
-  drawSlab(20, 20, half, H - 34);
-  drawDose(20 + half + 12, 20, half, (H - 46) / 2);
-  drawFractions(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
+  // Portrait stack: the photon-transport slab on top full width (a beam
+  // entering from the left attenuates with depth more naturally than in the
+  // old 384-wide, 1006-tall column), depth-dose and interaction fractions
+  // full width below, so their titles stop overflowing the right edge.
+  const fw = W - 40;
+  drawSlab(20, 20, fw, 452);
+  const yB = 486;
+  drawDose(20, yB, fw, 250);
+  drawFractions(20, yB + 262, fw, H - (yB + 262) - 16);
   const R = cache.R, e = R.energy;
   rE.textContent = `${energy()} keV`;
   rMu.textContent = `${cache.cs.mu.toFixed(3)} /cm`;
