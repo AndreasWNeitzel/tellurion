@@ -50,8 +50,18 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 // from 4 to 3) so the effective work per frame is similar to the
 // previous low-res version. Vorticity confinement keeps the wake
 // sharp at the lower projection iteration count.
-const GX = 320, GY = 200, DT = 0.11, VMAX = 1.8, YSHIFT = 8, DIFF = 3, CONF = 0.07;
+const GX = 320, GY = 200, DT = 0.11, VMAX = 1.8, YSHIFT = 8, DIFF = 2, CONF = 0.24;
 const SUBSTEPS = 1;
+// The plain semi-Lagrangian advect smears the shed shear layers so heavily that
+// the wake never rolled up (vorticity stayed pinned to the cylinder, the
+// downstream profile was flat). BFECC would cure the diffusion but triples the
+// advection cost and breaks the 60 fps / boot budget, so instead the diffusion
+// is eased (2 viscous sweeps instead of 3) and the Steinhoff confinement is
+// pushed to 0.24, which re-injects the dissipated vorticity into the shed cores
+// and sustains them downstream as alternating von Karman vortices. Confinement
+// is one O(N) body force per step, so the frame budget is unchanged. Higher
+// CONF (>~0.3) over-amplifies grid-scale noise into spurious specks, so 0.24 is
+// the stable ceiling.
 const STEP_OPTS = { diffuseSweeps: DIFF, projOpts: { tol: 5e-3, maxIter: 12 }, bfecc: false, confine: CONF };
 const REGIME_RE = { stokes: 8, steady: 60, vonkarman: 300, turbulent: 600 };
 // Default to the speed field: |u| through viridis colours the whole domain
@@ -158,7 +168,7 @@ function drawColorbar() {
 
 function drawWakeProfile() {
   const { uc, vc } = cellVelocity(state);
-  const xCol = Math.round(GX * 0.72);
+  const xCol = Math.round(GX * 0.52);
   const bx0 = 80, bw = W - 160, by0 = BLIT.y + BLIT.h + 30, bh = H - (BLIT.y + BLIT.h + 30) - 36;
   ctx.fillStyle = 'rgba(120,170,235,0.05)'; ctx.fillRect(bx0, by0, bw, bh);
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.strokeRect(bx0 + 0.5, by0 + 0.5, bw - 1, bh - 1);
@@ -174,7 +184,7 @@ function drawWakeProfile() {
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(200,210,235,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.fillText('downstream speed |u|(y) at x = 0.72 L  (the dip is the wake deficit; dashed = free stream)', bx0, by0 - 8);
+  ctx.fillText('downstream speed |u|(y) at x = 0.52 L  (the dip is the wake deficit; dashed = free stream)', bx0, by0 - 8);
 }
 
 function render() {
