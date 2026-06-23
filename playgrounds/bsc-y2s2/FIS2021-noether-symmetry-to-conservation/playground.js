@@ -1,6 +1,21 @@
-import { rk4, angularMomentum, energy } from './sim.js';
+import { rk4, angularMomentum } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+
+// The conserved energy of the actual force field. sim.force() builds the
+// symmetry-breaking term from the r-independent potential V_eps = -eps cos(2θ),
+// but sim.energy() instead assumes +eps cos(2θ)/r, so the two disagree and its
+// "energy" drifts whenever eps != 0. Computing the matching Hamiltonian here
+// keeps E(t) flat (energy is conserved by time-translation symmetry) while L_z
+// genuinely drifts (rotation symmetry is the one that was broken). state =
+// [x, y, vx, vy].
+function energy(state, eps) {
+  const r = Math.sqrt(state[0] * state[0] + state[1] * state[1]) + 1e-9;
+  const KE = 0.5 * (state[2] * state[2] + state[3] * state[3]);
+  let PE = -1 / r;
+  if (eps) { const theta = Math.atan2(state[1], state[0]); PE += -eps * Math.cos(2 * theta); }
+  return KE + PE;
+}
 const params = new URLSearchParams(location.search);
 const DETERMINISTIC = params.get('deterministic') === '1';
 const CAPTURE_NAME = params.get('capture');
@@ -10,7 +25,12 @@ const rL = document.getElementById('readout-l');
 const sE = document.getElementById('slider-e'), vE = document.getElementById('value-e');
 const sV = document.getElementById('slider-v'), vV = document.getElementById('value-v');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-const st = { eps: 0, v0: 0.8 };
+// Default to a broken symmetry (eps != 0): the orbit precesses into a rosette
+// that fills the panel and L_z(t) visibly drifts, the interesting Noether case.
+// Energy stays conserved (time-independent potential), so E(t) stays flat, the
+// contrast the card is about. Drag eps to 0 to restore the closed orbit and a
+// flat L_z. (eps = 0 alone left every curve flat in an empty panel.)
+const st = { eps: 0.08, v0: 1.0 };
 let state, trail = [], lHist = [], eHist = [], L0, E0, running = true;
 function reset() { state = [1, 0, 0, st.v0]; L0 = angularMomentum(state); E0 = energy(state, st.eps); trail = []; lHist = []; eHist = []; }
 reset();
@@ -21,14 +41,14 @@ btnP.addEventListener('click', () => { running = !running; btnP.textContent = ru
 let last = performance.now();
 function step() {
   for (let i = 0; i < 5; i += 1) state = rk4(state, 0.01, st.eps);
-  trail.push([state[0], state[1]]); if (trail.length > 1200) trail.shift();
+  trail.push([state[0], state[1]]); if (trail.length > 2200) trail.shift();
   lHist.push(angularMomentum(state)); if (lHist.length > 400) lHist.shift();
   eHist.push(energy(state, st.eps)); if (eHist.length > 400) eHist.shift();
 }
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height;
-  const cx = W / 4, cy = H / 2, sc = 80;
+  const cx = W / 4, cy = H / 2, sc = 95;
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath();
   ctx.moveTo(cx - 130, cy); ctx.lineTo(cx + 130, cy); ctx.moveTo(cx, cy - 130); ctx.lineTo(cx, cy + 130); ctx.stroke();
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(cx, cy, 10, 0, 2 * Math.PI); ctx.fill();

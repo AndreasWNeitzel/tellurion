@@ -50,8 +50,8 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">ε (sym-break)</span><input aria-label="ε (sym-break)" type="range" id="slider-e" min="0" max="0.5" step="0.01" value="0"><span class="value" id="value-e">0.00</span></div>
-<div class="row"><span class="label">v_init</span><input aria-label="v_init" type="range" id="slider-v" min="0.3" max="1.3" step="0.02" value="0.8"><span class="value" id="value-v">0.80</span></div>
+<div class="row"><span class="label">ε (sym-break)</span><input aria-label="ε (sym-break)" type="range" id="slider-e" min="0" max="0.5" step="0.01" value="0.08"><span class="value" id="value-e">0.08</span></div>
+<div class="row"><span class="label">v_init</span><input aria-label="v_init" type="range" id="slider-v" min="0.3" max="1.3" step="0.02" value="1.0"><span class="value" id="value-v">1.00</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
 </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite"><span class="label">L_z:</span><span class="value" id="readout-l">0.0</span></div></div>
@@ -60,8 +60,8 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Keep the symmetry-breaking epsilon at zero: the central potential is rotationally symmetric, so the orbit closes and the angular momentum L_z stays flat. Symmetry implies a conserved quantity, that is Noether theorem.</li>
-        <li class="t-body">Dial epsilon away from zero: the added angular term breaks rotational symmetry, the orbit precesses, and L_z starts drifting. Break the symmetry and you lose the conservation law.</li>
+        <li class="t-body">Start from the broken default: the cos(2 theta) term tilts the potential, the orbit precesses into a rosette, and the L_z(t) trace visibly oscillates. Rotation symmetry is gone, so its conserved quantity is gone.</li>
+        <li class="t-body">Drag epsilon down to zero: the potential becomes rotationally symmetric again, the orbit closes, and L_z flattens into a straight line. Symmetry implies a conserved quantity, that is Noether theorem.</li>
         <li class="t-body">Compare the L_z and energy traces: with the symmetry intact both are flat, and the moment you tilt the potential the conserved quantity tied to that symmetry is the one that moves.</li>
       </ul>
     </section>

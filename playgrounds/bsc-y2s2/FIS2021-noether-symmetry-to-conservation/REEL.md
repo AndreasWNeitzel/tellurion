@@ -15,8 +15,8 @@ VO: The playground runs a particle in a central potential, where rotating the wh
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Keep the symmetry-breaking epsilon at zero: the central potential is rotationally symmetric, so the orbit closes and the angular momentum L_z stays flat.
-VO: Dial epsilon away from zero: the added angular term breaks rotational symmetry, the orbit precesses, and L_z starts drifting.
+VO: Start from the broken default: the cos(2 theta) term tilts the potential, the orbit precesses into a rosette, and the L_z(t) trace visibly oscillates.
+VO: Drag epsilon down to zero: the potential becomes rotationally symmetric again, the orbit closes, and L_z flattens into a straight line.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
