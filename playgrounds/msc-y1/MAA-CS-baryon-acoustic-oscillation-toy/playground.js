@@ -31,7 +31,7 @@ sR.addEventListener('input', () => { st.R = parseFloat(sR.value); vR.textContent
 btnR.addEventListener('click', () => { st.R = 0.6; st.t = 0; sR.value = '0.6'; vR.textContent = '0.60'; running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
-const CX = 250, CY = 215, MAXR = 196;                 // field centre + max radius (px)
+const CX = 410, CY = 380, MAXR = 320;                 // field centre + max radius (px)
 const r_s = () => soundHorizon(st.R);                 // Mpc, standard ruler
 const MPC_VIEW = 240;                                  // Mpc across the half-field
 const mpcToPx = (mpc) => mpc / MPC_VIEW * MAXR;
@@ -100,8 +100,8 @@ function render() {
   ctx.fillText(`t = ${st.t.toFixed(0)} kyr`, tlx, tly - 8);
   ctx.fillStyle = '#ffd166'; ctx.fillText('recombination ~380 kyr', recx - 60, tly + 24);
 
-  // radial density profile rho(r): CDM spike + baryon bump
-  const pX = 470, pY = 90, pW = W - pX - 24, pH = 150;
+  // radial density profile rho(r): CDM spike + baryon bump (bottom-left)
+  const pX = 24, pY = 722, pW = 376, pH = 180;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(pX, pY, pW, pH);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(pX + 0.5, pY + 0.5, pW - 1, pH - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
@@ -119,8 +119,8 @@ function render() {
   }
   ctx.stroke();
 
-  // correlation function xi(r) with the acoustic bump (the observable)
-  const qX = 470, qY = pY + pH + 20, qW = pW, qH = 150;
+  // correlation function xi(r) with the acoustic bump (the observable, bottom-right)
+  const qX = 420, qY = 722, qW = 376, qH = 180;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(qX, qY, qW, qH);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(qX + 0.5, qY + 0.5, qW - 1, qH - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
@@ -132,7 +132,7 @@ function render() {
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.8; ctx.beginPath();
   for (let i = 4; i <= 120; i += 1) {
     const rMpc = i / 120 * MPC_VIEW;
-    const v = baoXi(rMpc, rs) / xmax;
+    const v = Math.min(1, baoXi(rMpc, rs) / xmax);       // clamp the small-r spike to the panel
     const xx = qX + 8 + i / 120 * (qW - 16), yy = qY + qH - 16 - v * (qH - 32);
     if (i === 4) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
