@@ -15,8 +15,8 @@ VO: The presets isolate the building blocks of plasma orbit theory: the cyclotro
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Step through the presets: pure cyclotron gyration in uniform B, the E x B drift (independent of charge and mass), grad-B and curvature drifts, and the magnetic mirror that reflects the particle where B is strong.
+VO: Flip the charge sign: the gyration reverses sense, but the E x B drift keeps the same direction, which is why it transports both signs together and drives no current.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

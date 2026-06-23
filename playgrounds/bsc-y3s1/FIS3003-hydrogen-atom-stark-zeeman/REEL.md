@@ -15,8 +15,8 @@ VO: The primary scene is the physical term diagram, each Rydberg level fanning i
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the magnetic field B: each level fans into Zeeman sublevels and the emission line splits into a multiplet, with the splitting growing linearly along the diagnostic line dE = 2 mu_B B.
+VO: Raise the electric field F: the Stark effect fans the levels too, but notice n=1 never splits.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

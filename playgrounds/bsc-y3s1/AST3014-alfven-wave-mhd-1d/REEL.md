@@ -15,8 +15,8 @@ VO: A transverse perturbation of the field, with the frozen-in fluid moving with
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise B_0: the Alfven speed v_A = B_0/sqrt(mu0 rho) climbs, so the transverse kink runs out along the field faster.
+VO: Raise the density n: heavier plasma slows the wave, since v_A falls as 1/sqrt(rho).
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: This is the simplest model with a true phase transition. Above the Onsager c
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Sweep the temperature through the Onsager point Tc = 2J/ln(1+sqrt 2): below it the lattice locks into one magnetised domain, above it the spins disorder, and right at Tc you see scale-free critical clusters.
+VO: Compare the measured magnetisation against the Onsager exact curve: the live |M| point tracks the analytic line and drops sharply to zero at Tc, the second-order phase transition.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: It is narrowest at the waist (1/e 2 radius w 0) and spreads hyperbolically: 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Shrink the waist w_0: a tighter waist has a shorter Rayleigh range, so the beam diverges into a wide cone right after the focus.
+VO: Change the wavelength lambda: longer wavelengths diverge faster for the same waist, since the divergence angle scales as lambda over w_0.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

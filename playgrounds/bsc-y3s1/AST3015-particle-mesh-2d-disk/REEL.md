@@ -15,8 +15,8 @@ VO: The playground evolves a flat exponential disk of 1500 self-gravitating part
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Let the disc evolve: gravity computed by depositing mass on a grid, solving Poisson by FFT and interpolating the force back lets 1500 particles clump and spiral.
+VO: Change the disc radius R: a more compact disc orbits faster and clusters sooner, since the dynamical time scales with the enclosed density.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

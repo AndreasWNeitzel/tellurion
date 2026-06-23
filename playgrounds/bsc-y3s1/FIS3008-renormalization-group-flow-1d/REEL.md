@@ -15,8 +15,8 @@ VO: Removing every other spin (rescale b = 2) renormalizes the couplings exactly
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag the starting coupling K and watch the RG flow: decimating every other spin sends K toward the stable T = infinity sink, the 1D Ising chain has no finite-temperature ordered phase.
+VO: Switch to the spin-chain decimation view: every other spin is integrated out and the survivors obey the same model with a renormalized coupling K-prime, the exact recursion the flow plane plots.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: The beam is the complex parameter q with 1/q = 1/R - i lambda/(pi w 2); a pa
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag the object or the lens: the q-parameter transforms by the lens ray-transfer matrix, the beam refocuses to a new waist w0-prime, and the spot-size readout shows how much tighter the focus is.
+VO: Shorten the focal length f: a stronger lens drives a smaller, closer focus but a faster-diverging beam beyond it.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

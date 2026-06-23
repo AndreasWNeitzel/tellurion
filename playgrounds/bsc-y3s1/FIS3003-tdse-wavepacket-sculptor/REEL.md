@@ -15,8 +15,8 @@ VO: It is advanced by a norm-preserving (unitary) step, so total probability sta
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the barrier split the packet: part reflects into a left lobe and part tunnels through to the right, with a little trapped briefly inside.
+VO: Switch the potential: a free particle just spreads, a harmonic well makes a coherent state slosh back and forth, a double well lets the packet tunnel between the two minima.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: The playground shows a time-domain signal next to its Fourier power spectrum
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the function f(t): a decaying exponential gives a Lorentzian power spectrum, a damped cosine gives a peak offset to the oscillation frequency, and each maps to a different pole pattern in the s-plane.
+VO: Tune the decay rate a or gamma: the pole moves left in the s-plane and the Fourier peak broadens, since faster decay means a wider spectral line.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

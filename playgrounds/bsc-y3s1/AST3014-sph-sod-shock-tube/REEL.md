@@ -15,8 +15,8 @@ VO: A membrane separates a dense, high-pressure gas (rho=1, P=1) from a thin, lo
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Let the membrane burst and watch the three waves separate: a rarefaction fan runs left into the high-pressure gas, a contact discontinuity drifts right, and a shock runs furthest right.
+VO: Read the conserved quantities: the SPH particles carry mass exactly and the total energy drifts by only a percent, the honest accuracy check for the scheme on this classic Riemann test.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

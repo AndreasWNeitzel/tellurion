@@ -15,8 +15,8 @@ VO: The upgraded scene shows the (x, v) phase space drawn with persistence so th
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Watch the two counter-streaming beams go unstable: a tiny density ripple grows exponentially and the beams roll up into phase-space vortices, the cat-eye structure of the two-stream instability.
+VO: Raise the beam velocity v_0: the instability growth rate and the vortex size change, since the unstable wavenumbers scale with the streaming speed.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

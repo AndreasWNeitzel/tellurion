@@ -15,8 +15,8 @@ VO: For the 1D Laplacian with Dirichlet boundary conditions it is a simple tent-
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Drag the poke position x0 along the top string: the Green tent G(x, x0) follows, peaking under your finger at height x0(1 - x0).
+VO: Change the distributed load f(x) between constant, step, Gaussian and sine: the bottom string re-settles into u(x) = integral G(x,s) f(s) ds, the superposition of one tent per source point.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

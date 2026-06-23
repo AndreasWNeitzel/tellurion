@@ -15,8 +15,8 @@ VO: The mean number of particles in a state of energy eps depends on what the pa
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch between Maxwell-Boltzmann, Fermi-Dirac and Bose-Einstein: the same density of states fills completely differently, fermions stack one per state up to the Fermi energy, bosons pile into the ground state.
+VO: Lower the temperature tau for the Bose gas: a macroscopic fraction N0/N condenses into the ground state below Tc, the Bose-Einstein condensate spike the readout tracks.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

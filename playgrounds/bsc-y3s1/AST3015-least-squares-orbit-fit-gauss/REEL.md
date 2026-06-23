@@ -15,8 +15,8 @@ VO: The playground shows the simplest version: scatter noisy positions along a t
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the eccentricity e: the least-squares circle fit gets steadily worse, since a circle cannot match an ellipse.
+VO: Add more samples N: the residual RMS shrinks but the bias does not, the recovered circle just converges more tightly to the wrong answer.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

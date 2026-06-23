@@ -15,8 +15,8 @@ VO: The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Draw obstacles into the flow: the half-way bounce-back at your shapes forces the stream around them, and a blunt body sheds a von Karman wake.
+VO: Watch the wake transverse-velocity trace: once the body sheds vortices it oscillates at the Strouhal frequency, the periodic signature of vortex shedding seen behind real bluff bodies.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,8 @@ VO: The scene is three panels: the object, the Fourier-plane log-magnitude with 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the filter between low-pass, high-pass and none: blocking the high spatial frequencies blurs the image and rounds the edges, blocking the low ones leaves only the edges.
+VO: Shrink the filter radius: the aperture passes fewer diffraction orders, and the reconstructed image loses ever more detail until only the coarsest features survive.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

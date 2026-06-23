@@ -15,8 +15,8 @@ VO: The electron plasma frequency omega p = sqrt(n e 2 / eps0 m e) sets the scal
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch the mode (O, X, Langmuir, ion-acoustic, Alfven): the omega-k curve reshapes and the cutoffs move.
+VO: Tune omega_p and omega_c: the cutoff and resonance frequencies track them, and the curve asymptotes to the light line omega = ck at high k.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
