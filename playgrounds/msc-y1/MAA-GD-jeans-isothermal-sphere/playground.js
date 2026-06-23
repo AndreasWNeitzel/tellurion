@@ -39,7 +39,7 @@ function buildStars() {
   st.t = 0;
 }
 
-const SCENE_CX = W * 0.26, SCENE_CY = H * 0.52, SCENE_R = Math.min(W * 0.22, H * 0.40);
+const SCENE_CX = W * 0.5, SCENE_CY = H * 0.34, SCENE_R = Math.min(W * 0.42, H * 0.30);
 const kpcToPx = SCENE_R / RMAX;
 
 // Orbital angular speed Omega(r) = v_c / r (v_c flat). The ratio
@@ -81,37 +81,45 @@ function drawHalo() {
 function drawGraphs() {
   const sigma_si = st.sigma * 1000;
   const vc = vCirc(sigma_si) / 1000;
-  const px = W * 0.52, pw = W - px - 36;
-  const yT = 56, yH = 170;
-  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(px, yT, pw, yH);
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(px + 0.5, yT + 0.5, pw - 1, yH - 1);
-  const xOf = (r) => px + 36 + (pw - 48) * r / RMAX;
-  const yOf = (v) => yT + yH - 22 - (yH - 34) * v / 600;
+  // Two diagnostics side by side across the bottom band, below the halo.
+  const gy = H * 0.69, gh = H - gy - 30;
+  const gw = (W - 24 * 3) / 2, gx1 = 24, gx2 = 24 + gw + 24;
+
+  // v_c(r) = sqrt(2) sigma, flat (left).
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(gx1, gy, gw, gh);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(gx1 + 0.5, gy + 0.5, gw - 1, gh - 1);
+  const xOf1 = (r) => gx1 + 36 + (gw - 48) * r / RMAX;
+  const yOf = (v) => gy + gh - 22 - (gh - 34) * v / 600;
   ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  for (const r of [10, 20, 30, 40]) { const x = xOf(r); ctx.beginPath(); ctx.moveTo(x, yT + 6); ctx.lineTo(x, yT + yH - 22); ctx.stroke(); }
+  for (const r of [10, 20, 30, 40]) { const x = xOf1(r); ctx.beginPath(); ctx.moveTo(x, gy + 24); ctx.lineTo(x, gy + gh - 22); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right';
+  for (const v of [200, 400, 600]) ctx.fillText(`${v}`, gx1 + 32, yOf(v) + 3);
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
-  for (let i = 0; i <= 120; i += 1) { const r = 1 + (RMAX - 1) * i / 120; const X = xOf(r), Y = yOf(vc); if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
+  for (let i = 0; i <= 120; i += 1) { const r = 1 + (RMAX - 1) * i / 120; const X = xOf1(r), Y = yOf(vc); if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('v_c(r) = sqrt(2) σ  (flat)', px + 8, yT + 16);
-  ctx.textAlign = 'center'; ctx.fillText('r (kpc)', px + pw / 2, yT + yH - 4);
+  ctx.fillText('v_c(r) = sqrt(2) σ  (km/s, flat)', gx1 + 8, gy + 16);
+  ctx.textAlign = 'center'; ctx.fillText('r (kpc)', gx1 + gw / 2, gy + gh - 4);
 
+  // M(<r) = 2 sigma^2 r / G, linear (right).
   const m0 = massEnclosed(RMAX * 3.086e19, sigma_si) / 1.989e30;
-  const y2 = yT + yH + 26, y2H = H - y2 - 34;
-  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(px, y2, pw, y2H);
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(px + 0.5, y2 + 0.5, pw - 1, y2H - 1);
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(gx2, gy, gw, gh);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.strokeRect(gx2 + 0.5, gy + 0.5, gw - 1, gh - 1);
+  const xOf2 = (r) => gx2 + 36 + (gw - 48) * r / RMAX;
   const mOf = (r) => massEnclosed(r * 3.086e19, sigma_si) / 1.989e30;
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  for (const r of [10, 20, 30, 40]) { const x = xOf2(r); ctx.beginPath(); ctx.moveTo(x, gy + 24); ctx.lineTo(x, gy + gh - 22); ctx.stroke(); }
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2; ctx.beginPath();
   for (let i = 0; i <= 120; i += 1) {
     const r = 1 + (RMAX - 1) * i / 120;
-    const X = px + 36 + (pw - 48) * r / RMAX;
-    const Y = y2 + y2H - 22 - (y2H - 34) * mOf(r) / (m0 * 1.05);
+    const X = xOf2(r);
+    const Y = gy + gh - 22 - (gh - 34) * mOf(r) / (m0 * 1.05);
     if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
   }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('M(<r) = 2 σ^2 r / G  (linear)', px + 8, y2 + 16);
-  ctx.textAlign = 'center'; ctx.fillText('r (kpc)', px + pw / 2, y2 + y2H - 4);
+  ctx.fillText('M(<r) = 2 σ^2 r / G  (linear)', gx2 + 8, gy + 16);
+  ctx.textAlign = 'center'; ctx.fillText('r (kpc)', gx2 + gw / 2, gy + gh - 4);
 
   rV.textContent = `${vc.toFixed(0)} km/s`;
   return { vc, m20: mOf(20) };
