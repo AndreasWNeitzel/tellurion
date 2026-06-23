@@ -67,11 +67,11 @@
       <button class="playground-focus-toggle" aria-label="Enter focus mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
       </button>
-      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0" aria-label="Two energy ladders: Bohr-Sommerfeld (blue) and exact analytical (orange) for a power-law potential."></canvas>
+      <canvas class="playground-canvas" id="stage" width="820" height="1040" tabindex="0" aria-label="Two energy ladders: Bohr-Sommerfeld (blue) and numerical shooting (orange) for a power-law potential."></canvas>
     </div>
 
     <figcaption class="t-small playground-caption"><span class="figure-number">Figure 1.</span>
-      Bohr-Sommerfeld (WKB) energy levels vs exact eigenvalues for
+      Bohr-Sommerfeld (WKB) energy levels vs numerical shooting eigenvalues for
       <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi mathvariant="normal">∣</mi><mi>x</mi><msup><mi mathvariant="normal">∣</mi><mi>p</mi></msup><mi mathvariant="normal">/</mi><mi>p</mi></mrow><annotation encoding="application/x-tex">V(x) = |x|^p / p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.2222em;">V</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">x</span><span class="mord"><span class="mord">∣</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span class="" style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span></span></span></span></span><span class="mord">/</span><span class="mord mathnormal">p</span></span></span></span></span>.</figcaption>
 
     <section class="playground-controls">
@@ -84,8 +84,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Vary each control and watch the rail readouts respond.</li>
-        <li class="t-body">Compare the diagnostic plot against the live scene.</li>
+        <li class="t-body">Start at p=2, the harmonic oscillator: the WKB and shooting ladders coincide exactly, because Bohr-Sommerfeld is exact for a quadratic potential and the connector lines lie flat.</li>
+        <li class="t-body">Slide p up toward 6 so the well steepens toward a box: the two ladders pull apart, most at the ground state. The connector gap is the WKB error, and the readout shows it shrinking from tens of percent at n=0 to a fraction of a percent at the top level.</li>
+        <li class="t-body">Raise n_max: more levels appear and the semiclassical trend is direct to read, WKB always converges to the true shooting eigenvalue as n grows, whatever the potential shape.</li>
       </ul>
     </section>
 

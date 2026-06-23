@@ -28,16 +28,53 @@ const tok = {
   accentWarm: cssVar('--accent-warm', '#C13B27'),
 };
 
-function exactLevels(p, nMax) {
-  if (Math.abs(p - 2) < 0.01) {
-    const out = new Array(nMax);
-    for (let n = 0; n < nMax; n += 1) out[n] = EXACT_LEVELS[2](n);
-    return out;
+// Numerical "shooting" reference for the SAME Hamiltonian the rest of the
+// card uses, H = -psi''/2 + V with V = |x|^p / p. A Numerov sweep integrates
+// psi from the left wall across the well for a trial E; the endpoint psi(+L)
+// changes sign at every eigenvalue, so scanning E and bisecting each crossing
+// yields the bound levels in order. This is what the card title means by
+// "shooting", and unlike a closed-form table it works for any p, so the
+// reference column is never empty. (sim.js EXACT_LEVELS holds a closed form
+// only for p = 2 and, in a different convention, p = 4; this solver is the
+// self-consistent reference for the displayed potential at every p.)
+const _numCache = { key: null, val: null };
+function numerovLevels(p, nMax) {
+  const L = 9.0;
+  const Vwall = Math.pow(L, p) / p;
+  const eCap = Math.min(Vwall * 0.88, 80);
+  const key = `${p.toFixed(3)}|${nMax}`;
+  if (_numCache.key === key) return _numCache.val;
+  const N = 1000, h = (2 * L) / N;
+  const V = (x) => Math.pow(Math.abs(x), p) / p;
+  function shootEnd(E) {
+    let psiPrev = 0.0, psi = 1e-8;
+    const f0 = (xx) => 1 + (h * h / 12) * 2 * (E - V(xx));
+    let x1 = -L + h, fPrev = f0(-L), fCur = f0(x1);
+    for (let i = 1; i < N; i += 1) {
+      const x2 = x1 + h, fNext = f0(x2);
+      const psiNext = ((12 - 10 * fCur) * psi - fPrev * psiPrev) / fNext;
+      psiPrev = psi; psi = psiNext; fPrev = fCur; fCur = fNext; x1 = x2;
+      if (Math.abs(psi) > 1e12) { psi *= 1e-12; psiPrev *= 1e-12; }   // rescale, sign preserved
+    }
+    return psi;
   }
-  if (Math.abs(p - 4) < 0.01) {
-    return EXACT_LEVELS[4].slice(0, nMax);
+  const levels = [];
+  const dE = Math.max(0.012, eCap / 600);
+  let prevV = shootEnd(1e-4);
+  for (let E = 1e-4 + dE; E <= eCap && levels.length < nMax; E += dE) {
+    const v = shootEnd(E);
+    if (prevV * v < 0) {
+      let a = E - dE, b = E, fa = prevV;
+      for (let it = 0; it < 46; it += 1) {
+        const m = 0.5 * (a + b), fm = shootEnd(m);
+        if (fa * fm <= 0) b = m; else { a = m; fa = fm; }
+      }
+      levels.push(0.5 * (a + b));
+    }
+    prevV = v;
   }
-  return null;   // No exact reference for arbitrary p; only BS shown.
+  _numCache.key = key; _numCache.val = levels;
+  return levels;
 }
 
 function drawAll() {
@@ -50,11 +87,14 @@ function drawAll() {
   // Half panel: V(x) profile + BS turning points
 
   const xMaxView = 4.0;
-  const eMax = Math.max(8, state.nMax + 2);
   const potFn = POTENTIALS.power(state.p);
-  // Compute ladders
+  // Compute ladders. The shooting solver runs first so the energy axis can be
+  // scaled to the actual top level (otherwise high-p wells, whose levels climb
+  // fast, would push the upper states off a fixed axis and leave a void).
+  const ex = numerovLevels(state.p, state.nMax);
+  const topShoot = ex.length ? ex[ex.length - 1] : (state.nMax + 1);
+  const eMax = Math.max(6, topShoot * 1.12);
   const bs = bohrSommerfeldLadder(potFn, state.nMax, eMax + 5);
-  const ex = exactLevels(state.p, state.nMax);
 
   // Draw V(x)
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
@@ -113,52 +153,60 @@ function drawAll() {
     ctx.fillText(`n=${n}, ${bs[n].toFixed(3)}`, E_X0 + 12, y - 3);
   }
 
-  // Exact ladder on the right
-  if (ex) {
+  // Shooting (numerical) ladder on the right, plus a thin connector to each
+  // matching BS level so the WKB error is visible as the vertical gap.
+  ctx.lineWidth = 1.5;
+  for (let n = 0; n < state.nMax && n < ex.length; n += 1) {
+    if (ex[n] > eMax) break;
+    const y = eToY(ex[n]);
     ctx.strokeStyle = tok.accentWarm;
-    ctx.lineWidth = 1.5;
-    for (let n = 0; n < state.nMax; n += 1) {
-      if (ex[n] > eMax) break;
-      const y = eToY(ex[n]);
+    ctx.beginPath();
+    ctx.moveTo(E_X0 + (E_X1 - E_X0) * 0.55, y); ctx.lineTo(E_X1 - 10, y);
+    ctx.stroke();
+    ctx.fillStyle = tok.accentWarm;
+    ctx.textAlign = 'right';
+    ctx.fillText(`${ex[n].toFixed(3)}`, E_X1 - 14, y - 3);
+    // connector showing the BS-to-shooting gap (the WKB error for level n)
+    if (n < bs.length && bs[n] <= eMax) {
+      const yb = eToY(bs[n]);
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 0.8;
       ctx.beginPath();
-      ctx.moveTo(E_X0 + (E_X1 - E_X0) * 0.55, y); ctx.lineTo(E_X1 - 10, y);
+      ctx.moveTo(E_X0 + (E_X1 - E_X0) * 0.45, yb);
+      ctx.lineTo(E_X0 + (E_X1 - E_X0) * 0.55, y);
       ctx.stroke();
-      ctx.fillStyle = tok.accentWarm;
-      ctx.textAlign = 'right';
-      ctx.fillText(`${ex[n].toFixed(3)}`, E_X1 - 14, y - 3);
+      ctx.lineWidth = 1.5;
     }
-  } else {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.textAlign = 'center';
-    ctx.fillText('(no exact reference for arbitrary p)', (E_X0 + E_X1) / 2, eToY(eMax * 0.5));
   }
 
   // Legend
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = tok.accent;
   ctx.textAlign = 'left';
-  ctx.fillText('Bohr-Sommerfeld (WKB)', E_X0 + 8, PLOT_Y - 8);
+  ctx.fillText('Bohr-Sommerfeld', E_X0 + 8, PLOT_Y - 8);
   ctx.fillStyle = tok.accentWarm;
   ctx.textAlign = 'right';
-  ctx.fillText('Exact', E_X1 - 8, PLOT_Y - 8);
+  ctx.fillText('shooting', E_X1 - 8, PLOT_Y - 8);
 
-  // Readout
+  // Readout: the WKB error shrinks as n grows (semiclassical limit), so show
+  // it at both the ground state and the top level.
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'left';
+  const nHi = Math.min(state.nMax, ex.length) - 1;
   const rows = [
     ['p',     state.p.toFixed(2)],
     ['nMax',  String(state.nMax)],
-    ['BS(0)', bs[0].toFixed(4)],
-    ['BS(n=nMax-1)', bs[state.nMax - 1].toFixed(4)],
+    ['E0 BS / shoot', `${bs[0].toFixed(3)} / ${ex[0].toFixed(3)}`],
+    ['WKB rel err n=0', (Math.abs(bs[0] - ex[0]) / ex[0] * 100).toFixed(2) + '%'],
   ];
-  if (ex) rows.push(['Exact(0)', ex[0].toFixed(4)], ['BS error at n=0', (bs[0] - ex[0]).toExponential(2)]);
+  if (nHi > 0) rows.push(['WKB rel err n=' + nHi, (Math.abs(bs[nHi] - ex[nHi]) / ex[nHi] * 100).toFixed(2) + '%']);
   let y = PLOT_Y + PLOT_H + 22;
   for (const [k, v] of rows) {
     ctx.textAlign = 'left';
     ctx.fillText(k, PLOT_X, y);
     ctx.textAlign = 'right';
-    ctx.fillText(v, PLOT_X + 220, y);
+    ctx.fillText(v, PLOT_X + 250, y);
     y += 14;
     if (y > H - 4) break;
   }
