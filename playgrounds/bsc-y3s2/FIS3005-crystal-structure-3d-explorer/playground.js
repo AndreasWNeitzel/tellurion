@@ -36,9 +36,9 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const st = { lat: 'fcc', view: 'crystal', hkl: [1, 1, 1], sc: 1, yaw: 0.6, running: !prefersReducedMotion() };
 
-// 3D viewport: a box that stays clear of the readout overlay and
-// strictly above the XRD strip (which starts at H-110).
-const VCX = 400, VCY = 176, HALFW = 322, HALFH = 128, PITCH = 0.5;
+// 3D viewport: a tall box filling the upper ~60% of the canvas, clear of the
+// readout overlay and strictly above the XRD panel (which now starts at H-300).
+const VCX = 400, VCY = 352, HALFW = 356, HALFH = 276, PITCH = 0.5;
 let VS = 150;                                            // set by fit()
 
 const NN = { sc: 1, bcc: Math.sqrt(3) / 2, fcc: Math.SQRT2 / 2 };
@@ -268,7 +268,7 @@ function drawDiffraction2D() {
 }
 
 function drawXRD() {
-  const x0 = 40, x1 = W - 24, y0 = H - 104, y1 = H - 38;
+  const x0 = 40, x1 = W - 24, y0 = H - 300, y1 = H - 46;
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
