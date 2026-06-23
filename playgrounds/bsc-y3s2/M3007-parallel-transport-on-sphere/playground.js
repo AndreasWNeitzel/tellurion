@@ -113,9 +113,14 @@ function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const cxPx = canvas.width * 0.31;
-  const cyPx = canvas.height / 2;
-  const R = Math.min(canvas.width * 0.6, canvas.height) * 0.4;
+  // Centre the sphere and grow it to fill the portrait. The old 0.31-width,
+  // 0.4-scale placement left it small and left-shifted, with a large void in
+  // the upper-centre. cyPx=0.53H drops it just below the top-left readout and
+  // the top-right holonomy panel (x>=554, y<=202), which the radius stays
+  // clear of (corner distance ~400 > R).
+  const cxPx = canvas.width * 0.46;
+  const cyPx = canvas.height * 0.53;
+  const R = Math.min(canvas.width * 0.9, canvas.height * 0.6) * 0.5;
   if (surface === 'cone') renderCone(c, cxPx, cyPx, R);
   else if (surface === 'cylinder') renderCylinder(c, cxPx, cyPx, R);
   else renderSphere(c, cxPx, cyPx, R);
