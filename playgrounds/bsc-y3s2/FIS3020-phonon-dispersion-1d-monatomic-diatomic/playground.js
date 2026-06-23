@@ -11,7 +11,7 @@ const sM1 = document.getElementById('slider-m1'), vM1 = document.getElementById(
 const sM2 = document.getElementById('slider-m2'), vM2 = document.getElementById('value-m2');
 const sK = document.getElementById('slider-K'), vK = document.getElementById('value-K');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-const st = { m1: 1, m2: 2, K: 1, pol: 'transverse' }; let running = true;
+const st = { m1: 1, m2: 2, K: 1.8, pol: 'transverse' }; let running = true;
 sM1.addEventListener('input', () => { st.m1 = parseFloat(sM1.value); vM1.textContent = st.m1.toFixed(2); });
 sM2.addEventListener('input', () => { st.m2 = parseFloat(sM2.value); vM2.textContent = st.m2.toFixed(2); });
 sK.addEventListener('input', () => { st.K = parseFloat(sK.value); vK.textContent = st.K.toFixed(2); });
@@ -28,14 +28,17 @@ if (btnPol) {
   });
 }
 // Plot occupies the top; a dedicated lattice band sits below it so the
-// atoms never overlap the axis or the readout. The y-axis uses a FIXED
-// omega scale (not auto-scaled by the data), so raising K visibly
-// pushes the branches up instead of rescaling the whole plot to look
-// unchanged. OMEGA_MAX covers the slider extremes (K=3, m=0.5).
+// atoms never overlap the axis or the readout. The y-axis ceiling tracks the
+// masses (sized for K at its 3.0 maximum) but is INDEPENDENT of K, so raising
+// K still visibly pushes the branches up instead of rescaling the plot, while
+// a typical K fills most of the panel. The old fixed 5.0 was sized for the
+// lightest-mass extreme and left the default masses squashed into the bottom
+// third of the panel.
 const PLOT_B = 150;                 // px reserved below the plot
 const LAT_TOP = () => canvas.height - 118;
 const LAT_BOT = () => canvas.height - 40;
-const OMEGA_MAX = 5.0;
+const K_MAX = 3;
+function omegaMax() { return Math.sqrt(2 * K_MAX * (1 / st.m1 + 1 / st.m2)) * 1.08; }
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
   const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: PLOT_B };
@@ -43,6 +46,7 @@ function render() {
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('ω(k)', 12, pad.t + 10); ctx.fillText('k a / π', W - 60, H - pad.b + 16);
   const xToPx = (k) => pad.l + (k + Math.PI) / (2 * Math.PI) * (W - pad.l - pad.r);
+  const OMEGA_MAX = omegaMax();
   const yToPx = (o) => H - pad.b - Math.min(o, OMEGA_MAX) / OMEGA_MAX * (H - pad.t - pad.b);
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); ctx.beginPath();
   for (let i = -100; i <= 100; i += 1) {
@@ -102,7 +106,7 @@ canvas.addEventListener('click', (e) => {
   const W = canvas.width, H = canvas.height, pad = { l: 60, r: 30, t: 30, b: PLOT_B };
   if (px < pad.l || px > W - pad.r || py < pad.t || py > H - pad.b) return;
   const k = (px - pad.l) / (W - pad.l - pad.r) * 2 * Math.PI - Math.PI;
-  const clickedOmega = (H - pad.b - py) / (H - pad.t - pad.b) * OMEGA_MAX;
+  const clickedOmega = (H - pad.b - py) / (H - pad.t - pad.b) * omegaMax();
   const mono = monatomic(k, st.K, (st.m1 + st.m2) / 2);
   const di = diatomic(k, st.K, st.m1, st.m2);
   const cand = [
