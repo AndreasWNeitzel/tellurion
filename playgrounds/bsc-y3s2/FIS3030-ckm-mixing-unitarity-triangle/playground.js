@@ -55,7 +55,7 @@ function drawMatrix() {
 
 function drawTriangle() {
   // Closed unitarity triangle with vertices C=(0,0), B=(1,0), A=(rho,eta).
-  const x0 = 250, y0 = 300, sc = 360;
+  const x0 = 120, y0 = 660, sc = 560;
   const X = (r) => x0 + r * sc;
   const Y = (e) => y0 - e * sc;
   const A = trianglePoints({ rho: st.rho, eta: st.eta }).A;
