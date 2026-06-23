@@ -26,9 +26,16 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const VIEW_R = 7;
 const CX = W / 2, CY = H / 2;
-const PX_PER_UNIT = Math.min(W, H) / (2 * VIEW_R);
+// View centred on the orbit (offset by a*e from the primary, since the body
+// starts at apoastron on +x), fitted to the orbit and the Roche circle so the
+// scene fills the canvas instead of hugging one side.
+let VIEW_CX = 0, PX_PER_UNIT = Math.min(W, H) / 14;
+function updateView() {
+  VIEW_CX = state.a * state.e;
+  const VIEW_R = Math.max(state.a, state.a * state.e + 2.44) + 0.5;
+  PX_PER_UNIT = Math.min(W, H) / (2 * VIEW_R);
+}
 const STEPS_PER_FRAME = 40;
 const DT = 0.005;
 const TRAIL_MAX = 800;
@@ -43,7 +50,7 @@ const state = {
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
-function toPx(x, y) { return { px: CX + x * PX_PER_UNIT, py: CY - y * PX_PER_UNIT }; }
+function toPx(x, y) { return { px: CX + (x - VIEW_CX) * PX_PER_UNIT, py: CY - y * PX_PER_UNIT }; }
 
 function rebuild() {
   state.cloud = createCloud({ N: 1000, a: state.a, e: state.e, rCloud: 0.30, seed: SEED });
@@ -51,21 +58,23 @@ function rebuild() {
 }
 
 function drawAll() {
+  updateView();
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
+  const O = toPx(0, 0);                          // the primary / world origin in pixels
   // axes
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
   ctx.lineWidth = 0.5;
   ctx.beginPath();
-  ctx.moveTo(0, CY); ctx.lineTo(W, CY);
-  ctx.moveTo(CX, 0); ctx.lineTo(CX, H);
+  ctx.moveTo(0, O.py); ctx.lineTo(W, O.py);
+  ctx.moveTo(O.px, 0); ctx.lineTo(O.px, H);
   ctx.stroke();
 
   // Roche radius marker (2.44 in code units; here primary "radius" is r_P = 1)
   ctx.strokeStyle = 'rgba(255, 80, 80, 0.30)';
   ctx.setLineDash([3, 3]);
   ctx.beginPath();
-  ctx.arc(CX, CY, 2.44 * PX_PER_UNIT, 0, 2 * Math.PI);
+  ctx.arc(O.px, O.py, 2.44 * PX_PER_UNIT, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(255, 80, 80, 0.55)';
@@ -77,7 +86,7 @@ function drawAll() {
   // Primary
   ctx.fillStyle = '#ffd96a';
   ctx.beginPath();
-  ctx.arc(CX, CY, 9, 0, 2 * Math.PI);
+  ctx.arc(O.px, O.py, 9, 0, 2 * Math.PI);
   ctx.fill();
 
   // Trail of CoM
