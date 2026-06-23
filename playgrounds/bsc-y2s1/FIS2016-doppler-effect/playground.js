@@ -31,9 +31,10 @@ const state = {
   speed: 2,
   sim: null,
   playing: !(DETERMINISTIC || prefersReducedMotion()),
-  // Draggable observer in world coords (offset from the source at
-  // theta = 0 by default).
-  obsX: 2.5, obsY: 0,
+  // Draggable observer in world coords. Offset off-axis by default so it does
+  // not sit on top of the fixed theta = 0 observer, and so the angular Doppler
+  // dependence is visible from the start.
+  obsX: 2.2, obsY: 1.7,
 };
 
 // Pointerdown on the canvas places the draggable observer at the
@@ -208,10 +209,12 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.textAlign = 'center';
-  ctx.fillText('θ = 0 (in front)',  obs1.px, obs1.py - 10);
-  ctx.fillText('θ = π (behind)',   obs2.px, obs2.py - 10);
-  ctx.fillText(`f = ${observedFreq(state.v, 0).toFixed(3)}`,        obs1.px, obs1.py + 18);
-  ctx.fillText(`f = ${observedFreq(state.v, Math.PI).toFixed(3)}`, obs2.px, obs2.py + 18);
+  // clamp the centred labels inward so they stay on-canvas at the axis ends.
+  const lx1 = Math.min(obs1.px, canvas.width - 72), lx2 = Math.max(obs2.px, 72);
+  ctx.fillText('θ = 0 (in front)',  lx1, obs1.py - 10);
+  ctx.fillText('θ = π (behind)',   lx2, obs2.py - 10);
+  ctx.fillText(`f = ${observedFreq(state.v, 0).toFixed(3)}`,        lx1, obs1.py + 18);
+  ctx.fillText(`f = ${observedFreq(state.v, Math.PI).toFixed(3)}`, lx2, obs2.py + 18);
 
   // Draggable observer: place it at the user-set offset from the source.
   const dragX = state.sim.sourceX + state.obsX, dragY = state.obsY;
@@ -233,11 +236,12 @@ function drawAll() {
   ctx.beginPath(); ctx.moveTo(sourcePx.px, sourcePx.py); ctx.lineTo(dragPx.px, dragPx.py); ctx.stroke(); ctx.setLineDash([]);
   ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(220, 230, 245, 0.95)';
-  ctx.fillText(`theta = ${(theta * 180 / Math.PI).toFixed(0)} deg`, dragPx.px, dragPx.py - 12);
-  ctx.fillText(`f = ${fDrag.toFixed(3)}`, dragPx.px, dragPx.py + 20);
+  const dlx = Math.max(70, Math.min(canvas.width - 80, dragPx.px));   // keep the drag readout on-canvas
+  ctx.fillText(`theta = ${(theta * 180 / Math.PI).toFixed(0)} deg`, dlx, dragPx.py - 12);
+  ctx.fillText(`f = ${fDrag.toFixed(3)}`, dlx, dragPx.py + 20);
   ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(180, 195, 220, 0.6)';
-  ctx.fillText('drag this observer', dragPx.px + 12, dragPx.py + 3);
+  ctx.fillText('drag this observer', Math.min(dragPx.px + 12, canvas.width - 116), dragPx.py + 3);
 
   // Bottom: bar chart f_obs(theta) vs theta
   const barY = sceneY + sceneH + 14;
