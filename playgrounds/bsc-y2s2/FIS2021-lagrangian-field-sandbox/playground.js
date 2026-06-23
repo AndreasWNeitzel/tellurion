@@ -34,8 +34,10 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const st = { sys: 'pendulum', g: 9.81, amp: 1.4, speed: 1, running: !prefersReducedMotion() };
 let inst, par, E0, L0, t = 0, trail = [], orbitXY = [];
-const SX = 220, SY = H / 2 - 6, PXR = 545;                // mechanism centre, phase x
-const KSC = 118;                                          // Kepler draw scale (r=1 -> px)
+// Stacked layout: the mechanism fills the top half (centred), the phase plane
+// the bottom half, so each gets the full width instead of a cramped column.
+const SX = Math.round(W / 2), SY = Math.round(H * 0.27), PXR = Math.round(W / 2);
+const KSC = 120;                                          // Kepler draw scale (r=1 -> px)
 
 // gravity g -> Kepler mu, normalised so the 9.81 default is mu = 1.
 const keplerMu = () => st.g / 9.81;
@@ -91,17 +93,17 @@ const AXLAB = {
   kepler: ['r  (AU)', 'r-dot  (AU/s)'],
 };
 
-function panelTitle(text, x) {
+function panelTitle(text, x, y = 20) {
   ctx.fillStyle = 'rgba(150,160,180,0.78)';
   ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText(text, x, 20);
+  ctx.fillText(text, x, y);
 }
 
 function drawMechanism() {
   // shifted right of the readout overlay so the two never collide
-  panelTitle('configuration space  q(t)', 318);
+  panelTitle('configuration space  q(t)', SX);
   const y = inst.y;
-  const S = 90;
+  const S = 186;
   const bob = (x, yy, c, r) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, yy, r, 0, 2 * Math.PI); ctx.fill(); };
   if (st.sys === 'kepler') {
     // The Sun sits at the focus; the planet traces its true ellipse.
@@ -123,29 +125,32 @@ function drawMechanism() {
     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + y[2] * vsc, py - y[3] * vsc); ctx.stroke();
     bob(px, py, '#06d6a0', 8);                                          // planet
     ctx.fillStyle = 'rgba(150,160,180,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-    ctx.fillText('Sun at the focus; gravity sets the period (Kepler III)', 318, H - 58);
+    ctx.fillText('Sun at the focus; gravity sets the period (Kepler III)', SX, Math.round(H * 0.47));
     return;
   }
+  // Hanging systems pivot from near the top of the panel so the longer rods
+  // swing through the upper two-thirds instead of dangling from the middle.
+  const pivY = Math.round(H * 0.075);
   ctx.strokeStyle = 'rgba(150,160,180,0.35)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(SX, 34); ctx.lineTo(SX, H - 46); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(SX, pivY - 16); ctx.lineTo(SX, pivY + S * 2.1); ctx.stroke();
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.5;
   if (st.sys === 'pendulum') {
-    const x = SX + S * par.l * Math.sin(y[0]), yb = SY + S * par.l * Math.cos(y[0]);
-    ctx.beginPath(); ctx.moveTo(SX, SY); ctx.lineTo(x, yb); ctx.stroke(); bob(x, yb, '#06d6a0', 11);
+    const x = SX + S * par.l * Math.sin(y[0]), yb = pivY + S * par.l * Math.cos(y[0]);
+    ctx.beginPath(); ctx.moveTo(SX, pivY); ctx.lineTo(x, yb); ctx.stroke(); bob(x, yb, '#06d6a0', 12);
   } else if (st.sys === 'double') {
-    const x1 = SX + S * Math.sin(y[0]), y1 = SY + S * Math.cos(y[0]);
+    const x1 = SX + S * Math.sin(y[0]), y1 = pivY + S * Math.cos(y[0]);
     const x2 = x1 + S * Math.sin(y[1]), y2 = y1 + S * Math.cos(y[1]);
-    ctx.beginPath(); ctx.moveTo(SX, SY); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    bob(x1, y1, '#5bc0eb', 9); bob(x2, y2, '#06d6a0', 9);
+    ctx.beginPath(); ctx.moveTo(SX, pivY); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    bob(x1, y1, '#5bc0eb', 10); bob(x2, y2, '#06d6a0', 10);
   } else {
-    const r = y[0], th = y[1], x = SX + S * r * Math.sin(th), yb = SY + S * r * Math.cos(th);
-    ctx.strokeStyle = '#ffd166'; ctx.beginPath(); ctx.moveTo(SX, SY);
+    const r = y[0], th = y[1], x = SX + S * r * Math.sin(th), yb = pivY + S * r * Math.cos(th);
+    ctx.strokeStyle = '#ffd166'; ctx.beginPath(); ctx.moveTo(SX, pivY);
     for (let i = 0; i <= 24; i += 1) {
-      const f = i / 24, zx = SX + (x - SX) * f + (i % 2 ? 7 : -7) * Math.cos(Math.atan2(yb - SY, x - SX));
-      const zy = SY + (yb - SY) * f + (i % 2 ? 7 : -7) * Math.sin(Math.atan2(yb - SY, x - SX));
+      const f = i / 24, zx = SX + (x - SX) * f + (i % 2 ? 7 : -7) * Math.cos(Math.atan2(yb - pivY, x - SX));
+      const zy = pivY + (yb - pivY) * f + (i % 2 ? 7 : -7) * Math.sin(Math.atan2(yb - pivY, x - SX));
       ctx.lineTo(zx, zy);
     }
-    ctx.lineTo(x, yb); ctx.stroke(); bob(x, yb, '#06d6a0', 11);
+    ctx.lineTo(x, yb); ctx.stroke(); bob(x, yb, '#06d6a0', 12);
   }
 }
 
@@ -188,8 +193,8 @@ function levelSet() {
 }
 
 function drawPhase() {
-  const cx = PXR, cy = H / 2 - 6, R = 150;
-  panelTitle('phase space  (q, q-dot)', cx);
+  const cx = PXR, cy = Math.round(H * 0.72), R = 215;
+  panelTitle('phase space  (q, q-dot)', cx, cy - R - 14);
   ctx.strokeStyle = 'rgba(150,160,180,0.8)'; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R); ctx.stroke();
   // Fixed per-system scale (an autoscaled box would hide how g
