@@ -59,10 +59,10 @@ function rebuild(toStep) {
 }
 rebuild(0);
 
-// geometry
-const PX = 24, PY = 44, PW = 552, PH = 320;       // wavefunction over V(x)
-const TX = 24, TY = 392, TW = 552, TH = 120;      // <x>(t) trace
-const QX = 596, QW = 286;                         // legend area
+// geometry: both panels span the full width and fill the portrait height,
+// the wavefunction cloud on top and the <x>(t) trace below.
+const PX = 24, PY = 60, PW = canvas.width - 48, PH = 596;   // wavefunction over V(x)
+const TX = 24, TY = 688, TW = canvas.width - 48, TH = 300;  // <x>(t) trace
 
 function render() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -108,19 +108,15 @@ function render() {
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText('<x>(t)', TX + TW / 2, TY + TH + 16); ctx.textAlign = 'left';
 
-  // phase colour-wheel legend (anchored below the top-right HUD)
-  const LG = 184;
-  ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('phase arg(ψ)', QX, LG);
-  for (let q = 0; q < 60; q += 1) { ctx.fillStyle = `hsl(${(q / 60 * 360).toFixed(0)},85%,60%)`; ctx.fillRect(QX + q * 2.4, LG + 8, 2.6, 14); }
-  ctx.fillStyle = '#9aa0ad'; ctx.fillText('-π', QX, LG + 38); ctx.fillText('+π', QX + 60 * 2.4 - 16, LG + 38);
-  ctx.fillStyle = '#c8ccd6';
-  ctx.fillText(`potential: ${st.pot}`, QX, LG + 66);
-  ctx.fillText(`steps ${st.nstep}/${HORIZON}`, QX, LG + 88);
-  ctx.fillStyle = '#9aa0ad';
-  ctx.fillText('a barrier splits the', QX, LG + 118);
-  ctx.fillText('packet: reflected', QX, LG + 136);
-  ctx.fillText('+ tunnelled', QX, LG + 154);
+  // status (top-left) and phase colour wheel (top-right), overlaid in the panel
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillStyle = '#c8ccd6'; ctx.textAlign = 'left';
+  ctx.fillText(`potential: ${st.pot}    steps ${st.nstep}/${HORIZON}`, PX + 10, PY + 18);
+  const wheelW = 60 * 2.4, wx = PX + PW - wheelW - 16;
+  ctx.textAlign = 'right';
+  ctx.fillText('phase arg(ψ): -π .. +π', PX + PW - 12, PY + 18);
+  for (let q = 0; q < 60; q += 1) { ctx.fillStyle = `hsl(${(q / 60 * 360).toFixed(0)},85%,60%)`; ctx.fillRect(wx + q * 2.4, PY + 26, 2.6, 12); }
+  ctx.textAlign = 'left';
 
   rEls['potential'].textContent = st.pot;
   rEls['k0'].textContent = st.k0.toFixed(2);
