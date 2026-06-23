@@ -15,8 +15,9 @@ VO: Multiple-beam interference between two mirrors of reflectance R gives the Ai
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the mirror reflectance R: the Airy transmission peaks sharpen into needle-thin lines, the finesse climbing, so the etalon resolves ever finer wavelength differences.
+VO: Bring two spectral lines together: they merge once their peaks overlap, and the resolving power, finesse times order, is the limit on telling them apart.
+VO: Mind the free spectral range: the comb of transmission peaks repeats, so a Fabry-Perot is a ruler that is only unambiguous within a single order.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

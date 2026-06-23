@@ -15,8 +15,9 @@ VO: The shift grows as the emission point approaches the horizon r = 2M, where i
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Lower the emission radius toward the horizon at r = 2M: the photon climbs out of a deeper well, redshifts further, and at the horizon the shift diverges, light frozen at infinity.
+VO: Read z, the redshift: clocks deep in gravity run slow, so a signal sent up arrives stretched, the effect Pound and Rebka measured down a Harvard tower.
+VO: Move the emitter far out and z falls to zero: far from the mass spacetime is flat and there is no shift, the Newtonian limit.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

@@ -15,8 +15,9 @@ VO: For Earth''s orbital motion (v around 30 km/s, beta around 1e-4) the maximum
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Increase beta and the stars crowd forward: an observer in motion sees the whole sky swing toward the direction of travel, the relativistic aberration of starlight.
+VO: At Earth orbital speed the shift is only about 20 arcseconds, the stellar aberration Bradley found in 1727, the first direct proof the Earth moves.
+VO: Push beta toward 1 and the sky compresses into a bright forward spot: a relativistic traveller sees the stars pile up ahead, the relativistic headlight effect.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

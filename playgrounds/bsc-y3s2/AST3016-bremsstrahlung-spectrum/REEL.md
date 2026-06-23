@@ -15,8 +15,9 @@ VO: Summed over a Maxwellian electron distribution, the emitted spectrum is near
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the temperature: the free-free spectrum stays flat at low frequency but its exponential cutoff near h nu = kT slides to higher energy, the thermal signature of a hotter plasma.
+VO: Increase the density: emissivity scales as n squared, since every photon needs an electron deflected by an ion, the dependence that makes dense plasmas blaze in X-rays.
+VO: This free-free emission is how galaxy-cluster gas shines in X-rays and how HII regions glow, a thermometer for any ionized cloud.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

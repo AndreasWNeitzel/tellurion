@@ -15,8 +15,9 @@ VO: In white light some wavelengths cancel and others reinforce, so the reflecte
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Vary the film thickness d: the reflected colour cycles through the spectrum as different wavelengths reach constructive interference, the iridescence of soap bubbles and oil slicks.
+VO: The extra half-wave on reflection off the denser glass flips the condition, so a vanishingly thin film looks dark, not bright, the two reflections cancelling.
+VO: Change the film index: the optical path 2 n d sets which wavelength is enhanced, the principle behind anti-reflection coatings tuned to cancel green light.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

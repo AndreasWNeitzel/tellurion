@@ -15,8 +15,9 @@ VO: Real sources hold a power-law distribution of electron energies, and summing
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Switch to a single electron: it radiates a humped spectrum peaking at the critical frequency, proportional to gamma squared times B, so faster electrons and stronger fields push the peak up.
+VO: Switch to a power-law ensemble: summing electrons with N(gamma) ~ gamma^-p gives a power-law spectrum of slope (p-1)/2, the fingerprint read off radio jets and supernova remnants.
+VO: Crank B or gamma and the whole spectrum shifts up: the same physics that makes pulsar wind nebulae glow all the way from radio to gamma rays.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

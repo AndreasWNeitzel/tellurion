@@ -15,8 +15,9 @@ VO: Orbits are advanced with a symplectic (velocity-Verlet) step so the total en
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the temperature: the disks rattle harder, the pressure climbs, and the radial distribution g(r) washes out as liquid order melts toward a gas.
+VO: Increase the density: neighbours pack in, g(r) grows sharp shells, and the virial pressure swings as the repulsive core of the Lennard-Jones potential takes over.
+VO: Read g(r) below the critical point: a tall first peak and decaying oscillations are the signature of a liquid, structured up close but disordered far away.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

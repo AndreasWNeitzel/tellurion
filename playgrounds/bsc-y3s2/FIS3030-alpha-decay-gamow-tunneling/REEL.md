@@ -15,8 +15,9 @@ VO: An alpha wavefunction oscillates in the nuclear well, decays exponentially a
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Raise the decay energy Q: the alpha tunnels through a thinner, lower barrier and the half-life plummets, the steep Geiger-Nuttall law spanning twenty-odd orders of magnitude in lifetime.
+VO: Increase the daughter charge Z: the Coulomb barrier rises and widens, suppressing the tunnelling exponentially, which is why high-Z nuclei decay so slowly.
+VO: Watch the wavefunction leak across the shaded forbidden region: the alpha rattles the barrier billions of times a second, and only the tiny transmitted amplitude sets the rate.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

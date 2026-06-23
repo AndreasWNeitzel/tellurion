@@ -15,8 +15,9 @@ VO: Head-on the observed frequency is f obs/f s = sqrt((1+beta)/(1-beta)), the m
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Aim the motion head-on (theta = 0) and push beta toward 1: the light blueshifts without bound. Swing to theta = 180 and it redshifts toward zero, classical Doppler amplified by time dilation.
+VO: Set theta = 90, exactly sideways: classically there is no shift, yet relativity still redshifts the light by a factor gamma, the transverse Doppler effect that is pure time dilation.
+VO: Watch gamma climb as beta grows: every observed frequency carries that Lorentz factor, the correction GPS clocks and particle beams must account for.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

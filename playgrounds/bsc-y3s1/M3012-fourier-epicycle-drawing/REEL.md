@@ -15,8 +15,9 @@ VO: With M epicycles the reconstruction error decreases monotonically; full N/2 
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Drag a control and watch the whole picture change, not just a number on the side.
-VO: Push it to an extreme and see where the physics breaks down.
+VO: Add epicycles one at a time: each is a rotating vector at one Fourier frequency, and chaining them traces the drawing ever more faithfully, a literal picture of a Fourier series.
+VO: The biggest circles carry the coarse shape and the small fast ones add fine detail, exactly how truncating a Fourier series keeps the low frequencies first.
+VO: Watch the reconstruction error fall as the number of epicycles grows: any closed curve is a sum of circles upon circles, the geometric soul of the discrete Fourier transform.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
