@@ -103,7 +103,7 @@ function render() {
   ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Sum the light in a circle, subtract the sky: pick the radius well', 18, 24);
 
-  const IMG = 318, x0 = 20, y0 = 40;
+  const IMG = 470, x0 = 20, y0 = 40;
   const p2i = IMG / N;
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(off, 0, 0, N, N, x0, y0, IMG, IMG);
@@ -144,7 +144,7 @@ function render() {
 
   // demoted diagnostic: smooth growth curve F(r) and SNR(r) from the
   // noiseless model, the stable SNR-optimal aperture, and your r
-  const dx0 = x0, dx1 = W - 20, dy0 = H - 118, dy1 = H - 14;
+  const dx0 = x0, dx1 = W - 20, dy0 = 556, dy1 = H - 16;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
