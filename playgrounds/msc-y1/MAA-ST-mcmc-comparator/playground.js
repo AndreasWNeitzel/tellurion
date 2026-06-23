@@ -127,8 +127,14 @@ function drawContours() {
   for (let j = 0; j < GRID; j += 1) {
     for (let i = 0; i < GRID; i += 1) {
       const t = (lp[j * GRID + i] - lpMin) / Math.max(1e-12, lpMax - lpMin);
-      const alpha = 0.10 + 0.55 * t;
-      ctx.fillStyle = `rgba(26, 27, 28, ${alpha.toFixed(3)})`;
+      // Brighten toward the high-density ridge so the target is actually
+      // visible. The old (26,27,28) fill was the background colour, so the
+      // banana the chains explore was invisible on the dark canvas. A neutral
+      // blue-grey ramp (squared to sharpen the ridge) reads as the target
+      // without clashing with the blue/orange/green chain trails.
+      const sh = 44 + 150 * t * t;
+      const alpha = 0.16 + 0.5 * t;
+      ctx.fillStyle = `rgba(${(sh * 0.60) | 0}, ${(sh * 0.78) | 0}, ${sh | 0}, ${alpha.toFixed(3)})`;
       const p0 = pxPlot(xs[i] - 0.5 * (PLOT.xmax - PLOT.xmin) / GRID,
                         ys[j] + 0.5 * (PLOT.ymax - PLOT.ymin) / GRID);
       ctx.fillRect(p0.px, p0.py, cellW + 1, cellH + 1);
