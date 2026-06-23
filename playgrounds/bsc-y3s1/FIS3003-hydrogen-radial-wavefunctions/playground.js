@@ -78,7 +78,7 @@ function drawScene(col, r) {
   ctx.strokeStyle = col.meanR; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(xOf(rmean), plot.y); ctx.lineTo(xOf(rmean), plot.y + plot.h); ctx.stroke(); ctx.setLineDash([]);
   ctx.restore();
   // plot labels.
-  ctx.fillStyle = col.prob; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(`P(r),  ${radialNodes(st.n, st.l)} nodes`, plot.x + 6, plot.y + 4);
+  ctx.fillStyle = col.prob; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(`P(r),  ${radialNodes(st.n, st.l)} node${radialNodes(st.n, st.l) === 1 ? '' : 's'}`, plot.x + 6, plot.y + 4);
   ctx.fillStyle = col.mostP; ctx.fillText(`most probable r = ${rp.toFixed(1)} a0`, plot.x + 6, plot.y + 18);
   ctx.fillStyle = col.meanR; ctx.fillText(`mean r = ${rmean.toFixed(1)} a0`, plot.x + 6, plot.y + 32);
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('r (Bohr radii)', plot.x + plot.w / 2, plot.y + plot.h + 5);
