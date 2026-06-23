@@ -1,22 +1,22 @@
 # Reel script: de Broglie Wavelength
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Fire particles one at a time at a double slit; the interference pattern that builds up has fringes set by lambda = h/p.
 Caption: Fire particles one at a time at a double…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the de Broglie wavelength λ=h/p\lambda = h/pλ=h/p plotted on a log-log axis against kinetic energy for five particle species: massless photon, electron, proton, neutron, and a 12^{12}12C atom.
+VO: de Broglie duality made physical: a matter-wave double-slit experiment.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The relativistic momentum pc=(T+mc2)2−(mc2)2pc = \sqrt{(T + mc^2)^2 - (mc^2)^2}pc=(T+mc2)2−(mc2)2​ is used so the curves are valid in both the non-relativistic (T≪mc2T \ll mc^2T≪mc2) and relativistic regimes.
+VO: Particles of the chosen species and kinetic energy are fired one at a time at a double slit and land stochastically with probability given by the two-slit intensity for lambda = h/p, so the interference pattern builds up dot by dot. A long-wavelength electron shows the textbook multi-fringe pattern; a proton, neutron, or carbon atom at the same energy has a far shorter lambda and the fringes collapse into a classical scatter.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-eisberg-resnick
+Griffiths, Introduction to Quantum Mechanics, Chapter 1; Tonomura et al. 1989 (single-electron interference buildup).

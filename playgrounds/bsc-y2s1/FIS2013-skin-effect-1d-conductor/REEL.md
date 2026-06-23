@@ -1,22 +1,22 @@
 # Reel script: Skin Effect in a Conductor
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: An alternating current does not fill a wire; it crowds into a thin surface skin whose depth shrinks as the frequency rises.
 Caption: An alternating current does not fill a wi…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the electric field E(z,t)=E0e−z/δcos⁡(ωt−z/δ)E(z, t) = E_0 e^{-z/\delta} \cos(\omega t - z/\delta)E(z,t)=E0​e−z/δcos(ωt−z/δ) inside a conductor.
+VO: Inside a conductor an oscillating field cannot penetrate freely: it decays exponentially with depth on the scale of the skin depth delta = sqrt(2 / (omega mu sigma)).
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The skin depth δ=2/(ωμσ)\delta = \sqrt{2/(\omega \mu \sigma)}δ=2/(ωμσ)​ shrinks with frequency. Cu at 60 Hz: 8.
+VO: Higher frequency or higher conductivity gives a thinner skin, so high-frequency current effectively flows only in a shell near the surface and the resistance rises. The playground plots the field amplitude against depth as you change frequency and conductivity, marking delta where it has fallen to 1/e.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-griffiths-em
+Griffiths, Introduction to Electrodynamics, Ch. 9.

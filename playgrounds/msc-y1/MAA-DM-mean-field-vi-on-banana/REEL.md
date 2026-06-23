@@ -1,22 +1,22 @@
 # Reel script: Mean-Field VI on a Banana
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Variational inference turns Bayesian inference into optimization; watch a mean-field Gaussian squeeze itself into a curved banana posterior and see exactly what that approximation gets wrong.
 Caption: Variational inference turns Bayesian infe…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the simplest variational inference setup, fit to the simplest distribution that breaks it.
+VO: The true posterior is a long curved Rosenbrock valley, p(x,y) proportional to exp[-(x 2 + 10(y - x 2) 2)/2].
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Target: a Rosenbrock-style "banana" log⁡p(x,y)=−((1−x)2+100(y−x2)2)/20\log p(x, y) = -((1 - x)^2 + 100 (y - x^2)^2)/20logp(x,y)=−((1−x)2+100(y−x2)2)/20, a long curved valley. Variational family: a product q(x,y)=N(μx,σx2) N(μy,σy2)q(x, y) = N(\mu_x, \sigma_x^2)\,N(\mu_y, \sigma_y^2)q(x,y)=N(μx​,σx2​)N(μy​,σy2​), axis-aligned Gaussian (mean-field).
+VO: Variational inference replaces sampling with optimization: it fits the closest member of a simple family, here the mean-field Gaussian q(x,y) = N(x | mu x, sigma x 2) N(y | mu y, sigma y 2), which by construction cannot represent any x-y correlation. Maximizing the evidence lower bound (equivalently minimizing the reverse KL divergence from q to p) is mode-seeking: q collapses onto one region and underestimates the variance rather than averaging over the whole curved ridge, the canonical failure mode the visible mismatch makes obvious.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-bishop2006
+Bishop, Pattern Recognition and Machine Learning, Chapter 10; Blei, Kucukelbir and McAuliffe 2017.

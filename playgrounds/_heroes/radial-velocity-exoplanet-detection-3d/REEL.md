@@ -1,22 +1,22 @@
 # Reel script: Radial-Velocity Exoplanet Detection
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A planet does not orbit a star; a star and planet orbit their common center of mass.
 Caption: A planet does not orbit a star; a star an…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a star and a planet orbiting their common center of mass.
+VO: In a star+planet two-body system, both orbit the centre of mass.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The star traces a small ellipse mirroring the planet's; the line-of-sight component of its velocity produces the radial velocity curve on the right. A horizontally-shifting spectral line below the curve illustrates the Doppler shift.
+VO: The star traces a small ellipse with semi-major axis a star = a planet * m p / M star, and the observer-line projection of its orbital velocity makes a periodic radial velocity (RV) curve with semi-amplitude K. The Doppler shift delta lambda / lambda = v r / c is the observable: a 1 m/s wobble from an Earth-mass planet at 1 AU is barely at the spectroscopic detection threshold today.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-murraydermott1999
+Murray and Dermott, Solar System Dynamics, Ch. 2; Lovis and Fischer in Seager (ed.) Exoplanets 2010.

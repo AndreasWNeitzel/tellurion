@@ -1,13 +1,13 @@
 # Reel script: Close Binary: Roche Lobes and Conservative Mass Transfer
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: The corotating Roche potential of a close binary: the figure-eight critical surface through L1, the Eggleton lobe radius, and conservative mass transfer that holds the total mass and angular momentum fixed while the orbit shrinks (runaway, common envelope) or widens (stable).
 Caption: The corotating Roche potential of a close…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: A close-binary Roche-geometry and mass-transfer playground.
+VO: A close-binary Roche-geometry and mass-transfer playground (Eggleton 1983; Frank, King and Raine, Accretion Power in Astrophysics; Hilditch).
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
@@ -15,8 +15,8 @@ VO: The corotating Roche potential gives the five Lagrange points and the figure
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-frank-king-raine
+Frank, King and Raine, Accretion Power in Astrophysics, Chapter 4; Eggleton 1983.

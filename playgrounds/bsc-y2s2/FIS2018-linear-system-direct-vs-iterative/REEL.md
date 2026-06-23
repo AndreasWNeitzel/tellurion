@@ -1,26 +1,26 @@
 # Reel script: Linear System: Direct vs Iterative
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Solve the same linear system two ways: a direct solver gets the exact answer in one pass, iterative methods sneak up on it, fast or slow by method.
 Caption: Solve the same linear system two ways: a…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the discrete 1D Poisson problem −u′′=sin⁡(πx)-u'' = \sin(\pi x)−u′′=sin(πx) on NNN grid points.
+VO: The 1D Poisson problem becomes a tridiagonal linear system.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The same right-hand side is fed to a Thomas direct solver (exact, O(N)O(N)O(N)), Jacobi, Gauss-Seidel, and conjugate gradient. The lower panel tracks the residual norm vs iteration count; CG converges in at most NNN steps in exact arithmetic.
+VO: The playground solves it with a direct Thomas algorithm (exact, O(n), a single sweep) and with three iterative methods: Jacobi and Gauss-Seidel relax slowly toward the solution, while conjugate gradient converges dramatically faster on this symmetric positive-definite system. It plots the residual against iteration count, so direct appears as one jump to machine precision and the iterative convergence rates visibly separate.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: The lower panel tracks the residual norm vs iteration count; CG converges in at most NNN steps in exact arithmetic.
+VO: This is the everyday trade-off between a one-shot factorization and a scalable iterative solve.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-villate-vpython
+Villate, Numerical Methods (VPython), Ch. 6.

@@ -1,22 +1,22 @@
 # Reel script: 2D Site Percolation
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Fill a grid one random site at a time; nothing connects across it until a sharp threshold, then a single cluster suddenly spans the whole thing.
 Caption: Fill a grid one random site at a time; no…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a square lattice where each site is independently "occupied" with probability ppp.
+VO: Each site of the lattice is occupied independently with probability p.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: As ppp rises past a critical value, a single giant connected cluster appears that spans the lattice from top to bottom (the percolating cluster). Below the critical ppp, only small isolated islands.
+VO: Below the critical p c (about 0. 5927 for the square lattice) only small isolated clusters exist; right at p c a giant cluster first spans the system and the size of the largest cluster jumps sharply.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-newmanbarkema1999
+Stauffer and Aharony, Introduction to Percolation Theory; Newman and Ziff 2000.

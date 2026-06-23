@@ -1,22 +1,22 @@
 # Reel script: Wormhole SHOWCASE
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A wormhole is a topological shortcut between two universes.
 Caption: A wormhole is a topological shortcut betw…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the Morris-Thorne / Ellis traversable wormhole rendered through four modes (Overview, Traversal, Embedding, Exotic).
+VO: A laboratory for the Morris-Thorne / Ellis traversable wormhole, the simplest closed-form geometry connecting two asymptotically flat universes through a throat of radius b 0.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The same throat radius b_0 is shared across modes.
+VO: Four interchangeable modes: Overview (a WebGL2 ray-marched view of the throat with starfields on both sides bleeding through), Traversal (an animated POV camera flying along the proper-distance coordinate l from one universe to the other, with the visual aperture pinching at the throat and expanding into the second sky), Embedding (the iconic two-funnel paraboloid r(l) = sqrt(b 0 2 + l 2), z(l) = b 0 asinh(l/b 0) drawn as a 3D mesh; the throat is the narrowest waist), and Exotic (the energy-density and ANEC integrals of the matter that would be required to hold the throat open, plus the tidal scale a traveller experiences at radius l). References: Morris and Thorne, Am.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

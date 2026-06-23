@@ -1,26 +1,26 @@
 # Reel script: Sedov-Taylor Blast Wave
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
-VO: Dump a fixed energy at a point in uniform gas and the blast wave forgets everything except that energy: its radius grows as (E t^2 / rho)^(1/5).
+VO: Dump a fixed energy at a point in uniform gas and the blast wave forgets everything except that energy: its radius grows as (E t 2 / rho)^(1/5).
 Caption: Dump a fixed energy at a point in uniform…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a strong point explosion releases energy EEE into a uniform medium of density ρ1\rho_1ρ1​.
+VO: The Sedov-Taylor solution describes a strong blast wave from a point energy release E into uniform gas of density rho, the model for a supernova remnant in its energy-conserving phase.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The blast wave expands self-similarly: R(t)=ξ0(Et2/ρ1)1/5R(t) = \xi_0 (E t^2 / \rho_1)^{1/5}R(t)=ξ0​(Et2/ρ1​)1/5. Post-shock density is exactly 4ρ14\rho_14ρ1​ for γ=5/3\gamma = 5/3γ=5/3.
+VO: Once the swept-up mass dominates the ejecta, the only scales left are E, rho and time, so dimensional analysis forces a self-similar expansion with shock radius proportional to (E t 2 / rho)^(1/5) and an interior profile frozen in shape. Taylor famously used this to back out the yield of the first atomic test from declassified fireball photographs.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: Post-shock density is exactly 4ρ14\rho_14ρ1​ for γ=5/3\gamma = 5/3γ=5/3.
+VO: The playground sweeps time and shows the expanding shock and the self-similar profile.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-shu-vol2
+Shu, The Physics of Astrophysics Vol. II, Ch. 17.

@@ -1,6 +1,6 @@
 # Reel script: Fluid Painter: Lattice Boltzmann Sandbox
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Draw an obstacle by click-drag and watch the flow respond in real time: it accelerates around the body and leaves a low-speed wake behind it, the speed shown as a colour field.
@@ -11,16 +11,16 @@ VO: A D2Q9 BGK lattice-Boltzmann channel flow on a 192x96 grid: steady inflow on
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The relaxation time $\tau$ sets the kinematic viscosity $\nu = (\tau - 1/2)/3$ and hence the obstacle Reynolds number $\mathrm{Re} = UD / \nu$, so lowering $\tau$ drives the wake from a steady recirculation toward unsteady vortex shedding.
+VO: The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and hence the obstacle Reynolds number Re = U D / nu, so lowering tau drives the wake from a steady recirculation toward unsteady vortex shedding.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: The relaxation time $\tau$ sets the kinematic viscosity $\nu = (\tau - 1/2)/3$ and hence the obstacle Reynolds number $\mathrm{Re} = UD / \nu$, so lowering $\tau$ drives the wake from a steady recirculation toward unsteady vortex shedding.
+VO: The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and hence the obstacle Reynolds number Re = U D / nu, so lowering tau drives the wake from a steady recirculation toward unsteady vortex shedding.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-kulsrud-plasma-astro
+Kruger et al., The Lattice Boltzmann Method (Springer 2017), Chapters 3 to 5.

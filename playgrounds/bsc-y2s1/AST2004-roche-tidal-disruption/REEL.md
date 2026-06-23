@@ -1,26 +1,26 @@
 # Reel script: Tidal Disruption Near a Massive Primary
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Send a self-gravitating cloud too close to a heavy mass and tides win: it shears into a long stream the moment it crosses the Roche limit.
 Caption: Send a self-gravitating cloud too close t…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a cloud of 80 self-gravitating particles ("a fluid satellite") on an eccentric orbit around a heavy primary.
+VO: A satellite held together by its own gravity survives only while that self-gravity beats the tidal stretch from a nearby massive body.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: As the cloud sweeps inward, the primary's tidal field pulls on the near side harder than the far side. If the satellite's own gravity is weak enough (the "cohesion" slider), tides win and the cloud stretches into a long stream.
+VO: The Roche limit marks the crossover, near 2. 44 primary radii for an equal-density fluid.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: If cohesion is strong, the cloud stays packed.
+VO: Outside the Roche radius the cloud stays a blob; dip inside it on the close approach and the differential pull tears it into a tidal stream, the same process that grinds out ring systems and disrupts comets that stray too close.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-carroll-ostlie
+Roche 1849; Carroll and Ostlie, An Introduction to Modern Astrophysics, Ch. 19.

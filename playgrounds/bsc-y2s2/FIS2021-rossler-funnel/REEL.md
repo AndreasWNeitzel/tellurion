@@ -1,22 +1,22 @@
 # Reel script: Rossler Funnel Attractor
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Three equations with a single quadratic term spiral out flat then fold once into the third dimension; raise one knob and the spiral period-doubles into a strange attractor.
 Caption: Three equations with a single quadratic t…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a cousin of the Lorenz attractor, written down by Otto Rossler in 1976 as the simplest 3D system that still produces chaos (only one nonlinear term, z⋅xz \cdot xz⋅x).
+VO: Rossler''s 1976 system is the minimal continuous-time chaos: dx/dt = -y - z, dy/dt = x + a y, dz/dt = b + z(x - c), with only one nonlinear term.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The trajectory winds outward on a flat spiral, then a single fold throws it back to the centre. Push the control parameter ccc past about 5.
+VO: Trajectories spiral outward in a near-plane, then the z-equation lifts and reinjects them, giving a single-fold attractor cleaner than Lorenz. As c rises the system runs a period-doubling cascade into a strange attractor, and past c around 5.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-strogatz2015
+Rossler 1976; Strogatz, Nonlinear Dynamics and Chaos, Ch. 12.

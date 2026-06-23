@@ -1,22 +1,22 @@
 # Reel script: The Meissner Effect
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Cool the sphere below Tc and the field lines snap out around it; warm it past the critical parabola and the flux floods straight back in.
 Caption: Cool the sphere below Tc and the field li…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: Cool a superconductor below TcT_cTc​ in a magnetic field and it does not merely become a perfect conductor: it actively expels the field.
+VO: The Meissner effect: a superconducting sphere is a perfect diamagnet that expels the magnetic field.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: A superconducting sphere is a perfect diamagnet, screening currents flowing so that B=0B=0B=0 inside and the normal field vanishes at the surface, which forces the field lines to bend around it and crowd to 32B0\tfrac32 B_023​B0​ at the equator. The state survives only while B0<Bc(T)=Bc0(1−(T/Tc)2)B_0\lt B_c(T)=B_{c0}(1-(T/T_c)^2)B0​<Bc​(T)=Bc0​(1−(T/Tc​)2); raise the temperature or the field past that parabola and the flux floods back in.
+VO: The closed-form perfect-diamagnet solution gives B = 0 inside, B r = 0 at the surface and a tangential field enhanced to (3/2) B0 at the equator, so the streamlines bend around the sphere; outside it is the applied field plus a screening dipole that dies as 1/r 3. Superconductivity holds only while B0 < Bc(T) = Bc0 (1 - (T/Tc) 2); cross that parabola and the field penetrates.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-tinkham-superconductivity
+Tinkham, Introduction to Superconductivity, Chapters 1 to 5; Ashcroft and Mermin, Solid State Physics, Chapter 34.

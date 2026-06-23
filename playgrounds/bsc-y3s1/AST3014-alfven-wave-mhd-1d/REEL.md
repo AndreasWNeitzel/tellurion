@@ -1,26 +1,26 @@
 # Reel script: 1D Alfvén Wave in MHD
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Pluck a magnetic field line like a guitar string: a transverse ripple runs along it at the Alfven speed, restored by magnetic tension.
 Caption: Pluck a magnetic field line like a guitar…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a driver at the coronal base shakes a bundle of magnetic field lines; the transverse kink runs outward along B0x^B_0\hat xB0​x^ at the Alfvén speed vA=B0/μ0ρv_A = B_0 / \sqrt{\mu_0 \rho}vA​=B0​/μ0​ρ​, with magnetic tension as the restoring force.
+VO: In a magnetized plasma the field lines behave like elastic strings under tension.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Plasma parcels are frozen into the lines (ideal MHD) and ride them transversely with vyv_yvy​, illustrating the Walén relation vy=∓by/μ0ρv_y = \mp b_y / \sqrt{\mu_0 \rho}vy​=∓by​/μ0​ρ​ (cyan vyv_yvy​ and orange byb_yby​ arrows are antiphase). This is how Alfvén waves carry energy up coronal field lines into the solar wind.
+VO: A transverse perturbation of the field, with the frozen-in fluid moving with it, propagates along the background field as an Alfven wave at speed v A = B 0 / sqrt(mu 0 rho), with magnetic tension providing the restoring force exactly as string tension does for a wave on a string. The playground animates the 1D transverse perturbation and reports v A as you change the field strength and density, so the B over sqrt(rho) scaling is explicit.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: Raising B0B_0B0​ or lowering the density speeds the wave up.
+VO: Alfven waves carry energy through the solar corona and the solar wind.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-goedbloed-plasma
+Goedbloed and Poedts, Principles of Magnetohydrodynamics, Ch. 5.

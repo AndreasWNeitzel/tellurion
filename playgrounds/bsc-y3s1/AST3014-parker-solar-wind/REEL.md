@@ -1,22 +1,22 @@
 # Reel script: Parker Solar Wind
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Plasma streams off the Sun and accelerates through the sonic surface; the wind is the Parker transonic solution itself.
 Caption: Plasma streams off the Sun and accelerate…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the isothermal solar-wind solution: u(r)u(r)u(r) passes through the sonic point at the critical radius rc=GM/(2cs2)r_c = GM/(2 c_s^2)rc​=GM/(2cs2​).
+VO: The Parker (1958) isothermal wind shown as the wind itself: parcels leave the Sun and stream radially with dr/dt = u(r) taken from the exact transonic solution, accelerating from subsonic near the surface, through the sonic surface r c = GM/(2 c s 2), to a supersonic asymptote.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Hotter coronae have smaller rcr_crc​ and faster asymptotic winds.
+VO: Parcels are coloured by Mach number, so the cool dense subsonic core, the sonic crossing, and the bright supersonic wind are all visible at once. A temperature slider sets c s (hotter corona means a faster wind and a closer sonic surface); a compact u(r) strip keeps the quantitative curve with the sonic lines and the 1 AU speed read out live.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

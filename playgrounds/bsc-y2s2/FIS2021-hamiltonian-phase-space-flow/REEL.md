@@ -1,22 +1,22 @@
 # Reel script: Hamiltonian Phase-Space Flow
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Click anywhere and drop a tracer; it glides along a curve of constant energy, and the whole plane fills with the nested orbits of the flow.
 Caption: Click anywhere and drop a tracer; it glid…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the orbits of Hamilton's equations in the (q,p)(q, p)(q,p) plane.
+VO: A Hamiltonian system moves so that energy is conserved, so every trajectory is confined to a constant-H contour in phase space.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Click anywhere to release a tracer at (q0,p0)(q_0, p_0)(q0​,p0​); the integrator steps in time and traces an orbit at constant energy H(q,p)H(q, p)H(q,p). For the pendulum, you can see librations (closed loops) below the separatrix E=1E = 1E=1 and rotations (open curves) above.
+VO: The playground lets you click to seed tracers anywhere; each is integrated with a symplectic step and rides its own energy contour, exposing the global structure of the flow (fixed points, separatrices, libration versus rotation). Because the integrator is symplectic the orbits stay closed and the energy does not drift.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-lemos-mech
+Lemos, Analytical Mechanics, Ch. 6.

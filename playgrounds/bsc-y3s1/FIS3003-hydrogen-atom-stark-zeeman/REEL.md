@@ -1,6 +1,6 @@
 # Reel script: Hydrogen in Electric and Magnetic Fields
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A magnetic field fans every level into a Lorentz triplet, an electric field shears the excited shells, and the ground state alone refuses to budge: no first-order Stark.
@@ -11,12 +11,12 @@ VO: Hydrogen levels n = 1..4 split under external fields.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The primary scene is the physical term diagram, each Rydberg level fanning into sublevels as the magnetic (Zeeman, dE = mu_B B m_l) and electric (linear Stark for n >= 2) fields ramp, with the chosen transition drawn; beside it the synthetic spectrum shows the line splitting a spectrometer records (a normal-Zeeman triplet, a Stark multiplet), zoomed onto the multiplet. The ground state shows the textbook result: no first-order Stark shift (it has no permanent dipole), only a tiny negative quadratic one, while excited levels with degenerate l mix and split linearly in the field.
+VO: The primary scene is the physical term diagram, each Rydberg level fanning into sublevels as the magnetic (Zeeman, dE = mu B B m l) and electric (linear Stark for n >= 2) fields ramp, with the chosen transition drawn; beside it the synthetic spectrum shows the line splitting a spectrometer records (a normal-Zeeman triplet, a Stark multiplet), zoomed onto the multiplet. The ground state shows the textbook result: no first-order Stark shift (it has no permanent dipole), only a tiny negative quadratic one, while excited levels with degenerate l mix and split linearly in the field.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-griffithsqm2018
+Griffiths, Introduction to Quantum Mechanics, Chapter 6; Bransden and Joachain, Physics of Atoms and Molecules.

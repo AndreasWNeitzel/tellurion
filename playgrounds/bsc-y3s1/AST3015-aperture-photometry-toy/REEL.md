@@ -1,22 +1,22 @@
 # Reel script: Aperture Photometry
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: To measure a star''s brightness you add up the light in a circle and subtract the sky from a ring around it; get the radii wrong and the number is wrong.
 Caption: To measure a star''s brightness you add u…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a synthetic star (Moffat PSF) sits on a sky background with Poisson + read noise.
+VO: Aperture photometry is how you turn a star image into a number.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Move the aperture and annulus radii to see how the recovered flux compares to the true flux. Too-small aperture undercounts the star; too-large aperture is contaminated by sky noise.
+VO: The playground drops a synthetic Moffat point-spread function onto a noisy CCD frame, then sums the counts inside a circular aperture and estimates the background from a surrounding sky annulus to recover the true flux. You move the aperture and annulus radii and watch the measured flux converge to or miss the truth: a wider aperture catches more of the PSF wings but also more sky noise, the size trade-off every observer faces.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-howell-ccd
+Howell, Handbook of CCD Astronomy.

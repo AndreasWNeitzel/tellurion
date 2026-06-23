@@ -1,22 +1,22 @@
 # Reel script: Cosmology SHOWCASE
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: The universe expands, decelerates, accelerates, or recollapses depending on what is in it; quantum fluctuations during inflation are stretched into the seeds of every galaxy; the cosmic microwave background is the leftover heat of the hot, opaque early universe.
 Caption: The universe expands, decelerates, accele…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the universe at large, rendered through four modes (Expansion, Fate, CMB, Inflation).
+VO: A laboratory for the universe at large.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The same cosmological parameters Omega_m and Omega_Lambda are shared across modes, so you build one mental model from the lattice's expansion to its inflationary origins.
+VO: Four interchangeable modes: Expansion (a 3D comoving lattice of galaxies whose proper sizes scale with a(t) integrated from the Friedmann equation; pick LCDM, matter-only, closed Big Crunch, or empty coasting), Fate (the same Friedmann a(t) curve with all four fates overlaid and the current cosmic time tracked), CMB (an animated 2D sphere of last-scattering temperature anisotropies, Delta T / T ~ 10^-5 above the 2. 725 K background), and Inflation (a single-field slow-roll inflaton rolling down V(phi), with the resulting (n s, r) point plotted on the Planck 2018 box).
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

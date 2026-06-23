@@ -1,22 +1,22 @@
 # Reel script: Bondi Spherical Accretion
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A star sitting in gas pulls it inward; the flow goes transonic at one special radius and the accretion rate is fixed by the gas density and sound speed alone.
 Caption: A star sitting in gas pulls it inward; th…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a steady spherically symmetric accretion flow onto a point mass.
+VO: Bondi accretion is the steady, spherically symmetric inflow of gas onto a point mass.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Gas falls inward, passing through a sonic point at r=rB/2r = r_B/2r=rB​/2 (isothermal). The Bondi rate $\dot M_B = \pi e^{3/2} G^2 M^2 \rho_\infty / c_s^3$ sets the asymptotic accretion.
+VO: Far out the gas is nearly at rest; gravity pulls it in, it speeds up, and at the sonic radius (about half the Bondi radius r B = GM/c s 2) the flow crosses from subsonic to supersonic. The steady mass accretion rate is then set entirely by the ambient density and sound speed, Mdot proportional to rho inf (GM) 2 / c s 3, with no free parameters once the gas state is fixed.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-frank-king-raine
+Frank, King and Raine, Accretion Power in Astrophysics, Ch. 2.

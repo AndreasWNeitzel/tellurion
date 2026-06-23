@@ -1,22 +1,22 @@
 # Reel script: Billiards - Circle, Stadium, Sinai
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A ball bouncing in a circle traces neat rosettes forever; round the ends into a stadium and the same ball fills the table chaotically.
 Caption: A ball bouncing in a circle traces neat r…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a free particle bouncing elastically off the walls of a 2D shape.
+VO: A billiard is a free particle reflecting specularly off the walls of a region; whether its motion is orderly or chaotic depends only on the shape.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Three shapes, three very different long-term behaviors. The circle is integrable: the angle of incidence at every wall hit is fixed, so the trajectory traces out a regular caustic and never explores the whole space.
+VO: The circle is integrable, so trajectories stay on tidy caustic patterns; the Bunimovich stadium (two semicircles joined by straight walls) and the Sinai billiard (a box with a central disk) are provably chaotic, with nearby trajectories diverging exponentially. The playground lets you switch geometry and watch one trajectory plus its sensitivity to a tiny change in launch angle.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-berry1981
+Tabachnikov, Geometry and Billiards.

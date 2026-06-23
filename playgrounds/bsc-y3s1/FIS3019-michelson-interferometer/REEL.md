@@ -1,22 +1,22 @@
 # Reel script: Michelson Interferometer
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Slide one mirror of a Michelson interferometer and the fringes march by; how far they stay sharp measures the light''s coherence length.
 Caption: Slide one mirror of a Michelson interfero…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the detector intensity of a Michelson interferometer as one mirror moves, producing path difference L=2dL = 2dL=2d.
+VO: A Michelson interferometer splits a beam, sends the halves down two arms, and recombines them; moving one mirror by d changes the path difference by L = 2d and sweeps the detector through bright and dark fringes spaced by the wavelength.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The intensity oscillates as I(L)=12(1+V(L)cos⁡(2πL/λ))I(L) = \tfrac12 (1 + V(L) \cos(2 \pi L / \lambda))I(L)=21​(1+V(L)cos(2πL/λ)), where the visibility V(L)=e−(L/Lc)2V(L) = e^{-(L/L_c)^2}V(L)=e−(L/Lc​)2 falls off over a coherence length LcL_cLc​. Fringes are sharp near L=0L = 0L=0 and wash out as L≫LcL \gg L_cL≫Lc​.
+VO: The fringe contrast does not last forever: its visibility falls as the path difference approaches the
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-hecht2017
+coherence length L c, here as exp(-(L/L c) 2), which is equivalent to measuring the spectral bandwidth Delta nu ~ 0.44 c / L c. A laser stays coherent over kilometres, sunlight over under a micron. The playground sweeps L and shows I(L) with the visibility envelope. Reference: Hecht, Optics, Ch. 9.

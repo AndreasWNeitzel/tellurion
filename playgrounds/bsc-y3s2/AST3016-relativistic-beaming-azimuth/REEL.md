@@ -1,22 +1,22 @@
 # Reel script: Relativistic Beaming Pattern
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A relativistic source emits isotropically in its rest frame; in the lab frame the light collimates into a 1/gamma headlight cone.
 Caption: A relativistic source emits isotropically…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a light source that emits equally in all directions in its own rest frame.
+VO: Pseudo-3D scene of relativistic beaming: the D^(3+alpha) emission pattern revolved into a shaded solid of revolution, with a photon stream sampled isotropically in the rest frame and aberrated to the lab frame so the forward collimation is shown directly.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: When the source is moving toward you at high speed, special relativity concentrates the emission into a narrow cone pointing forward (along the direction of motion). This is "relativistic beaming".
+VO: Sweeping gamma tightens the lobe from a broad teardrop to a pencil beam (theta beam -> 1/gamma); alpha and the readout (D(0), D(pi), I(0)/I(pi)) stay locked to the closed-form Doppler physics.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

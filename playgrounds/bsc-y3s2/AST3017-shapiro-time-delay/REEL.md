@@ -1,22 +1,22 @@
 # Reel script: Shapiro Time Delay
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Radar a planet across the Sun and the echo comes back late; the curved spacetime near the Sun literally lengthens the path light takes.
 Caption: Radar a planet across the Sun and the ech…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a light signal traveling from an emitter to a receiver passes near a massive body (the Sun at the origin).
+VO: The Shapiro delay is the fourth classical test of general relativity: light passing close to a mass takes measurably longer than it would in flat space, not because it slows locally but because the spacetime it crosses is curved.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: In flat space the signal would travel in a straight line parallel to the xxx-axis at impact parameter bbb. In General Relativity the signal experiences a time delay δt=2Mln⁡(4rErR/b2)\delta t = 2M \ln(4 r_E r_R / b^2)δt=2Mln(4rE​rR​/b2) relative to the flat-space expectation, where rEr_ErE​ and rRr_RrR​ are the emitter and receiver distances from the Sun.
+VO: The leading-order delay grows logarithmically with how closely the ray grazes the body, delta t = 2M ln(4 r E r R / b 2). The playground varies the impact parameter and shows the extra round-trip time, the effect Irwin Shapiro measured by bouncing radar off Venus and that pulsar timing now uses to weigh neutron stars.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-kippenhahn-weigert
+Hartle, Gravity, Ch. 10.

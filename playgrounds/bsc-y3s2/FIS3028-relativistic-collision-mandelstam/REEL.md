@@ -1,22 +1,22 @@
 # Reel script: Relativistic Collisions and Mandelstam s
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: To make heavy particles you need centre-of-mass energy; a fixed-target machine wastes most of the beam, a collider does not, and the scaling laws differ sharply.
 Caption: To make heavy particles you need centre-o…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: compare a fixed-target experiment with a head-on collider for the same lab energy budget.
+VO: The Mandelstam variable s is the squared total energy in the centre-of-mass frame, and sqrt(s) is what is actually available to create new particles.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The center-of-mass energy s\sqrt ss​ grows only as Elab\sqrt{E_{lab}}Elab​​ for fixed target but linearly for symmetric colliders, justifying the LHC architecture.
+VO: The playground contrasts the two ways to collide beams: against a fixed target sqrt(s) grows only as the square root of the beam energy, so doubling the beam barely helps, while in a symmetric collider sqrt(s) grows linearly with beam energy. This single scaling argument is why every modern high-energy machine is a collider, not a fixed-target gun.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-griffiths-particles
+Griffiths, Introduction to Elementary Particles, Ch. 3.

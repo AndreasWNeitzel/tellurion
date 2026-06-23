@@ -1,6 +1,6 @@
 # Reel script: Thermodynamic Engine Simulator
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Watch the molecules speed up as heat pours in, the piston do the work, and the wasted heat dump into the cold sink, all from one moving dot on the P-V loop.
@@ -11,12 +11,12 @@ VO: A piston-cylinder engine running a chosen ideal-gas cycle.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The gas molecules and piston track the live temperature and volume, the P-V loop traces with a moving operating point, and an energy-flow diagram splits Q_hot into work and Q_cold with the efficiency. Carnot, Otto, Diesel and Stirling cycles, reversible to a refrigerator.
+VO: The gas molecules and piston track the live temperature and volume, the P-V loop traces with a moving operating point, and an energy-flow diagram splits Q hot into work and Q cold with the efficiency. Carnot, Otto, Diesel and Stirling cycles, reversible to a refrigerator.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-griffithsem2017
+Callen, Thermodynamics, 2nd ed., Chapter 4; Reif, Fundamentals of Statistical and Thermal Physics, Chapter 5.

@@ -1,22 +1,22 @@
 # Reel script: Damped, Driven Oscillator and Resonance
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Push a swing at just the right rhythm and small pushes build huge swings; push off-rhythm and almost nothing happens.
 Caption: Push a swing at just the right rhythm and…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: A mass on a spring with friction, pushed by a steady sinusoidal force: $x'' + 2\gamma x' + \omega_0^2 x = F_0 \cos(\omega t)$.
+VO: A single mass on a spring with linear damping is driven by a sinusoidal force, x'' + 2 gamma x' + omega 0 2 x = F0 cos(omega t).
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Push at just the right frequency and the response spikes; push off-frequency and nothing much happens. This is resonance, and it controls radio tuning, glass shattering, and why bridges have forbidden marching frequencies.
+VO: After a transient the oscillator forgets its start and settles into a steady oscillation at the drive frequency, with an amplitude that peaks when the drive is tuned near the natural frequency omega 0. The top panel shows the live response x(t) against the drive; the bottom panel is the steady-state amplitude-versus-frequency curve with a cursor at the current drive frequency, so you watch the response grow as you approach the resonance peak.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

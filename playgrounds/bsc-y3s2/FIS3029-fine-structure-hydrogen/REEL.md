@@ -1,22 +1,22 @@
 # Reel script: Hydrogen Fine Structure
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: The Bohr energy levels are not quite single lines; relativity and spin-orbit coupling split them by a factor alpha-squared into the hydrogen fine structure.
 Caption: The Bohr energy levels are not quite sing…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the relativistic + spin-orbit fine-structure correction splits hydrogen levels by total angular momentum jjj rather than orbital ℓ\ellℓ.
+VO: The Bohr model gives hydrogen levels that depend only on n.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The 2s/2p degeneracy of Bohr lifts: 2p3/2_{3/2}3/2​ moves up, 2s1/2_{1/2}1/2​ and 2p1/2_{1/2}1/2​ stay degenerate (Lamb shift is excluded here, see Lamb playground).
+VO: Adding the leading relativistic kinetic correction and spin-orbit coupling, both of order alpha 2 times the Bohr energy (alpha around 1/137), splits each level into a fine structure that depends on the total angular momentum j, not l separately. The playground shows the Bohr levels, their alpha 2 splitting, and the j-labeled sublevels.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-griffiths-qm
+Griffiths, Introduction to Quantum Mechanics, Ch. 6.

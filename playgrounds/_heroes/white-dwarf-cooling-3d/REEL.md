@@ -1,22 +1,22 @@
 # Reel script: White-Dwarf Cooling Sequence
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A white dwarf is a hot star that spends a few hundred million years cooling.
 Caption: A white dwarf is a hot star that spends a…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a white dwarf of mass MMM cooling under the Mestel law L(t)∝Mt−7/5L(t) \propto M t^{-7/5}L(t)∝Mt−7/5.
+VO: A white dwarf is the inert remnant of a low to intermediate-mass star (M < 8 M sun) after the AGB phase.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The HR diagram at the top traces the cooling track (blue point = current age); the WD sphere and cross-section on the bottom show the photosphere colour by TeffT_{\rm eff}Teff​ and the inward-growing crystal core (yellow) once Γ>175\Gamma > 175Γ>175
+VO: With no nuclear burning, it slowly radiates the residual thermal energy of its non-degenerate carbon-oxygen ion gas. Mestel (1952) showed that the luminosity decays as L(t) ~ M t^(-7/5) until the central ion temperature drops below the Debye temperature, at which point the C/O ions crystallize and latent heat slows the cooling further (Winget et al.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-fontaine-brassard-bergeron-2001
+Fontaine, Brassard, Bergeron, PASP 113 (2001) 409.

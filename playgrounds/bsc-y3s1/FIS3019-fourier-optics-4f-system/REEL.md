@@ -1,22 +1,22 @@
 # Reel script: The 4f Fourier-Optics Processor
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Block the centre of a lens focal plane and the image keeps only its edges; block the outside and it blurs.
 Caption: Block the centre of a lens focal plane an…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: A lens placed one focal length from an object produces, one focal length beyond it, the exact 2D Fourier transform of the object's transmittance.
+VO: A coherent 4f optical processor: a lens forms the exact 2D Fourier transform of an object transmittance in its back focal plane, a mask there filters spatial frequencies, and a second lens transforms back to an image.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Put a mask in that back focal plane and a second lens transforms back: that is the 4f coherent processor. Block the outer (high-frequency) part of the spectrum and the image is low-pass filtered, blurred; block the centre (the DC and low frequencies) and only edges survive, the Abbe-Porter experiment.
+VO: The scene is three panels: the object, the Fourier-plane log-magnitude with the filter drawn on it, and the filtered intensity image. A circular low-pass mask blurs the image (it discards fine detail), a high-pass mask leaves only edges with the mean removed, a vertical slit keeps a single diffraction direction, and removing the mask returns the object exactly.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-newman2013
+Goodman, Introduction to Fourier Optics, Chapters 4 to 8.

@@ -1,26 +1,26 @@
 # Reel script: Paraxial Gaussian Beam (TEM_00)
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A laser beam is not a pencil ray: it has a narrowest waist, then spreads as a hyperbola, and the tighter you focus it the faster it diverges.
 Caption: A laser beam is not a pencil ray: it has…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the spatial intensity profile of a fundamental Gaussian laser beam as it propagates along the optical axis zzz.
+VO: The fundamental TEM 00 laser mode is a Gaussian beam, not a ray.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The beam is narrowest at its waist w0w_0w0​ (center of the plot), then expands hyperbolically. Each transverse slice has a Gaussian intensity profile I(r,z)∝exp⁡(−2r2/w(z)2)I(r, z) \propto \exp(-2 r^2 / w(z)^2)I(r,z)∝exp(−2r2/w(z)2).
+VO: It is narrowest at the waist (1/e 2 radius w 0) and spreads hyperbolically: the spot radius is w(z) = w 0 sqrt(1 + (z/z R) 2), set by the Rayleigh range z R = pi w 0 2 / lambda, while the wavefront curvature goes from flat at the waist to spherical far away. The tighter the waist, the shorter z R and the faster the beam diverges, which is the diffraction limit you cannot beat.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: Each transverse slice has a Gaussian intensity profile I(r,z)∝exp⁡(−2r2/w(z)2)I(r, z) \propto \exp(-2 r^2 / w(z)^2)I(r,z)∝exp(−2r2/w(z)2).
+VO: The playground sweeps w 0 and wavelength and draws the envelope, waist, and wavefronts.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-newman2013
+Saleh and Teich, Fundamentals of Photonics, Ch. 3.

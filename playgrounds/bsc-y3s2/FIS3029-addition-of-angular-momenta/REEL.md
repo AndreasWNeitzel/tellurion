@@ -1,22 +1,22 @@
 # Reel script: Addition of Two Angular Momenta
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Couple two spins and the allowed totals run from their difference to their sum in integer steps; the dimensions always add up to the product.
 Caption: Couple two spins and the allowed totals r…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the allowed values of total JJJ when coupling two angular momenta j1j_1j1​ and j2j_2j2​.
+VO: Adding two angular momenta j1 and j2 quantum-mechanically gives a total j running from |j1 - j2| to j1 + j2 in integer steps, with the multiplicities summing to (2 j1 + 1)(2 j2 + 1).
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Range: ∣j1−j2∣≤J≤j1+j2|j_1 - j_2| \le J \le j_1 + j_2∣j1​−j2​∣≤J≤j1​+j2​. The (2J+1) substates of each JJJ multiplet sum to (2j1+1)(2j2+1)(2j_1+1)(2j_2+1)(2j1​+1)(2j2​+1).
+VO: The playground shows the uncoupled product basis reorganizing into the coupled total-j multiplets and the Clebsch-Gordan weights that connect them. This is the bookkeeping behind atomic terms, nuclear spins, and particle multiplets.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-sakurai-qm
+Sakurai, Modern Quantum Mechanics, Ch. 3.

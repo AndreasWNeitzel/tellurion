@@ -1,22 +1,22 @@
 # Reel script: Adiabatic vs Isothermal Processes on a PV Diagram
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Compress a gas slowly and it stays cool on the isotherm; compress it fast and no heat escapes, so the adiabat climbs steeper and hotter.
 Caption: Compress a gas slowly and it stays cool o…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: two reversible processes from the same starting state.
+VO: From the same starting state a gas can be taken to a smaller volume two ways.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Isothermal: PV=nRTPV = nRTPV=nRT. Adiabatic: PVγ=PV^\gamma = PVγ= const, which is steeper.
+VO: Isothermal compression is slow enough to dump heat and hold the temperature fixed, tracing P ~ 1/V. Adiabatic compression is fast enough that no heat leaves, so the work goes into internal energy and the temperature rises, tracing the steeper P ~ V^(-gamma).
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-callen
+Callen, Thermodynamics and an Introduction to Thermostatistics, Ch. 4.

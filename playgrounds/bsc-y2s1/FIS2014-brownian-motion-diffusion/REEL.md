@@ -1,6 +1,6 @@
 # Reel script: Brownian Motion and the Diffusion Law
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A point of 1600 particles blurs into a Gaussian cloud, the spread tracking sqrt(4Dt) exactly, while a single tracer jitters under the molecular hail.
@@ -11,16 +11,16 @@ VO: An ensemble of independent two-dimensional random walkers spreads out from t
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Because each displacement is a sum of many tiny independent kicks, the cloud is Gaussian and its mean-squared displacement grows linearly in time, $\langle r^2 \rangle = 4Dt$ in 2D, the signature of diffusion; a highlighted tracer drags its jagged random-walk trail. The diffusion coefficient is the Einstein-Stokes value $D = \frac{k_B T}{6\pi \eta r}$, so heating the fluid, thinning it, or shrinking the particle all visibly quicken the spread, the link Einstein used to infer molecular reality from Brownian motion.
+VO: Because each displacement is a sum of many tiny independent kicks, the cloud is Gaussian and its mean-squared displacement grows linearly in time, <r 2> = 4 D t in 2D, the signature of diffusion; a highlighted tracer drags its jagged random-walk trail. The diffusion coefficient is the Einstein-Stokes value D = kB T / (6 pi eta r), so heating the fluid, thinning it, or shrinking the particle all visibly quicken the spread, the link Einstein used to infer molecular reality from Brownian motion.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: Side panels track the measured mean-squared displacement against the $4Dt$ line and the step histogram against the predicted Gaussian.
+VO: Side panels track the measured mean-squared displacement against the 4 D t line and the step histogram against the predicted Gaussian.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-griffithsem2017
+Einstein 1905; Reif, Fundamentals of Statistical and Thermal Physics, Chapter 1.

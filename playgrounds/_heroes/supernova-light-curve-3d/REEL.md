@@ -1,26 +1,26 @@
 # Reel script: Supernova Light Curve
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: The brightest stellar explosions in the universe outshine entire galaxies.
 Caption: The brightest stellar explosions in the u…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a supernova fireball expanding homologously, with its bolometric light curve L(t) and the 56Ni -> 56Co -> 56Fe radioactive decay chain that powers it.
+VO: A supernova playground built on the Arnett 1982 light-curve model: the fireball expands homologously, releases stored energy as it cools, and is reheated by the radioactive decay chain 56Ni -> 56Co -> 56Fe (half-lives 6.1 d and 77.7 d).
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: Toggle between SN 2011fe (Type Ia, the standard candle) and SN 1987A (Type II core-collapse).
+VO: The peak luminosity is set by the synthesised 56Ni mass via the Arnett rule (peak when diffusion time equals expansion time). The playground integrates the bolometric L(t) for Type Ia (thermonuclear, M Ni ~ 0.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: Toggle between SN 2011fe (Type Ia, the standard candle) and SN 1987A (Type II core-collapse).
+VO: Two famous presets: SN 2011fe (Type Ia, the textbook standard candle) and SN 1987A (Type II from a blue supergiant, with the unique mass-coordinate radioactive tail).
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-arnett-1982
+Arnett, ApJ 253 (1982) 785; Filippenko, ARA&A 35 (1997) 309.

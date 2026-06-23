@@ -1,22 +1,22 @@
 # Reel script: EM on a 2D Gaussian Mixture
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A cloud of points secretly blends a few overlapping Gaussian bumps; watch Expectation-Maximization recover their shapes and weights by alternating soft guesses and refits until the ellipses snap onto the data.
 Caption: A cloud of points secretly blends a few o…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: a synthetic 2D dataset drawn from three Gaussian clusters with known parameters (their true 2-sigma ellipses are drawn faint).
+VO: The data is modeled as a Gaussian mixture: each point is drawn from one of K Gaussians with mixing weight pi k, but the assignment of points to components is hidden, so the likelihood cannot be maximized directly.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The EM algorithm tries to recover those parameters using nothing but the data: it alternates between soft-assigning each point to a cluster (E-step) and re-fitting each cluster's mean, covariance, and weight from the soft assignments (M-step).
+VO: Expectation-Maximization alternates an E-step (given the current parameters, compute each point''s soft responsibility gamma ik for every component) and an M-step (refit each component as a responsibility-weighted mean and covariance), a loop that provably increases the data log-likelihood every iteration and converges to a local optimum. The playground animates the component ellipses translating and reshaping onto the blobs while the log-likelihood climbs monotonically in the live readout.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-bishop2006
+Dempster, Laird and Rubin 1977; Bishop, Pattern Recognition and Machine Learning, Chapter 9.

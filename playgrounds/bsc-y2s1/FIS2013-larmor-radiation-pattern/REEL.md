@@ -1,26 +1,26 @@
 # Reel script: Larmor Radiation Pattern
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: An accelerating charge radiates, but not the same in every direction: nothing leaves along the acceleration, everything peaks broadside, in a clean doughnut.
 Caption: An accelerating charge radiates, but not…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: an electron oscillating along the vertical axis radiates with the classic sin⁡2θ\sin^2\thetasin2θ "donut" pattern: nothing along the acceleration axis, maximum perpendicular to it.
+VO: A non-relativistic charge that accelerates emits radiation with an angular pattern proportional to sin 2(theta), where theta is measured from the acceleration vector: zero straight ahead and behind, maximum at right angles, the familiar doughnut.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The total power Ptot=q2a2/(6πε0c3)P_{tot} = q^2 a^2 / (6\pi\varepsilon_0 c^3)Ptot​=q2a2/(6πε0​c3).
+VO: The total radiated power is the Larmor formula, proportional to the square of the acceleration. The playground draws the polar radiation pattern and reports the total power as you change the acceleration, making concrete why dipole antennas are shaped the way they are and why an orbiting electron must lose energy.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: The total power Ptot=q2a2/(6πε0c3)P_{tot} = q^2 a^2 / (6\pi\varepsilon_0 c^3)Ptot​=q2a2/(6πε0​c3).
+VO: The playground draws the polar radiation pattern and reports the total power as you change the acceleration, making concrete why dipole antennas are shaped the way they are and why an orbiting electron must lose energy.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-griffiths-em
+Griffiths, Introduction to Electrodynamics, Ch. 11.

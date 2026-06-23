@@ -1,26 +1,26 @@
 # Reel script: Nuclear Burning Rates vs Temperature
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Stellar nuclear reactions are violently temperature-sensitive: a few percent more core heat can change the energy output by orders of magnitude, which is exactly what makes stars stable.
 Caption: Stellar nuclear reactions are violently t…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: the energy generation rate ε\varepsilonε for the three dominant burning channels as a function of central temperature.
+VO: Near the Gamow peak each thermonuclear rate behaves as a steep power law, epsilon(T) proportional to rho X i X j T nu, with an effective exponent nu that is large and itself temperature-dependent: nu about 4 for the proton-proton chain, about 16 to 18 for the CNO cycle, and about 40 for the triple-alpha process.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The CNO cycle crosses over the pp chain near T∼2×107T \sim 2 \times 10^7T∼2×107 K.
+VO: This steepness is the thermostat of a star: a small contraction raises T, the rate jumps, the extra pressure halts the contraction, so burning self-regulates; it also dictates which fuel dominates in which star (p-p in the Sun, CNO in massive stars, triple-alpha in red-giant cores). The playground plots the three rates against temperature on a log scale so the differing slopes are unmistakable.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: The CNO cycle crosses over the pp chain near T∼2×107T \sim 2 \times 10^7T∼2×107 K.
+VO: The playground plots the three rates against temperature on a log scale so the differing slopes are unmistakable.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-hansen-kawaler
+Hansen and Kawaler, Stellar Interiors, Chapter 6.

@@ -1,26 +1,26 @@
 # Reel script: Rayleigh-Benard Convection: Onset of Instability
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Heat a fluid layer from below: nothing moves until the Rayleigh number crosses a sharp threshold, then the layer breaks into counter-rotating rolls.
 Caption: Heat a fluid layer from below: nothing mo…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: A fluid layer heated from below is motionless until the Rayleigh number Ra=gαΔTd3/(νκ)Ra=g\alpha\Delta T d^3/(\nu\kappa)Ra=gαΔTd3/(νκ) crosses a sharp threshold, then it breaks into counter-rotating convection rolls.
+VO: A fluid layer heated from below convects only once buoyancy overcomes the damping of viscosity and thermal diffusion.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: For stress-free, perfectly conducting plates (the free-free case) the linear theory is exact: a normal mode ∝sin⁡(πy) eikx\propto\sin(\pi y)\,e^{ikx}∝sin(πy)eikx is neutrally stable on the curve Ra(k)=(k2+π2)3/k2Ra(k)=(k^2+\pi^2)^3/k^2Ra(k)=(k2+π2)3/k2, minimised at kc=π/2k_c=\pi/\sqrt2kc​=π/2​, giving the closed-form critical value Rac=27π44≈657. 51Ra_c=\tfrac{27\pi^4}{4}\approx 657.
+VO: The control parameter is the Rayleigh number Ra; for stress-free, perfectly conducting plates the linear stability problem is solved exactly. A normal mode proportional to sin(pi y) exp(i k x) is neutrally stable along the curve Ra(k) = (k 2 + pi 2) 3 / k 2, whose minimum at k c = pi/sqrt(2) gives the closed-form critical value Ra c = 27 pi 4 / 4 ~= 657.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: 2% and the value converges with resolution (gate-tested).
+VO: The playground shows the roll eigenmode growing or decaying alongside the neutral curve with the exact critical point and the live operating point.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-chandrasekhar1961
+Chandrasekhar, Hydrodynamic and Hydromagnetic Stability, Chapter 2; Drazin and Reid, Hydrodynamic Stability.

@@ -1,22 +1,22 @@
 # Reel script: Kelvin-Helmholtz Instability
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: A velocity shear between two fluid layers rolls up into a row of cats-eye vortices.
 Caption: A velocity shear between two fluid layers…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: two fluid layers sliding past one another at a sheared interface.
+VO: A velocity shear at the interface between two fluid layers is linearly unstable: any small perturbation grows exponentially as exp(sigma t) with sigma = k U / 2 (for equal-density layers with opposite velocities +/- U).
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The streamfunction ψ=−ln⁡(cosh⁡y+Acos⁡x)\psi = -\ln(\cosh y + A \cos x)ψ=−ln(coshy+Acosx) generates the exact cats-eye flow as a function of the amplitude AAA.
+VO: In the nonlinear stage, the interface rolls up into a row of coherent vortices spaced at wavelength lambda = 2 pi / k. Stuart (1967) showed that the mature pattern is captured exactly by the stream function psi = -ln(cosh y + A cos x), parameterised by A in [0, 1).
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-chandrasekhar-hydro
+Chandrasekhar, Hydrodynamic and Hydromagnetic Stability, Ch. 11.

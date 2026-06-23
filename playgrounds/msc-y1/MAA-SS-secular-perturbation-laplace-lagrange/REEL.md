@@ -1,26 +1,26 @@
 # Reel script: Secular Perturbations (Laplace-Lagrange)
 
-Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype.
+Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
 VO: Averaged over many orbits the fast planetary motion cancels and only a slow drift survives: eccentricities and orbit orientations cycle back and forth over millennia, the dynamics behind Milankovitch cycles.
 Caption: Averaged over many orbits the fast planet…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: What you are seeing: two coupled planets exchange eccentricity on the secular (long) timescale.
+VO: Laplace-Lagrange theory averages the disturbing function over the orbital periods, dropping the fast angles and keeping the secular terms.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The eccentricities oscillate as the eigenmodes beat against each other.
+VO: Writing the complex eccentricity vector z (components e cos(varpi), e sin(varpi)), the linearized secular system is z-dot = i A z, where A is a constant matrix built from the masses and semi-major axes; its eigenvalues are the secular precession frequencies and its eigenvectors the normal modes. The planets therefore trade eccentricity periodically like coupled oscillators while the total angular-momentum deficit is conserved, the mechanism that paces Earth''s Milankovitch climate cycles.
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Vary each control and watch the rail readouts respond.
-VO: Compare the diagnostic plot against the live scene.
+VO: Drag a control and watch the whole picture change, not just a number on the side.
+VO: Push it to an extreme and see where the physics breaks down.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: The eccentricities oscillate as the eigenmodes beat against each other.
+VO: The playground integrates two planets exchanging eccentricity and shows the mode beating.
 VO: Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
@@ -32,4 +32,4 @@ Caption: tellurion.dev
 - tellurion.dev
 
 ## Source
-murray-dermott
+Murray and Dermott, Solar System Dynamics, Chapter 7.
