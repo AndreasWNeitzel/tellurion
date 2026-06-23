@@ -34,7 +34,7 @@ const bR = document.getElementById('btn-reset'), bP = document.getElementById('b
 
 const st = { pot: 'harmonic', E: 0.6, w0: 1.0, ramp: 0, running: !prefersReducedMotion() };
 let q = 0, p = 0, th = 0, t = 0, J0 = 0, jHist = [];
-const LCX = Math.round(W / 2), RCX = Math.round(W / 2), CY = Math.round(H * 0.30), CY2 = Math.round(H * 0.72), SC = 92;
+const LCX = 212, RCX = 608, CY = 286, SC = 122;        // phase orbit (left) and action-angle (right), side by side
 
 // For Kepler the energy slider maps to a bound radial energy Ek < 0
 // and the omega0 slider to the angular momentum L, kept inside the
@@ -90,29 +90,32 @@ function orbitPoints(Ecur, wE, n) {
   return out;
 }
 
-function drawJStrip(Jnow) {
-  const x0 = W / 2 - 182, x1 = W / 2 + 182, y0 = 18, y1 = 62;
+function drawJPlot(Jnow) {
+  const x0 = 40, x1 = W - 40, y0 = 556, y1 = H - 22;
   jHist.push([t, Jnow]); if (jHist.length > 480) jHist.shift();
-  ctx.strokeStyle = 'rgba(150,160,180,0.45)'; ctx.lineWidth = 1;
-  ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+  ctx.fillStyle = '#0a0b10'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+  ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, x1 - x0 - 1, y1 - y0 - 1);
   const drift = Math.abs((Jnow - J0) / (Math.abs(J0) || 1));
   const ok = drift < 0.03;
-  // shared vertical scale around J0 so a flat line reads as conserved
-  const span = Math.max(0.18 * Math.abs(J0) + 1e-6, 1.25 * Math.max(...jHist.map(([, j]) => Math.abs(j - J0))) || 1e-6);
-  const yOfJ = (j) => (y0 + y1) / 2 - ((j - J0) / span) * ((y1 - y0) / 2 - 4);
-  ctx.strokeStyle = 'rgba(255,209,102,0.5)'; ctx.setLineDash([4, 3]);
-  ctx.beginPath(); ctx.moveTo(x0, yOfJ(J0)); ctx.lineTo(x1, yOfJ(J0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(226,232,240,0.8)'; ctx.fillText('action J(t): the adiabatic invariant', x0 + 10, y0 + 16);
+  const plT = y0 + 28, plB = y1 - 22, plL = x0 + 50, plR = x1 - 14;
+  let maxDev = 1e-6; for (const [, j] of jHist) maxDev = Math.max(maxDev, Math.abs(j - J0));
+  const span = Math.max(0.18 * Math.abs(J0) + 1e-6, 1.25 * maxDev);
+  const yOfJ = (j) => (plT + plB) / 2 - ((j - J0) / span) * ((plB - plT) / 2 - 8);
+  ctx.strokeStyle = 'rgba(255,209,102,0.5)'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(plL, yOfJ(J0)); ctx.lineTo(plR, yOfJ(J0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(255,209,102,0.7)'; ctx.textAlign = 'right';
+  ctx.fillText('J_0 = ' + J0.toFixed(3), plR, yOfJ(J0) - 4);
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plL, plT); ctx.lineTo(plL, plB); ctx.lineTo(plR, plB); ctx.stroke();
   const t0 = jHist[0][0], tspan = Math.max(1e-6, jHist[jHist.length - 1][0] - t0);
   ctx.strokeStyle = ok ? '#06d6a0' : '#ef476f'; ctx.lineWidth = 1.8; ctx.beginPath();
-  jHist.forEach(([tt, jj], i) => {
-    const X = x0 + ((tt - t0) / tspan) * (x1 - x0), Y = yOfJ(jj);
-    if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
-  });
+  jHist.forEach(([tt, jj], i) => { const X = plL + ((tt - t0) / tspan) * (plR - plL), Y = yOfJ(jj); if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); });
   ctx.stroke();
-  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(150,160,180,0.8)'; ctx.fillText('J(t)', x0 + 4, y0 - 4);
-  ctx.textAlign = 'right'; ctx.fillStyle = ok ? '#06d6a0' : '#ef476f';
-  ctx.fillText(ok ? 'J conserved (adiabatic)' : 'J drifting: ramp too fast', x1, y0 - 4);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'right'; ctx.fillStyle = ok ? '#06d6a0' : '#ef476f';
+  ctx.fillText(ok ? 'J conserved (adiabatic)' : 'J drifting: ramp too fast', plR, y0 + 16);
+  ctx.save(); ctx.translate(x0 + 16, (plT + plB) / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = 'rgba(180,190,210,0.6)'; ctx.textAlign = 'center'; ctx.fillText('J', 0, 0); ctx.restore();
+  ctx.fillStyle = 'rgba(180,190,210,0.6)'; ctx.textAlign = 'center'; ctx.fillText('time', (plL + plR) / 2, plB + 16);
 }
 
 function render() {
@@ -122,12 +125,12 @@ function render() {
   const Jnow = action(st.pot, Ecur, wE);
   const w = omegaOfE(st.pot, Ecur, wE);
 
-  drawJStrip(Jnow);
+  drawJPlot(Jnow);
 
   // left panel: phase orbit + shaded action area
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(LCX - 150, CY); ctx.lineTo(LCX + 150, CY);
-  ctx.moveTo(LCX, CY - 138); ctx.lineTo(LCX, CY + 138); ctx.stroke();
+  ctx.moveTo(LCX, CY - 150); ctx.lineTo(LCX, CY + 150); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
   ctx.fillText(st.pot === 'kepler' ? 'radial phase orbit  (r, p_r)' : 'phase orbit  (q, p)', LCX, CY + 158);
   // centre the orbit on its own interval so Kepler (r in [r-,r+])
@@ -150,28 +153,28 @@ function render() {
   ctx.fillStyle = '#ef476f';
   ctx.beginPath(); ctx.arc(LCX + (q - mid) * SC, CY - p * SC, 5, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(6,214,160,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('shaded area = 2 π J', LCX, H - 32);
+  ctx.fillText('shaded area = 2 π J', LCX, CY + 176);
 
   // right panel: the action-angle loop (a circle for the harmonic)
   ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(RCX - 150, CY2); ctx.lineTo(RCX + 150, CY2);
-  ctx.moveTo(RCX, CY2 - 138); ctx.lineTo(RCX, CY2 + 138); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(RCX - 150, CY); ctx.lineTo(RCX + 150, CY);
+  ctx.moveTo(RCX, CY - 138); ctx.lineTo(RCX, CY + 138); ctx.stroke();
   ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center';
-  ctx.fillText('action-angle  (θ winds uniformly)', RCX, CY2 + 158);
+  ctx.fillText('action-angle  (θ winds uniformly)', RCX, CY + 158);
   // The whole point of action-angle variables: the canonical
   // transform turns ANY 1-DOF bound orbit into a circle of radius
   // sqrt(2 J) swept at the constant rate omega, for Kepler exactly
   // as for the harmonic. So the loop is always a clean circle (the
   // earlier toCircle map was the harmonic-only transform and made
   // Kepler a wrong, weird blob).
-  const rJpx = Math.sqrt(2 * Math.max(0, Jnow)) * SC * 0.7;
+  const rJpx = Math.sqrt(2 * Math.max(0, Jnow)) * SC * 0.92;
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2.2;
-  ctx.beginPath(); ctx.arc(RCX, CY2, rJpx, 0, 2 * Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(RCX, CY, rJpx, 0, 2 * Math.PI); ctx.stroke();
   const rr = rJpx || 1;
   ctx.strokeStyle = 'rgba(255,209,102,0.85)'; ctx.lineWidth = 1.6;
-  ctx.beginPath(); ctx.moveTo(RCX, CY2); ctx.lineTo(RCX + rr * Math.cos(-th), CY2 + rr * Math.sin(-th)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(RCX, CY); ctx.lineTo(RCX + rr * Math.cos(-th), CY + rr * Math.sin(-th)); ctx.stroke();
   ctx.fillStyle = '#ffd166';
-  ctx.beginPath(); ctx.arc(RCX + rr * Math.cos(-th), CY2 + rr * Math.sin(-th), 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(RCX + rr * Math.cos(-th), CY + rr * Math.sin(-th), 5, 0, 2 * Math.PI); ctx.fill();
 
   rJ.textContent = Number.isFinite(Jnow) ? Jnow.toFixed(4) : 'inf';
   rE.textContent = Ecur.toFixed(4);
