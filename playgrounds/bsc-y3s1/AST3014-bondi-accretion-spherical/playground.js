@@ -25,17 +25,17 @@ function render() {
   const rB = bondiRadius(M, cs);
   const rS = rB * 0.5;
   const Mdot = MdotBondi(M, cs, rho_inf);
-  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const cx = canvas.width / 2, cy = 348;
   // FIXED length scale (px per AU). pixelsPerRad = 180/(1.5 rB) made
   // rB_px a constant 120 px for every M and cs, so the spatial view was
   // byte-identical and the sliders read as dead. With an absolute scale
   // the Bondi sphere visibly grows with M and shrinks with cs (clamped
   // at the extremes so it never overflows or vanishes).
   const AU = 1.496e11;
-  const PX_PER_AU = 13.5;
-  const rB_px = Math.max(10, Math.min(230, (rB / AU) * PX_PER_AU));
+  const PX_PER_AU = 28;
+  const rB_px = Math.max(10, Math.min(262, (rB / AU) * PX_PER_AU));
   const pixelsPerRad = rB_px / rB;                 // consistent for all radii
-  const maxRDisplay = rB * 1.6;
+  const maxRDisplay = rB * 1.35;
   ctx.strokeStyle = '#5bc0eb'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
   const rS_px = rS * pixelsPerRad;
   ctx.beginPath(); ctx.arc(cx, cy, rB_px, 0, 2 * Math.PI); ctx.stroke();
@@ -66,13 +66,14 @@ function render() {
       ctx.fillStyle = mach > 1 ? `rgba(255,107,107,${a.toFixed(3)})` : `rgba(91,192,235,${a.toFixed(3)})`;
       const px = cx + r_now * pixelsPerRad * Math.cos(ang);
       const py = cy + r_now * pixelsPerRad * Math.sin(ang);
+      if (py < 30 || py > 690) continue;            // keep particles out of the header and the Mach panel
       ctx.beginPath(); ctx.arc(px, py, (mach > 1 ? 2.4 : 1.8) * (0.7 + 0.5 * dens), 0, 2 * Math.PI); ctx.fill();
     }
   }
   // Mach vs r inset: the transonic solution. r spans 0.08..2 r_B so the
   // sonic radius r_s = 0.5 r_B sits inside the panel; the curve crosses
   // the horizontal M=1 line exactly at the vertical r_s marker.
-  const vx0 = 40, vy0 = 412, vw = 340, vh = 84;
+  const vx0 = 40, vy0 = 716, vw = canvas.width - 80, vh = canvas.height - 716 - 16;
   const rLo = 0.08 * rB, rHi = 2.0 * rB, machMax = 3;
   ctx.strokeStyle = '#3a3d44'; ctx.lineWidth = 1; ctx.strokeRect(vx0, vy0, vw, vh);
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
