@@ -10,6 +10,9 @@ import {
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
+import { makeRng } from '../../../shared/js/render/rng.js';
+
+const rng = makeRng(0xC0FFEE);   // seeded blob spawning (reproducible jet)
 
 const params = new URLSearchParams(location.search);
 const CAPTURE_NAME = params.get('capture');
@@ -81,9 +84,9 @@ function spawnBlob(jetSide) {
   // Blob along the jet axis, jetSide = +1 (approaching) or -1 (counter).
   return {
     side: jetSide,
-    s: 0.3 + 0.2 * Math.random(), // position along jet (units of jet length)
-    r: 0.04 * Math.random(),       // off-axis scatter
-    phi: 2 * Math.PI * Math.random(),
+    s: 0.3 + 0.2 * rng(), // position along jet (units of jet length)
+    r: 0.04 * rng(),       // off-axis scatter
+    phi: 2 * Math.PI * rng(),
     born: st.t,
   };
 }
@@ -91,9 +94,9 @@ function spawnBlob(jetSide) {
 function reseedBlobs() {
   st.blobs = [];
   for (let i = 0; i < 60; i++) {
-    const b = spawnBlob(Math.random() < 0.5 ? +1 : -1);
-    b.s = Math.random() * 1.8;
-    b.born = st.t - Math.random() * 5;
+    const b = spawnBlob(rng() < 0.5 ? +1 : -1);
+    b.s = rng() * 1.8;
+    b.born = st.t - rng() * 5;
     st.blobs.push(b);
   }
 }
@@ -109,8 +112,8 @@ function stepBlobs(dt) {
     if (st.blobs[i].s > 2.0) st.blobs[i] = spawnBlob(st.blobs[i].side);
   }
   // Spawn new ones occasionally.
-  if (Math.random() < 0.10 * st.speed) {
-    st.blobs.push(spawnBlob(Math.random() < 0.5 ? +1 : -1));
+  if (rng() < 0.10 * st.speed) {
+    st.blobs.push(spawnBlob(rng() < 0.5 ? +1 : -1));
     if (st.blobs.length > 120) st.blobs.shift();
   }
 }

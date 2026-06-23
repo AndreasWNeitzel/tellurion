@@ -12,7 +12,7 @@
 // Reference: Bishop and Bishop 2024 Deep Learning Ch. 16, Blei et al. 2017
 // VI review (`bishop2006`).
 
-import { makeRng, gaussian } from '../../../shared/js/render/rng.js';
+import { makeRng, gaussian, DEFAULT_SEED } from '../../../shared/js/render/rng.js';
 
 function logBanana(x, y) {
   return -((1 - x) ** 2 + 100 * (y - x * x) ** 2) / 20;
@@ -35,7 +35,7 @@ const clip = (x, cap) => Math.max(-cap, Math.min(cap, x));
 // Gradient clipped at GRAD_CAP to prevent banana-tail blowups.
 const GRAD_CAP = 50;
 export function viStep(theta, lr = 0.005, K = 32, seed = null) {
-  const rng = seed === null ? makeRng(Math.floor(Math.random() * 1e6)) : makeRng(seed);
+  const rng = makeRng(seed === null ? DEFAULT_SEED : seed);   // null defaults to the canonical seed, not an unseeded draw
   const sigmaX = Math.exp(theta.logSX), sigmaY = Math.exp(theta.logSY);
   let dMuX = 0, dLogSX = 0, dMuY = 0, dLogSY = 0;
   let elboLogP = 0;
