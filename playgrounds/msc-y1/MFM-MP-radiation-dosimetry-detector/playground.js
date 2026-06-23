@@ -117,7 +117,7 @@ function drawSaturation(x, y, w, h) {
   ctx.strokeStyle = 'rgba(155,232,176,0.4)'; ctx.setLineDash([4, 3]);
   ctx.beginPath(); ctx.moveTo(px, Y(1)); ctx.lineTo(px + pw, Y(1)); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(155,232,176,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('f = 1 (full collection)', px + pw - 134, Y(1) - 4);
+  ctx.textAlign = 'right'; ctx.fillText('f = 1 (full collection)', px + pw - 6, Y(1) - 4); ctx.textAlign = 'left';
   // operating point
   const V0 = volts(), f0 = collectionEfficiency(V0, st.dr, 1);
   ctx.fillStyle = '#6fb4ff';
@@ -167,10 +167,14 @@ function drawChain(x, y, w, h) {
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  const half = (W - 52) / 2;
-  drawChamber(20, 20, half, H - 34);
-  drawSaturation(20 + half + 12, 20, half, (H - 46) / 2);
-  drawChain(20 + half + 12, 20 + (H - 46) / 2 + 6, half, (H - 46) / 2);
+  // Portrait stack: ion chamber on top full width (it was a 384-wide,
+  // 1006-tall column), Boag saturation curve and the charge-to-dose chain
+  // full width below, so the panel titles and captions stop overflowing.
+  const fw = W - 40;
+  drawChamber(20, 20, fw, 452);
+  const yB = 486;
+  drawSaturation(20, yB, fw, 250);
+  drawChain(20, yB + 262, fw, H - (yB + 262) - 16);
   const R = cache.R;
   rV.textContent = `${volts()} V`;
   rF.textContent = R.f.toFixed(4);
