@@ -53,6 +53,7 @@ function drawSurface(x, y, w, h) {
   panel(x, y, w, h, `V(|phi|) ${T >= Tc(mu2()) ? '(symmetric bowl: T > T_c)' : '(broken: wine bottle)'}`);
   const cx = x + w * 0.52, cy = y + h * 0.50, S = Math.min(w * 0.5, h) * 0.46;
   const tilt = 0.62, az = 0.6;
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();   // keep the wireframe inside its panel
   // bound rho to ~1.8 v so the bump + trough (the sombrero) dominate
   // the vertical range instead of the steep quartic wall.
   const v0 = vev(mu2(), lam());
@@ -91,6 +92,7 @@ function drawSurface(x, y, w, h) {
   ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(pb.sx, pb.sy, 6, 0, 2 * Math.PI); ctx.fill();
   ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`v(T) = ${ballRho().toFixed(3)}  (v0 = ${vev(mu2(), lam()).toFixed(3)})`, x + 12, y + h - 10);
+  ctx.restore();
 }
 
 function drawSlice(x, y, w, h) {
@@ -143,9 +145,9 @@ function drawOrder(x, y, w, h) {
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  drawSurface(20, 22, W - 40, 232);
-  drawSlice(20, 270, (W - 52) / 2, H - 270 - 16);
-  drawOrder(20 + (W - 52) / 2 + 12, 270, (W - 52) / 2, H - 270 - 16);
+  drawSurface(20, 22, W - 40, 372);
+  drawSlice(20, 412, (W - 52) / 2, H - 412 - 16);
+  drawOrder(20 + (W - 52) / 2 + 12, 412, (W - 52) / 2, H - 412 - 16);
   rV.textContent = ballRho().toFixed(3);
   rMh.textContent = higgsMass(mu2()).toFixed(3);
   rMg.textContent = String(GOLDSTONE_MASS);
