@@ -139,7 +139,7 @@ function panel(x, y, w, h, title) {
 
 // world map: lon -> x, lat -> y. Panels start below the DOM readout
 // overlay (absolute, top-left) so they never collide with it.
-const MAP = { x: 22, y: 104, w: 392, h: 200 };
+const MAP = { x: 22, y: 104, w: 377, h: 430 };
 function mapXY(lat, lon) {
   return [MAP.x + ((lon + 180) / 360) * MAP.w, MAP.y + ((90 - lat) / 180) * MAP.h];
 }
@@ -207,9 +207,9 @@ function render() {
     ctx.fillStyle = '#ffd57f'; ctx.beginPath(); ctx.arc(x, y, 2 + s.amp * 2.5, 0, 6.2832); ctx.fill();
   }
   if (dHaveImage) {
-    const sz = Math.min(UVp.w - 16, botH - 30);
+    const sz = Math.min(UVp.w - 16, botH - 40);
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(off, 0, 0, IMG_N, IMG_N, UVp.x + (UVp.w - sz) / 2, botY + 24, sz, sz);
+    ctx.drawImage(off, 0, 0, IMG_N, IMG_N, UVp.x + (UVp.w - sz) / 2, botY + Math.max(24, (botH - sz) / 2), sz, sz);
   } else {
     ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
     ctx.fillText('accumulating UV coverage...', UVp.x + UVp.w / 2, botY + botH / 2);
