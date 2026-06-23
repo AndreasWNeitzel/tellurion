@@ -69,16 +69,12 @@ function rebuild() {
   initMultiParticles();
 }
 
+// View is centred on the orbit cluster (the swarm orbits are tangent at the
+// launch point and bulge to one side, so centring on the origin wastes half
+// the panel). Set per frame in drawAll from the largest swarm radius.
+const VIEW = { cx: 1, cy: 0, scale: 120, ox: 400, oy: 320 };
 function worldToPx(x, y) {
-  const padL = 30, padR = 30, padT = 60, padB = 80;
-  const drawW = W - padL - padR;
-  const drawH = H - padT - padB;
-  const wbox = 6;
-  const scale = Math.min(drawW / wbox, drawH / wbox);
-  return {
-    px: padL + drawW / 2 + x * scale,
-    py: padT + drawH / 2 - y * scale,
-  };
+  return { px: VIEW.ox + (x - VIEW.cx) * VIEW.scale, py: VIEW.oy - (y - VIEW.cy) * VIEW.scale };
 }
 
 function drawAll() {
@@ -96,25 +92,36 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fillText(`r = m v / (q B) = ${r.toFixed(3)}   T = 2 pi m / (q B) = ${T.toFixed(3)}   omega_c = ${(2 * Math.PI / T).toFixed(3)}`, 30, 40);
 
-  // Plot frame
-  const padL = 30, padR = 30, padT = 60, padB = 80;
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(padL, padT, W - padL - padR, H - padT - padB);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.strokeRect(padL + 0.5, padT + 0.5, W - padL - padR - 1, H - padT - padB - 1);
+  // Layout: square orbit scene on top, r(v)/T(v) diagnostic below.
+  const padL = 30, padR = 30, padT = 56;
+  const drawW = W - padL - padR;
+  const sceneH = Math.round(H * 0.585);
+  const rMaxSwarm = cyclotronRadius(1.6, state.B);
+  const half = Math.max(0.35, rMaxSwarm) * 1.16;          // cluster half-extent (orbits span a 2 rMax box)
+  VIEW.cx = rMaxSwarm; VIEW.cy = 0;
+  VIEW.scale = Math.min(drawW, sceneH) / (2 * half);
+  VIEW.ox = padL + drawW / 2; VIEW.oy = padT + sceneH / 2;
 
-  // B-field "dots" pattern indicating out-of-page B
+  // Scene frame
+  ctx.fillStyle = '#0a0a0e';
+  ctx.fillRect(padL, padT, drawW, sceneH);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.strokeRect(padL + 0.5, padT + 0.5, drawW - 1, sceneH - 1);
+
+  // B-field "dots" pattern (out-of-page B) tiling the visible world.
+  ctx.save();
+  ctx.beginPath(); ctx.rect(padL, padT, drawW, sceneH); ctx.clip();
   ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-  for (let i = 0; i < 16; i += 1) {
-    for (let j = 0; j < 12; j += 1) {
-      const x = -2.8 + i * 0.4;
-      const y = -1.8 + j * 0.4;
-      const p = worldToPx(x, y);
-      ctx.beginPath();
-      ctx.arc(p.px, p.py, 1.5, 0, Math.PI * 2);
-      ctx.fill();
+  const wL = VIEW.cx - drawW / 2 / VIEW.scale, wR = VIEW.cx + drawW / 2 / VIEW.scale;
+  const wB = VIEW.cy - sceneH / 2 / VIEW.scale, wT = VIEW.cy + sceneH / 2 / VIEW.scale;
+  const ds = 0.4;
+  for (let gx = Math.ceil(wL / ds) * ds; gx <= wR; gx += ds) {
+    for (let gy = Math.ceil(wB / ds) * ds; gy <= wT; gy += ds) {
+      const p = worldToPx(gx, gy);
+      ctx.beginPath(); ctx.arc(p.px, p.py, 1.5, 0, Math.PI * 2); ctx.fill();
     }
   }
+  ctx.restore();
 
   // Analytic circle (cyan dashed)
   const cx_world = r, cy_world = 0;
@@ -186,17 +193,44 @@ function drawAll() {
     ctx.stroke();
   }
 
-  // Legend
+  // Compact scene note (inside the scene box).
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText('B out of page (dots)', 60, H - 32);
-  ctx.fillStyle = 'rgba(127, 177, 216, 0.75)';
-  ctx.fillText('analytic circle (dashed)', 260, H - 32);
-  ctx.fillStyle = 'rgba(200, 200, 200, 0.7)';
-  ctx.fillText('swarm (blue to red = slow to fast)', 260, H - 14);
-  ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('main particle (orange)', 60, H - 14);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.fillText('B out of page (dots); orange = main particle; dashed = analytic circle', padL + 10, padT + sceneH - 12);
+
+  // r(v) / T(v) diagnostic in the lower band.
+  drawDiagnostic(padL, drawW, padT + sceneH + 18, H - 28);
+}
+
+// Diagnostic: radius r = m v / (q B) and period T = 2 pi m / (q B) versus
+// speed. The radius rises linearly with v while the period is flat (the
+// defining cyclotron result), so the swarm of different speeds all close
+// their loops in step. The coloured dots are the five swarm members.
+function drawDiagnostic(padL, drawW, top, bot) {
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(padL, top, drawW, bot - top);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.strokeRect(padL + 0.5, top + 0.5, drawW - 1, bot - top - 1);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('radius r and period T vs speed v: r grows with v, T is fixed', padL + 10, top + 14);
+  const vmax = 1.8, rmaxv = cyclotronRadius(vmax, state.B), Tval = cyclotronPeriod(state.B);
+  const ax = padL + 54, aw = drawW - 54 - 18, ay = top + 30, ah = bot - top - 30 - 24;
+  const PX = (v) => ax + v / vmax * aw;
+  const PYr = (rr) => ay + ah - rr / (rmaxv * 1.15) * ah;
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  // period reference (flat)
+  const Ty = ay + 14;
+  ctx.strokeStyle = 'rgba(127,177,216,0.7)'; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(ax, Ty); ctx.lineTo(ax + aw, Ty); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(127,177,216,0.9)'; ctx.textAlign = 'right'; ctx.fillText(`T = ${Tval.toFixed(2)} (independent of v)`, ax + aw - 6, Ty - 5);
+  // radius line
+  ctx.strokeStyle = 'rgba(241,210,138,0.9)'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i <= 60; i += 1) { const v = vmax * i / 60; const p = PX(v), q = PYr(cyclotronRadius(v, state.B)); if (i === 0) ctx.moveTo(p, q); else ctx.lineTo(p, q); }
+  ctx.stroke();
+  // swarm members
+  const speeds = [0.4, 0.7, 1.0, 1.3, 1.6], cols = ['#64c8ff', '#64dcdc', '#f1d28a', '#ff9664', '#ff6464'];
+  speeds.forEach((sp, i) => { const p = PX(sp), q = PYr(cyclotronRadius(sp, state.B)); ctx.fillStyle = cols[i]; ctx.beginPath(); ctx.arc(p, q, 4, 0, 6.2832); ctx.fill(); });
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.textAlign = 'center'; ctx.fillText('speed v', ax + aw / 2, ay + ah + 16);
+  ctx.save(); ctx.translate(padL + 16, ay + ah / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(241,210,138,0.8)'; ctx.fillText('radius r', 0, 0); ctx.restore();
 }
 
 function tickN(n) {
