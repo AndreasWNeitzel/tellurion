@@ -5,7 +5,7 @@
 // I(s) = I_in e^-tau_s + S(1 - e^-tau_s). Thin slab -> the source
 // passes through; thick slab -> you only see the slab's own glow S.
 // If S < I_in the emergent beam is darkened (an absorption line); if
-// S > I_in it is brightened (an emission line) -- the spectrum strip
+// S > I_in it is brightened (an emission line); the spectrum strip
 // shows this. The I(tau) curve is the demoted diagnostic. sim.js
 // (transmitOptical, profileVsTau) is unchanged. Reference: Rybicki
 // and Lightman, Radiative Processes in Astrophysics, Ch. 1.

@@ -114,7 +114,7 @@ function drawScene(col, r) {
   ctx.fillStyle = lineCol; ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.fillText(isTrapped ? 'mode TRAPPED: rings against the glitch (a deltaP dip)' : 'mode propagating across the cavity', draw.x + 4, draw.y + draw.h * 0.44);
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono');
-  ctx.fillText('displacement xi(r)    centre -- fractional radius r/R -- surface', draw.x + 4, draw.y + draw.h - 2);
+  ctx.fillText('displacement xi(r)    centre | fractional radius r/R | surface', draw.x + 4, draw.y + draw.h - 2);
 
   // readout strip.
   const items = [

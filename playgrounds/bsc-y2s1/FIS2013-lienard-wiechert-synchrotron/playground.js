@@ -63,7 +63,7 @@ function project(x, y, z) {
   return { x: cx + xp * 270, y: cy - yp * 270, depth: zr };
 }
 
-// Sample the radiation pattern as a function of (theta, phi) -- theta
+// Sample the radiation pattern as a function of (theta, phi), where theta
 // from the velocity direction (here +y in world coords), phi azimuth.
 // For "parallel" acceleration: pattern depends only on theta.
 // For "perpendicular": depends on theta AND phi.

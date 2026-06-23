@@ -53,7 +53,7 @@ function current() {
 // HR diagram region.
 const HR = { x: 30, y: 40, w: W - 60, h: 230 };
 // L axis: log L / L_sun in [-5, 1]
-// T axis: log T_eff in [3.4, 4.7] (5000 to 50000 K) -- inverted (hot on left)
+// T axis: log T_eff in [3.4, 4.7] (5000 to 50000 K), inverted (hot on left)
 const LMIN = -5, LMAX = 1;
 const LOGTMIN = 3.4, LOGTMAX = 4.7;
 

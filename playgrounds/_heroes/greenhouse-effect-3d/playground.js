@@ -496,7 +496,7 @@ function drawSpectrumPanel() {
   function yOf(b) { return ay + ah - (b / bmax) * ah; }
   // Absorption-band shading. CO2 main band centred at 15 micron; H2O
   // rotational tails > 20 micron, vibrational band centred at ~ 6.3 micron.
-  // The CO2 band STRENGTH scales with log2(co2_ppm) -- visualize this by
+  // The CO2 band STRENGTH scales with log2(co2_ppm); visualize this by
   // making the band's vertical fill proportional to (1 - exp(-tau_band)).
   const co2Center = 15e-6, co2Width = 2.5e-6;
   const co2Strength = Math.min(0.95, 0.30 + 0.50 * Math.log2(st.co2_ppm / 280) / 3);

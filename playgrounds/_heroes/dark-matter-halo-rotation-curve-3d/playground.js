@@ -272,7 +272,7 @@ function drawRotationCurve() {
 
   // Observed rotation-curve data points (Rubin-Ford-style): synthetic
   // measurements with scatter, generated once and frozen. They follow
-  // the FULL visible+DM curve (flat at large r) -- the observational
+  // the FULL visible+DM curve (flat at large r), the observational
   // evidence for dark matter. The points stay fixed while the user
   // changes the model so the mismatch with the visible-only curve is
   // obvious.

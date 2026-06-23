@@ -118,7 +118,7 @@ function drawRotor() {
   ctx.fillText('kicked rotor', cx, RP.y + 18);
   ctx.fillText('free spin, then kick K sin(θ)', cx, RP.y + RP.h - 8);
 
-  // readout panel (right of the rotor) -- fills the rest of the top band
+  // readout panel (right of the rotor), fills the rest of the top band
   ctx.fillStyle = '#070a10'; ctx.fillRect(RO.x - 2, RO.y - 2, RO.w + 4, RO.h + 4);
   ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.strokeRect(RO.x, RO.y, RO.w, RO.h);
   const lx = RO.x + 20; let yy = RO.y + 40;

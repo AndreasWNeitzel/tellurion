@@ -287,7 +287,7 @@ function drawAux(x, y, w, h) {
   ctx.fillStyle = 'rgba(200,210,235,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('0', gx - 4, gy + gh + 14); ctx.fillText('90', gx + gw / 2 - 8, gy + gh + 14);
   ctx.fillText('180', gx + gw - 16, gy + gh + 14);
-  ctx.fillText('dsigma/dOmega vs θ -- symmetric about 90 deg', gx + 8, gy + 14);
+  ctx.fillText('dsigma/dOmega vs θ, symmetric about 90 deg', gx + 8, gy + 14);
 }
 
 function draw() {
