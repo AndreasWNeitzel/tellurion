@@ -108,21 +108,24 @@ function arrow(cx, cy, dir, col, label) {
 
 function drawStack(x, y, w, h, sAt) {
   panel(x, y, w, h, `spin-valve stack: ${st.model === 'tmr' ? 'FM / tunnel barrier / FM' : 'FM / metal spacer / FM'}`);
-  const cx = x + w * 0.56, lw = w * 0.5;
-  const yFree = y + 54, ySpace = y + 96, yPin = y + 138;
-  ctx.fillStyle = '#26408a'; ctx.fillRect(cx - lw / 2, yFree - 18, lw, 30);                 // free layer
+  const cx = x + w * 0.5, lw = w * 0.5;
+  // Spread the layers down the panel instead of crowding them at the top.
+  const yFree = y + h * 0.30, ySpace = y + h * 0.48, yPin = y + h * 0.66;
+  const lh = 48, sh = 34;
+  ctx.fillStyle = '#26408a'; ctx.fillRect(cx - lw / 2, yFree - lh / 2, lw, lh);               // free layer
   ctx.fillStyle = st.model === 'tmr' ? '#3a3340' : '#2a3550';
-  ctx.fillRect(cx - lw / 2, ySpace - 12, lw, 22);                                            // spacer / barrier
-  ctx.fillStyle = '#26408a'; ctx.fillRect(cx - lw / 2, yPin - 18, lw, 30);                   // pinned layer
+  ctx.fillRect(cx - lw / 2, ySpace - sh / 2, lw, sh);                                          // spacer / barrier
+  ctx.fillStyle = '#26408a'; ctx.fillRect(cx - lw / 2, yPin - lh / 2, lw, lh);                 // pinned layer
   // exchange-bias hatch under the pinned layer
   ctx.strokeStyle = 'rgba(231,155,255,0.6)'; ctx.lineWidth = 1;
-  for (let i = 0; i < lw; i += 7) { ctx.beginPath(); ctx.moveTo(cx - lw / 2 + i, yPin + 14); ctx.lineTo(cx - lw / 2 + i + 5, yPin + 22); ctx.stroke(); }
-  ctx.fillStyle = 'rgba(231,155,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('antiferromagnet (exchange bias)', cx - lw / 2, yPin + 36);
-  arrow(cx, yFree - 3, sAt.mFree, '#7fd1ff', 'free');
-  arrow(cx, yPin - 3, sAt.mPin, '#f1c069', 'pinned');
-  ctx.fillStyle = 'rgba(220,230,250,0.7)';
-  ctx.fillText(st.model === 'tmr' ? 'tunnel barrier' : 'metal spacer', cx + lw / 2 + 6, ySpace + 2);
+  for (let i = 0; i < lw; i += 7) { ctx.beginPath(); ctx.moveTo(cx - lw / 2 + i, yPin + lh / 2 + 2); ctx.lineTo(cx - lw / 2 + i + 5, yPin + lh / 2 + 10); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(231,155,255,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('antiferromagnet (exchange bias)', cx, yPin + lh / 2 + 30);
+  arrow(cx, yFree, sAt.mFree, '#7fd1ff', 'free');
+  arrow(cx, yPin, sAt.mPin, '#f1c069', 'pinned');
+  ctx.fillStyle = 'rgba(220,230,250,0.7)'; ctx.textAlign = 'right';
+  ctx.fillText(st.model === 'tmr' ? 'tunnel barrier' : 'metal spacer', cx - lw / 2 - 8, ySpace + 4);
+  ctx.textAlign = 'left';
   const par = sAt.state === 'parallel';
   ctx.fillStyle = par ? '#8fe39b' : '#ff8f8f'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(par ? 'PARALLEL  (low resistance R_P)' : 'ANTIPARALLEL  (high resistance R_AP)', x + 14, y + h - 14);
