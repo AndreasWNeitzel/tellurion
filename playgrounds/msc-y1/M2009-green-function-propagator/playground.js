@@ -123,14 +123,24 @@ function drawTent(x, y, w, h) {
   const fr = frame(x, y, w, h);
   const xp = xpVal();
   const X = (xx) => fr.px + fr.pw * xx / L;
-  // scale: tents up to ~ max G plus the weighted contributions
-  const gmax = 0.26;                                       // max tent height (L/4)
-  const Y = (v) => fr.py + fr.ph * (1 - v / (gmax * 1.1));
-  // a sample of weighted tents w_j f(x_j) G(.,x_j) building u (faint)
+  // Auto-scale the panel to the tallest thing drawn (the highlighted tent,
+  // whose apex x'(L-x')/L shrinks to zero near the walls, plus the faint
+  // weighted tents). A fixed L/4 scale left the tent hugging the floor for
+  // most of the x' sweep; the floor keeps it sane when x' sits on a wall.
   const xs = cache.x;
+  const faint = [];
+  let gmax = greenG(xp, xp);
   for (let s = 6; s < N; s += 18) {
     const wj = source(st.src, xs[s], st.p) * (L / (N - 1));
     if (Math.abs(wj) < 1e-4) continue;
+    faint.push({ s, wj });
+    const peak = Math.abs(wj) * (xs[s] * (L - xs[s]) / L) * 26;
+    if (peak > gmax) gmax = peak;
+  }
+  gmax = Math.max(gmax, 0.04) * 1.12;
+  const Y = (v) => fr.py + fr.ph * (1 - v / gmax);
+  // a sample of weighted tents w_j f(x_j) G(.,x_j) building u (faint)
+  for (const { s, wj } of faint) {
     ctx.strokeStyle = wj > 0 ? 'rgba(111,180,255,0.16)' : 'rgba(255,157,111,0.16)';
     ctx.lineWidth = 1; ctx.beginPath();
     for (let i = 0; i < N; i += 4) {
