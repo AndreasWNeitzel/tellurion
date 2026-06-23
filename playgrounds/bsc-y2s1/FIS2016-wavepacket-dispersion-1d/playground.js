@@ -29,7 +29,7 @@ const PX0 = 40, PX1 = W - 30;
 const xToPx = (x) => PX0 + (x - XMIN) / (XMAX - XMIN) * (PX1 - PX0);
 
 // waterfall offscreen (x across, time down)
-const WFW = 480, WFH = 190;
+const WFW = 480, WFH = 200;
 const wf = document.createElement('canvas'); wf.width = WFW; wf.height = WFH;
 const wfx = wf.getContext('2d');
 wfx.fillStyle = '#05060c'; wfx.fillRect(0, 0, WFW, WFH);
@@ -64,7 +64,7 @@ btnR.addEventListener('click', () => { st.s0 = 1; st.k0 = 3; st.t = 0; sS.value 
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
 function render() {
-  if (!CAPTURE_NAME && running) { st.t += 0.03; if (st.t > 6) { st.t = 0; resetWaterfall(); } if (Math.round(st.t / 0.03) % 2 === 0) pushWaterfall(st.t); }
+  if (!CAPTURE_NAME && running) { st.t += 0.03; if (st.t > 6) { st.t = 0; resetWaterfall(); } pushWaterfall(st.t); }
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A quantum wavepacket: it moves at the group velocity and spreads as it goes', 18, 26);
@@ -72,7 +72,8 @@ function render() {
   const sig = spreadAt(st.s0, st.t), c = center(0, st.k0, st.t);
   // top: glowing probability cloud + Re(psi) carrier
   const cyT = 146, lane = 78;
-  let dmax = 1e-9, N = 460;
+  const N = 460;
+  let dmax = 1e-9;
   for (let i = 0; i <= N; i += 1) { const x = XMIN + (XMAX - XMIN) * i / N; dmax = Math.max(dmax, density(x, st.t, 0, st.k0, st.s0)); }
   for (let i = 0; i <= N; i += 1) {
     const x = XMIN + (XMAX - XMIN) * i / N;
@@ -109,9 +110,43 @@ function render() {
   ctx.fillText('x  ->', PX1 - 40, wy + WFH + 16);
   ctx.save(); ctx.translate(PX0 - 6, wy + WFH / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('t (old -> new, down)', -40, 0); ctx.restore();
 
-  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`sigma0 = ${st.s0.toFixed(2)}   k0 = ${st.k0.toFixed(1)}   v_g = hbar k0/m = ${st.k0.toFixed(1)}   t = ${st.t.toFixed(2)}   sigma(t) = ${sig.toFixed(2)}`, 18, H - 14);
+  drawDispersionPlot();
+
+  ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(`sigma0 = ${st.s0.toFixed(2)}   k0 = ${st.k0.toFixed(1)}   v_g = hbar k0/m = ${st.k0.toFixed(1)}   t = ${st.t.toFixed(2)}   sigma(t) = ${sig.toFixed(2)}`, 18, H - 12);
   rS.textContent = sig.toFixed(2);
+}
+
+// The quantitative companion to the waterfall: the analytic packet centre
+// x_c(t) = v_g t (a straight worldline whose slope is the group velocity) with
+// the +-sigma(t) band shaded around it, fanning out as the packet disperses.
+function drawDispersionPlot() {
+  const x0 = 40, x1 = W - 30, y0 = 514, y1 = H - 38, TMAX = 6;
+  ctx.fillStyle = '#0a0b12'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+  ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, x1 - x0 - 1, y1 - y0 - 1);
+  ctx.fillStyle = 'rgba(226,232,240,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('packet centre x_c(t) and the +/- sigma(t) band: drifts at v_g, fans out (dispersion)', x0 + 10, y0 + 16);
+  const plT = y0 + 28, plB = y1 - 26, plL = x0 + 44, plR = x1 - 14;
+  const xt = (t) => plL + (t / TMAX) * (plR - plL);
+  const pTop = center(0, st.k0, TMAX) + spreadAt(st.s0, TMAX) * 1.05, pBot = XMIN;
+  const yp = (pos) => plB - (pos - pBot) / (pTop - pBot) * (plB - plT);
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(plL, plT); ctx.lineTo(plL, plB); ctx.lineTo(plR, plB); ctx.stroke();
+  // sigma band
+  ctx.fillStyle = 'rgba(91,192,235,0.20)'; ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) { const t = TMAX * i / 120; ctx.lineTo(xt(t), yp(center(0, st.k0, t) + spreadAt(st.s0, t))); }
+  for (let i = 120; i >= 0; i -= 1) { const t = TMAX * i / 120; ctx.lineTo(xt(t), yp(center(0, st.k0, t) - spreadAt(st.s0, t))); }
+  ctx.closePath(); ctx.fill();
+  // centre worldline
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i <= 120; i += 1) { const t = TMAX * i / 120; const X = xt(t), Y = yp(center(0, st.k0, t)); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
+  ctx.stroke();
+  // current-time marker
+  const tc = Math.min(TMAX, st.t);
+  ctx.strokeStyle = 'rgba(6,214,160,0.6)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xt(tc), plT); ctx.lineTo(xt(tc), plB); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#06d6a0'; ctx.beginPath(); ctx.arc(xt(tc), yp(center(0, st.k0, tc)), 4.5, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = 'rgba(180,190,210,0.6)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('time t', (plL + plR) / 2, plB + 16);
+  ctx.save(); ctx.translate(x0 + 14, (plT + plB) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('position x', 0, 0); ctx.restore();
 }
 
 function tick() { render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
@@ -120,7 +155,7 @@ function bootSync() {
     const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
     st.t = frac * 5.0;
     resetWaterfall();
-    for (let tt = 0; tt <= st.t + 1e-6; tt += 0.06) pushWaterfall(tt);   // deterministic history
+    for (let tt = 0; tt <= st.t + 1e-6; tt += 0.03) pushWaterfall(tt);   // deterministic history
   }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
