@@ -65,23 +65,33 @@ function renderFlow() {
   ctx.strokeStyle = 'rgba(120,130,150,0.25)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(BX0, yOfH(0)); ctx.lineTo(BX1, yOfH(0)); ctx.stroke(); ctx.setLineDash([]);
 
-  // vector field: one RG step direction at each grid point
-  for (let i = 1; i <= 13; i += 1) {
-    const u = i / 14;
-    for (let j = 0; j <= 10; j += 1) {
-      const h = -HMAX + (j / 10) * 2 * HMAX;
-      const K = kOfU(u);
-      const r = rgStep(K, h);
-      const u2 = uOfK(r.K), h2 = r.h;
+  // vector field: one RG step at each grid point. Arrow length and opacity
+  // scale with the flow speed (the plane displacement of a single step), so
+  // the structure reads off the field itself: the flow is fast in the
+  // mid-coupling band and stalls to short stubs near both fixed points
+  // (the marginal approach to the T = infinity sink).
+  const COLS = 17, ROWS = 13;
+  const raw = []; let sMax = 1e-9;
+  for (let i = 1; i <= COLS; i += 1) {
+    for (let j = 0; j <= ROWS; j += 1) {
+      const u = i / (COLS + 1);
+      const h = -HMAX + (j / ROWS) * 2 * HMAX;
+      const r = rgStep(kOfU(u), h);
       const x0 = xOfU(u), y0 = yOfH(h);
-      let dx = xOfU(u2) - x0, dy = yOfH(Math.max(-HMAX, Math.min(HMAX, h2))) - y0;
-      const m = Math.hypot(dx, dy) || 1;
-      const L = 16;
-      dx = dx / m * L; dy = dy / m * L;
-      ctx.strokeStyle = 'rgba(120,170,235,0.5)'; ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + dx, y0 + dy); ctx.stroke();
-      arrowHead(x0 + dx, y0 + dy, Math.atan2(dy, dx), 5, 'rgba(120,170,235,0.6)');
+      const dxr = xOfU(uOfK(r.K)) - x0, dyr = yOfH(Math.max(-HMAX, Math.min(HMAX, r.h))) - y0;
+      const sp = Math.hypot(dxr, dyr);
+      if (sp > sMax) sMax = sp;
+      raw.push({ x0, y0, dxr, dyr, sp });
     }
+  }
+  for (const a of raw) {
+    const t = Math.min(1, a.sp / (sMax * 0.6));
+    const dir = Math.atan2(a.dyr, a.dxr);
+    const L = 7 + 15 * t, al = 0.2 + 0.62 * t;
+    const dx = Math.cos(dir) * L, dy = Math.sin(dir) * L;
+    ctx.strokeStyle = `rgba(120,170,235,${al})`; ctx.lineWidth = 1 + t;
+    ctx.beginPath(); ctx.moveTo(a.x0, a.y0); ctx.lineTo(a.x0 + dx, a.y0 + dy); ctx.stroke();
+    arrowHead(a.x0 + dx, a.y0 + dy, dir, 4 + 2.4 * t, `rgba(120,170,235,${Math.min(1, al + 0.12)})`);
   }
 
   // fixed points
