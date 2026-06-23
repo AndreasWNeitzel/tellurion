@@ -36,8 +36,11 @@ const SAMPLES_PER_FRAME = 3;
 const WARMUP = 200;
 const TRAIL_MAX = 400;            // tight cap: only last 400 accepted states
 
-const PLOT  = { x: 30, y: 40, w: 540, h: 430, xmin: -6, xmax: 6, ymin: -4, ymax: 4 };
-const PANEL = { x: 600, y: 40, w: 260, h: 430 };
+// Portrait stack: the target-exploration plot on top (full width), the
+// per-chain traces full width below, instead of a landscape side-by-side
+// layout that overflowed the right edge and left the lower half black.
+const PLOT  = { x: 24, y: 44, w: W - 48, h: 516, xmin: -6, xmax: 6, ymin: -4, ymax: 4 };
+const PANEL = { x: 24, y: 590, w: W - 48, h: H - 590 - 28 };
 
 const state = {
   targetName: 'banana',
@@ -262,6 +265,7 @@ function drawDiagnosticsPanel() {
 
   ctx.font = fontString(canvas, 'caption');
   ctx.fillStyle = tokens.fgMuted;
+  ctx.textAlign = 'left';                         // reset from the right-aligned metric loop
   ctx.fillText(`target = ${state.targetName}`, PANEL.x + 12, PANEL.y + PANEL.h - 12);
 }
 
