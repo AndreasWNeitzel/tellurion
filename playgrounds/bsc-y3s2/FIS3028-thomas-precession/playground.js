@@ -1,6 +1,7 @@
 // Thomas precession. Primary scene: a gyroscope disk riding a circular
-// orbit, its spin axis slowly rotating in the lab frame by (gamma - 1)
-// radians per completed orbit. Secondary panel: precession rate vs beta.
+// orbit, its spin axis slowly rotating in the lab frame by 2 pi (gamma - 1)
+// radians, i.e. (gamma - 1) full turns, per completed orbit. Secondary
+// panel: precession per orbit vs beta.
 
 import { gamma, thomasFactor } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
@@ -47,7 +48,7 @@ function render() {
   ctx.fillRect(0, 0, W, H);
 
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('gyroscope on a circular orbit: spin axis turns (gamma-1) rad per orbit', 12, 18);
+  ctx.fillText('gyroscope on a circular orbit: spin axis advances (gamma-1) turns per orbit', 12, 18);
 
   // ORBIT (top third). A projected circle with the gyroscope riding it.
   const cx = W / 2, cy = H * 0.245, R = W * 0.40, ry = R * 0.46;
@@ -115,7 +116,7 @@ function render() {
   }
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right'; ctx.fillText('beta = v/c', px0 + pw, py0 + ph + 16);
-  ctx.textAlign = 'left'; ctx.fillText('(gamma-1) per orbit', px0 + 6, py0 + 14);
+  ctx.textAlign = 'left'; ctx.fillText('(gamma-1) turns per orbit', px0 + 6, py0 + 14);
 
   // Curve and current-beta marker.
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.8; ctx.beginPath();
@@ -130,7 +131,7 @@ function render() {
 
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(
-    `beta=${st.beta.toFixed(2)} gamma=${gamma(st.beta).toFixed(3)}  (gamma-1)=${thomasFactor(st.beta).toFixed(3)} rad/orbit`,
+    `beta=${st.beta.toFixed(2)} gamma=${gamma(st.beta).toFixed(3)}  (gamma-1)=${thomasFactor(st.beta).toFixed(3)} turns/orbit`,
     12, H - 10);
   rW.textContent = thomasFactor(st.beta).toFixed(3);
 }
@@ -139,8 +140,8 @@ function tick(now) {
   const dt = Math.min((now - last) / 1000, 0.05); last = now;
   if (running) {
     st.t += dt;
-    // Precession accrues (gamma - 1) radians per full orbit; rate is
-    // (gamma - 1) / T_ORBIT radians per second.
+    // Precession accrues 2 pi (gamma - 1) radians, i.e. (gamma - 1) full
+    // turns, per orbit; the 2 pi converts the turns/orbit factor to radians.
     st.precess += thomasFactor(st.beta) * (dt / T_ORBIT) * 2 * Math.PI;
   }
   render();
@@ -173,7 +174,8 @@ if (document.readyState === 'loading') {
 }
 
 // 1-C invariant: after one orbit at beta=0.866 (gamma=2), the accumulated
-// spin-axis angle equals (gamma-1) = 1.0 rad within 0.5%.
+// spin-axis angle equals 2 pi (gamma-1) = 2 pi rad, i.e. (gamma-1) = 1.0 full
+// turn, within 0.5%.
 window.__physicsCheck = async () => {
   const beta = 0.866;
   const g = gamma(beta);
@@ -181,9 +183,9 @@ window.__physicsCheck = async () => {
   const dt = T_ORBIT / Nsteps;
   let precess = 0;
   for (let i = 0; i < Nsteps; i += 1) precess += thomasFactor(beta) * (dt / T_ORBIT) * 2 * Math.PI;
-  // After exactly one orbit, accumulated = (gamma-1) * 2pi (radians of axis
-  // rotation across the full orbit). The per-orbit advance is (gamma-1)*2pi;
-  // the spec's "(gamma-1) radian" refers to the rate constant gamma-1.
+  // After exactly one orbit, accumulated = (gamma-1) * 2pi radians of axis
+  // rotation, i.e. (gamma-1) full turns. The dimensionless factor (gamma-1)
+  // is the precession in turns per orbit.
   const perOrbit = thomasFactor(beta) * 2 * Math.PI;
   const expected = (g - 1) * 2 * Math.PI;
   const err = Math.abs(perOrbit - expected) / Math.max(expected, 1e-9);
