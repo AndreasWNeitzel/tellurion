@@ -25,8 +25,8 @@ const btnR = document.getElementById('btn-reset'), btnP = document.getElementByI
 
 const st = { sigma: 1.5, kappa: 1.5, GSig: 3, t: 0 };
 let running = !prefersReducedMotion();
-const CX = 250, CY = 250, RIN = 36, ROUT = 196;
-const N = 2200;
+const CX = 410, CY = 384, RIN = 52, ROUT = 320;
+const N = 3600;
 
 // seeded disk: particle base radius + angle, fixed
 let _s = 0x1234;
@@ -92,20 +92,21 @@ function render() {
     const th = th0 + (amp / mArms) * Math.sin(phase);
     const rr = p.r * (1 + 0.05 * amp * Math.cos(phase));
     const x = CX + rr * Math.cos(th), y = CY + rr * Math.sin(th);
-    if (x < 24 || x > 476 || y < 40 || y > 470) continue;
+    if (x < 24 || x > 796 || y < 48 || y > 712) continue;
     const comp = 0.5 + 0.5 * Math.cos(phase);             // bright on the crest
     const a = 0.22 + 0.7 * (Q < 1 ? comp : 0.4);
     ctx.fillStyle = `rgba(${(160 + 80 * comp) | 0},${(190 + 45 * comp) | 0},255,${a.toFixed(3)})`;
-    ctx.fillRect(x, y, 2.0, 2.0);
+    ctx.fillRect(x, y, 2.2, 2.2);
   }
   // galactic centre
-  ctx.fillStyle = 'rgba(255,220,150,0.9)'; ctx.beginPath(); ctx.arc(CX, CY, 5, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = 'rgba(255,220,150,0.9)'; ctx.beginPath(); ctx.arc(CX, CY, 6, 0, 6.2832); ctx.fill();
   ctx.fillStyle = Q < 1 ? '#ef476f' : '#06d6a0'; ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(Q < 1 ? `UNSTABLE  Q = ${Q.toFixed(2)} < 1  (growing spiral, rate ${gamma.toFixed(2)})`
-    : `STABLE  Q = ${Q.toFixed(2)} > 1  (perturbation shears away)`, 26, 470);
+    : `STABLE  Q = ${Q.toFixed(2)} > 1  (perturbation shears away)`, 26, 738);
 
-  // diagnostic: nu^2(k) dispersion curve with the unstable band
-  const dx = 500, dy = 70, dw = canvas.width - dx - 24, dh = 360;
+  // diagnostic: nu^2(k) dispersion curve with the unstable band, a
+  // full-width strip across the bottom of the portrait.
+  const dx = 24, dy = 752, dw = canvas.width - 48, dh = canvas.height - dy - 20;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx, dy, dw, dh);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx + 0.5, dy + 0.5, dw - 1, dh - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
