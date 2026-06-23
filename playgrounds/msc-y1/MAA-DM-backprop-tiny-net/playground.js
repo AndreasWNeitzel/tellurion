@@ -328,20 +328,36 @@ function drawLoss() {
   ctx.fillText('training loss (BCE) vs iterations', LX + 8, LY + 14);
 
   const hist = state.lossHistory;
-  if (hist.length >= 2) {
-    let lMin = Infinity, lMax = -Infinity;
-    for (const l of hist) { if (l < lMin) lMin = l; if (l > lMax) lMax = l; }
-    if (lMax === lMin) lMax = lMin + 1;
-    ctx.strokeStyle = '#f1d28a';
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    for (let i = 0; i < hist.length; i += 1) {
-      const x = LX + 6 + (LW - 12) * (i / Math.max(1, hist.length - 1));
-      const y = LY + LH - 8 - (LH - 28) * (hist[i] - lMin) / (lMax - lMin);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
+  if (hist.length < 2) return;
+  let lMin = Infinity, lMax = -Infinity;
+  for (const l of hist) { if (l < lMin) lMin = l; if (l > lMax) lMax = l; }
+  if (lMax === lMin) lMax = lMin + 1;
+  lMax += (lMax - lMin) * 0.06;                       // headroom above the start
+  const axL = LX + 56, axR = LX + LW - 14, axT = LY + 30, axB = LY + LH - 28;
+  const xOf = (i) => axL + (axR - axL) * (i / Math.max(1, hist.length - 1));
+  const yOf = (l) => axB - (axB - axT) * (l - lMin) / (lMax - lMin);
+
+  // Y ticks: loss levels with faint gridlines.
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.62)'; ctx.textAlign = 'right';
+  for (let k = 0; k <= 4; k += 1) {
+    const l = lMin + (lMax - lMin) * k / 4, y = yOf(l);
+    ctx.fillText(l.toFixed(2), axL - 6, y + 3);
+    ctx.strokeStyle = 'rgba(226,232,240,0.06)'; ctx.beginPath(); ctx.moveTo(axL, y); ctx.lineTo(axR, y); ctx.stroke();
   }
+  // X ticks: iteration counts (one history entry per iteration).
+  ctx.textAlign = 'center';
+  for (let k = 0; k <= 4; k += 1) {
+    const i = (hist.length - 1) * k / 4;
+    ctx.fillText(`${Math.round((hist.length - 1) * k / 4)}`, xOf(i), axB + 16);
+  }
+
+  // Loss curve, autoscaled to span the panel height (x-axis = iterations, per title).
+  ctx.strokeStyle = '#f1d28a'; ctx.lineWidth = 1.6; ctx.beginPath();
+  for (let i = 0; i < hist.length; i += 1) {
+    const x = xOf(i), y = yOf(hist[i]);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
 }
 
 function drawAll() {
