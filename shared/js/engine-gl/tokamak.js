@@ -61,10 +61,11 @@ precision highp float;
 in vec3 vCol;
 out vec4 o;
 void main() {
-  // Soft Gaussian falloff inside the point sprite.
+  // Soft Gaussian falloff inside the point sprite. Boosted so the additively
+  // blended plasma reads at native brightness, not just where particles pile up.
   vec2 d = gl_PointCoord - 0.5;
   float f = exp(-dot(d, d) * 12.0);
-  o = vec4(vCol * f, 1.0);
+  o = vec4(vCol * f * 1.7, 1.0);
 }`;
 
 function viridis(t) {
@@ -220,7 +221,7 @@ export function setupTokamakGL(canvas) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vboCol);
     gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
     // Vessel: translucent.
-    gl.uniform1f(gl.getUniformLocation(lineProg, 'uAlpha'), 0.20);
+    gl.uniform1f(gl.getUniformLocation(lineProg, 'uAlpha'), 0.30);
     gl.drawArrays(gl.LINES, 0, sceneInfo.vesselVertexCount);
     // Field lines: opaque-ish.
     gl.uniform1f(gl.getUniformLocation(lineProg, 'uAlpha'), 0.85);
@@ -230,7 +231,7 @@ export function setupTokamakGL(canvas) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.depthMask(false);
     gl.uniformMatrix4fv(gl.getUniformLocation(pointProg, 'uMVP'), false, mvp);
-    gl.uniform1f(gl.getUniformLocation(pointProg, 'uPointSize'), 4);
+    gl.uniform1f(gl.getUniformLocation(pointProg, 'uPointSize'), 5.5);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboPtPos);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vboPtCol);
