@@ -153,7 +153,7 @@ function render() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   const surf = makeSurface(st.surface, st.Rr);
-  const cx = canvas.width * 0.5, cy = Math.round(canvas.height * 0.40);
+  const cx = canvas.width * 0.5, cy = Math.round(canvas.height * 0.34);
 
   // Mesh the surface, then paint back-to-front so nearer cells win.
   const pts = [];
@@ -205,7 +205,7 @@ function render() {
 // line is the sphere; the torus and saddle vary with position.
 function drawKDiagnostic(surf) {
   const W = canvas.width, H = canvas.height;
-  const pw = W - 120, ph = 168, px = 60, py = H - ph - 40;
+  const pw = W - 120, ph = 300, px = 60, py = H - ph - 40;
   ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
   ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
