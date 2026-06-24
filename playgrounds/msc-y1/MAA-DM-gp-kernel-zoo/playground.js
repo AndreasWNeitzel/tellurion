@@ -50,85 +50,112 @@ function getKernel() {
   return KERNELS[state.kernel](state.ell, state.sf);
 }
 
-function toPx(x, y, panel) {
-  return {
-    px: panel.x + panel.w * (x - X_MIN) / (X_MAX - X_MIN),
-    py: panel.y + panel.h * (1 - (y - panel.ymin) / (panel.ymax - panel.ymin)),
+// Posterior fit is the hero; the kernel-covariance and prior-sample
+// panels sit below it, each scaled to its own data so nothing spills.
+const POST = { x: 30, y: 66, w: W - 60, h: 474 };
+const KER = { x: 40, y: 600, w: 348, h: 388 };
+const PRI = { x: 440, y: 600, w: W - 40 - 440, h: 388 };
+POST._map = null;
+
+function panelFrame(p, title, color) {
+  ctx.fillStyle = '#0a0a0e'; ctx.fillRect(p.x, p.y, p.w, p.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = 1; ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
+  ctx.fillStyle = color || 'rgba(220,230,245,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
+  ctx.fillText(title, p.x + 8, p.y + 16);
+}
+
+function drawPosterior() {
+  const p = POST;
+  panelFrame(p, `posterior GP fit: mean and 1, 2 sigma bands on ${state.xObs.length} observations (sigma_n = ${state.sn.toFixed(2)})`, 'rgba(127,190,255,0.95)');
+  const k = getKernel();
+  const { mu, std } = posterior(k, state.xs, state.xObs, state.yObs, state.sn);
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < NX; i += 1) { lo = Math.min(lo, mu[i] - 2 * std[i]); hi = Math.max(hi, mu[i] + 2 * std[i]); }
+  for (const y of state.yObs) { lo = Math.min(lo, y); hi = Math.max(hi, y); }
+  if (!Number.isFinite(lo)) { lo = -3; hi = 3; }
+  const pad = (hi - lo) * 0.12 + 1e-6; lo -= pad; hi += pad;
+  const ax = p.x + 16, ay = p.y + 30, aw = p.w - 30, ah = p.h - 58;
+  const X = (x) => ax + aw * (x - X_MIN) / (X_MAX - X_MIN);
+  const Y = (y) => ay + ah * (1 - (y - lo) / (hi - lo));
+  if (lo < 0 && hi > 0) { ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ax, Y(0)); ctx.lineTo(ax + aw, Y(0)); ctx.stroke(); }
+  ctx.save(); ctx.beginPath(); ctx.rect(ax, ay, aw, ah); ctx.clip();
+  const band = (ns, fill) => {
+    ctx.fillStyle = fill; ctx.beginPath();
+    for (let i = 0; i < NX; i += 1) { const xx = X(state.xs[i]), yy = Y(mu[i] + ns * std[i]); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+    for (let i = NX - 1; i >= 0; i -= 1) ctx.lineTo(X(state.xs[i]), Y(mu[i] - ns * std[i]));
+    ctx.closePath(); ctx.fill();
   };
+  band(2, 'rgba(110,165,215,0.16)');
+  band(1, 'rgba(110,165,215,0.30)');
+  ctx.strokeStyle = tok.accent; ctx.lineWidth = 2.2; ctx.beginPath();
+  for (let i = 0; i < NX; i += 1) { const xx = X(state.xs[i]), yy = Y(mu[i]); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+  ctx.stroke();
+  ctx.restore();
+  // Observations with +/- sigma_n noise bars.
+  ctx.fillStyle = '#f1d28a'; ctx.strokeStyle = 'rgba(241,210,138,0.7)'; ctx.lineWidth = 1.4;
+  for (let i = 0; i < state.xObs.length; i += 1) {
+    const xx = X(state.xObs[i]);
+    ctx.beginPath(); ctx.moveTo(xx, Y(state.yObs[i] + state.sn)); ctx.lineTo(xx, Y(state.yObs[i] - state.sn)); ctx.stroke();
+    ctx.beginPath(); ctx.arc(xx, Y(state.yObs[i]), 4.5, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(170,180,200,0.6)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right';
+  ctx.fillText('click in the panel to add an observation', p.x + p.w - 10, p.y + p.h - 8);
+  POST._map = { ax, ay, aw, ah, lo, hi };
+}
+
+function drawKernel() {
+  const p = KER;
+  panelFrame(p, 'kernel: cov( f(x0), f(x) )', 'rgba(180,230,160,0.92)');
+  const k = getKernel();
+  const x0 = 1.2, N = 140;
+  const ax = p.x + 32, ay = p.y + 32, aw = p.w - 44, ah = p.h - 60;
+  const vals = []; let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i <= N; i += 1) { const x = X_MIN + (X_MAX - X_MIN) * i / N; const v = k(x0, x); vals.push(v); lo = Math.min(lo, v); hi = Math.max(hi, v); }
+  lo = Math.min(lo, 0); hi = Math.max(hi, 1e-6); const pad = (hi - lo) * 0.1 + 1e-6; hi += pad; lo -= pad * 0.4;
+  const X = (x) => ax + aw * (x - X_MIN) / (X_MAX - X_MIN);
+  const Y = (v) => ay + ah * (1 - (v - lo) / (hi - lo));
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ax, Y(0)); ctx.lineTo(ax + aw, Y(0)); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(X(x0), ay); ctx.lineTo(X(x0), ay + ah); ctx.stroke(); ctx.setLineDash([]);
+  ctx.save(); ctx.beginPath(); ctx.rect(ax, ay, aw, ah); ctx.clip();
+  ctx.fillStyle = 'rgba(120,200,140,0.14)'; ctx.beginPath(); ctx.moveTo(X(X_MIN), Y(0));
+  for (let i = 0; i <= N; i += 1) ctx.lineTo(X(X_MIN + (X_MAX - X_MIN) * i / N), Y(vals[i]));
+  ctx.lineTo(X(X_MAX), Y(0)); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#86d99a'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i <= N; i += 1) { const xx = X(X_MIN + (X_MAX - X_MIN) * i / N), yy = Y(vals[i]); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+  ctx.stroke(); ctx.restore();
+  ctx.fillStyle = 'rgba(170,180,200,0.7)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('x', ax + aw / 2, ay + ah + 16);
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillText('x0', X(x0), ay + ah + 16);
+}
+
+function drawPrior() {
+  const p = PRI;
+  panelFrame(p, 'prior samples (no data)', 'rgba(205,180,240,0.92)');
+  const k = getKernel();
+  const draws = priorSamples(k, state.xs, 5, state.priorSeed);
+  let lo = Infinity, hi = -Infinity;
+  for (const d of draws) for (const v of d) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+  if (!Number.isFinite(lo)) { lo = -3; hi = 3; }
+  const pad = (hi - lo) * 0.1 + 1e-6; lo -= pad; hi += pad;
+  const ax = p.x + 12, ay = p.y + 30, aw = p.w - 24, ah = p.h - 50;
+  const X = (x) => ax + aw * (x - X_MIN) / (X_MAX - X_MIN);
+  const Y = (y) => ay + ah * (1 - (y - lo) / (hi - lo));
+  ctx.save(); ctx.beginPath(); ctx.rect(ax, ay, aw, ah); ctx.clip();
+  for (let s = 0; s < draws.length; s += 1) {
+    ctx.strokeStyle = `hsla(${(s * 70 + 220) % 360}, 70%, 65%, 0.9)`; ctx.lineWidth = 1.3; ctx.beginPath();
+    for (let i = 0; i < NX; i += 1) { const xx = X(state.xs[i]), yy = Y(draws[s][i]); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+    ctx.stroke();
+  }
+  ctx.restore();
+  ctx.fillStyle = 'rgba(170,180,200,0.7)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('x', ax + aw / 2, ay + ah + 16);
 }
 
 function drawAll() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-
-  const PAD = 30;
-  const PRIOR = { x: PAD, y: 30, w: W - 2 * PAD, h: (H - 100) / 2, ymin: -3, ymax: 3 };
-  const POST  = { x: PAD, y: 30 + PRIOR.h + 30, w: W - 2 * PAD, h: (H - 100) / 2, ymin: -3, ymax: 3 };
-
-  const k = getKernel();
-
-  // PRIOR
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(PRIOR.x, PRIOR.y, PRIOR.w, PRIOR.h);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
-  ctx.strokeRect(PRIOR.x + 0.5, PRIOR.y + 0.5, PRIOR.w - 1, PRIOR.h - 1);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.textAlign = 'left';
-  ctx.fillText('Prior samples (no observations)', PRIOR.x + 8, PRIOR.y - 4);
-
-  const draws = priorSamples(k, state.xs, 5, state.priorSeed);
-  for (let s = 0; s < draws.length; s += 1) {
-    ctx.strokeStyle = `hsla(${(s * 70 + 220) % 360}, 70%, 60%, 0.85)`;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    for (let i = 0; i < NX; i += 1) {
-      const p = toPx(state.xs[i], draws[s][i], PRIOR);
-      if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
-    }
-    ctx.stroke();
-  }
-
-  // POSTERIOR
-  ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(POST.x, POST.y, POST.w, POST.h);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
-  ctx.strokeRect(POST.x + 0.5, POST.y + 0.5, POST.w - 1, POST.h - 1);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.textAlign = 'left';
-  ctx.fillText(`Posterior (${state.xObs.length} observations, sigma_n = ${state.sn.toFixed(2)})`, POST.x + 8, POST.y - 4);
-
-  const { mu, std } = posterior(k, state.xs, state.xObs, state.yObs, state.sn);
-  // Confidence band
-  ctx.fillStyle = 'rgba(110, 165, 215, 0.25)';
-  ctx.beginPath();
-  for (let i = 0; i < NX; i += 1) {
-    const p = toPx(state.xs[i], mu[i] + 2 * std[i], POST);
-    if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
-  }
-  for (let i = NX - 1; i >= 0; i -= 1) {
-    const p = toPx(state.xs[i], mu[i] - 2 * std[i], POST);
-    ctx.lineTo(p.px, p.py);
-  }
-  ctx.closePath();
-  ctx.fill();
-  // Mean
-  ctx.strokeStyle = tok.accent;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  for (let i = 0; i < NX; i += 1) {
-    const p = toPx(state.xs[i], mu[i], POST);
-    if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
-  }
-  ctx.stroke();
-  // Observations
-  ctx.fillStyle = '#f1d28a';
-  for (let i = 0; i < state.xObs.length; i += 1) {
-    const p = toPx(state.xObs[i], state.yObs[i], POST);
-    ctx.beginPath();
-    ctx.arc(p.px, p.py, 4, 0, 2 * Math.PI);
-    ctx.fill();
-  }
+  ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, W, H);
+  drawPosterior();
+  drawKernel();
+  drawPrior();
 }
 
 // Auto-sweep the length scale so the prior samples and the posterior morph
@@ -159,12 +186,11 @@ canvas.addEventListener('click', (ev) => {
   const sx = W / rect.width, sy = H / rect.height;
   const cx = (ev.clientX - rect.left) * sx;
   const cy = (ev.clientY - rect.top) * sy;
-  // Add observation in posterior panel (bottom half)
-  if (cy > 30 + (H - 100) / 2 + 30) {
-    const PAD = 30;
-    const POST = { x: PAD, y: 30 + (H - 100) / 2 + 30, w: W - 2 * PAD, h: (H - 100) / 2, ymin: -3, ymax: 3 };
-    const xv = X_MIN + (X_MAX - X_MIN) * (cx - POST.x) / POST.w;
-    const yv = POST.ymin + (POST.ymax - POST.ymin) * (1 - (cy - POST.y) / POST.h);
+  // Add an observation when the click lands inside the posterior plot area.
+  const m = POST._map;
+  if (m && cx >= m.ax && cx <= m.ax + m.aw && cy >= m.ay && cy <= m.ay + m.ah) {
+    const xv = X_MIN + (X_MAX - X_MIN) * (cx - m.ax) / m.aw;
+    const yv = m.lo + (m.hi - m.lo) * (1 - (cy - m.ay) / m.ah);
     playing = false;
     state.xObs.push(xv); state.yObs.push(yv);
     drawAll();
