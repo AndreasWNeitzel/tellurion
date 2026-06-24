@@ -225,7 +225,10 @@ function tick(now) {
 
 function bootSync() {
   if (CAPTURE_NAME) {
-    ui.beta = 0.2 + 0.78 * CAPTURE_FRAC;          // sweep speed across frames
+    // Sweep across the relativistic regime (not from near-rest): the card is
+    // about aberration/Doppler/beaming, which only become visible at high beta,
+    // so the representative frame should show strong forward star-concentration.
+    ui.beta = 0.78 + 0.21 * CAPTURE_FRAC;
     ui.yaw = (CAPTURE_FRAC - 0.5) * 0.5;
     ui.labT = 6 + 10 * CAPTURE_FRAC;
     frame();
