@@ -166,9 +166,11 @@ function drawDispersion(x, y, w, h) {
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  drawProfile(20, 22, W - 40, 232);
-  drawAcceptance(20, 270, (W - 52) / 2, H - 270 - 16);
-  drawDispersion(20 + (W - 52) / 2 + 12, 270, (W - 52) / 2, H - 270 - 16);
+  // Three harmonious full-width rows (the acceptance and dispersion plots
+  // both have a horizontal axis, so they read better wide than tall).
+  drawProfile(20, 22, W - 40, 300);
+  drawAcceptance(20, 338, W - 40, 320);
+  drawDispersion(20, 674, W - 40, H - 674 - 16);
   rDk.textContent = (st.regime === 'depleted' ? 0 : st.dk).toFixed(2);
   const Lc = coherenceLength(st.regime === 'depleted' ? 0 : st.dk);
   rLc.textContent = Number.isFinite(Lc) ? Lc.toFixed(2) : 'inf';
