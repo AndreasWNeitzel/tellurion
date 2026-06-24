@@ -89,6 +89,14 @@ function R_km() { return radiusFromMass_km(st.M_solar, curveFor(st.eos)); }
 function R_m() { return R_km() * 1000; }
 function P_s() { return st.P_ms * 1e-3; }
 function B_T() { return Math.pow(10, st.logB_G) * 1e-4; }   // 1 G = 1e-4 T
+// Magnetars are slow rotators (P ~ 2-12 s); their spin period is not a control
+// in magnetar mode (the mode is about the B-field flare, not the spin), so the
+// period slider's pulsar value must not leak into the magnetar diagnostics. Use
+// a representative magnetar period (5.5 s, e.g. SGR/AXP range) for the spin and
+// the spin-derived readouts (P, Pdot, tau) whenever magnetar mode is active.
+const MAGNETAR_P_MS = 5500;
+function effP_ms() { return st.mode === 'magnetar' ? MAGNETAR_P_MS : st.P_ms; }
+function effP_s() { return effP_ms() * 1e-3; }
 
 // =========================================================================
 // 3D CAMERA + PROJECTION. The orbit camera gives an eye position; we
@@ -467,11 +475,11 @@ function drawSidePanel() {
   };
   row('M (M_sun)', st.M_solar.toFixed(2));
   row('R (km, ' + st.eos + ')', R_km().toFixed(2));
-  row('P (ms)', st.P_ms.toFixed(2));
+  row('P (ms)', effP_ms().toFixed(2));
   row('B (G)', `1e${st.logB_G.toFixed(1)}`);
   row('alpha (deg)', String(st.alpha_deg));
-  const pdot = spindownPdot_SperS(st.M_solar, R_m(), B_T(), P_s(), st.alpha_deg * DEG);
-  const tau_yr = characteristicAge_yr(P_s(), pdot);
+  const pdot = spindownPdot_SperS(st.M_solar, R_m(), B_T(), effP_s(), st.alpha_deg * DEG);
+  const tau_yr = characteristicAge_yr(effP_s(), pdot);
   row('Pdot (s/s)', pdot.toExponential(2));
   row('tau (yr)', isFinite(tau_yr) ? tau_yr.toExponential(2) : 'inf', '#ffd28a');
   row('mode', st.mode, '#ffd28a');
@@ -836,7 +844,7 @@ function draw() {
   const cam = makeCamBasis();
   // Rotation. Map st.t -> spin phase. The visual rotation speed is
   // capped so the NS does not look like a strobe for short P.
-  const spinPhase = (st.t * 2 * Math.PI / Math.max(0.2, P_s() * 8)) % (2 * Math.PI);
+  const spinPhase = (st.t * 2 * Math.PI / Math.max(0.2, effP_s() * 8)) % (2 * Math.PI);
 
   if (st.mode === 'overview') drawOverviewMode(cam, spinPhase);
   else if (st.mode === 'lighthouse') drawLighthouseMode(cam, spinPhase);
@@ -851,10 +859,10 @@ function draw() {
 
 function updateReadout() {
   rM.textContent = st.M_solar.toFixed(2);
-  rP.textContent = st.P_ms.toFixed(1);
+  rP.textContent = effP_ms().toFixed(1);
   rB.textContent = `1e${st.logB_G.toFixed(1)}`;
-  const pdot = spindownPdot_SperS(st.M_solar, R_m(), B_T(), P_s(), st.alpha_deg * DEG);
-  const tau = characteristicAge_yr(P_s(), pdot);
+  const pdot = spindownPdot_SperS(st.M_solar, R_m(), B_T(), effP_s(), st.alpha_deg * DEG);
+  const tau = characteristicAge_yr(effP_s(), pdot);
   rTau.textContent = isFinite(tau) ? tau.toExponential(2) : 'inf';
   rMode.textContent = st.mode;
 }
