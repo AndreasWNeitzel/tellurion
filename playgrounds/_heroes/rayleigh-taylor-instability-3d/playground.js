@@ -267,6 +267,12 @@ if (CAPTURE_NAME) {
     stepTracers(0.05);
     tt += 0.05;
     st.t = tt;
+    // Record the amplitude through the warmup so the log10 a(t) diagnostic
+    // shows the exponential growth; the live draw records it, but the capture
+    // would otherwise leave the panel empty.
+    if (ampHistory.length === 0 || st.t - ampHistory[ampHistory.length - 1].t > 0.04) {
+      ampHistory.push({ t: st.t, a: st.amplitude });
+    }
   }
   draw();
   window.__simulationReady = true;
