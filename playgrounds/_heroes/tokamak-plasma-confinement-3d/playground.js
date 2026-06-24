@@ -32,7 +32,7 @@ for (const k of READOUTS) {
 }
 
 // Population legend: explain the three particle classes the simulation
-// produces (the user asked what the different particles are).
+// produces, so each glyph in the scene is identifiable.
 const legend = document.createElement('div');
 legend.style.cssText = 'margin-top:8px;font:11px ui-monospace,monospace;line-height:1.5;color:#9aa0a6';
 legend.innerHTML = [

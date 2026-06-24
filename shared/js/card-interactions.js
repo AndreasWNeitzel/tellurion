@@ -28,7 +28,7 @@ function attachInteractions(container) {
     const card = e.target.closest(CARD_SELECTOR);
     if (!card) return;
     selectPlayground();
-    // No preventDefault — let the link navigate.
+    // No preventDefault, let the link navigate.
   });
 }
 

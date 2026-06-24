@@ -90,7 +90,7 @@ let imgPatternKey = '';
 const RES = 700;       // image-plane grid resolution (was 200; the
                         // canvas is ~ 760 px wide so 700 lines up close
                         // to 1 sample per pixel, eliminating the
-                        // chunky-pixel look the user complained about).
+                        // chunky-pixel aliasing of the old resolution).
 
 function renderLensedImage() {
   if (imgPatternKey === st.pattern && imgOff) {

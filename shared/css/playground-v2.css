@@ -83,7 +83,7 @@ body:has(.playground-layout) {
 .playground-equations     { order: 8; }
 .playground-related       { order: 9; }
 
-/* Regime B: mid (1024-1399px) — single column, rail hidden. */
+/* Regime B: mid (1024-1399px), single column, rail hidden. */
 @media (max-width: 1399px) {
   .playground-layout {
     grid-template-columns: [center] minmax(0, var(--col-center-max));
@@ -95,7 +95,7 @@ body:has(.playground-layout) {
   .playground-rail { display: none; grid-column: auto; }
 }
 
-/* Regime C: narrow (<1024px) — single column, focus toggle hidden
+/* Regime C: narrow (<1024px), single column, focus toggle hidden
    (the toggle hide is declared further down, after the base rule,
    so source order beats the base specificity). */
 @media (max-width: 1023px) {
@@ -108,7 +108,7 @@ body:has(.playground-layout) {
   .playground-header { padding-left: 40px; min-height: 26px; }
 }
 
-/* Regime D: phone (<768px) — canvas-first reordered layout, compacted
+/* Regime D: phone (<768px), canvas-first reordered layout, compacted
    typography, single-column controls with large tap targets. The
    default DOM order buries the simulation under the title and intro
    paragraph; below 768px we flex the center column and reorder via
@@ -228,7 +228,7 @@ body:has(.playground-layout) {
     min-width: 84px;
   }
 
-  /* Tap-target sizing — large enough for touch but not overpowering
+  /* Tap-target sizing, large enough for touch but not overpowering
      the simulation. Compact relative to the canvas. */
   .playground-controls button,
   .playground-controls .pg-controls .row button {
@@ -285,7 +285,7 @@ body:has(.playground-layout) {
   }
 }
 
-/* Regime E: very narrow phone (<360px) — tighter still. */
+/* Regime E: very narrow phone (<360px), tighter still. */
 @media (max-width: 360px) {
   .playground-layout { padding: 12px 6px 20px; }
   .playground-title  { font-size: 1.05rem; }

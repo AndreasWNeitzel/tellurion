@@ -3,8 +3,7 @@
 // Increase every playground's canvas width by 1.5x (capped at 1280 px,
 // the host-page column cap). Also bumps .pg-figure max-width in the
 // inline style block of each index.html so the figure box keeps up.
-// Height is left unchanged — the user explicitly asked for more
-// HORIZONTAL space.
+// Height is left unchanged; this widens HORIZONTAL space only.
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -26,7 +25,7 @@ let touched = 0;
 for (const path of walk(ROOT)) {
   let txt = readFileSync(path, 'utf8');
   let before = txt;
-  // 1. canvas width="N" — bump.
+  // 1. canvas width="N", bump.
   txt = txt.replace(/(<canvas[^>]*?\bwidth=")(\d+)(")/g, (_, a, w, c) => {
     const wn = Math.min(CAP, Math.round(parseInt(w, 10) * FACTOR));
     return a + wn + c;

@@ -12,8 +12,8 @@ Numerical scheme, stability bounds, and conservation laws per spec.md and implem
 
 ## C. Presentability
 PRIMARY BLOCKER: spec.md lines 12-13 contain unacceptable placeholder strings:
-- `hook: 'STATUS: needs_hook'` — must be replaced with concrete 1-sentence hook
-- `one_paragraph: 'STATUS: needs_paragraph'` — must be replaced with 2-3 sentence description
+- `hook: 'STATUS: needs_hook'`, must be replaced with concrete 1-sentence hook
+- `one_paragraph: 'STATUS: needs_paragraph'`, must be replaced with 2-3 sentence description
 
 These strings WILL RENDER on the public gallery card and are unacceptable. Figcaption must be paper-style with prose citations (not raw bib keys). README.md must be 3 short paragraphs, undergrad-level, approachable.
 

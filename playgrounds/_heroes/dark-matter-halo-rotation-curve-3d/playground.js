@@ -364,8 +364,8 @@ function tick(now) {
   if (st.running) {
     st.rotAngle += 0.005;
     // Advance each star's azimuth by Omega(r) dt, where Omega = v/r is
-    // dictated by the active preset's rotation curve. This is the
-    // physics simulation the user asked for.
+    // dictated by the active preset's rotation curve. The motion is the
+    // actual differential rotation, not a canned animation.
     // Visual speed scale bumped from 0.5 to 3.0 so the differential
     // rotation reads clearly within a few seconds: Keplerian orbits
     // shear FAST (inner stars race ahead), rigid-body holds the
