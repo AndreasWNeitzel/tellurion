@@ -211,7 +211,10 @@ function drawProfile(c, s, probe) {
   // Adapt the x-axis to the current polytrope so the curve fills the panel
   // instead of trailing off across a fixed xi=18 axis the low-n profiles never
   // reach.
-  const xiMax = Math.max(5, Math.ceil(displayXi(s) * 1.12));
+  // Track the current polytrope's surface xi_1 (with a small margin for the
+  // marker) instead of flooring at 5: a low-n curve that ends at xi_1 = 3.65
+  // should not leave the axis running on to 5 with empty space.
+  const xiMax = Math.min(14, displayXi(s) * 1.12);
   const xiStep = xiMax <= 7 ? 1 : (xiMax <= 14 ? 2 : 3);
   const padL = 50, padR = 14, padT = 24, padB = 28;
   const half = (PLOTS.h - 8) / 2;
@@ -265,7 +268,12 @@ function drawProfile(c, s, probe) {
     ctx.beginPath(); ctx.moveTo(xm, tp.y0); ctx.lineTo(xm, tp.y1); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = c.accent; ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`ξ₁ = ${s.xi1.toFixed(3)}`, xm + 4, tp.y0 + 14);
+    // Right-align the label to the left of the marker when xi_1 is near the
+    // right edge (the axis now hugs xi_1), so it never clips off-canvas.
+    const nearEdge = xm > tp.x0 + (tp.x1 - tp.x0) * 0.72;
+    ctx.textAlign = nearEdge ? 'right' : 'left';
+    ctx.fillText(`ξ₁ = ${s.xi1.toFixed(3)}`, xm + (nearEdge ? -4 : 4), tp.y0 + 14);
+    ctx.textAlign = 'left';
   }
   // Axis labels + ticks.
   ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
