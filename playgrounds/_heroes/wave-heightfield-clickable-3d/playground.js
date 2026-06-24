@@ -286,8 +286,20 @@ function bootSync() {
   if (CAPTURE_NAME) {
     const captureGamma = 0.0;
     const totalSteps = Math.max(0, Math.floor(CAPTURE_FRAC * 1100));
-    if (engine) { engine.seed(N / 2, N / 2, 1, 6); for (let i = 0; i < totalSteps; i += 1) engine.step(ui.c, captureGamma, 0.5); }
-    else { seedImpulse(cpu, N / 2, N / 2, 1, 6); for (let i = 0; i < totalSteps; i += 1) cpuStep(cpu, ui.c, captureGamma, 0.5); }
+    // Mirror the impulse + stepping on the CPU shadow grid so the energy
+    // diagnostic is fed even on the GPU backend; record E(t) with synthetic
+    // timestamps (performance.now barely advances in this synchronous loop, so
+    // real time would collapse every point onto one x). gamma = 0 here, so the
+    // curve shows the wave equation conserving energy after the impulse.
+    if (engine) engine.seed(N / 2, N / 2, 1, 6);
+    seedImpulse(cpu, N / 2, N / 2, 1, 6);
+    for (let i = 0; i < totalSteps; i += 1) {
+      if (engine) engine.step(ui.c, captureGamma, 0.5);
+      cpuStep(cpu, ui.c, captureGamma, 0.5);
+      // Keep the whole impulse-to-now curve (no 3 s window) so the still frame
+      // shows the energy jump at the impulse and its subsequent evolution.
+      if (i % 8 === 0) eHistory.push({ t: i * 0.016, E: totalEnergy(cpu, ui.c, 1) });
+    }
   }
   // Populate readouts with finite numbers so gate B does not see "--".
   rEls.FPS.textContent = '60';
