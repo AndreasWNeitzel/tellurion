@@ -31,6 +31,7 @@ const btnReset = document.getElementById('btn-reset');
 const DT = 1 / 120;
 const SUBSTEPS = 2;
 const SEED = 0xC0FFEE;
+const RADIUS = 0.0036;       // half the old disk size: a sparser cloud the tree adapts to
 let running = !DETERMINISTIC;
 let state = null;
 let root = null;            // last quadtree (for drawing)
@@ -41,7 +42,7 @@ const mode = () => (selTree.value === 'tree' ? 'tree' : 'direct');
 const showTree = () => toggleShowTree.checked && mode() === 'tree';
 
 function rebuild() {
-  state = createBoxState(Nbodies(), { seed: SEED });
+  state = createBoxState(Nbodies(), { seed: SEED, radius: RADIUS });
   for (let k = 0; k < 12; k++) stepBox(state, DT, 'tree');   // relax overlaps
   root = null;
   buildCostCurve();
@@ -51,7 +52,7 @@ function rebuild() {
 function buildCostCurve() {
   const Ns = [50, 150, 300, 500, 700, 900, 1100, 1200];
   costCurve = Ns.map((n) => {
-    const sc = createBoxState(n, { seed: SEED + 7 });
+    const sc = createBoxState(n, { seed: SEED + 7, radius: RADIUS });
     let r = { checks: 0 };
     for (let k = 0; k < 6; k++) r = stepBox(sc, DT, 'tree');
     return { N: n, direct: directChecks(n), tree: r.checks };
@@ -133,17 +134,22 @@ function drawScene(col, r) {
   clipTo(ctx, { x: bx, y: by, w: m, h: m });
   ctx.fillStyle = '#07090f'; ctx.fillRect(bx, by, m, m);
 
-  // Live quadtree cells (only in quadtree mode with the toggle on).
+  // Live quadtree cells, shaded by depth: the deeper (smaller) a cell, the
+  // brighter, so the tree visibly subdivides wherever the disks crowd and
+  // rebuilds every frame as they move.
   if (showTree() && root) {
     const cells = quadtreeCells(root);
-    ctx.strokeStyle = 'rgba(91,192,235,0.35)'; ctx.lineWidth = 0.6;
-    ctx.beginPath();
-    for (const [x0, y0, x1, y1] of cells) ctx.rect(X(x0), Y(y0), (x1 - x0) * m, (y1 - y0) * m);
-    ctx.stroke();
+    for (const [x0, y0, x1, y1] of cells) {
+      const sz = x1 - x0;
+      const depth = Math.max(0, Math.min(1, Math.log2(0.5 / Math.max(sz, 1e-4)) / 6));
+      ctx.strokeStyle = `rgba(${(91 + 120 * depth) | 0}, ${(192 + 20 * depth) | 0}, 235, ${0.18 + 0.55 * depth})`;
+      ctx.lineWidth = 0.5 + 1.1 * depth;
+      ctx.strokeRect(X(x0), Y(y0), sz * m, (y1 - y0) * m);
+    }
   }
 
   // Disks, coloured by speed.
-  const rad = Math.max(1.2, state.r * m);
+  const rad = Math.max(1.4, state.r * m);
   for (let i = 0; i < state.N; i += 1) {
     const sp = Math.hypot(state.v[2 * i], state.v[2 * i + 1]);
     const c = viridis(Math.min(1, sp / 0.32));
