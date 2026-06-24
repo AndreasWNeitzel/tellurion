@@ -25,7 +25,7 @@ let thetaDeg = parseFloat(sliderTheta.value);
 // Auto-sweep the source speed so the Doppler shift plays on load (red at
 // recession through blue at approach, with relativistic beaming). Either
 // slider pauses it.
-let playing = !prefersReducedMotion(), betaDir = 1, lastT = 0;
+let playing = !prefersReducedMotion(), betaDir = 1, lastT = 0, tau = 0;
 const betaLo = parseFloat(sliderBeta.min) || 0, betaHi = parseFloat(sliderBeta.max) || 0.95;
 
 sliderBeta.addEventListener('input', () => { playing = false; beta = parseFloat(sliderBeta.value); valueBeta.textContent = beta.toFixed(3); });
@@ -121,77 +121,62 @@ function drawCartesian(c, x0, y0, w, h) {
   ctx.fillText(`beta = ${beta.toFixed(3)}, gamma = ${gamma(beta).toFixed(2)}`, x0 + padL + 8, y0 + 14);
 }
 
-function drawPolar(c, x0, y0, w, h) {
-  ctx.fillStyle = c.bg;
-  ctx.fillRect(x0, y0, w, h);
+// Moving-source wavefronts: each crest is a circle centred where the source
+// was when it emitted it; the source motion bunches them ahead (blueshift) and
+// spreads them behind (redshift). An observer ray at theta shows the shift seen
+// in that direction. This is the intuitive picture; the relativistic f(theta)
+// curve below carries the transverse-Doppler subtlety.
+function drawWavefronts(c, x0, y0, w, h) {
+  ctx.fillStyle = c.bg; ctx.fillRect(x0, y0, w, h);
+  const cy = y0 + h * 0.52, xs = x0 + w * 0.5;     // source at the scene centre
+  const cPx = Math.min(w, h) * 0.072;              // wave-crest expansion per emit interval (px)
+  const N = 9;                                     // visible crests
+  const sub = tau % 1;                             // sub-interval phase in [0,1)
 
-  const cxPx = x0 + w / 2;
-  const cyPx = y0 + h / 2;
-  const Rmax = Math.min(w, h) * 0.36;
+  // region tints: ahead (right) blue, behind (left) red
+  ctx.fillStyle = 'rgba(91,160,235,0.05)'; ctx.fillRect(xs, y0, x0 + w - xs, h);
+  ctx.fillStyle = 'rgba(239,71,111,0.05)'; ctx.fillRect(x0, y0, xs - x0, h);
 
-  // Concentric circles.
-  ctx.strokeStyle = c.grid;
-  ctx.lineWidth = 1;
-  for (const r of [0.25, 0.5, 0.75, 1.0]) {
-    ctx.beginPath(); ctx.arc(cxPx, cyPx, Rmax * r, 0, 2 * Math.PI); ctx.stroke();
+  for (let i = N; i >= 1; i -= 1) {
+    const age = i - 1 + sub;                        // crest age in emit intervals
+    const rad = cPx * age;
+    const cxw = xs - beta * cPx * age;              // centre shifts back as the source advanced
+    if (rad < 2) continue;
+    const ahead = 1 - Math.exp(-age * 0.2);
+    ctx.strokeStyle = `rgba(${Math.round(120 + 90 * (1 - beta))}, 190, 235, ${(0.7 - 0.05 * age).toFixed(2)})`;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(cxw, cy, rad, 0, 2 * Math.PI); ctx.stroke();
   }
-  ctx.fillStyle = c.muted;
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  for (const r of [0.25, 0.5, 0.75]) {
-    ctx.fillText(`r=${r.toFixed(2)}`, cxPx + Rmax * r + 4, cyPx + 4);
-  }
 
-  // Determine scale.
-  let scale = 1;
-  for (let i = 0; i <= 200; i += 1) {
-    const t = 2 * Math.PI * i / 200;
-    const f = dopplerFactor(beta, t);
-    if (f > scale) scale = f;
-  }
+  // source velocity arrow
+  ctx.strokeStyle = c.fg; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(xs, cy); ctx.lineTo(xs + 54, cy); ctx.stroke();
+  ctx.fillStyle = c.fg; ctx.beginPath();
+  ctx.moveTo(xs + 58, cy); ctx.lineTo(xs + 48, cy - 5); ctx.lineTo(xs + 48, cy + 5); ctx.closePath(); ctx.fill();
+  // source
+  ctx.fillStyle = '#ffe08a'; ctx.beginPath(); ctx.arc(xs, cy, 6, 0, 2 * Math.PI); ctx.fill();
 
-  // Polar Doppler curve.
-  ctx.strokeStyle = c.accent;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let i = 0; i <= 400; i += 1) {
-    const t = 2 * Math.PI * i / 400;
-    const f = dopplerFactor(beta, t);
-    const r = (f / scale) * Rmax;
-    const px = cxPx + r * Math.cos(t);
-    const py = cyPx - r * Math.sin(t);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-  }
-  ctx.closePath();
-  ctx.stroke();
-
-  // Motion direction arrow.
-  ctx.strokeStyle = c.blue;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(cxPx, cyPx); ctx.lineTo(cxPx + Rmax * 0.9, cyPx);
-  ctx.stroke();
-  ctx.fillStyle = c.blue;
-  ctx.beginPath();
-  ctx.moveTo(cxPx + Rmax * 0.9, cyPx);
-  ctx.lineTo(cxPx + Rmax * 0.9 - 8, cyPx - 4);
-  ctx.lineTo(cxPx + Rmax * 0.9 - 8, cyPx + 4);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = c.muted;
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('v', cxPx + Rmax * 0.9 + 6, cyPx + 4);
-
-  // Marker at current theta.
+  // observer ray at theta (measured from the motion direction)
   const thr = thetaDeg * Math.PI / 180;
   const f = dopplerFactor(beta, thr);
-  const r = (f / scale) * Rmax;
-  const px = cxPx + r * Math.cos(thr);
-  const py = cyPx - r * Math.sin(thr);
-  ctx.fillStyle = c.red;
-  ctx.beginPath(); ctx.arc(px, py, 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = c.fg;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  const L = Math.min(w, h) * 0.42;
+  const ox = xs + L * Math.cos(thr), oy = cy - L * Math.sin(thr);
+  const obsCol = f >= 1 ? '#5bc0eb' : '#ef476f';
+  ctx.strokeStyle = obsCol; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(xs, cy); ctx.lineTo(ox, oy); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = obsCol; ctx.beginPath(); ctx.arc(ox, oy, 6, 0, 2 * Math.PI); ctx.fill();
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  // Anchor the label inward so it never runs off the right/left scene edge.
+  const labelLeft = ox < x0 + w * 0.60;
+  ctx.textAlign = labelLeft ? 'left' : 'right';
+  ctx.fillText(`observer  f_obs/f_src = ${f.toFixed(3)}  (${f >= 1 ? 'blueshift' : 'redshift'})`, ox + (labelLeft ? 8 : -8), oy - 8);
+
+  // labels
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'right'; ctx.fillText('blueshift: crests bunch ahead', x0 + w - 14, y0 + 22);
+  ctx.textAlign = 'left'; ctx.fillText('redshift: crests spread behind', x0 + 14, y0 + 22);
+  ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'caption', 'mono', 600);
+  ctx.fillText(`source moving at beta = ${beta.toFixed(2)}c`, x0 + 14, y0 + h - 14);
 }
 
 function render() {
@@ -201,7 +186,7 @@ function render() {
   const W = canvas.width, H = canvas.height;
   // Portrait stack: polar source/aberration scene on top, Doppler-factor curve below.
   const sceneH = Math.round(H * 0.52);
-  drawPolar(c, 0, 0, W, sceneH);
+  drawWavefronts(c, 0, 0, W, sceneH);
   drawCartesian(c, 0, sceneH, W, H - sceneH);
 }
 
@@ -211,12 +196,13 @@ function updateReadout() {
 }
 
 function loop(now) {
+  const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
   if (playing) {
-    const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
     beta += betaDir * dt * ((betaHi - betaLo) / 13);
     if (beta >= betaHi) { beta = betaHi; betaDir = -1; } else if (beta <= betaLo) { beta = betaLo; betaDir = 1; }
     sliderBeta.value = String(beta); valueBeta.textContent = beta.toFixed(3);
   }
+  tau += dt * 1.3;          // wavefront emission clock (always runs)
   lastT = now;
   render();
   updateReadout();
