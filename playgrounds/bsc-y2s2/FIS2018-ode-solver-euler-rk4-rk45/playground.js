@@ -10,36 +10,55 @@ const rE = document.getElementById('readout-e');
 const sDT = document.getElementById('slider-dt'), vDT = document.getElementById('value-dt');
 const sW = document.getElementById('slider-w'), vW = document.getElementById('value-w');
 const btnR = document.getElementById('btn-reset'), btnP = document.getElementById('btn-pause');
-const st = { dt: 0.05, omega: 0.5 };
-let yE, yR, yA, trailE = [], trailR = [], trailA = [], errE = [], errR = [], errA = [], E0 = 0, t = 0, running = true;
+const sSys = document.getElementById('select-system');
+
+// A small zoo of second-order systems. usesOmega flags whether the
+// frequency slider applies; the error is measured against a converged
+// RK4 reference (effectively exact), so nonlinear systems with no
+// closed form work the same way as the harmonic oscillator.
+const SYSTEMS = {
+  sho:       { usesOmega: true,  conservative: true,  x0: 1,   v0: 0, deriv: (w) => (y) => [y[1], -w * w * y[0]],               energy: (y, w) => 0.5 * (y[1] * y[1] + w * w * y[0] * y[0]) },
+  damped:    { usesOmega: true,  conservative: false, x0: 1,   v0: 0, deriv: (w) => (y) => [y[1], -w * w * y[0] - 2 * 0.18 * y[1]], energy: (y, w) => 0.5 * (y[1] * y[1] + w * w * y[0] * y[0]) },
+  pendulum:  { usesOmega: true,  conservative: true,  x0: 2.4, v0: 0, deriv: (w) => (y) => [y[1], -w * w * Math.sin(y[0])],      energy: (y, w) => 0.5 * y[1] * y[1] + w * w * (1 - Math.cos(y[0])) },
+  vanderpol: { usesOmega: false, conservative: false, x0: 0.5, v0: 0, deriv: () => (y) => [y[1], 1.0 * (1 - y[0] * y[0]) * y[1] - y[0]], energy: (y) => 0.5 * (y[1] * y[1] + y[0] * y[0]) },
+};
+const st = { dt: 0.05, omega: 0.5, system: 'sho' };
+function sys() { return SYSTEMS[st.system]; }
+function deriv() { return sys().deriv(st.omega); }
+let yE, yR, yA, yRef, trailE = [], trailR = [], trailA = [], trailRef = [], errE = [], errR = [], errA = [], E0 = 0, t = 0, running = true;
 function reset() {
-  yE = [1, 0]; yR = [1, 0]; yA = [1, 0]; E0 = energy(yE, st.omega);
-  trailE = []; trailR = []; trailA = []; errE = []; errR = []; errA = []; t = 0;
+  const s = sys();
+  yE = [s.x0, s.v0]; yR = [s.x0, s.v0]; yA = [s.x0, s.v0]; yRef = [s.x0, s.v0];
+  E0 = s.energy(yE, st.omega) || 1e-9;
+  trailE = []; trailR = []; trailA = []; trailRef = []; errE = []; errR = []; errA = []; t = 0;
   // Pre-integrate the full window so changing dt instantly shows the
-  // complete trajectory: at large dt Euler visibly diverges and its
-  // error curve jumps, immediately, instead of creeping in 2 steps a
-  // frame (which is why the dt slider read as barely responsive).
+  // complete trajectory and the immediate Euler divergence.
   for (let i = 0; i < 360; i += 1) step();
 }
 reset();
 sDT.addEventListener('input', () => { st.dt = parseFloat(sDT.value); vDT.textContent = st.dt.toFixed(2); reset(); });
 sW.addEventListener('input', () => { st.omega = parseFloat(sW.value); vW.textContent = st.omega.toFixed(2); reset(); });
+function syncOmegaEnabled() { const u = sys().usesOmega; sW.disabled = !u; if (sW.parentElement) sW.parentElement.style.opacity = u ? '1' : '0.45'; }
+sSys.addEventListener('change', () => { st.system = sSys.value; syncOmegaEnabled(); reset(); });
+syncOmegaEnabled();
 btnR.addEventListener('click', () => { reset(); running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed','false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 let last = performance.now();
 function step() {
-  yE = euler(yE, st.dt, st.omega);
-  yR = rk4(yR, st.dt, st.omega);
-  const out = rk45(yA, st.dt, st.omega);
-  yA = out.y_new;
+  const der = deriv();
+  yE = euler(yE, st.dt, der);
+  yR = rk4(yR, st.dt, der);
+  yA = rk45(yA, st.dt, der).y_new;
+  // converged reference: RK4 at dt/16, treated as the exact solution.
+  const SUB = 16, h = st.dt / SUB;
+  for (let k = 0; k < SUB; k += 1) yRef = rk4(yRef, h, der);
   t += st.dt;
-  const analytic = analyticSolution(t, st.omega);
-  const eE = Math.hypot(yE[0] - analytic[0], yE[1] - analytic[1]);
-  const eR = Math.hypot(yR[0] - analytic[0], yR[1] - analytic[1]);
-  const eA = Math.hypot(yA[0] - analytic[0], yA[1] - analytic[1]);
-  trailE.push([t, yE[0]]); trailR.push([t, yR[0]]); trailA.push([t, yA[0]]);
+  const eE = Math.hypot(yE[0] - yRef[0], yE[1] - yRef[1]);
+  const eR = Math.hypot(yR[0] - yRef[0], yR[1] - yRef[1]);
+  const eA = Math.hypot(yA[0] - yRef[0], yA[1] - yRef[1]);
+  trailE.push([t, yE[0]]); trailR.push([t, yR[0]]); trailA.push([t, yA[0]]); trailRef.push([yRef[0], yRef[1]]);
   errE.push([t, eE]); errR.push([t, eR]); errA.push([t, eA]);
-  if (trailE.length > 400) { trailE.shift(); trailR.shift(); trailA.shift(); errE.shift(); errR.shift(); errA.shift(); }
+  if (trailE.length > 400) { trailE.shift(); trailR.shift(); trailA.shift(); trailRef.shift(); errE.shift(); errR.shift(); errA.shift(); }
 }
 function render() {
   ctx.fillStyle = '#060608'; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -69,17 +88,14 @@ function render() {
   ctx.strokeStyle = '#9aa0a6'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(colX0, cy); ctx.lineTo(colX1, cy); ctx.moveTo(cx, psT); ctx.lineTo(cx, psB); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('phase (x, v): dashed = exact', colX0, psT - 6);
-  const ymax2 = 2.5, vmax = 2.5;
+  ctx.fillText('phase (x, v): dashed = reference orbit', colX0, psT - 6);
+  let mX = 1.2, mV = 1.2;
+  for (const p of trailRef) { mX = Math.max(mX, Math.abs(p[0])); mV = Math.max(mV, Math.abs(p[1])); }
+  const ymax2 = mX * 1.15, vmax = mV * 1.15;
   const xToPx = (xx) => cx + xx / ymax2 * (colX1 - colX0) / 2;
   const vToPx = (vv) => cy - vv / vmax * (psB - psT) / 2;
-  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-  ctx.beginPath();
-  for (let a = 0; a <= 2 * Math.PI + 0.01; a += 0.05) {
-    const xx = Math.cos(a), vv = -Math.sin(a) * st.omega;
-    const px = xToPx(xx), py = vToPx(vv);
-    if (a === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-  }
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); ctx.beginPath();
+  trailRef.forEach((p, j) => { const px = xToPx(p[0]), py = vToPx(p[1]); if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); });
   ctx.stroke(); ctx.setLineDash([]);
   [[yE, 0], [yR, 1], [yA, 2]].forEach(([y, i]) => {
     ctx.fillStyle = colors[i];
@@ -107,10 +123,17 @@ function render() {
     ers.forEach((p, j) => { const px = tToPx_e(p[0]), py = eToPx(p[1]); if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); });
     ctx.stroke();
   });
-  const eE = energy(yE, st.omega), eR = energy(yR, st.omega), eA = energy(yA, st.omega);
+  const s = sys();
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`E drift: Euler ${((eE / E0 - 1) * 100).toFixed(1)}%, RK4 ${((eR / E0 - 1) * 100).toFixed(2)}%, RK45 ${((eA / E0 - 1) * 100).toFixed(3)}%`, 12, H - 12);
-  rE.textContent = `${((eE / E0 - 1) * 100).toFixed(1)}%`;
+  if (s.conservative) {
+    const eE = s.energy(yE, st.omega), eR = s.energy(yR, st.omega), eA = s.energy(yA, st.omega);
+    ctx.fillText(`energy drift: Euler ${((eE / E0 - 1) * 100).toFixed(1)}%, RK4 ${((eR / E0 - 1) * 100).toFixed(2)}%, RK45 ${((eA / E0 - 1) * 100).toFixed(3)}%`, 12, H - 12);
+    rE.textContent = `${((eE / E0 - 1) * 100).toFixed(1)}%`;
+  } else {
+    const fe = (arr) => (arr.length ? arr[arr.length - 1][1] : 0);
+    ctx.fillText(`error vs reference: Euler ${fe(errE).toExponential(1)}, RK4 ${fe(errR).toExponential(1)}, RK45 ${fe(errA).toExponential(1)}`, 12, H - 12);
+    rE.textContent = `${fe(errE).toExponential(1)}`;
+  }
 }
 function tick(now) { const dt = (now - last) / 1000; last = now; if (running) for (let i = 0; i < 2; i += 1) step(); render(); requestAnimationFrame(tick); }
 function bootSync() { for (let i = 0; i < CAPTURE_FRAC * 400; i += 1) step(); render(); if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }

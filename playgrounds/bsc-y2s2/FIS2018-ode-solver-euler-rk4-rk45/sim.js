@@ -2,23 +2,31 @@
 // State y = [x, v].  Right-hand side f(y) = [v, -omega^2 x].
 // Reference: Hairer-Norsett-Wanner Vol I. Practice text: Villate (`villate-vpython`).
 export function f(y, omega) { return [y[1], -omega * omega * y[0]]; }
+// The third argument may be a number (the harmonic frequency, the
+// default system) or a derivative function (y) -> [x', v'] for an
+// arbitrary first-order system, so the same integrators drive every
+// preset without duplicating the schemes.
+function derivOf(omega) { return typeof omega === 'function' ? omega : (y) => f(y, omega); }
 export function euler(y, dt, omega) {
-  const k = f(y, omega);
+  const d = derivOf(omega);
+  const k = d(y);
   return [y[0] + dt * k[0], y[1] + dt * k[1]];
 }
 export function rk4(y, dt, omega) {
-  const k1 = f(y, omega);
+  const d = derivOf(omega);
+  const k1 = d(y);
   const y2 = [y[0] + 0.5 * dt * k1[0], y[1] + 0.5 * dt * k1[1]];
-  const k2 = f(y2, omega);
+  const k2 = d(y2);
   const y3 = [y[0] + 0.5 * dt * k2[0], y[1] + 0.5 * dt * k2[1]];
-  const k3 = f(y3, omega);
+  const k3 = d(y3);
   const y4 = [y[0] + dt * k3[0], y[1] + dt * k3[1]];
-  const k4 = f(y4, omega);
+  const k4 = d(y4);
   return [y[0] + dt * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]) / 6,
           y[1] + dt * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]) / 6];
 }
 // Cash-Karp RK45 (one adaptive step). Returns { y_new, err_norm }.
 export function rk45(y, dt, omega) {
+  const d = derivOf(omega);
   const a = [
     [],
     [1/5],
@@ -29,14 +37,14 @@ export function rk45(y, dt, omega) {
   ];
   const b5 = [37/378, 0, 250/621, 125/594, 0, 512/1771];
   const b4 = [2825/27648, 0, 18575/48384, 13525/55296, 277/14336, 1/4];
-  const ks = [f(y, omega)];
+  const ks = [d(y)];
   for (let i = 1; i < 6; i += 1) {
     const yi = y.slice();
     for (let j = 0; j < i; j += 1) {
       yi[0] += dt * a[i][j] * ks[j][0];
       yi[1] += dt * a[i][j] * ks[j][1];
     }
-    ks.push(f(yi, omega));
+    ks.push(d(yi));
   }
   const y5 = [y[0], y[1]], y4 = [y[0], y[1]];
   for (let i = 0; i < 6; i += 1) {

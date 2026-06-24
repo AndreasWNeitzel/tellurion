@@ -50,6 +50,7 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
+<div class="row"><span class="label">system</span><select aria-label="system" id="select-system" style="grid-column: span 2;"><option value="sho" selected="">harmonic: x'' = -w^2 x</option><option value="damped">damped: x'' = -w^2 x - 2g x'</option><option value="pendulum">pendulum: th'' = -w^2 sin th</option><option value="vanderpol">Van der Pol (limit cycle)</option></select></div>
 <div class="row"><span class="label">Δt</span><input aria-label="Δt" type="range" id="slider-dt" min="0.005" max="0.3" step="0.005" value="0.05"><span class="value" id="value-dt">0.05</span></div>
 <div class="row"><span class="label">ω</span><input aria-label="ω" type="range" id="slider-w" min="0.3" max="3" step="0.05" value="0.5"><span class="value" id="value-w">0.50</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button></div>
@@ -63,6 +64,7 @@
         <li class="t-body">Watch the energy: explicit Euler spirals outward, pumping energy in without bound, while RK4 hugs the true orbit and RK45 adapts its step to a tolerance.</li>
         <li class="t-body">Enlarge the time step: every method degrades, but Euler blows up first. Accuracy and stability are bought with smaller steps or higher order.</li>
         <li class="t-body">Read the energy-drift readout: for a Hamiltonian system the conserved energy is the honest scorecard, exposing which integrator is quietly lying.</li>
+        <li class="t-body">Change the system: the large-angle pendulum bends into an anharmonic orbit, the damped oscillator spirals inward, and Van der Pol settles onto a relaxation limit cycle. Each is scored against a converged reference, so the same Euler-versus-RK4-versus-RK45 gap shows up on any equation.</li>
       </ul>
     </section>
 
