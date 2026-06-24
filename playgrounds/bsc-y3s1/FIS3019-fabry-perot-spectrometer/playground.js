@@ -31,7 +31,7 @@ const bR = document.getElementById('btn-reset');
 
 const st = { R: 0.6, d_um: 80, dl: 0.60 };
 // the spectrum plot now sits below the physical-representation band
-const PX0 = 60, PX1 = W - 28, PY0 = 196, PY1 = H - 50;
+const PX0 = 60, PX1 = W - 28, PY0 = 560, PY1 = H - 50;
 
 // Etalon schematic: two partial mirrors and the cascade of internal
 // reflections. Each pass loses a factor R, so the number of beams
@@ -39,7 +39,7 @@ const PX0 = 60, PX1 = W - 28, PY0 = 196, PY1 = H - 50;
 // sharpness of the Airy fringes, grows with R: multiple-beam
 // interference made literal.
 function drawEtalon(R) {
-  const x0 = 198, x1 = 348, yIn = 92, span = 128;
+  const x0 = 140, x1 = 300, yIn = 150, span = 150;
   ctx.strokeStyle = 'rgba(150,160,180,0.9)'; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.moveTo(x0, yIn - span / 2); ctx.lineTo(x0, yIn + span / 2);
   ctx.moveTo(x1, yIn - span / 2); ctx.lineTo(x1, yIn + span / 2); ctx.stroke();
@@ -78,7 +78,7 @@ function drawEtalon(R) {
 // transmission versus angle, T(theta) = Airy(delta(theta)). The
 // rings sharpen into thin bright circles as R (the finesse) rises.
 function drawRings(R, d0, lam) {
-  const cx = 580, cy = 90, rad = 64;
+  const cx = 540, cy = 280, rad = 150;
   // pick the angular fan so a fixed handful (about 5) of orders span
   // the disk for any d, otherwise an 80 um etalon packs hundreds of
   // fringes into the fan and they alias into a flat blank
@@ -90,7 +90,9 @@ function drawRings(R, d0, lam) {
     for (let px = 0; px < 2 * rad; px += 1) {
       const dx = px - rad, dy = py - rad, rr = Math.hypot(dx, dy);
       const j = (py * 2 * rad + px) * 4;
-      if (rr > rad) { img.data[j + 3] = 0; continue; }
+      // outside the disk: paint the panel background, not transparent (an
+      // alpha:false canvas renders A=0 pixels as a white square).
+      if (rr > rad) { img.data[j] = 7; img.data[j + 1] = 8; img.data[j + 2] = 12; img.data[j + 3] = 255; continue; }
       const theta = (rr / rad) * thetaMax;
       const T = airyT(phase(lam, d0, 1, theta), R);
       const v = Math.round(255 * T);
