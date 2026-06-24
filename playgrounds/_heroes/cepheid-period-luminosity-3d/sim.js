@@ -53,19 +53,31 @@ export function luminosity_Lsun(R_Rsun, T_K) {
   return Math.pow(R_Rsun, 2) * Math.pow(T_K / 5778, 4);
 }
 
-// Pulsation: R(t) = R0 (1 + delta_R sin(2 pi phase)). Lightcurve
-// follows L = R^2 T^4 with a phase-shifted T(t) (warmer at min
-// radius, cooler at max radius), giving the asymmetric Cepheid
+// Nonlinear Cepheid pulsation. Classical Cepheids rise to maximum light
+// faster than they decline (the sawtooth light curve, quantified by the
+// Fourier amplitude/phase ratios of Simon & Lee, ApJ 248 (1981) 291). A
+// small periodic phase modulation warps the otherwise-sinusoidal
+// pulsation into that asymmetric shape; it is equivalent to a low second
+// harmonic and averages out over a cycle, so the mean radius is
+// unchanged. Without it, sinusoidal R(t) and T(t) give a near-symmetric
+// curve, which a real Cepheid never has.
+function pulsationPhase(phase) {
+  return phase + 0.13 * Math.sin(2 * Math.PI * phase);
+}
+
+// Pulsation: R(t) = R0 (1 + delta_R sin(2 pi phi)) on the skewed phase.
+// Lightcurve follows L = R^2 T^4 with a phase-shifted T(t) (warmer at
+// min radius, cooler at max radius), giving the asymmetric Cepheid
 // lightcurve.
 export function radiusAtPhase(phase, P_days, deltaR = 0.10) {
-  const phi = 2 * Math.PI * phase;
+  const phi = 2 * Math.PI * pulsationPhase(phase);
   return meanRadius_Rsun(P_days) * (1 + deltaR * Math.sin(phi));
 }
 
 export function TeffAtPhase(phase, P_days, deltaT = 0.08) {
   // Temperature peaks ~ quarter-period AFTER minimum radius (so the
   // light maximum lags the radius minimum); standard Cepheid form.
-  const phi = 2 * Math.PI * phase;
+  const phi = 2 * Math.PI * pulsationPhase(phase);
   const baseT = meanTeff_K(P_days);
   return baseT * (1 - deltaT * Math.sin(phi - Math.PI / 4));
 }
