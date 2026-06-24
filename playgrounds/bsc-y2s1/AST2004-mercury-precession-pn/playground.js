@@ -29,9 +29,10 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const VIEW_R = 1.25;                            // tightened so the orbit fills the canvas
-const CX = W / 2, CY = H / 2;
-const PX_PER_UNIT = Math.min(W, H) / (2 * VIEW_R);
+const VIEW_R = 1.25;                            // tightened so the orbit fills the scene
+const SCENE_H = H - 225;                         // reserve a band below for the precession plot
+const CX = W / 2, CY = SCENE_H / 2;
+const PX_PER_UNIT = Math.min(W, SCENE_H) / (2 * VIEW_R);
 const STEPS_PER_FRAME_BASE = 30;
 
 const state = {
@@ -85,7 +86,7 @@ function drawAll() {
   }
   ctx.beginPath();
   ctx.moveTo(0, CY); ctx.lineTo(W, CY);
-  ctx.moveTo(CX, 0); ctx.lineTo(CX, H);
+  ctx.moveTo(CX, 0); ctx.lineTo(CX, SCENE_H);
   ctx.stroke();
 
   for (let oi = 0; oi < state.recentOrbits.length; oi += 1) {
@@ -149,6 +150,47 @@ function drawAll() {
   }
 
   drawReadout();
+  drawPrecessionPlot();
+}
+
+// Quantitative diagnostic: the perihelion longitude advances by a fixed angle
+// each orbit, so plotting it against perihelion number gives a straight line
+// whose slope IS the precession rate. A pure Kepler orbit (alpha = 0) would sit
+// flat; the post-Newtonian term tilts it.
+function drawPrecessionPlot() {
+  const ph = state.perihelions;
+  const p = { x: 26, y: SCENE_H + 14, w: W - 52, h: H - SCENE_H - 32 };
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(p.x, p.y, p.w, p.h);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.lineWidth = 1; ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = 'rgba(255, 255, 255, 0.72)'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('perihelion longitude vs orbit: a straight line, slope = the precession rate', p.x + 8, p.y + 6);
+  if (ph.length < 2) { ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillText('accumulating perihelia...', p.x + 8, p.y + 24); return; }
+  // Unwrap the longitudes so the prograde advance is monotone.
+  const lon = []; let prev = 0, off = 0;
+  for (let i = 0; i < ph.length; i += 1) {
+    let a = Math.atan2(ph[i].y, ph[i].x);
+    if (i > 0) { while (a + off - prev < -Math.PI) off += 2 * Math.PI; while (a + off - prev > Math.PI) off -= 2 * Math.PI; }
+    const v = a + off; lon.push(v); prev = v;
+  }
+  const n = lon.length;
+  const ax = p.x + 42, ay = p.y + 26, aw = p.w - 42 - 14, ah = p.h - 26 - 24;
+  let lonMin = Math.min(...lon), lonMax = Math.max(...lon);
+  if (lonMax - lonMin < 1e-3) { lonMax += 1e-3; lonMin -= 1e-3; }
+  const span = lonMax - lonMin;
+  const xOf = (i) => ax + (n > 1 ? i / (n - 1) : 0) * aw;
+  const yOf = (v) => ay + ah - (v - lonMin) / span * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.strokeRect(ax, ay, aw, ah);
+  ctx.strokeStyle = '#ff7878'; ctx.lineWidth = 2; ctx.beginPath();
+  lon.forEach((v, i) => { const X = xOf(i), Y = yOf(v); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+  lon.forEach((v, i) => { ctx.fillStyle = '#ff5050'; ctx.beginPath(); ctx.arc(xOf(i), yOf(v), 2.6, 0, 6.28); ctx.fill(); });
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(`${(lonMax * 180 / Math.PI).toFixed(0)}°`, ax - 5, yOf(lonMax));
+  ctx.fillText(`${(lonMin * 180 / Math.PI).toFixed(0)}°`, ax - 5, yOf(lonMin));
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('perihelion number', ax + aw / 2, ay + ah + 6);
+  const perOrbit = (lon[n - 1] - lon[0]) / (n - 1) * 180 / Math.PI;
+  ctx.fillStyle = '#ff9a9a'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  ctx.fillText(`${perOrbit.toFixed(1)}° / orbit`, p.x + p.w - 10, p.y + 6);
 }
 
 function drawReadout() {
