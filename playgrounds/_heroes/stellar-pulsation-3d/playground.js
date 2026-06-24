@@ -41,7 +41,10 @@ function project(x, y, z) {
   const yp = ct * y - stl * zp;
   const zr = stl * y + ct * zp;
   const cam = 4;
-  const f = 360 / (cam + zr);
+  // Focal chosen so the pulsating star nearly fills the portrait rather than
+  // floating as a small sphere in a large empty frame (it still clears the
+  // title and the maximum mode displacement stays on-canvas).
+  const f = 1000 / (cam + zr);
   return { x: W * 0.5 + f * xp, y: H * 0.5 - f * yp, depth: cam + zr, scale: f / 90 };
 }
 
