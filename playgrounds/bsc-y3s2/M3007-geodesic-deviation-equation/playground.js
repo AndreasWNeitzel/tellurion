@@ -102,6 +102,20 @@ function renderSphere() {
     ctx.stroke();
   }
   const prog = Math.min(1, st.t / 3);
+  // A bundle of initially-parallel meridians: on the sphere (K > 0) they
+  // all refocus toward the pole, the geodesic focusing the Jacobi
+  // equation predicts. Faint, behind the tracked pair.
+  for (let j = 0; j <= 6; j += 1) {
+    const phi0 = (j / 6) * 1.15;
+    ctx.strokeStyle = 'rgba(110,150,225,0.32)'; ctx.lineWidth = 1.1; ctx.beginPath();
+    for (let i = 0; i <= 80; i += 1) {
+      const tt = (i / 80) * (Math.PI / 2) * prog;
+      const g = greatCircle(tt, Math.PI / 2, phi0, Math.PI / 2);
+      const p = project(g.x, g.z, g.y);
+      i ? ctx.lineTo(p.px, p.py) : ctx.moveTo(p.px, p.py);
+    }
+    ctx.stroke();
+  }
   const colors = ['#ffd166', '#ef476f'];
   [0, st.dphi].forEach((phi0, k) => {
     ctx.strokeStyle = colors[k]; ctx.lineWidth = 2; ctx.beginPath();
@@ -162,6 +176,13 @@ function renderPlane() {
   const d = st.dphi;
   const colors = ['#ffd166', '#ef476f'];
   const x1 = -1 + 2 * prog;
+  // A bundle of initially-parallel geodesics: on the plane (K = 0) they
+  // never converge or diverge, a ribbon of constant width.
+  ctx.strokeStyle = 'rgba(110,150,225,0.32)'; ctx.lineWidth = 1.1;
+  for (let j = -4; j <= 4; j += 1) {
+    const z0 = (j / 4) * 0.82;
+    ctx.beginPath(); moveLine({ x: -1, y: 0, z: z0 }, { x: x1, y: 0, z: z0 }); ctx.stroke();
+  }
   [d, -d].forEach((z0, k) => {
     ctx.strokeStyle = colors[k]; ctx.lineWidth = 2.5;
     ctx.beginPath(); moveLine({ x: -1, y: 0, z: z0 }, { x: x1, y: 0, z: z0 }); ctx.stroke();
@@ -185,20 +206,28 @@ function renderPlane() {
   rD.textContent = sep.toFixed(3);
 }
 
+const VMAX = 1.5;                                        // longer arc so divergence is dramatic
 function renderSaddle() {
   const prog = Math.min(1, st.t / 3);
   // Saddle wireframe (straight ruling lines in both directions).
   ctx.strokeStyle = '#23252a'; ctx.lineWidth = 1;
   ctx.beginPath();
   for (let i = -5; i <= 5; i += 1) {
-    moveLine(saddlePoint(i / 5, -1), saddlePoint(i / 5, 1));
-    moveLine(saddlePoint(-1, i / 5), saddlePoint(1, i / 5));
+    moveLine(saddlePoint(i / 5, -VMAX), saddlePoint(i / 5, VMAX));
+    moveLine(saddlePoint(-1, (i / 5) * VMAX), saddlePoint(1, (i / 5) * VMAX));
   }
   ctx.stroke();
   // Two straight ruling-line geodesics at u = +/- d, growing in v.
   const d = st.dphi;
   const colors = ['#ffd166', '#ef476f'];
-  const vEnd = prog;
+  const vEnd = VMAX * prog;
+  // A bundle of initially-parallel ruling lines: on the saddle (K < 0)
+  // they fan apart, the geodesic defocusing of negative curvature.
+  ctx.strokeStyle = 'rgba(110,150,225,0.32)'; ctx.lineWidth = 1.1;
+  for (let j = -4; j <= 4; j += 1) {
+    const u0 = (j / 4) * 0.82;
+    ctx.beginPath(); moveLine(saddlePoint(u0, 0), saddlePoint(u0, vEnd)); ctx.stroke();
+  }
   [d, -d].forEach((u0, k) => {
     ctx.strokeStyle = colors[k]; ctx.lineWidth = 2.5;
     ctx.beginPath(); moveLine(saddlePoint(u0, 0), saddlePoint(u0, vEnd)); ctx.stroke();
@@ -214,7 +243,7 @@ function renderSaddle() {
   drawDeviationPlot({
     title: 'separation xi vs arc length',
     xlabel: 'arc length',
-    sMax: 1,
+    sMax: VMAX,
     sCur: vEnd,
     fn: (v) => saddleSep(d, v),
   });
