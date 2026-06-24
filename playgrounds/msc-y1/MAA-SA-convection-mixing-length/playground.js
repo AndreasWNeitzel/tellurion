@@ -209,8 +209,36 @@ function render() {
   ctx.fillStyle = 'rgba(8,10,16,0.72)'; ctx.fillRect(ax - 8, ay - 16, aw + 24, lines.length * rowH + 12);
   ctx.fillStyle = '#9aa0a6'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   lines.forEach((s, i) => ctx.fillText(s, ax, ay + i * rowH));
+
+  // Diagnostic: convective velocity vs the superadiabatic excess. v_conv is
+  // pinned to zero until nabla - nabla_ad crosses 0 (Schwarzschild), then
+  // rises as the MLT closure (~ (nabla - nabla_ad)^1/2); the marker tracks
+  // the slider, red when convection is off.
+  const dpx = 60, dpw = W - 120, dpy = 882, dph = 112;
+  ctx.fillStyle = 'rgba(8,12,22,0.85)'; ctx.fillRect(dpx, dpy, dpw, dph);
+  ctx.strokeStyle = 'rgba(220,230,255,0.25)'; ctx.lineWidth = 1; ctx.strokeRect(dpx + 0.5, dpy + 0.5, dpw - 1, dph - 1);
+  ctx.fillStyle = 'rgba(200,210,235,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('convective velocity v_conv vs ∇−∇_ad   (zero until Schwarzschild unstable)', dpx + 8, dpy + 15);
+  const dMin = -0.05, dMax = 0.30;
+  const vAt = (d) => (d > 0 ? vConv(1e3, d * 1e6, 1e7, st.alpha * 1e8) : 0);
+  let vmax = 1e-9;
+  for (let d = 0; d <= dMax; d += dMax / 60) vmax = Math.max(vmax, vAt(d));
+  const DX = (d) => dpx + 12 + (d - dMin) / (dMax - dMin) * (dpw - 24);
+  const DY = (v) => dpy + dph - 12 - Math.max(0, v) / vmax * (dph - 36);
+  ctx.strokeStyle = 'rgba(150,160,180,0.3)'; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(DX(0), dpy + 20); ctx.lineTo(DX(0), dpy + dph - 10); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = '#5bd6c0'; ctx.lineWidth = 2; ctx.beginPath();
+  let dStarted = false;
+  for (let d = dMin; d <= dMax + 1e-9; d += (dMax - dMin) / 120) { const x = DX(d), y = DY(vAt(d)); dStarted ? ctx.lineTo(x, y) : (ctx.moveTo(x, y), dStarted = true); }
+  ctx.stroke();
+  ctx.fillStyle = conv ? '#f6c453' : '#f87272';
+  ctx.beginPath(); ctx.arc(DX(st.dnabla), DY(vAt(st.dnabla)), 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('0', DX(0), dpy + dph + 11); ctx.fillText('∇−∇_ad →', dpx + dpw - 40, dpy + dph + 11);
+  ctx.textAlign = 'left';
+
   ctx.fillStyle = '#9aa0a6';
-  ctx.fillText('drag ∇−∇_ad below 0 to shut off convection (Schwarzschild stable)', 14, H - 14);
+  ctx.fillText('drag ∇−∇_ad below 0 to shut off convection (Schwarzschild stable)', 14, H - 8);
   rR.textContent = reg;
 }
 
