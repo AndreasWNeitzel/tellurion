@@ -244,7 +244,9 @@ function drawEpsilonCurve(x0, y0, w, h) {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
   ctx.beginPath(); ctx.moveTo(xToPx(st.T7), ay); ctx.lineTo(xToPx(st.T7), ay + ah); ctx.stroke();
   ctx.fillStyle = '#fff';
-  ctx.fillText(`T = ${st.T7.toFixed(2)}`, xToPx(st.T7), ay + ah + 14);
+  // Inside the plot (just below the crossover label) so it never collides with
+  // the 'T / 10^7 K' axis title at the bottom edge.
+  ctx.fillText(`T = ${st.T7.toFixed(2)}`, xToPx(st.T7), ay + 14);
   // x ticks
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
   for (const t of [1, 2, 3, 4]) {
@@ -265,10 +267,14 @@ function render() {
   ctx.textAlign = 'left';
   ctx.fillText(`core T = ${st.T7.toFixed(2)} × 10⁷ K    Q = ${Q_HELIUM} MeV per 4 ¹H → ⁴He`, 40, 22);
 
-  // Bar
-  drawContributionBar(40, 410, 380, 24);
-  // Curve panel
-  drawEpsilonCurve(460, 400, 410, 160);
+  // Contribution bar: full-width band under the two reaction networks.
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('relative energy contribution at this core temperature', 40, 432);
+  drawContributionBar(40, 442, W - 80, 30);
+  // epsilon(T) curve: large panel filling the lower half (the key diagnostic,
+  // pp prop T^4 vs CNO prop T^17 with the crossover).
+  drawEpsilonCurve(50, 506, W - 100, 392);
 
   // Bottom note
   ctx.fillStyle = 'rgba(255,255,255,0.65)';
