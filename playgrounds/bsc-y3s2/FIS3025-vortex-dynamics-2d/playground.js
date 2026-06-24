@@ -220,8 +220,11 @@ function boot() {
     // fractions visibly structured.
     const total = Math.round((6 + 40 * f) / dtc);
     const tail = Math.min(total, 90);
-    for (let n = 0; n < total - tail; n += 1) advance(dtc);
-    for (let n = 0; n < tail; n += 1) { advance(dtc); render(); }
+    // advance() does not touch st.t (the live tick increments it separately),
+    // so bump it here too or the drift-history recorder never fires and the
+    // Hamiltonian panel stays empty in the capture.
+    for (let n = 0; n < total - tail; n += 1) { advance(dtc); st.t += dtc; }
+    for (let n = 0; n < tail; n += 1) { advance(dtc); st.t += dtc; render(); }
     if (total === 0) render();
   } else {
     build(false); render();

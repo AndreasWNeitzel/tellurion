@@ -47,16 +47,13 @@ function renderLeftPanel(w, h) {
 
   ctx.fillStyle = '#9aa0a6';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('E', x0 + 8, y0 + pad.t - 5);
-  ctx.save();
-  ctx.translate(x0 - 2, y0 + h / 2);
-  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('E_b (log)', x0 + pad.l, y0 + pad.t - 5);
+  ctx.textAlign = 'center';
+  ctx.fillText('coupling  ρV', x0 + pad.l + (w - pad.l - pad.r) / 2, y0 + h - pad.b + 16);
   ctx.textAlign = 'left';
-  ctx.fillText('ρV', 0, 0);
-  ctx.restore();
 
   const xToPx = (n) => x0 + pad.l + (n - 0.05) / 0.95 * (w - pad.l - pad.r);
-  const minLog = -20, maxLog = 1;     // headroom: E_b can exceed 1 at large omega_D
+  const minLog = -9, maxLog = 0.7;    // span the visible E_b(rhoV) curve; headroom at large omega_D
   const yToPx = (l) => y0 + h - pad.b - (l - minLog) / (maxLog - minLog) * (h - pad.t - pad.b);
 
   ctx.strokeStyle = '#7fb3d5';
@@ -124,7 +121,10 @@ function renderRightPanel(x0, y0, w, h) {
   ctx.fillText('ξ / ℏω_D', x0 + w - 20, y0 + h - pad.b + 12);
 
   const xToPx = (xi) => x0 + pad.l + (xi + xi_max) / (2 * xi_max) * (w - pad.l - pad.r);
-  const maxG = 1 / Math.max(Math.abs(0 + Ecur), 1e-6) * 1.5;
+  // Scale to the actual peak over the window so the cusp is never clipped flat.
+  let gPeak = 1e-6;
+  for (let i = 0; i <= 150; i++) { const xi = -xi_max + 2 * xi_max * i / 150; const g = pairWavefunction(xi, Ecur); if (g > gPeak) gPeak = g; }
+  const maxG = gPeak * 1.12;
   const yToPx = (g) => y0 + h - pad.b - Math.min(g, maxG) / maxG * (h - pad.t - pad.b);
 
   ctx.strokeStyle = '#ffa86a';
