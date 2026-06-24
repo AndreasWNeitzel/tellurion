@@ -108,7 +108,12 @@ function drawTiling() {
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
   ctx.font = fontString(canvas, 'body', 'mono');
   ctx.fillText(`tiles: ${st.counts.total}`, 14, H - 36);
-  ctx.fillText(`A / B: ${st.counts.ratio.toFixed(4)} (phi = ${PHI.toFixed(4)})`, 14, H - 18);
+  // Show the larger-over-smaller count ratio so the value tracks phi (= 1.618),
+  // consistent with the convergence diagnostic and its phi asymptote; the raw
+  // A/B was its reciprocal (1/phi = 0.618) and read as a contradiction.
+  const big = Math.max(st.counts.A, st.counts.B);
+  const small = Math.min(st.counts.A, st.counts.B) || 1;
+  ctx.fillText(`tile-count ratio: ${(big / small).toFixed(4)} (phi = ${PHI.toFixed(4)})`, 14, H - 18);
 
   drawConvergenceDiagnostic();
 }
@@ -125,7 +130,7 @@ function drawConvergenceDiagnostic() {
   ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
   ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
-  ctx.fillText('tile ratio A/B converges to φ', px + 8, py + 14);
+  ctx.fillText('tile-count ratio converges to φ', px + 8, py + 14);
   const ax = px + 34, ay = py + 24, aw = pw - 46, ah = ph - 44;
   const NMAX = 12;
   // Iterate the deflation recurrence.
