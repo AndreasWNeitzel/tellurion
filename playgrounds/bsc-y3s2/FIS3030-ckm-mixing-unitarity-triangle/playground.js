@@ -59,10 +59,18 @@ function drawMatrix() {
 
 function drawTriangle() {
   // Closed unitarity triangle with vertices C=(0,0), B=(1,0), A=(rho,eta).
-  const x0 = 120, y0 = 660, sc = 560;
+  // Enlarged and lowered to fill the canvas (it was small and floated with
+  // wide empty bands above and below).
+  const x0 = 70, y0 = 820, sc = 700;
   const X = (r) => x0 + r * sc;
   const Y = (e) => y0 - e * sc;
   const A = trianglePoints({ rho: st.rho, eta: st.eta }).A;
+  // Unitarity relation, in the band above the apex.
+  ctx.fillStyle = 'rgba(200,210,235,0.85)'; ctx.font = fontString(canvas, 'body', 'mono', 600); ctx.textAlign = 'center';
+  ctx.fillText('unitarity:  V_ud V*_ub  +  V_cd V*_cb  +  V_td V*_tb  =  0', W / 2, Y(st.eta) - 120);
+  ctx.fillStyle = 'rgba(150,160,180,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillText('the three side-vectors close the triangle; its area measures CP violation', W / 2, Y(st.eta) - 98);
+  ctx.textAlign = 'left';
 
   // Faint axes.
   ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1;
