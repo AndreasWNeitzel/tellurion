@@ -95,18 +95,32 @@ function render() {
   ctx.fillText('|ψ(x)|^2 phase-coloured over V(x); dashed line = <x>', PX + PW / 2, PY + PH + 18);
   ctx.textAlign = 'left';
 
-  // <x>(t) trace
+  // <x>(t) trace, y-axis auto-scaled to the travelled range (the packet
+  // sweeps only a fraction of the box, so a fixed -L/2..L/2 axis left the
+  // curve crammed into a thin band).
   ctx.fillStyle = '#0b0d13'; ctx.fillRect(TX, TY, TW, TH);
   ctx.strokeStyle = 'rgba(200,205,215,0.32)'; ctx.strokeRect(TX, TY, TW, TH);
-  ctx.strokeStyle = 'rgba(150,160,180,0.3)'; ctx.beginPath(); ctx.moveTo(TX, TY + TH / 2); ctx.lineTo(TX + TW, TY + TH / 2); ctx.stroke();
   if (trace.length > 1) {
-    ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.6; ctx.beginPath();
+    let lo = Infinity, hi = -Infinity;
+    for (const v of trace) { if (v < lo) lo = v; if (v > hi) hi = v; }
+    if (hi - lo < 0.04 * L) { const mid = (lo + hi) / 2; lo = mid - 0.02 * L; hi = mid + 0.02 * L; }
+    const pad = (hi - lo) * 0.14; lo -= pad; hi += pad;
+    const yFor = (v) => TY + TH - 10 - (v - lo) / (hi - lo) * (TH - 30);
+    // reference line at the box centre <x> = 0 when in range
+    if (lo < 0 && hi > 0) {
+      ctx.strokeStyle = 'rgba(150,160,180,0.3)'; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(TX, yFor(0)); ctx.lineTo(TX + TW, yFor(0)); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.8; ctx.beginPath();
     const M = Math.max(60, trace.length);
-    for (let k = 0; k < trace.length; k += 1) { const X = TX + (k / M) * TW, Y = TY + TH / 2 - (trace[k] / (L / 2)) * (TH / 2 - 6); k === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
+    for (let k = 0; k < trace.length; k += 1) { const X = TX + (k / M) * TW, Y = yFor(trace[k]); k === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
     ctx.stroke(); ctx.lineWidth = 1;
+    ctx.fillStyle = 'rgba(160,170,190,0.85)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
+    ctx.fillText(`${hi.toFixed(1)}`, TX + 6, TY + 16);
+    ctx.fillText(`${lo.toFixed(1)}`, TX + 6, TY + TH - 8);
   }
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('<x>(t)', TX + TW / 2, TY + TH + 16); ctx.textAlign = 'left';
+  ctx.fillText('<x>(t)  (auto-scaled)', TX + TW / 2, TY + TH + 16); ctx.textAlign = 'left';
 
   // status (top-left) and phase colour wheel (top-right), overlaid in the panel
   ctx.font = fontString(canvas, 'caption', 'mono');

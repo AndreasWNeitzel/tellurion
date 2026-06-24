@@ -36,7 +36,7 @@ const params3 = () => ({ w0: st.w0, w1: st.w1, wrf: wrf() });
 
 // Interactive 3D view (drag to orbit). World axes: z up (poles |0>,
 // |1>), x toward |+>. Trig is cached and refreshed on view change.
-const R = 298, CX = W / 2, CY = H * 0.47;
+const R = 278, CX = W / 2, CY = H * 0.40;
 let ca, sa, ce, se;
 function updView() { ca = Math.cos(st.az); sa = Math.sin(st.az); ce = Math.cos(st.el); se = Math.sin(st.el); }
 updView();
@@ -191,6 +191,8 @@ function render() {
   W / 2, H - 26);
   ctx.fillText('drag the sphere to rotate the view', W / 2, H - 10);
 
+  drawSzTrace();
+
   // readout
   const ang = blochAngles(st.S);
   rNorm.textContent = norm(st.S).toFixed(6);
@@ -198,6 +200,29 @@ function render() {
   rTheta.textContent = (ang.theta * 180 / Math.PI).toFixed(1) + ' deg';
   rReg.textContent = st.w1 < 1e-6 ? 'Larmor'
     : Math.abs(st.delta) < 1e-6 ? 'resonant Rabi' : 'detuned Rabi';
+}
+
+// Quantitative diagnostic: S_z(t) along the predicted orbit (a full
+// Larmor/Rabi period ahead). Fills the band below the sphere and shows
+// the flopping amplitude and period that the 3D spiral encodes.
+function drawSzTrace() {
+  const TX = 60, TY = 800, TW = W - 120, TH = 178;
+  ctx.fillStyle = '#0b0d13'; ctx.fillRect(TX, TY, TW, TH);
+  ctx.strokeStyle = 'rgba(200,205,215,0.30)'; ctx.strokeRect(TX, TY, TW, TH);
+  const orbit = predictOrbit();
+  const t0 = orbit[0][0], t1 = orbit[orbit.length - 1][0] || (t0 + 1);
+  const xFor = (tt) => TX + (tt - t0) / (t1 - t0) * TW;
+  const yFor = (sz) => TY + TH / 2 - sz * (TH / 2 - 16);
+  ctx.strokeStyle = 'rgba(150,160,180,0.25)'; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(TX, yFor(0)); ctx.lineTo(TX + TW, yFor(0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = '#be8cff'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i < orbit.length; i += 1) { const x = xFor(orbit[i][0]), y = yFor(orbit[i][3]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.stroke(); ctx.lineWidth = 1;
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xFor(orbit[0][0]), yFor(orbit[0][3]), 4, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = 'rgba(196,206,226,0.9)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('S_z(t): Rabi flopping / Larmor precession (predicted ahead)', TX + 8, TY + 16);
+  ctx.fillStyle = 'rgba(160,170,190,0.8)'; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillText('+1', TX + 8, yFor(1) + 12); ctx.fillText('0', TX + 8, yFor(0) - 3); ctx.fillText('-1', TX + 8, yFor(-1) - 3);
 }
 
 // Future path from the current S under the current parameters. A few
