@@ -70,8 +70,14 @@ function densityColor(d, out) {
 
 // Phase -> hue (HSV with full saturation).
 function phaseColor(theta, out) {
-  // theta in [-pi, pi], map to hue [0, 1].
-  const hue = ((theta / (2 * Math.PI)) + 1) % 1;
+  // theta is a SUM of vortex windings and can be many multiples of 2 pi (and
+  // strongly negative). Wrap to [0, 1) for any real theta; the old
+  // ((theta/2pi)+1) % 1 went negative once theta < -2pi, giving a negative
+  // hue and a switch index with no matching case, so r/g/b stayed undefined
+  // and the pixel rendered as NaN -> black, punching a rotating wedge through
+  // the condensate.
+  let hue = theta / (2 * Math.PI);
+  hue = hue - Math.floor(hue);
   const i = Math.floor(hue * 6);
   const f = hue * 6 - i;
   const v = 1, s = 1;
