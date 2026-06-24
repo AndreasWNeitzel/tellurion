@@ -82,28 +82,38 @@ function drawDiagnostic(beta) {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 0.5; ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
   ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText('radiated power vs angle from velocity:  dP/dOmega(theta)', x0 + 4, y0 - 8);
+  const op = openingAngle(st.gamma);
+  // Zoom the angle axis to the beaming scale so the lobe fills the panel
+  // instead of collapsing to a spike against an empty 0..180 deg axis.
+  const thetaMax = Math.min(Math.PI, Math.max(3.5 * op, 0.30));
   const M = 260; const vals = new Float64Array(M + 1); let imax = 1e-30;
   for (let k = 0; k <= M; k += 1) {
-    const th = Math.PI * k / M;
+    const th = thetaMax * k / M;
     const v = st.geom === 'par' ? lobeParallel(th, beta) : lobePerpendicular(th, 0, beta);
     vals[k] = v; if (v > imax) imax = v;
   }
   const ax = x0 + 44, aw = x1 - x0 - 60, ay = y0 + 14, ah = y1 - y0 - 40;
-  const thX = (th) => ax + aw * th / Math.PI;
+  const thX = (th) => ax + aw * th / thetaMax;
   const iY = (v) => ay + ah - (ah - 4) * (v / imax);
   ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
-  const op = openingAngle(st.gamma);
-  ctx.strokeStyle = 'rgba(91,192,235,0.6)'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.moveTo(thX(op), ay); ctx.lineTo(thX(op), ay + ah); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#5bc0eb'; ctx.textAlign = 'left';
-  ctx.fillText(`1/gamma = ${(op * 180 / Math.PI).toFixed(1)} deg`, Math.min(thX(op) + 5, x1 - 130), ay + 14);
+  // filled lobe + curve
+  ctx.fillStyle = 'rgba(255,209,102,0.14)'; ctx.beginPath(); ctx.moveTo(ax, ay + ah);
+  for (let k = 0; k <= M; k += 1) ctx.lineTo(thX(thetaMax * k / M), iY(vals[k]));
+  ctx.lineTo(ax + aw, ay + ah); ctx.closePath(); ctx.fill();
+  if (op <= thetaMax) {
+    ctx.strokeStyle = 'rgba(91,192,235,0.6)'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(thX(op), ay); ctx.lineTo(thX(op), ay + ah); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#5bc0eb'; ctx.textAlign = 'left';
+    ctx.fillText(`1/gamma = ${(op * 180 / Math.PI).toFixed(1)} deg`, Math.min(thX(op) + 5, x1 - 130), ay + 14);
+  }
   ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.beginPath();
-  for (let k = 0; k <= M; k += 1) { const px = thX(Math.PI * k / M), py = iY(vals[k]); if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+  for (let k = 0; k <= M; k += 1) { const px = thX(thetaMax * k / M), py = iY(vals[k]); if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.textAlign = 'center';
-  for (const td of [0, 45, 90, 135, 180]) ctx.fillText(String(td), thX(td * Math.PI / 180), ay + ah + 16);
-  ctx.textAlign = 'right'; ctx.fillText('theta (deg)', x1 - 6, ay + ah + 16);
+  const tmDeg = thetaMax * 180 / Math.PI;
+  for (let f = 0; f <= 4; f += 1) { const td = tmDeg * f / 4; ctx.fillText(td < 10 ? td.toFixed(1) : td.toFixed(0), thX(thetaMax * f / 4), ay + ah + 16); }
+  ctx.textAlign = 'right'; ctx.fillText('theta (deg, zoomed to the beam)', x1 - 6, ay + ah + 16);
   ctx.textAlign = 'left'; ctx.fillText('dP/dOmega', ax - 40, ay + 8);
 }
 
