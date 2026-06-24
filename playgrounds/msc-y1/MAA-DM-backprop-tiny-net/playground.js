@@ -34,12 +34,16 @@ const readoutInv   = document.getElementById('readout-invariant') || { innerHTML
 
 const W = canvas.width, H = canvas.height;
 
-// Layout: decision surface (left), network graph (right), loss (bottom).
+// Layout: the decision surface is the hero (a big square panel, so the
+// 2D data plane stays isotropic); the network graph and the loss trace
+// are equal supporting panels in a bottom row. A top header carries the
+// arch / iter / loss / acc readout.
 const PAD   = 18;
-const TOPH  = 392;
-const DX = PAD, DY = PAD, DW = 380, DH = TOPH;
-const NX = DX + DW + 28, NY = PAD, NW = W - NX - PAD, NH = TOPH;
-const LX = PAD, LY = DY + DH + 18, LW = W - 2 * PAD, LH = H - LY - PAD;
+const DSIDE = 600;
+const DX = (W - DSIDE) / 2, DY = 34, DW = DSIDE, DH = DSIDE;
+const BY = DY + DH + 14, BH = H - BY - PAD;
+const NX = PAD, NY = BY, NW = (W - 3 * PAD) / 2, NH = BH;
+const LX = NX + NW + PAD, LY = BY, LW = (W - 3 * PAD) / 2, LH = BH;
 
 const state = {
   dataset: 'moons',
@@ -376,7 +380,7 @@ function drawAll() {
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'right';
-  ctx.fillText(`arch ${archStr}  iter ${state.iter}  loss ${lossStr}  acc ${accStr}`, W - PAD - 6, LY + 14);
+  ctx.fillText(`arch ${archStr}  iter ${state.iter}  loss ${lossStr}  acc ${accStr}`, W - PAD - 6, 22);
   readoutInv.innerHTML =
     `arch ${archStr} &middot; iter ${state.iter} &middot; loss ${lossStr} &middot; train acc ${accStr}`;
 }
