@@ -241,8 +241,9 @@ function drawCascade() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`primary ${st.primary}, E_0 = 10^${st.logE.toFixed(1)} eV  ·  zenith = ${st.zenithDeg.toFixed(0)}°`, 50, 24);
   ctx.fillText(`live particles: ${st.particles.length}    cycle ${st.cycle}`, 50, 42);
-  // Species legend.
-  let lyx = 50, lyy = SCENE.h - 18;
+  // Species legend (top band, clear of the X_max marker that sits at the
+  // bottom of the depth axis and above the highest shower particles).
+  let lyx = 50, lyy = 62;
   function leg(col, txt) {
     ctx.fillStyle = col; ctx.beginPath(); ctx.arc(lyx, lyy, 3, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(220, 230, 255, 0.85)'; ctx.font = fontString(canvas, 'caption', 'mono');
@@ -379,6 +380,11 @@ if (CAPTURE_NAME) {
   st.depth = 0.3 + 0.7 * (CAPTURE_FRAC || 0);
   sDepth.value = String(st.depth);
   st.rng = makeRng(0xC0FFEE);     // deterministic
+  // Develop the cascade so the frame shows a populated shower, not an empty
+  // atmosphere: spawn the primary and step it down through the air. Without
+  // this the capture read 'live particles: 0, cycle 0'.
+  spawnPrimary();
+  for (let n = 0; n < 150; n += 1) { st.t += 0.03; stepCascade(0.03); }
   draw();
   window.__simulationReady = true;
 } else {
