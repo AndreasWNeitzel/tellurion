@@ -191,7 +191,7 @@ function render() {
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
-  ctx.fillText(`phase ${st.phaseDeg}°    A_lunar = ${A_LUNAR.toFixed(2)}    A_solar = ${A_SOLAR.toFixed(2)}`, 24, 22);
+  ctx.fillText(`phase ${st.phaseDeg.toFixed(1)}°    A_lunar = ${A_LUNAR.toFixed(2)}    A_solar = ${A_SOLAR.toFixed(2)}`, 24, 22);
   // Reference ranges from the same peak-to-peak measure as reg.range (the P2
   // tide is 1.5x the amplitude, so comparing the range to A_lunar + A_solar
   // read as a contradiction): spring is the aligned configuration, neap the
@@ -207,7 +207,7 @@ function render() {
   ctx.fillStyle = reg.kind === 'spring' ? '#ffd166' : '#7dd3fc';
   ctx.fillText(regLabel, 24, 40);
 
-  rPhase.textContent = `${st.phaseDeg}°`;
+  rPhase.textContent = `${st.phaseDeg.toFixed(1)}°`;
   rRange.textContent = reg.range.toFixed(3);
   rRegime.textContent = reg.kind;
 
@@ -219,39 +219,46 @@ function render() {
 // and bottoms at quadratures (90, 270: neap tides). The current phase
 // is marked, tying the 3D bulge to the spring-neap cycle.
 function drawRangeDiagnostic() {
-  const pw = 250, ph = 130, px = W - pw - 14, py = H - ph - 14;
-  ctx.fillStyle = 'rgba(8, 12, 22, 0.9)';
-  ctx.fillRect(px, py, pw, ph);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
-  ctx.fillText('tidal range vs lunar phase', px + 8, py + 14);
-  const ax = px + 30, ay = py + 22, aw = pw - 44, ah = ph - 42;
-  const rangeMax = A_LUNAR + A_SOLAR;
+  const pw = 480, ph = 214, px = W - pw - 24, py = H - ph - 28;
+  ctx.fillStyle = 'rgba(8,12,22,0.92)'; ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = 'rgba(220,230,255,0.3)'; ctx.lineWidth = 1; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+  ctx.fillStyle = 'rgba(220,230,255,0.92)'; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('tidal range vs lunar phase', px + 10, py + 16);
+  const ax = px + 42, ay = py + 28, aw = pw - 56, ah = ph - 54;
+  // Scale to the true curve extrema so nothing leaves the box.
+  const rangeMax = tidalRegime(0).range;            // spring (syzygy)
+  const rangeMin = tidalRegime(Math.PI / 2).range;  // neap (quadrature)
+  const yTop = rangeMax * 1.14;
   const xOf = (deg) => ax + (deg / 360) * aw;
-  const yOf = (r) => ay + ah - (r / (rangeMax * 1.1)) * ah;
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-  for (const d of [90, 180, 270]) {
-    ctx.beginPath(); ctx.moveTo(xOf(d), ay); ctx.lineTo(xOf(d), ay + ah); ctx.stroke();
-  }
-  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let d = 0; d <= 360; d += 4) {
-    const r = tidalRegime(d * Math.PI / 180).range;
-    const x = xOf(d), y = yOf(r);
-    if (d === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
+  const yOf = (r) => ay + ah - (r / yTop) * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+  for (const d of [90, 180, 270]) { ctx.beginPath(); ctx.moveTo(xOf(d), ay); ctx.lineTo(xOf(d), ay + ah); ctx.stroke(); }
+  // spring / neap reference levels
+  ctx.setLineDash([3, 3]);
+  ctx.strokeStyle = 'rgba(255,209,102,0.35)'; ctx.beginPath(); ctx.moveTo(ax, yOf(rangeMax)); ctx.lineTo(ax + aw, yOf(rangeMax)); ctx.stroke();
+  ctx.strokeStyle = 'rgba(125,211,252,0.35)'; ctx.beginPath(); ctx.moveTo(ax, yOf(rangeMin)); ctx.lineTo(ax + aw, yOf(rangeMin)); ctx.stroke();
+  ctx.setLineDash([]);
+  // filled curve
+  ctx.fillStyle = 'rgba(91,192,235,0.12)'; ctx.beginPath(); ctx.moveTo(ax, ay + ah);
+  for (let d = 0; d <= 360; d += 3) ctx.lineTo(xOf(d), yOf(tidalRegime(d * Math.PI / 180).range));
+  ctx.lineTo(ax + aw, ay + ah); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let d = 0; d <= 360; d += 3) { const x = xOf(d), y = yOf(tidalRegime(d * Math.PI / 180).range); d ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
   ctx.stroke();
-  // Current-phase marker.
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(xOf(st.phaseDeg), yOf(tidalRegime(st.phaseDeg * Math.PI / 180).range), 4, 0, 6.28);
-  ctx.fill();
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('0°', ax - 4, ay + ah + 11);
-  ctx.fillText('spring', xOf(180) - 16, ay + ah + 11);
-  ctx.fillText('360°', ax + aw - 18, ay + ah + 11);
+  ctx.strokeStyle = 'rgba(150,160,180,0.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  // current-phase marker (bounded now)
+  const cr = tidalRegime(st.phaseDeg * Math.PI / 180).range;
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xOf(st.phaseDeg), yOf(cr), 4.5, 0, 6.28); ctx.fill();
+  // labels
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(rangeMax.toFixed(2), ax - 5, yOf(rangeMax));
+  ctx.fillText(rangeMin.toFixed(2), ax - 5, yOf(rangeMin));
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const d of [0, 90, 180, 270, 360]) ctx.fillText(String(d), xOf(d), ay + ah + 5);
+  ctx.fillStyle = 'rgba(255,209,102,0.85)'; ctx.fillText('spring', xOf(0) + 16, ay + 1); ctx.fillText('spring', xOf(180), ay + 1);
+  ctx.fillStyle = 'rgba(125,211,252,0.85)'; ctx.fillText('neap', xOf(90), ay + ah - 24); ctx.fillText('neap', xOf(270), ay + ah - 24);
+  ctx.fillStyle = 'rgba(200,210,240,0.7)'; ctx.fillText('lunar phase (deg)', ax + aw / 2, ay + ah + 18);
+  ctx.textBaseline = 'alphabetic';
 }
 
 function tick() {
