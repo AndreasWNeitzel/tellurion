@@ -76,18 +76,20 @@ function drawTracers() {
     const col = viridis(Math.min(1, Math.hypot(u, v) / 2.6));
     const rgb = `${Math.round(col[0])}, ${Math.round(col[1])}, ${Math.round(col[2])}`;
     const fade = Math.sin(Math.min(1, t.age / t.life) * Math.PI);   // fade in then out over life
-    // Fading streamline trail: oldest segments faint, head bright.
+    // Fading streamline trail: oldest segments faint, head bright. The tail
+    // keeps a floor of brightness so the streamlines read as solid ribbons
+    // rather than near-black specks against the dark scene.
     for (let i = 1; i < t.hist.length; i += 1) {
-      const a = fade * (i / t.hist.length) * 0.8;
+      const a = fade * (0.3 + 0.7 * (i / t.hist.length));
       ctx.strokeStyle = `rgba(${rgb}, ${a.toFixed(3)})`;
-      ctx.lineWidth = 0.6 + 1.8 * (i / t.hist.length);
+      ctx.lineWidth = 1.0 + 2.1 * (i / t.hist.length);
       ctx.beginPath();
       ctx.moveTo(toX(t.hist[i - 1][0]), toY(t.hist[i - 1][1]));
       ctx.lineTo(toX(t.hist[i][0]), toY(t.hist[i][1]));
       ctx.stroke();
     }
     ctx.fillStyle = `rgba(${rgb}, ${fade.toFixed(3)})`;
-    ctx.beginPath(); ctx.arc(toX(t.x), toY(t.y), 1.9, 0, 2 * Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.arc(toX(t.x), toY(t.y), 2.3, 0, 2 * Math.PI); ctx.fill();
   }
 }
 
@@ -118,10 +120,20 @@ function drawStokesPlot() {
   ctx.stroke();
   const area = w * h;
   const circ = circulationRect(field, cx0, cy0, w, h);
+  const mx = xOf(Math.min(area, areaMax));
+  const my = yOf(Math.max(-circMax, Math.min(circMax, circ)));
+  // Dotted drop line from the marker to the area axis: ties the moving loop
+  // to its point on the circulation = curl x area line.
+  ctx.strokeStyle = 'rgba(255, 209, 102, 0.4)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mx, yOf(0)); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#ffd166';
   ctx.beginPath();
-  ctx.arc(xOf(Math.min(area, areaMax)), yOf(Math.max(-circMax, Math.min(circMax, circ))), 4, 0, 2 * Math.PI);
+  ctx.arc(mx, my, 4, 0, 2 * Math.PI);
   ctx.fill();
+  // Slope label: the line's slope IS the curl, the content of Stokes in 2D.
+  ctx.font = fontString(canvas, 'tick', 'mono', 600);
+  ctx.fillStyle = '#5bc0eb'; ctx.textAlign = 'left';
+  ctx.fillText(`slope = curl = ${curl.toFixed(2)}`, xOf(areaMax * 0.42), yOf(curl * areaMax * 0.42) + (curl < 0 ? 16 : -8));
   ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(200, 210, 240, 0.75)';
   ctx.fillText('circulation', p.x + 8, ay + 10);
@@ -222,6 +234,14 @@ function bootSync() {
     sliderW.value = String(w); sliderH.value = String(h);
   }
   valueF.textContent = field; valueW.textContent = w.toFixed(2); valueH.textContent = h.toFixed(2);
+  if (CAPTURE_NAME) {
+    // Warm the advected tracers so the capture shows developed streamlines,
+    // not the one-step stubs: the flowing trails ARE the visible field, and a
+    // single render() frame would leave them as faint specks.
+    layout();
+    tracers = Array.from({ length: 240 }, () => spawnTracer(true));
+    for (let i = 0; i < 60; i += 1) stepTracers(0.016);
+  }
   render(); updateReadout();
   if (DETERMINISTIC) { requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
 }
