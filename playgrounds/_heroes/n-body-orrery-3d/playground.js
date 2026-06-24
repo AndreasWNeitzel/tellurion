@@ -65,9 +65,10 @@ function project(x, y, z) {
   const ct = Math.cos(st.tiltX), stl = Math.sin(st.tiltX);
   const yr = ct * yp - stl * zp;
   const zr = stl * yp + ct * zp;
-  // Perspective.
+  // Perspective. Focal chosen so the outer orbit nearly fills the portrait
+  // rather than floating as a small system in a large empty frame.
   const camDist = 8;
-  const f = 380 / (camDist + zr);
+  const f = 540 / (camDist + zr);
   const sx = W / 2 + f * xp;
   const sy = H / 2 - f * yr;
   return { x: sx, y: sy, depth: camDist + zr, scale: f / 80 };
