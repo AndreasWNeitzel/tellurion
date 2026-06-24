@@ -45,9 +45,12 @@ function render(now) {
   const padL = 20, padR = 20, padT = 100, padB = 80;
   const plotW = canvas.width - padL - padR;
   const lineY = canvas.height / 2;
-  const ampPx = (canvas.height - padT - padB) * 0.4;
 
   const g = reflection(ZL, Z0);
+  // Scale so the antinode amplitude |V_inc|(1+g) fills most of the half-height
+  // without clipping at the canvas edge for a high mismatch (large g). The old
+  // fixed 0.4 height let the (1+g) antinodes run off the top and bottom.
+  const ampPx = (canvas.height - padT - padB) * 0.46 / (1 + g);
   const t = (now - t0) / 1000;
 
   // The standing wave envelope: |V(x)| = |V_inc| * sqrt(1 + g^2 + 2 g cos(2 k x))
