@@ -27,11 +27,21 @@ const btnReset  = document.getElementById('btn-reset');
 const btnFlip   = document.getElementById('btn-flip');
 
 const W = canvas.width, H = canvas.height;
-const PLOT = { x: 80, y: 64, w: 660, h: 876, ymin: 0, ymax: 6 };   // fill the portrait height (was h=380, a top-40% band)
+// Three stacked zones: the literal coin tosses (hero), the Beta belief
+// curves, and a prior-versus-data pull strip on a shared theta axis.
+const COINS = { x: 40, y: 56, w: W - 80, h: 432 };
+const BELIEF = { x: 40, y: 512, w: W - 80, h: 300, ymax: 6 };
+const PULL = { x: 40, y: 836, w: W - 80, h: 168 };
 
 const rng = makeRng(0xC0FFEE);
 
 const state = { a0: 2, b0: 2, k: 7, n: 10, trueBias: 0.7 };
+
+function evenSeq(k, n) {
+  const a = []; let acc = Math.floor(n / 2);
+  for (let i = 0; i < n; i += 1) { acc += k; if (acc >= n) { acc -= n; a.push(1); } else a.push(0); }
+  return a;
+}
 
 function cssVar(name, fallback) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
@@ -48,147 +58,130 @@ const tok = {
   grid: cssVar('--grid', '#9A9C9F4D'),
 };
 
-function px(t, y) {
-  return {
-    px: PLOT.x + t * PLOT.w,
-    py: PLOT.y + (1 - y / PLOT.ymax) * PLOT.h,
+function panelLight(p, title) {
+  ctx.fillStyle = '#0c0e14'; ctx.fillRect(p.x, p.y, p.w, p.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 1; ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
+  ctx.fillStyle = tok.fg; ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(title, p.x + 10, p.y + 18);
+}
+
+function drawCoins() {
+  const p = COINS;
+  panelLight(p, 'the biased coin: heads or tails, one toss at a time');
+  const n = state.n, k = state.k, t = n - k;
+  const gold = '#d9a521', silver = '#b9bdc4';
+  // big tally
+  ctx.textBaseline = 'middle';
+  ctx.font = fontString(canvas, 'heading', 'mono', 700); ctx.textAlign = 'left';
+  ctx.fillStyle = gold; ctx.fillText(`${k}`, p.x + 14, p.y + 46);
+  const kw = ctx.measureText(`${k}`).width;
+  ctx.fillStyle = tok.fgMuted; ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.fillText('heads', p.x + 18 + kw, p.y + 47);
+  ctx.fillStyle = tok.fg; ctx.font = fontString(canvas, 'heading', 'mono', 700);
+  ctx.textAlign = 'right'; ctx.fillText(`${t}`, p.x + p.w - 70, p.y + 46);
+  ctx.fillStyle = tok.fgMuted; ctx.font = fontString(canvas, 'caption', 'sans', 600); ctx.textAlign = 'left'; ctx.fillText('tails', p.x + p.w - 64, p.y + 47);
+  ctx.textAlign = 'center'; ctx.fillStyle = tok.fgMuted; ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillText(`${n} tosses of a coin that truly lands heads ${(state.trueBias * 100).toFixed(0)}% of the time`, p.x + p.w / 2, p.y + 46);
+
+  // coin grid
+  const seq = evenSeq(k, n);
+  const gx = p.x + 16, gy = p.y + 78, gw = p.w - 32, gh = p.h - 96;
+  const cols = Math.max(1, Math.min(16, Math.ceil(Math.sqrt(n * gw / Math.max(1, gh)))));
+  const rows = Math.max(1, Math.ceil(n / cols));
+  const cell = Math.min(gw / cols, gh / rows);
+  const R = Math.min(20, cell * 0.42);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  for (let i = 0; i < n; i += 1) {
+    const cx = gx + (i % cols + 0.5) * (gw / cols);
+    const cy = gy + (Math.floor(i / cols) + 0.5) * Math.min(gh / rows, cell);
+    const head = seq[i] === 1;
+    const g = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.15, cx, cy, R);
+    if (head) { g.addColorStop(0, '#f6d873'); g.addColorStop(1, gold); } else { g.addColorStop(0, '#e8eaee'); g.addColorStop(1, silver); }
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = head ? '#9a7415' : '#8f939b'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
+    if (i === n - 1) { ctx.strokeStyle = tok.cat3; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(cx, cy, R + 2.5, 0, 2 * Math.PI); ctx.stroke(); }
+    if (R >= 9) { ctx.fillStyle = head ? '#5a430a' : '#55585e'; ctx.font = fontString(canvas, 'caption', 'mono', 700); ctx.fillText(head ? 'H' : 'T', cx, cy + 0.5); }
+  }
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawBelief() {
+  const p = BELIEF;
+  panelLight(p, 'belief about the bias theta: prior, likelihood, posterior');
+  const post = posteriorParams({ a0: state.a0, b0: state.b0, k: state.k, n: state.n });
+  const meanPost = betaMean(post.a, post.b);
+  const ymax = Math.max(4, betaPdf(meanPost, post.a, post.b) * 1.18);
+  const ax = p.x + 14, ay = p.y + 28, aw = p.w - 28, ah = p.h - 56;
+  const X = (t) => ax + t * aw;
+  const Y = (y) => ay + ah * (1 - Math.min(y, ymax) / ymax);
+  // grid + theta ticks
+  ctx.strokeStyle = tok.grid; ctx.lineWidth = 0.4; ctx.fillStyle = tok.fgFaint; ctx.font = fontString(canvas, 'tick'); ctx.textAlign = 'center';
+  for (const t of [0, 0.25, 0.5, 0.75, 1]) { ctx.beginPath(); ctx.moveTo(X(t), ay); ctx.lineTo(X(t), ay + ah); ctx.stroke(); ctx.fillText(t.toFixed(2), X(t), ay + ah + 14); }
+  // 95% CI shade
+  if (post.a > 0 && post.b > 0) {
+    const ci = credibleInterval(post.a, post.b, 0.95);
+    ctx.fillStyle = 'rgba(85,168,104,0.18)'; ctx.beginPath(); ctx.moveTo(X(ci.lo), Y(0));
+    const M = 160; for (let i = 0; i <= M; i += 1) { const tt = ci.lo + (i / M) * (ci.hi - ci.lo); ctx.lineTo(X(tt), Y(betaPdf(tt, post.a, post.b))); }
+    ctx.lineTo(X(ci.hi), Y(0)); ctx.closePath(); ctx.fill();
+  }
+  const curve = (color, fn, lw) => {
+    ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.beginPath();
+    const N = 360; for (let i = 0; i <= N; i += 1) { const tt = i / N; const yy = Y(fn(tt)); i ? ctx.lineTo(X(tt), yy) : ctx.moveTo(X(tt), yy); }
+    ctx.stroke();
   };
+  curve(tok.cat1, (t) => betaPdf(t, state.a0, state.b0), 1.4);
+  curve(tok.cat2, (t) => betaPdf(t, state.k + 1, state.n - state.k + 1), 1.4);
+  curve(tok.cat3, (t) => betaPdf(t, post.a, post.b), 2.2);
+  ctx.strokeStyle = tok.fgFaint; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  // legend
+  ctx.font = fontString(canvas, 'tick', 'sans', 600); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  const leg = [[tok.cat1, `prior B(${state.a0.toFixed(1)},${state.b0.toFixed(1)})`], [tok.cat2, 'likelihood'], [tok.cat3, `posterior B(${post.a.toFixed(1)},${post.b.toFixed(1)})`]];
+  let lx = ax + 8; const ly = ay + 10;
+  for (const [c, lab] of leg) { ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 14, ly); ctx.stroke(); ctx.fillStyle = tok.fg; ctx.fillText(lab, lx + 18, ly); lx += ctx.measureText(lab).width + 40; }
+  ctx.textBaseline = 'alphabetic';
 }
 
-function drawAxes() {
-  ctx.fillStyle = tok.bg; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = tok.surface; ctx.fillRect(PLOT.x, PLOT.y, PLOT.w, PLOT.h);
-  ctx.strokeStyle = tok.fgFaint;
-  ctx.lineWidth = 0.6;
-  ctx.strokeRect(PLOT.x + 0.5, PLOT.y + 0.5, PLOT.w - 1, PLOT.h - 1);
-
-  ctx.fillStyle = tok.fgFaint;
-  ctx.font = fontString(canvas, 'tick');
-  ctx.textAlign = 'center';
-  for (const t of [0, 0.25, 0.5, 0.75, 1]) {
-    const p = px(t, 0);
-    ctx.fillText(t.toFixed(2), p.px, PLOT.y + PLOT.h + 13);
-    ctx.strokeStyle = tok.grid;
-    ctx.lineWidth = 0.4;
-    ctx.beginPath(); ctx.moveTo(p.px, PLOT.y); ctx.lineTo(p.px, PLOT.y + PLOT.h); ctx.stroke();
-  }
-  ctx.fillStyle = tok.fgMuted;
-  ctx.font = fontString(canvas, 'caption');
-  ctx.textAlign = 'center';
-  ctx.fillText('θ (coin bias)', PLOT.x + PLOT.w / 2, PLOT.y + PLOT.h + 32);
-  ctx.save();
-  ctx.translate(PLOT.x - 38, PLOT.y + PLOT.h / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('density', 0, 0);
-  ctx.restore();
-}
-
-function drawCurve(color, fn, lineWidth = 1.5) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-  ctx.beginPath();
-  const N = 400;
-  for (let i = 0; i <= N; i += 1) {
-    const t = i / N;
-    const y = fn(t);
-    const p = px(t, Math.min(y, PLOT.ymax));
-    if (i === 0) ctx.moveTo(p.px, p.py); else ctx.lineTo(p.px, p.py);
-  }
-  ctx.stroke();
+function drawPull() {
+  const p = PULL;
+  panelLight(p, 'where the posterior sits: the prior pulls against the data');
+  const meanPrior = betaMean(state.a0, state.b0);
+  const meanData = state.n > 0 ? state.k / state.n : 0.5;
+  const post = posteriorParams({ a0: state.a0, b0: state.b0, k: state.k, n: state.n });
+  const meanPost = betaMean(post.a, post.b);
+  const priorStrength = state.a0 + state.b0, dataStrength = state.n;
+  const pull = dataStrength / (priorStrength + dataStrength);
+  const ax = p.x + 14, aw = p.w - 28, ly = p.y + 64;
+  const X = (t) => ax + t * aw;
+  // theta axis aligned with the belief panel
+  ctx.strokeStyle = tok.fgFaint; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ax, ly); ctx.lineTo(ax + aw, ly); ctx.stroke();
+  ctx.fillStyle = tok.fgFaint; ctx.font = fontString(canvas, 'tick'); ctx.textAlign = 'center';
+  for (const t of [0, 0.25, 0.5, 0.75, 1]) { ctx.beginPath(); ctx.moveTo(X(t), ly - 3); ctx.lineTo(X(t), ly + 3); ctx.stroke(); ctx.fillText(t.toFixed(2), X(t), ly + 16); }
+  // arrow from prior mean to data mean (the tug); posterior sits at the pull point
+  ctx.strokeStyle = tok.fgFaint; ctx.lineWidth = 1; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(X(meanPrior), ly - 22); ctx.lineTo(X(meanData), ly - 22); ctx.stroke(); ctx.setLineDash([]);
+  const mark = (m, c, lab, up) => {
+    const x = X(m), y = up ? ly - 22 : ly;
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center';
+    ctx.fillText(lab, x, up ? y - 9 : y + 26);
+  };
+  mark(meanPrior, tok.cat1, 'prior', true);
+  mark(meanData, tok.cat2, 'data', true);
+  mark(meanPost, tok.cat3, 'posterior', false);
+  // strength bars: prior pseudo-count vs data count
+  const by = p.y + 104, bh = 12, bx = ax, bw = aw;
+  const total = priorStrength + dataStrength;
+  ctx.fillStyle = tok.cat1; ctx.fillRect(bx, by, bw * priorStrength / total, bh);
+  ctx.fillStyle = tok.cat2; ctx.fillRect(bx + bw * priorStrength / total, by, bw * dataStrength / total, bh);
+  ctx.fillStyle = tok.fg; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(`prior weight ${(100 - pull * 100).toFixed(0)}%  (alpha0+beta0 = ${priorStrength.toFixed(0)} pseudo-tosses)`, bx, by + bh + 14);
+  ctx.textAlign = 'right'; ctx.fillText(`data weight ${(pull * 100).toFixed(0)}%  (n = ${dataStrength})`, bx + bw, by + bh + 14);
+  ctx.textBaseline = 'alphabetic';
 }
 
 function drawAll() {
-  const post = posteriorParams({ a0: state.a0, b0: state.b0, k: state.k, n: state.n });
-  const meanPost = betaMean(post.a, post.b);
-  const peakPost = betaPdf(meanPost, post.a, post.b);
-  PLOT.ymax = Math.max(4, peakPost * 1.2);
-
-  drawAxes();
-
-  if (post.a > 0 && post.b > 0) {
-    const ci = credibleInterval(post.a, post.b, 0.95);
-    const N = 200;
-    ctx.fillStyle = 'rgba(85, 168, 104, 0.18)';
-    ctx.beginPath();
-    const p0 = px(ci.lo, 0);
-    ctx.moveTo(p0.px, p0.py);
-    for (let i = 0; i <= N; i += 1) {
-      const t = ci.lo + (i / N) * (ci.hi - ci.lo);
-      const y = betaPdf(t, post.a, post.b);
-      const p = px(t, Math.min(y, PLOT.ymax));
-      ctx.lineTo(p.px, p.py);
-    }
-    const pEnd = px(ci.hi, 0);
-    ctx.lineTo(pEnd.px, pEnd.py);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  drawCurve(tok.cat1, t => betaPdf(t, state.a0, state.b0), 1.2);
-  drawCurve(tok.cat3, t => betaPdf(t, post.a, post.b), 2.0);
-  drawCurve(tok.cat2, t => betaPdf(t, state.k + 1, state.n - state.k + 1), 1.2);
-
-  ctx.font = fontString(canvas, 'caption');
-  const lx = PLOT.x + 12;
-  const items = [
-    [tok.cat1, `prior Beta(${state.a0.toFixed(1)}, ${state.b0.toFixed(1)})`],
-    [tok.cat2, `likelihood (Beta(${state.k + 1}, ${state.n - state.k + 1}))`],
-    [tok.cat3, `posterior Beta(${post.a.toFixed(1)}, ${post.b.toFixed(1)})`],
-  ];
-  let ly = PLOT.y + 16;
-  for (const [c, label] of items) {
-    ctx.fillStyle = c;
-    ctx.fillRect(lx, ly - 8, 14, 3);
-    ctx.fillStyle = tok.fg;
-    ctx.textAlign = 'left';
-    ctx.fillText(label, lx + 22, ly);
-    ly += 14;
-  }
-
-  const ci = credibleInterval(post.a, post.b, 0.95);
-  const sigma = Math.sqrt(betaVariance(post.a, post.b));
-  const meanPrior = betaMean(state.a0, state.b0);
-  const meanData = state.n > 0 ? state.k / state.n : 0.5;
-  const priorStrength = state.a0 + state.b0;
-  const dataStrength = state.n;
-  const pull = dataStrength / (priorStrength + dataStrength);   // 0 = all prior, 1 = all data
-
-  // Tick marks at each of the three means so the user SEES the pull
-  // from prior to data through posterior.
-  ctx.lineWidth = 1.2;
-  for (const [m, c, lab] of [
-    [meanPrior, tok.cat1, 'prior'],
-    [meanData,  tok.cat2, 'data'],
-    [meanPost,  tok.cat3, 'post'],
-  ]) {
-    const p = px(m, 0);
-    ctx.strokeStyle = c;
-    ctx.beginPath();
-    ctx.moveTo(p.px, PLOT.y + PLOT.h - 18);
-    ctx.lineTo(p.px, PLOT.y + PLOT.h - 2);
-    ctx.stroke();
-    ctx.fillStyle = c; ctx.font = fontString(canvas, 'tick', 'mono');
-    ctx.textAlign = 'center';
-    ctx.fillText(lab, p.px, PLOT.y + PLOT.h - 20);
-  }
-
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  const rows = [
-    ['prior mean',  meanPrior.toFixed(4)],
-    ['data mean',   meanData.toFixed(4)],
-    ['post mean',   meanPost.toFixed(4)],
-    ['k / n',       `${state.k} / ${state.n}`],
-    ['sigma',       sigma.toFixed(4)],
-    ['95% CI',      `${ci.lo.toFixed(3)}..${ci.hi.toFixed(3)}`],
-    ['pull (data)', `${(pull * 100).toFixed(0)}%`],
-  ];
-  const xL = W - 190, xR = W - 16;
-  let y = 20;
-  for (const [k, v] of rows) {
-    ctx.textAlign = 'left';  ctx.fillStyle = tok.fgMuted; ctx.fillText(k, xL, y);
-    ctx.textAlign = 'right'; ctx.fillStyle = tok.fg; ctx.fillText(v, xR, y);
-    y += 14;
-  }
+  ctx.fillStyle = tok.bg; ctx.fillRect(0, 0, W, H);
+  drawCoins();
+  drawBelief();
+  drawPull();
 }
 
 function applyControls() {
