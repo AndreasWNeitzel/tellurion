@@ -51,10 +51,11 @@ vec3 viridis(float t) {
 }
 void main() {
   float v = texture(uAccum, uv).r;
-  // Tighter log mapping so most attractor pixels read in viridis green/teal
-  // rather than saturating to yellow; only the densest filaments saturate.
-  float t = clamp(log(1.0 + v * 10.0) * 0.22, 0.0, 1.0);
-  vec3 col = viridis(t) * (0.30 + 1.3 * t);
+  // Log mapping into viridis; the previous tight version left the low-density
+  // wings nearly black, so lift the curve and the brightness floor so the full
+  // two-lobe attractor reads while only the densest filaments saturate to yellow.
+  float t = clamp(log(1.0 + v * 15.0) * 0.29, 0.0, 1.0);
+  vec3 col = viridis(t) * (0.45 + 1.2 * t);
   vec2 c = uv - 0.5;
   float vign = 1.0 - 0.30 * dot(c, c) * 2.0;
   o = vec4(col * vign, 1.0);

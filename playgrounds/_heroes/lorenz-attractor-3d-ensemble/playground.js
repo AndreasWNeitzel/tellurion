@@ -218,7 +218,17 @@ function bootSync() {
     // Step into the attractor + accumulate density for a still capture.
     // Need t ~ 20 for full attractor saturation; with dt=0.01 that is 2000 steps.
     const initSteps = Math.max(2200, Math.floor(2000 + CAPTURE_FRAC * 1500));
-    for (let i = 0; i < initSteps; i += 1) rk4Step(state, 0.01);
+    for (let i = 0; i < initSteps; i += 1) {
+      rk4Step(state, 0.01);
+      // Record the ensemble diameter over the warmup so the log10 D(t) spread
+      // diagnostic is populated (the live tick records it, but the capture
+      // would otherwise leave the panel empty).
+      const tc = (i + 1) * 0.01;
+      if (diamHistory.length === 0 || tc - diamHistory[diamHistory.length - 1].t > 0.05) {
+        diamHistory.push({ t: tc, D: diameter(state) });
+        if (diamHistory.length > 400) diamHistory.shift();
+      }
+    }
     t += initSteps * 0.01;
     // Fill the 3D trail ring deterministically, then render one frame
     // (same object-space trail path as the live view).
