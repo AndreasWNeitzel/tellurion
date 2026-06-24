@@ -156,7 +156,7 @@ function drawEvolution(x, y, w, h) {
 }
 
 function drawStability(x, y, w, h) {
-  panel(x, y, w, h, 'mass-transfer stability: zeta_L(q) vs stiff / soft donors');
+  panel(x, y, w, h, 'mass-transfer stability: zeta_L(q) vs donor');
   const s = current();
   const px = x + 44, py = y + 26, pw = w - 56, ph = h - 78;
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.strokeRect(px, py, pw, ph);
@@ -179,7 +179,8 @@ function drawStability(x, y, w, h) {
   for (const [z, col, lab] of [[0.6, 'rgba(111,180,255,0.7)', 'radiative zeta=0.6'], [-1 / 3, 'rgba(155,232,176,0.7)', 'convective zeta=-1/3']]) {
     ctx.strokeStyle = col; ctx.setLineDash([4, 3]);
     ctx.beginPath(); ctx.moveTo(px, Y(z)); ctx.lineTo(px + pw, Y(z)); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText(lab, px + pw - 116, Y(z) - 4);
+    ctx.fillStyle = col; ctx.font = fontString(canvas, 'caption', 'mono');
+    ctx.textAlign = 'right'; ctx.fillText(lab, px + pw - 6, Y(z) - 4); ctx.textAlign = 'left';
   }
   // current q marker + classification
   const cls = classify(s.M1, s.M2, s.a, fillFrac() * s.a * eggletonRL(s.q), 0.6);
