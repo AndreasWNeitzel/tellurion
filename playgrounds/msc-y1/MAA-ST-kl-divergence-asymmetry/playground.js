@@ -45,13 +45,17 @@ function updateArgmins() {
   state.argmins = findArgmins({ p });
 }
 
+// Diagnostic-curve colors (distinct from P=blue, Q=orange).
+const FWD = '#5CC8A0'; // D(P||Q) forward KL, mass-covering
+const REV = '#B07CC6'; // D(Q||P) reverse KL, mode-seeking
+
 function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
 
-  // Plot region for densities
+  // --- Top: density plot (P bimodal, Q single Gaussian) ---
   const X0 = 60, X1 = W - 60;
-  const Y0 = 40, Y1 = H - 80;
+  const Y0 = 46, Y1 = 596;
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
   ctx.lineWidth = 0.5;
   ctx.strokeRect(X0, Y0, X1 - X0, Y1 - Y0);
@@ -116,6 +120,14 @@ function drawAll() {
   }
   ctx.stroke();
 
+  // In-plot series labels
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'left';
+  ctx.fillStyle = tok.accent;
+  ctx.fillText('P  target (bimodal)', X0 + 10, Y0 + 18);
+  ctx.fillStyle = tok.accentWarm;
+  ctx.fillText('Q  fit (single Gaussian)', X0 + 10, Y0 + 36);
+
   // Tick labels on x
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
@@ -128,22 +140,108 @@ function drawAll() {
   // Live KL readouts
   const pq = klPQ(p, q);
   const qp = klQP(p, q);
+  state.klPQ = pq;
+  state.klQP = qp;
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
   ctx.textAlign = 'left';
-  ctx.fillText('D(P || Q) = ' + pq.toFixed(4) + ' nats  (mass-covering)', X0, Y0 - 12);
+  ctx.fillText('D(P || Q) = ' + pq.toFixed(4) + ' nats  (mass-covering)', X0, Y0 - 14);
   ctx.textAlign = 'right';
-  ctx.fillText('D(Q || P) = ' + qp.toFixed(4) + ' nats  (mode-seeking)', X1, Y0 - 12);
+  ctx.fillText('D(Q || P) = ' + qp.toFixed(4) + ' nats  (mode-seeking)', X1, Y0 - 14);
 
-  if (state.argmins) {
-    const A = state.argmins.argminPQ;
-    const B = state.argmins.argminQP;
-    ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`argmin D(P||Q): mu = ${A.mu.toFixed(2)}, sigma = ${A.sigma.toFixed(2)}  (D = ${A.val.toFixed(3)})`, X0, Y1 + 40);
-    ctx.fillText(`argmin D(Q||P): mu = ${B.mu.toFixed(2)}, sigma = ${B.sigma.toFixed(2)}  (D = ${B.val.toFixed(3)})`, X0, Y1 + 56);
+  // --- Bottom: divergence landscape, each direction at its own optimal width ---
+  // D(P||Q)(mu) at the forward-optimal (broad) sigma has ONE central minimum
+  // (mass-covering); D(Q||P)(mu) at the reverse-optimal (narrow) sigma has TWO
+  // minima sitting on the modes (mode-seeking). That split is the asymmetry.
+  const LX0 = 60, LX1 = W - 60;
+  const LY0 = 690, LY1 = 1004;
+  const muMin = -6.5, muMax = 6.5, M = 180;
+  const sigF = state.argmins ? state.argmins.argminPQ.sigma : 2.1;
+  const sigR = state.argmins ? state.argmins.argminQP.sigma : 0.6;
+  const fwd = new Float64Array(M);
+  const rev = new Float64Array(M);
+  let minF = { v: Infinity, mu: 0 }, minR = { v: Infinity, mu: 0 };
+  for (let i = 0; i < M; i += 1) {
+    const mu = muMin + (muMax - muMin) * (i / (M - 1));
+    const { q: qF } = qGaussian({ mu, sigma: sigF });
+    const { q: qR } = qGaussian({ mu, sigma: sigR });
+    fwd[i] = klPQ(p, qF);
+    rev[i] = klQP(p, qR);
+    if (fwd[i] < minF.v) minF = { v: fwd[i], mu };
+    if (rev[i] < minR.v) minR = { v: rev[i], mu };
   }
+  // Clip the y-axis so the off-mode blow-ups flatten instead of escaping.
+  const yMaxL = 4.2;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(LX0, LY0, LX1 - LX0, LY1 - LY0);
+  const toL = (mu, v) => ({
+    px: LX0 + (LX1 - LX0) * (mu - muMin) / (muMax - muMin),
+    py: LY1 - (LY1 - LY0) * Math.min(v, yMaxL) / yMaxL,
+  });
+  // y gridlines
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+  ctx.textAlign = 'right';
+  for (const yv of [0, 1, 2, 3, 4]) {
+    const py = LY1 - (LY1 - LY0) * yv / yMaxL;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.beginPath(); ctx.moveTo(LX0, py); ctx.lineTo(LX1, py); ctx.stroke();
+    ctx.fillText(String(yv), LX0 - 6, py + 4);
+  }
+  // mode reference lines at +/- sep
+  ctx.strokeStyle = 'rgba(110, 165, 215, 0.22)';
+  ctx.setLineDash([3, 4]);
+  for (const m of [-state.sep, state.sep]) {
+    const t = toL(m, 0);
+    ctx.beginPath(); ctx.moveTo(t.px, LY0); ctx.lineTo(t.px, LY1); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  // forward curve
+  const drawCurve = (arr, color) => {
+    ctx.strokeStyle = color; ctx.lineWidth = 2.0; ctx.beginPath();
+    for (let i = 0; i < M; i += 1) {
+      const mu = muMin + (muMax - muMin) * (i / (M - 1));
+      const pt = toL(mu, arr[i]);
+      if (i === 0) ctx.moveTo(pt.px, pt.py); else ctx.lineTo(pt.px, pt.py);
+    }
+    ctx.stroke();
+  };
+  drawCurve(fwd, FWD);
+  drawCurve(rev, REV);
+  // minima markers
+  const mark = (mu, v, color) => {
+    const pt = toL(mu, v);
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(pt.px, pt.py, 4, 0, Math.PI * 2); ctx.fill();
+  };
+  mark(minF.mu, minF.v, FWD);
+  // reverse KL is symmetric: mark both modes
+  mark(minR.mu, minR.v, REV);
+  mark(-minR.mu, minR.v, REV);
+  // live mu marker (current Q position)
+  const liveX = toL(state.mu, 0).px;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.setLineDash([2, 3]); ctx.lineWidth = 1.0;
+  ctx.beginPath(); ctx.moveTo(liveX, LY0); ctx.lineTo(liveX, LY1); ctx.stroke();
+  ctx.setLineDash([]);
+  // legend + labels
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.fillText('divergence vs Q mean  (each direction at its optimal width)', LX0, LY0 - 12);
+  ctx.fillStyle = FWD;
+  ctx.fillText(`D(P||Q), sigma=${sigF.toFixed(2)}: one central minimum -> covers both modes`, LX0 + 8, LY0 + 18);
+  ctx.fillStyle = REV;
+  ctx.fillText(`D(Q||P), sigma=${sigR.toFixed(2)}: two minima -> locks onto one mode`, LX0 + 8, LY0 + 36);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.textAlign = 'center';
+  for (const xt of [-6, -3, 0, 3, 6]) {
+    const t = toL(xt, 0);
+    ctx.fillText(String(xt), t.px, LY1 + 16);
+  }
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fillText('Q mean  mu', (LX0 + LX1) / 2, LY1 + 32);
 }
 
 sliderMu.addEventListener('input', () => {
