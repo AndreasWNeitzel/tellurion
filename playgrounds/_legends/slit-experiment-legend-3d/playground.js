@@ -69,9 +69,13 @@ function effectiveD_m() {
 
 const SRC_X = 80;
 const MASK_X = 350;
-const SCREEN_X = 760;
-const AXIS_Y = H / 2;
-const SCREEN_HALF = 220;
+// Portrait canvas: the beam runs left to right across the upper region; the
+// I(theta) profile curve extends to SCREEN_X + 184, so SCREEN_X must leave that
+// margin inside W (820). The readout sits in a bottom strip, not a right box,
+// so the screen and its profile are never occluded.
+const SCREEN_X = 600;
+const AXIS_Y = 448;
+const SCREEN_HALF = 348;
 
 function thetaToYpx(theta_rad) {
   const y_m = screen_D_m() * Math.tan(theta_rad);
@@ -184,6 +188,26 @@ function drawScreen() {
   ctx.fillText('screen', SCREEN_X + 6, AXIS_Y - SCREEN_HALF - 8);
 }
 
+// Incident spherical wavefronts from the point source to the slit mask: the
+// coherent illumination that makes the slits secondary Huygens sources. Fills
+// the source-to-mask gap and motivates why all slits radiate in phase.
+function drawIncidentWave() {
+  const lam = lambda_m();
+  const col = wavelengthRGB(lam);
+  const max_r = MASK_X - SRC_X;
+  const r0 = ((st.t * 200) % 50 + 50) % 50;
+  ctx.lineWidth = 1;
+  for (let r = r0; r < max_r; r += 50) {
+    if (r < 0.5) continue;
+    const alpha = 0.13 - 0.08 * (r / max_r);
+    if (alpha <= 0) continue;
+    ctx.strokeStyle = `rgba(${col.r}, ${col.g}, ${col.b}, ${alpha.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(SRC_X, AXIS_Y, r, -Math.PI / 2.4, Math.PI / 2.4);
+    ctx.stroke();
+  }
+}
+
 function drawWaveField() {
   const N = effectiveN();
   const lam = lambda_m();
@@ -219,7 +243,7 @@ function drawWaveField() {
   ctx.stroke();
   ctx.fillStyle = 'rgba(220, 230, 255, 0.7)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('I(θ)', SCREEN_X + 24, AXIS_Y - SCREEN_HALF - 8);
+  ctx.fillText('I(θ)', SCREEN_X + 120, AXIS_Y - SCREEN_HALF - 8);
 
   const slitYs = slitYsPx();
   ctx.lineWidth = 1;
@@ -289,7 +313,7 @@ function drawHits() {
   ctx.stroke();
   ctx.fillStyle = 'rgba(255, 240, 200, 0.9)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`${st.hits.length} hits`, SCREEN_X + 24, AXIS_Y - SCREEN_HALF - 8);
+  ctx.fillText(`${st.hits.length} hits`, SCREEN_X + 120, AXIS_Y - SCREEN_HALF + 10);
 }
 
 function drawParticles() {
@@ -408,36 +432,43 @@ function drawHeader() {
 }
 
 function drawSidePanel() {
-  const x = 0.80 * W, y = 50, w = W - x - 14, h = H - 100;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
-  ctx.fillRect(x, y, w, h);
+  // Bottom readout strip (full width), clear of the beam in the upper region.
+  const px = 14, pw = W - 28, ph = 138, py = H - ph - 12;
+  ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';
+  ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
   ctx.lineWidth = 1;
-  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText('Slit-experiment readout', x + 8, y - 6);
-  let yy = y + 24;
-  const row = (k, v, c = '#e0e8ff') => {
+  ctx.textAlign = 'left';
+  ctx.fillText('Slit-experiment readout', px + 12, py + 20);
+
+  const theta1 = principalMaximumAngle(1, effectiveD_m(), lambda_m());
+  const theta_min = singleSlitFirstMinAngle(a_m(), lambda_m());
+  const fields = [
+    ['mode', st.mode, '#ffd28a'],
+    ['particle', st.particle],
+    ['N slits', String(effectiveN())],
+    ['lambda (nm)', (lambda_m() * 1e9).toFixed(2)],
+    ['a (um)', st.a_um.toFixed(2)],
+    ['d (um)', st.d_um.toFixed(2)],
+    ['theta_1 (deg)', isFinite(theta1) ? (theta1 / DEG).toFixed(2) : 'n/a'],
+    ['env_min (deg)', isFinite(theta_min) ? (theta_min / DEG).toFixed(2) : 'n/a'],
+    ['hits', String(st.hits.length)],
+  ];
+  const cols = 5, colW = (pw - 24) / cols, gridY = py + 52;
+  fields.forEach((f, i) => {
+    const r = Math.floor(i / cols), c = i % cols;
+    const cx = px + 14 + c * colW;
+    const cy = gridY + r * 44;
     ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
     ctx.font = fontString(canvas, 'caption');
-    ctx.fillText(k, x + 10, yy);
-    ctx.fillStyle = c;
+    ctx.fillText(f[0], cx, cy);
+    ctx.fillStyle = f[2] || '#e0e8ff';
     ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(v, x + 10, yy + 14);
-    yy += 32;
-  };
-  row('mode', st.mode, '#ffd28a');
-  row('particle', st.particle);
-  row('N slits', String(effectiveN()));
-  row('lambda (nm)', (lambda_m() * 1e9).toFixed(3));
-  row('a (um)', st.a_um.toFixed(2));
-  row('d (um)', st.d_um.toFixed(2));
-  const theta1 = principalMaximumAngle(1, effectiveD_m(), lambda_m());
-  row('theta_1 (deg)', isFinite(theta1) ? (theta1 / DEG).toFixed(2) : 'n/a');
-  const theta_min = singleSlitFirstMinAngle(a_m(), lambda_m());
-  row('env_min (deg)', isFinite(theta_min) ? (theta_min / DEG).toFixed(2) : 'n/a');
-  row('hits', String(st.hits.length));
+    ctx.fillText(f[1], cx, cy + 16);
+  });
 }
 
 function updateReadout() {
@@ -454,6 +485,7 @@ function draw() {
   drawSource();
   drawMask();
   drawScreen();
+  if (st.mode === 'wave' || st.mode === 'grating') drawIncidentWave();
   if (st.mode === 'wave' || st.mode === 'grating') drawWaveField();
   if (st.mode === 'particles' || st.mode === 'grating') drawHits();
   if (st.mode === 'particles') drawParticles();
