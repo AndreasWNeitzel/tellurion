@@ -43,7 +43,7 @@ function applyVis() { rowRc.style.display = st.filter === 'none' ? 'none' : ''; 
 // lower half (was a 232 px row at y=40 with the bottom two thirds empty).
 const PANE = 248, GAP = 13, TOP = 84;
 const X0 = Math.round((W - (3 * PANE + 2 * GAP)) / 2), X1 = X0 + PANE + GAP, X2 = X1 + PANE + GAP;
-const PROF = { x: 64, y: TOP + PANE + 120, w: W - 128, h: 420 };
+const PROF = { x: 64, y: TOP + PANE + 100, w: W - 128, h: 560 };
 
 const off = document.createElement('canvas'); off.width = N; off.height = N;
 const offCtx = off.getContext('2d');
