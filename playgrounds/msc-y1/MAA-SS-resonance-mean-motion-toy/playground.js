@@ -83,12 +83,16 @@ function step(dt) {
   }
 }
 
+const HERO_BOT = 626;                    // belt scene occupies the top; histogram below
 function render() {
   const W = canvas.width, H = canvas.height;
   ctx.fillStyle = '#05050a'; ctx.fillRect(0, 0, W, H);
-  const cx = W * 0.42, cy = H * 0.5;
-  const PX = Math.min(W * 0.42, H * 0.46) / Math.max(st.aJ * 1.05, R_CUT * 0.62);
+  const cx = W / 2, cy = 332;
+  const PX = ((HERO_BOT - 36) / 2 - 14) / 5.4;            // Jupiter's orbit fits the hero
   const res = resRadii();
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0, 0, W, HERO_BOT); ctx.clip();   // keep ejecta out of the histogram
 
   const sun = ctx.createRadialGradient(cx, cy, 0, cx, cy, 16);
   sun.addColorStop(0, '#fff3c4'); sun.addColorStop(1, 'rgba(255,200,80,0)');
@@ -113,7 +117,7 @@ function render() {
     if (e > 0.12) {
       pumped += 1;
       const hot = Math.min(1, (e - 0.12) / 0.4);
-      ctx.fillStyle = `rgba(${(255) | 0},${(170 - 120 * hot) | 0},${(90 - 70 * hot) | 0},0.85)`;
+      ctx.fillStyle = `rgba(255,${(170 - 120 * hot) | 0},${(90 - 70 * hot) | 0},0.85)`;
       ctx.fillRect(x, y, 2, 2);
     } else {
       ctx.fillStyle = 'rgba(150,180,210,0.6)';
@@ -125,12 +129,15 @@ function render() {
   ctx.strokeStyle = 'rgba(120,160,255,0.4)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, PX * st.aJ, 0, 2 * Math.PI); ctx.stroke();
   const jth = st.t * Math.pow(st.aJ, -1.5) * 1.4;
+  const jx = cx + PX * st.aJ * Math.cos(jth), jy = cy + PX * st.aJ * Math.sin(jth);
   ctx.fillStyle = '#7c9cff';
-  ctx.beginPath(); ctx.arc(cx + PX * st.aJ * Math.cos(jth), cy + PX * st.aJ * Math.sin(jth), 7, 0, 2 * Math.PI); ctx.fill();
+  ctx.beginPath(); ctx.arc(jx, jy, 7, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = 'rgba(160,180,255,0.85)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('Jupiter', jx, jy - 12);
+  ctx.restore();
 
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
   ctx.fillText(`t = ${st.t.toFixed(0)} (secular)   alive = ${alive}   resonance-pumped = ${pumped}`, 14, 22);
-  ctx.fillText(`a_Jupiter = ${st.aJ.toFixed(2)} AU   gaps carved by resonant ejection (Reset to refill)`, 14, H - 14);
   rR.textContent = `${alive} alive`;
 
   drawHistogram(W, H, res);
@@ -141,16 +148,13 @@ function render() {
 // develops dips (the Kirkwood gaps) exactly at the marked mean-motion
 // resonance locations. This is the quantitative companion to the
 // orbital scene.
-const HBINS = 64;
+const HBINS = 72;
 function drawHistogram(W, H, res) {
-  const px = W * 0.55, py = 60, pw = W * 0.41, ph = H - 130;
-  ctx.fillStyle = 'rgba(8, 12, 22, 0.85)';
-  ctx.fillRect(px, py, pw, ph);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.3)';
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
-  ctx.fillText('asteroid count vs semi-major axis', px + 8, py + 16);
+  const x0 = 40, x1 = W - 40, y0 = 664, y1 = 992;        // full-width, short panel below the belt
+  ctx.fillStyle = 'rgba(8,12,22,0.92)'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+  ctx.strokeStyle = 'rgba(220,230,255,0.22)'; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, x1 - x0 - 1, y1 - y0 - 1);
+  ctx.fillStyle = 'rgba(220,230,255,0.92)'; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left';
+  ctx.fillText('asteroid count vs semi-major axis: the Kirkwood gaps carve themselves at the resonances', x0 + 10, y0 + 18);
   // Bin the alive asteroids.
   const bins = new Float64Array(HBINS);
   for (let i = 0; i < NPART; i += 1) {
@@ -161,17 +165,17 @@ function drawHistogram(W, H, res) {
   }
   let bMax = 1;
   for (const b of bins) if (b > bMax) bMax = b;
-  const ax = px + 30, ay = py + 26, aw = pw - 42, ah = ph - 56;
-  // Resonance markers (where gaps open).
+  const ax = x0 + 36, ay = y0 + 40, aw = (x1 - x0) - 50, ah = (y1 - y0) - 74;
+  const xA = (a) => ax + ((a - A_IN) / (A_OUT - A_IN)) * aw;
+  // Resonance markers (where gaps open) + labels.
   for (const r of res) {
     if (r.a < A_IN || r.a > A_OUT) continue;
-    const xr = ax + ((r.a - A_IN) / (A_OUT - A_IN)) * aw;
-    ctx.strokeStyle = 'rgba(239,71,111,0.5)'; ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(xr, ay); ctx.lineTo(xr, ay + ah); ctx.stroke();
-    ctx.setLineDash([]);
+    const xr = xA(r.a);
+    ctx.strokeStyle = 'rgba(239,71,111,0.55)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(xr, ay); ctx.lineTo(xr, ay + ah); ctx.stroke(); ctx.setLineDash([]);
     if (r.label) {
-      ctx.fillStyle = 'rgba(239,71,111,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono');
-      ctx.fillText(r.label, xr - 8, ay - 4);
+      ctx.fillStyle = 'rgba(239,120,150,0.95)'; ctx.font = fontString(canvas, 'tick', 'mono', 600); ctx.textAlign = 'center';
+      ctx.fillText(r.label, xr, ay - 5);
     }
   }
   // Bars.
@@ -179,13 +183,14 @@ function drawHistogram(W, H, res) {
   const bw = aw / HBINS;
   for (let k = 0; k < HBINS; k += 1) {
     const bh = (bins[k] / bMax) * ah;
-    ctx.fillRect(ax + k * bw, ay + ah - bh, Math.max(1, bw - 0.5), bh);
+    ctx.fillRect(ax + k * bw, ay + ah - bh, Math.max(1, bw - 0.6), bh);
   }
-  // Axes.
-  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`${A_IN.toFixed(1)}`, ax - 4, ay + ah + 14);
-  ctx.fillText(`${A_OUT.toFixed(1)} AU`, ax + aw - 36, ay + ah + 14);
-  ctx.fillText('a (AU)', ax + aw / 2 - 18, ay + ah + 14);
+  // Axis + ticks.
+  ctx.strokeStyle = 'rgba(150,160,180,0.6)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.fillStyle = 'rgba(200,210,240,0.75)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+  for (const a of [2.0, 2.5, 3.0, 3.5]) ctx.fillText(a.toFixed(1), xA(a), ay + ah + 16);
+  ctx.fillText('semi-major axis a (AU)', ax + aw / 2, ay + ah + 30);
 }
 
 function tick(now) {
