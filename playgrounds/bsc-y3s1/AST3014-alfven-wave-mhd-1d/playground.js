@@ -45,7 +45,7 @@ function render() {
   const x0 = 56, x1 = W - 24;
   const xToPx = (x) => x0 + (x + XSPAN / 2) / XSPAN * (x1 - x0);
   // Transverse displacement of a field line is proportional to b_y.
-  const AMP_PX = sceneH * 0.052;
+  const AMP_PX = sceneH * 0.072;
 
   // Coronal base / driver at the left: a shaded footpoint region that
   // shakes the field lines (the wave launcher).
@@ -61,7 +61,7 @@ function render() {
 
   // Magnetic field lines: equilibrium B0 along +x, each line transversely
   // kinked by b_y(x, t). The kink runs to the right at v_A.
-  const NLINES = 11;
+  const NLINES = 7;
   for (let li = 0; li < NLINES; li += 1) {
     const y0 = sceneTop + sceneH * (li + 0.5) / NLINES;
     ctx.beginPath();
@@ -87,23 +87,27 @@ function render() {
   // transversely with v_y, demonstrating flux-freezing and the Walen
   // antiphase relation. Velocity arrows (cyan) and field perturbation
   // arrows (orange) at each parcel.
-  const sampleLines = [2, 5, 8];
+  const sampleLines = [1, 3, 5];
   for (const li of sampleLines) {
     const y0 = sceneTop + sceneH * (li + 0.5) / NLINES;
     for (let p = 0; p < 9; p += 1) {
       const x = -XSPAN / 2 + XSPAN * (p + 0.5) / 9;
       const env = Math.min(1, (x + XSPAN / 2) / (XSPAN * 0.12));
       const b = bField(x, st.t, LAMBDA, AMP, vA) * env;
-      const vy = vField(x, st.t, LAMBDA, AMP, vA, B0, rho) * env / 1e6;
       const px = xToPx(x), py = y0 - b * AMP_PX;
       ctx.fillStyle = '#dfe6f5';
       ctx.beginPath(); ctx.arc(px, py, 3, 0, 2 * Math.PI); ctx.fill();
-      // v_y arrow (cyan): plasma transverse velocity.
-      ctx.strokeStyle = 'rgba(91,192,235,0.9)'; ctx.lineWidth = 1.6;
-      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py - vy * AMP_PX * 1.4); ctx.stroke();
-      // b_y arrow (orange): field perturbation, antiphase with v_y.
-      ctx.strokeStyle = 'rgba(255,200,120,0.55)'; ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + 14, py + b * AMP_PX * 0.5); ctx.stroke();
+      // v_y arrow (cyan): plasma transverse velocity, antiphase with the
+      // field kink (Walen). Drawn on the same display scale as the kink so
+      // its length is comparable, with an arrowhead.
+      const vyArrow = (b / AMP) * AMP_PX * 1.5;          // antiphase: opposite the displacement b
+      if (Math.abs(vyArrow) > 1.5) {
+        ctx.strokeStyle = 'rgba(91,192,235,0.95)'; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + vyArrow); ctx.stroke();
+        const hd = Math.sign(vyArrow) || 1;
+        ctx.fillStyle = 'rgba(91,192,235,0.95)';
+        ctx.beginPath(); ctx.moveTo(px, py + vyArrow); ctx.lineTo(px - 3.2, py + vyArrow - 5 * hd); ctx.lineTo(px + 3.2, py + vyArrow - 5 * hd); ctx.closePath(); ctx.fill();
+      }
     }
   }
 
@@ -137,16 +141,22 @@ function render() {
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
+  // v_y normalised to its own amplitude (the raw m/s value was scaled to
+  // near-zero, hiding the Walen antiphase the strip exists to show).
+  let vMax = 1e-30;
+  for (let i = 0; i <= 300; i += 1) { const x = -XSPAN / 2 + XSPAN * i / 300; vMax = Math.max(vMax, Math.abs(vField(x, st.t, LAMBDA, AMP, vA, B0, rho))); }
   ctx.strokeStyle = '#5bc0eb'; ctx.lineWidth = 1.5; ctx.beginPath();
   for (let i = 0; i <= 300; i += 1) {
     const x = -XSPAN / 2 + XSPAN * i / 300;
-    const v = vField(x, st.t, LAMBDA, AMP, vA, B0, rho) / 1e6;
+    const v = vField(x, st.t, LAMBDA, AMP, vA, B0, rho) / vMax;
     const px = xToPx(x), py = midY - v * A2;
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
   ctx.stroke();
-  ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('b_y / v_y (antiphase)', x0, stripTop + 10);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffd166'; ctx.fillText('b_y', x0, stripTop + 10);
+  ctx.fillStyle = '#5bc0eb'; ctx.fillText('v_y', x0 + 34, stripTop + 10);
+  ctx.fillStyle = '#9aa0a6'; ctx.fillText('antiphase (Walen): the plasma velocity mirrors the field kink', x0 + 70, stripTop + 10);
   ctx.textAlign = 'right';
   ctx.fillText(`v_A = ${(vA / 1000).toFixed(0)} km/s   B0 = ${st.B_nT.toFixed(1)} nT   n = ${st.n_amu_cc.toFixed(1)} amu/cm^3`, x1, H - 8);
   rV.textContent = `${(vA / 1000).toFixed(0)} km/s`;
