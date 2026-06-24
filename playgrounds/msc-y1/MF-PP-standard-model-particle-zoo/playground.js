@@ -134,9 +134,12 @@ function drawDecay(x, y, w, h) {
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  drawChart(20, 22, W - 40, 232);
-  drawCard(20, 270, (W - 52) / 2, H - 270 - 16);
-  drawDecay(20 + (W - 52) / 2 + 12, 270, (W - 52) / 2, H - 270 - 16);
+  // The particle grid is the hero: give it most of the height (was a thin
+  // 232px strip over two near-empty 750px panels). The card and decay
+  // panels are sized closer to their content below it.
+  drawChart(20, 22, W - 40, 560);
+  drawCard(20, 596, (W - 52) / 2, H - 596 - 16);
+  drawDecay(20 + (W - 52) / 2 + 12, 596, (W - 52) / 2, H - 596 - 16);
   const P = PARTICLES[selId()];
   rP.textContent = P.name;
   rM.textContent = P.m === 0 ? '0' : P.m >= 1000 ? `${(P.m / 1000).toFixed(2)} GeV` : `${P.m.toPrecision(4)} MeV`;
