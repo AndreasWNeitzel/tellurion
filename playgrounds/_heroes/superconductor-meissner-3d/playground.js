@@ -63,9 +63,10 @@ function sel(label, opts, on) {
 sel('preset', ['Meissner levitation', 'normal (field penetrates)', 'Type-II vortex', 'quench by overfield'], (p) => {
   if (p === 'Meissner levitation') { ui.TbyTc = 0.4; ui.Bapp = 0.2; }
   else if (p === 'normal (field penetrates)') { ui.TbyTc = 1.15; ui.Bapp = 0.2; }
-  else if (p === 'Type-II vortex') { ui.TbyTc = 0.65; ui.Bapp = 0.30; }     // SC with partial-penetration regime
+  else if (p === 'Type-II vortex') { ui.TbyTc = 0.65; ui.Bapp = 0.6; }       // Bapp > 0.45 so it actually reaches the vortex regime
   else { ui.TbyTc = 0.4; ui.Bapp = 1.3; }
   sT.value = ui.TbyTc.toFixed(2); sB.value = ui.Bapp.toFixed(2);
+  sT.dispatchEvent(new Event('input')); sB.dispatchEvent(new Event('input'));   // sync the value readouts
 });
 const btnRow = document.createElement('div'); btnRow.className = 'row buttons';
 const bPause = document.createElement('button'); bPause.type = 'button'; bPause.textContent = 'Pause';
@@ -73,8 +74,8 @@ const bCool = document.createElement('button'); bCool.type = 'button'; bCool.tex
 const bWarm = document.createElement('button'); bWarm.type = 'button'; bWarm.textContent = 'Warm up';
 btnRow.append(bPause, bCool, bWarm); controlsEl.appendChild(btnRow);
 bPause.addEventListener('click', () => { ui.running = !ui.running; bPause.textContent = ui.running ? 'Pause' : 'Play'; });
-bCool.addEventListener('click', () => { ui.TbyTc = 0.3; sT.value = '0.30'; });
-bWarm.addEventListener('click', () => { ui.TbyTc = 1.15; sT.value = '1.15'; });
+bCool.addEventListener('click', () => { ui.TbyTc = 0.3; sT.value = '0.30'; sT.dispatchEvent(new Event('input')); });
+bWarm.addEventListener('click', () => { ui.TbyTc = 1.15; sT.value = '1.15'; sT.dispatchEvent(new Event('input')); });
 
 function sc() { return isSuperconducting(ui.TbyTc * TC, TC, ui.Bapp, 1); }
 function lam() { return Math.min(6, lambdaL(ui.TbyTc * TC, TC, ui.lam0)); }
