@@ -1208,12 +1208,15 @@ function drawRingdownMode(_cam) {
   ctx.fillStyle = 'rgba(255, 255, 200, 1)';
   ctx.beginPath(); ctx.arc(xc, yc, 5, 0, Math.PI * 2); ctx.fill();
 
+  const Mnow = M_solar();
+  const mStr = Mnow >= 1e4 ? Mnow.toExponential(1) : Mnow.toFixed(0);
+  const tauStr = props.tau_s >= 1 ? `${props.tau_s.toFixed(1)} s` : `${(props.tau_s * 1000).toFixed(2)} ms`;
   ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`f = ${props.f_Hz.toExponential(2)} Hz  tau = ${(props.tau_s * 1000).toFixed(2)} ms  Q = ${props.Q.toFixed(2)}`, px0 + 8, py0 + ph + 18);
+  ctx.fillText(`M = ${mStr} Msun, chi = ${st.chi.toFixed(2)}:   f = ${props.f_Hz.toExponential(2)} Hz,  tau = ${tauStr},  Q = ${props.Q.toFixed(2)}`, px0 + 8, py0 + ph + 18);
   ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('GW150914 fit: f ~ 251 Hz, τ ~ 4 ms (M = 62 Msun, χ = 0.69).', px0 + 8, py0 + ph + 32);
+  ctx.fillText('reference: the GW150914 remnant (62 Msun, χ = 0.69) rings at f ~ 251 Hz, τ ~ 4 ms.', px0 + 8, py0 + ph + 32);
 }
 
 // =========================================================================
@@ -1757,6 +1760,13 @@ function applyMode(newMode) {
     }
     if (cfg.azim != null) camera.setAzimuthDeg(cfg.azim);
     if (cfg.ergo) tErgo.checked = true;
+    if (newMode === 'ringdown') {
+      // Open on the GW150914 remnant so the ringdown the narrative says
+      // LIGO/Virgo measured is the default view; the mass slider then
+      // shows the f ~ 1/M scaling on toward supermassive black holes.
+      st.logM = Math.log10(62); sLogM.value = st.logM.toFixed(3);
+      st.chi = 0.69; sChi.value = '0.69';
+    }
     syncRowVisibility(newMode);
     // Reset particle system on mode entry / exit.
     if (newMode === 'tidal') {
