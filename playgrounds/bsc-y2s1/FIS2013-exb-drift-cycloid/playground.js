@@ -28,7 +28,7 @@ const btnReset     = document.getElementById('btn-reset');
 const btnPlayPause = document.getElementById('btn-playpause');
 
 const W = canvas.width, H = canvas.height;
-const PAD = { L: 30, R: 30, T: 70, B: 80 };
+const PAD = { L: 30, R: 30, T: 70, B: 290 };    // extra bottom room for the velocity-space diagnostic
 const DRAW_W = W - PAD.L - PAD.R, DRAW_H = H - PAD.T - PAD.B;
 const SCALE = Math.min(DRAW_W, DRAW_H) / 12;
 const ORIGIN_PX = PAD.L + DRAW_W * 0.5;        // world x = 0 at the horizontal centre
@@ -44,6 +44,7 @@ const state = {
   speed: 2,
   sim: null,
   trail: [],
+  vhist: [],
   playing: !(DETERMINISTIC || prefersReducedMotion()),
 };
 
@@ -56,6 +57,7 @@ const tok = {
 function rebuild() {
   state.sim = createExB({ E: state.E, B: state.B, q: state.q, m: state.m });
   state.trail = [];
+  state.vhist = [];
 }
 
 function worldToPx(x, y) {
@@ -151,11 +153,47 @@ function drawAll() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(241, 210, 138, 0.75)';
-  ctx.fillText('E (in +x)', 60, H - 24);
+  ctx.fillText('E (in +x)', 60, H - PAD.B - 10);
   ctx.fillStyle = 'rgba(127, 177, 216, 0.85)';
-  ctx.fillText('drift v_d = -y', 180, H - 24);
+  ctx.fillText('drift v_d = -y', 180, H - PAD.B - 10);
   ctx.fillStyle = tok.accentWarm;
-  ctx.fillText('particle (q = +1)', 320, H - 24);
+  ctx.fillText('particle (q = +1)', 320, H - PAD.B - 10);
+
+  drawDiagnostic();
+}
+
+// Velocity-space diagnostic: in crossed E, B the velocity vector rotates on a
+// circle whose centre is the E x B drift (0, -E/B). So the guiding-centre drift
+// is literally the centre of the velocity circle, while the speed oscillates
+// around it. A pure drift with no gyration would collapse to that centre point.
+function drawDiagnostic() {
+  const p = { x: PAD.L, y: H - PAD.B + 16, w: W - PAD.L - PAD.R, h: PAD.B - 32 };
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(p.x, p.y, p.w, p.h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
+  ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('velocity space: v rotates on a circle centred on the E x B drift', p.x + 8, p.y + 6);
+  const vh = state.vhist || [];
+  const driftY = -state.E / state.B;
+  const cx = p.x + p.w * 0.5, pcy = p.y + p.h * 0.58;
+  let rad = Math.max(1e-3, Math.abs(driftY));
+  for (const v of vh) rad = Math.max(rad, Math.hypot(v.vx, v.vy - driftY));
+  const sc = Math.min(p.w * 0.5, p.h - 30) * 0.92 / (2 * rad);
+  const vx2px = (vx) => cx + vx * sc;
+  const vy2px = (vy) => pcy - (vy - driftY) * sc;
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(p.x + 8, vy2px(0)); ctx.lineTo(p.x + p.w - 8, vy2px(0)); ctx.moveTo(vx2px(0), p.y + 22); ctx.lineTo(vx2px(0), p.y + p.h - 8); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+  ctx.fillText('v_x', p.x + p.w - 10, vy2px(0) - 3);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('v_y', vx2px(0) + 4, p.y + 22);
+  if (vh.length > 1) {
+    ctx.strokeStyle = tok.accentCool; ctx.lineWidth = 1.6; ctx.beginPath();
+    vh.forEach((v, i) => { const X = vx2px(v.vx), Y = vy2px(v.vy); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+    const last = vh[vh.length - 1];
+    ctx.fillStyle = tok.accentWarm; ctx.beginPath(); ctx.arc(vx2px(last.vx), vy2px(last.vy), 4, 0, 6.28); ctx.fill();
+  }
+  ctx.fillStyle = '#ff6b6b'; ctx.beginPath(); ctx.arc(vx2px(0), vy2px(driftY), 4, 0, 6.28); ctx.fill();
+  ctx.fillStyle = '#ff9a9a'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(`drift v_d = ${driftY.toFixed(2)}`, vx2px(0) + 8, vy2px(driftY));
 }
 
 function tickN(n) {
@@ -166,6 +204,11 @@ function tickN(n) {
     if (state.sim.y < Y_WRAP - 0.3) { state.sim.y += BOX_WORLD_H; state.trail = []; }
     state.trail.push([state.sim.x, state.sim.y]);
     if (state.trail.length > 2600) state.trail.shift();
+    // Velocity history (survives the position wrap) for the velocity-space plot.
+    if (i % 2 === 0) {
+      state.vhist.push({ vx: state.sim.vx, vy: state.sim.vy });
+      if (state.vhist.length > 900) state.vhist.shift();
+    }
   }
 }
 
