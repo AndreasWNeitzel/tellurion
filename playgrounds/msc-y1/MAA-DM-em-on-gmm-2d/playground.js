@@ -24,9 +24,16 @@ const btnRun       = document.getElementById('btn-run');
 const btnReset     = document.getElementById('btn-reset');
 
 const W = canvas.width, H = canvas.height;
-const PLOT_H = 460;
-const PROF_Y = PLOT_H + 20;
-const PROF_H = H - PROF_Y - 20;
+// The GMM lives on a square data range [-5,5]^2, so the scene must be a
+// square with isotropic scaling or the cluster covariances render
+// distorted (the old 820x460 region stretched x by 1.78x). The square
+// scatter is the hero; the log-likelihood trace is a shorter strip below.
+const SC = { side: Math.min(W - 96, 716) };
+SC.x0 = (W - SC.side) / 2;
+SC.y0 = 18;
+const PROF_X = SC.x0, PROF_W = SC.side;
+const PROF_Y = SC.y0 + SC.side + 30;
+const PROF_H = H - PROF_Y - 16;
 
 const N_POINTS = 600;
 const VIEW = { xmin: -5, xmax: 5, ymin: -5, ymax: 5 };
@@ -58,8 +65,8 @@ const state = {
 
 function toPx(x, y) {
   return {
-    px: (W) * (x - VIEW.xmin) / (VIEW.xmax - VIEW.xmin),
-    py: PLOT_H * (1 - (y - VIEW.ymin) / (VIEW.ymax - VIEW.ymin)),
+    px: SC.x0 + SC.side * (x - VIEW.xmin) / (VIEW.xmax - VIEW.xmin),
+    py: SC.y0 + SC.side * (1 - (y - VIEW.ymin) / (VIEW.ymax - VIEW.ymin)),
   };
 }
 
@@ -107,21 +114,24 @@ function drawAll() {
   ctx.fillStyle = '#060608';
   ctx.fillRect(0, 0, W, H);
 
-  // axis
+  // Square scatter panel: frame, grid, and a clip so 2-sigma ellipses
+  // never spill past the border.
+  ctx.fillStyle = '#0a0a0e';
+  ctx.fillRect(SC.x0, SC.y0, SC.side, SC.side);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
+  ctx.strokeRect(SC.x0 + 0.5, SC.y0 + 0.5, SC.side - 1, SC.side - 1);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
   ctx.lineWidth = 0.5;
   for (let xv = -4; xv <= 4; xv += 2) {
     const p = toPx(xv, 0);
-    ctx.beginPath();
-    ctx.moveTo(p.px, 0); ctx.lineTo(p.px, PLOT_H);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(p.px, SC.y0); ctx.lineTo(p.px, SC.y0 + SC.side); ctx.stroke();
   }
   for (let yv = -4; yv <= 4; yv += 2) {
     const p = toPx(0, yv);
-    ctx.beginPath();
-    ctx.moveTo(0, p.py); ctx.lineTo(W, p.py);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(SC.x0, p.py); ctx.lineTo(SC.x0 + SC.side, p.py); ctx.stroke();
   }
+  ctx.save();
+  ctx.beginPath(); ctx.rect(SC.x0, SC.y0, SC.side, SC.side); ctx.clip();
 
   // True ellipses (faint, dashed)
   ctx.setLineDash([3, 3]);
@@ -176,36 +186,49 @@ function drawAll() {
     ctx.fill();
   }
 
-  // Log-likelihood trace
+  ctx.restore();   // end scatter clip
+
+  // Log-likelihood trace (supporting strip): framed, with axis ticks.
+  const plX0 = PROF_X + 52, plX1 = PROF_X + PROF_W - 12;
+  const plY0 = PROF_Y + 18, plY1 = PROF_Y + PROF_H - 22;
   ctx.fillStyle = '#0a0a0e';
-  ctx.fillRect(40, PROF_Y, W - 80, PROF_H);
+  ctx.fillRect(PROF_X, PROF_Y, PROF_W, PROF_H);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
-  ctx.strokeRect(40, PROF_Y, W - 80, PROF_H);
+  ctx.strokeRect(PROF_X + 0.5, PROF_Y + 0.5, PROF_W - 1, PROF_H - 1);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
-  ctx.fillText('log-likelihood across EM iterations (monotone non-decreasing)', 44, PROF_Y - 4);
+  ctx.fillText('log-likelihood across EM iterations (monotone non-decreasing)', PROF_X + 4, PROF_Y - 4);
 
   if (state.logLikeHistory.length >= 2) {
     let lmin = Infinity, lmax = -Infinity;
     for (const l of state.logLikeHistory) { if (l < lmin) lmin = l; if (l > lmax) lmax = l; }
     if (lmax === lmin) lmax = lmin + 1;
-    ctx.strokeStyle = '#f1d28a';
-    ctx.lineWidth = 1.2;
+    const nIt = state.logLikeHistory.length;
+    const PX = (i) => plX0 + (plX1 - plX0) * (i / Math.max(1, nIt - 1));
+    const PY = (l) => plY1 - (plY1 - plY0) * (l - lmin) / (lmax - lmin);
+    // y ticks (log L) and x ticks (iteration)
+    ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1;
+    ctx.fillStyle = 'rgba(200,210,230,0.6)';
+    for (const f of [0, 0.5, 1]) {
+      const lv = lmin + f * (lmax - lmin), yy = PY(lv);
+      ctx.beginPath(); ctx.moveTo(plX0, yy); ctx.lineTo(plX1, yy); ctx.stroke();
+      ctx.fillText(lv.toFixed(0), PROF_X + 6, yy + 4);
+    }
+    const xticks = Math.min(nIt - 1, 8);
+    for (let t = 0; t <= xticks; t += 1) {
+      const i = Math.round((nIt - 1) * t / xticks);
+      ctx.fillText(String(i), PX(i) - 4, plY1 + 14);
+    }
+    // The panel title already names both axes (log L vs EM iteration), so
+    // the numeric ticks stand alone without redundant axis labels.
+    // curve
+    ctx.strokeStyle = '#f1d28a'; ctx.lineWidth = 1.6;
     ctx.beginPath();
-    for (let i = 0; i < state.logLikeHistory.length; i += 1) {
-      const x = 40 + (W - 80) * (i / Math.max(1, state.logLikeHistory.length - 1));
-      const y = PROF_Y + PROF_H * (1 - (state.logLikeHistory[i] - lmin) / (lmax - lmin));
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
+    for (let i = 0; i < nIt; i += 1) { const x = PX(i), y = PY(state.logLikeHistory[i]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
     ctx.stroke();
-    // Markers
     ctx.fillStyle = '#f1d28a';
-    for (let i = 0; i < state.logLikeHistory.length; i += 1) {
-      const x = 40 + (W - 80) * (i / Math.max(1, state.logLikeHistory.length - 1));
-      const y = PROF_Y + PROF_H * (1 - (state.logLikeHistory[i] - lmin) / (lmax - lmin));
-      ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
-    }
+    for (let i = 0; i < nIt; i += 1) { ctx.beginPath(); ctx.arc(PX(i), PY(state.logLikeHistory[i]), 2.4, 0, 2 * Math.PI); ctx.fill(); }
   }
 
   // Top-right readout
