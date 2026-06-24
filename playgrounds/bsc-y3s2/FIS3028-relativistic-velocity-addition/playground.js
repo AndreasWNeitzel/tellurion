@@ -52,10 +52,11 @@ function drawScene(col, r) {
   ctx.strokeStyle = col.border; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(midx, trackY - 20); ctx.lineTo(midx, trackY + 20); ctx.stroke(); ctx.setLineDash([]);
   const px = (speed) => midx + speed * st.raceT * half;
   const drawMover = (speed, color, label, yoff, rad) => { const x = Math.max(trackL + 2, Math.min(cxR - 2, px(speed))); ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, trackY + yoff, rad, 0, 6.2832); ctx.fill(); ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'center'; ctx.textBaseline = yoff < 0 ? 'bottom' : 'top'; ctx.fillText(label, x, trackY + yoff + (yoff < 0 ? -rad - 2 : rad + 2)); };
-  drawMover(1, col.light, 'light', -13, 5);
-  drawMover(w, col.ball, 'ball', 13, 6);
-  drawMover(u, col.ship, 'ship', 13, 6);
-  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('race from rest: the ball never catches the light', trackL, trackY + 28);
+  // Stagger the three racers onto separate rows so their labels never collide.
+  drawMover(1, col.light, 'light', -15, 5);
+  drawMover(w, col.ball, 'ball', 14, 6);
+  drawMover(u, col.ship, 'ship', 36, 6);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('race from rest: the ball never catches the light', trackL, trackY + 58);
 
   // velocity axis [-1.3, 1.3].
   const va = { x: inner.x + 40, y: inner.y + inner.h * 0.68, w: inner.w - 80 };
@@ -73,14 +74,16 @@ function drawScene(col, r) {
     const toRight = X < vx(0.45);
     ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = toRight ? 'left' : 'right'; ctx.textBaseline = 'middle'; ctx.fillText(label, X + (toRight ? 6 : -6), va.y + yoff);
   };
-  vmark(u, col.ship, 'u (ship)', -14);
-  vmark(w, col.ball, 'w (ball, relativistic)', -32);
+  vmark(u, col.ship, 'u (ship)', -16);
+  vmark(w, col.ball, 'w (relativistic)', -38);
   // Galilean prediction.
   const gX = vx(Math.max(-VLIM, Math.min(VLIM, g)));
-  ctx.strokeStyle = col.gal; ctx.lineWidth = 2; ctx.setLineDash([5, 3]); ctx.beginPath(); ctx.moveTo(vx(0), va.y + 28); ctx.lineTo(gX, va.y + 28); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = col.gal; ctx.beginPath(); ctx.arc(gX, va.y + 28, 4, 0, 6.2832); ctx.fill();
-  const gRight = gX < vx(0.45); ctx.textAlign = gRight ? 'left' : 'right'; ctx.textBaseline = 'middle'; ctx.fillText(`u+v = ${g.toFixed(2)}c${Math.abs(g) > 1 ? ' (exceeds c)' : ''}`, gX + (gRight ? 6 : -6), va.y + 24);
-  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('ground velocity axis (units of c): the sum is capped at the light cone', va.x, va.y + 42);
+  // Galilean prediction sits well below the tick labels so its long
+  // 'exceeds c' caption never overruns the 0.5 / 1.0 ticks.
+  ctx.strokeStyle = col.gal; ctx.lineWidth = 2; ctx.setLineDash([5, 3]); ctx.beginPath(); ctx.moveTo(vx(0), va.y + 38); ctx.lineTo(gX, va.y + 38); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = col.gal; ctx.beginPath(); ctx.arc(gX, va.y + 38, 4, 0, 6.2832); ctx.fill();
+  const gRight = gX < vx(0.45); ctx.textAlign = gRight ? 'left' : 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(`u+v = ${g.toFixed(2)}c${Math.abs(g) > 1 ? ' (exceeds c)' : ''}`, gX + (gRight ? 6 : -6), va.y + 36);
+  ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('ground velocity axis (units of c): the sum is capped at the light cone', va.x, va.y + 52);
 }
 
 function drawDiag(col, r) {
