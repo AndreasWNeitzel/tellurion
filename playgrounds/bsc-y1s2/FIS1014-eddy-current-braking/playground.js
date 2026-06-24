@@ -18,14 +18,16 @@ const CAPTURE_NAME = params.get('capture');
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d', { alpha: false });
 const sB = document.getElementById('slider-B'), vB = document.getElementById('value-B');
+const sSig = document.getElementById('slider-sigma'), vSig = document.getElementById('value-sigma');
 const btnReset = document.getElementById('btn-reset'), btnPlay = document.getElementById('btn-playpause');
 
-const YMAX = 4.0, Y0 = 0.2, KSOLID = 2.6, KSLOT = 2.6 / 8;   // solid brakes hard but keeps creeping; slotted nearly free-falls
+const YMAX = 4.0, Y0 = 0.2;
+let kSolid = 2.6;                                            // solid-plate kappa = A^2/R ~ conductivity (slider)
 let B0 = 1.4;
 let running = !DETERMINISTIC;
 let solid, slotted, hist = [], tElapsed = 0;
 
-function relaunch() { solid = createPlate(KSOLID, Y0); slotted = createPlate(KSLOT, Y0); hist = []; tElapsed = 0; }
+function relaunch() { solid = createPlate(kSolid, Y0); slotted = createPlate(kSolid / 8, Y0); hist = []; tElapsed = 0; }
 relaunch();
 
 let view = { w: 760, h: 980, dpr: 1 }, REG = null;
@@ -36,7 +38,8 @@ function relayout() {
 
 vB.textContent = B0.toFixed(1);
 sB.addEventListener('input', () => { B0 = parseFloat(sB.value); vB.textContent = B0.toFixed(1); render(); });
-btnReset.addEventListener('click', () => { sB.value = '1.4'; B0 = 1.4; vB.textContent = '1.4'; relaunch(); running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false'); render(); });
+sSig.addEventListener('input', () => { kSolid = parseFloat(sSig.value); vSig.textContent = kSolid.toFixed(1); relaunch(); render(); });
+btnReset.addEventListener('click', () => { sB.value = '1.4'; B0 = 1.4; vB.textContent = '1.4'; sSig.value = '2.6'; kSolid = 2.6; vSig.textContent = '2.6'; relaunch(); running = true; btnPlay.textContent = 'Pause'; btnPlay.setAttribute('aria-pressed', 'false'); render(); });
 btnPlay.addEventListener('click', () => { running = !running; btnPlay.textContent = running ? 'Pause' : 'Play'; btnPlay.setAttribute('aria-pressed', String(!running)); });
 
 function colors() {
@@ -123,8 +126,8 @@ function drawDiag(col, r) {
 }
 
 function advance() {
-  const dt = 1 / 240;
-  for (let k = 0; k < 3; k += 1) { stepPlate(solid, dt, B0); stepPlate(slotted, dt, B0); tElapsed += dt; }
+  const dt = 1 / 200;                                    // one sub-step per frame: ~1/3 real time, was 3x faster
+  stepPlate(solid, dt, B0); stepPlate(slotted, dt, B0); tElapsed += dt;
   hist.push({ t: tElapsed, vs: solid.v, vl: slotted.v }); if (hist.length > 900) hist.shift();
   if (solid.y > YMAX && slotted.y > YMAX) relaunch();
 }
@@ -140,7 +143,7 @@ function tick() { if (running) advance(); render(); if (!CAPTURE_NAME) requestAn
 
 function boot() {
   relayout();
-  if (CAPTURE_NAME) for (let i = 0; i < 58; i += 1) advance();   // both plates still on screen, mid-race
+  if (CAPTURE_NAME) for (let i = 0; i < 150; i += 1) advance();   // both plates still on screen, mid-race
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
 }
