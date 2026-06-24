@@ -63,8 +63,12 @@ sK.addEventListener('input', () => { st.k0 = parseFloat(sK.value); vK.textConten
 btnR.addEventListener('click', () => { st.s0 = 1; st.k0 = 3; st.t = 0; sS.value = '1'; vS.textContent = '1.00'; sK.value = '3'; vK.textContent = '3.0'; resetWaterfall(); running = true; btnP.textContent = 'Pause'; btnP.setAttribute('aria-pressed', 'false'); });
 btnP.addEventListener('click', () => { running = !running; btnP.textContent = running ? 'Pause' : 'Play'; btnP.setAttribute('aria-pressed', String(!running)); });
 
+// Run until the packet has drifted most of the way across the window
+// (or long enough to disperse for slow packets), so it does not reset
+// after only a couple of seconds.
+function runT() { return Math.min(13, (XMAX - 6) / Math.max(0.6, st.k0)); }
 function render() {
-  if (!CAPTURE_NAME && running) { st.t += 0.03; if (st.t > 6) { st.t = 0; resetWaterfall(); } pushWaterfall(st.t); }
+  if (!CAPTURE_NAME && running) { st.t += 0.03; if (st.t > runT()) { st.t = 0; resetWaterfall(); } pushWaterfall(st.t); }
   ctx.fillStyle = '#070810'; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('A quantum wavepacket: it moves at the group velocity and spreads as it goes', 18, 26);
@@ -121,7 +125,7 @@ function render() {
 // x_c(t) = v_g t (a straight worldline whose slope is the group velocity) with
 // the +-sigma(t) band shaded around it, fanning out as the packet disperses.
 function drawDispersionPlot() {
-  const x0 = 40, x1 = W - 30, y0 = 514, y1 = H - 38, TMAX = 6;
+  const x0 = 40, x1 = W - 30, y0 = 514, y1 = H - 38, TMAX = runT();
   ctx.fillStyle = '#0a0b12'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
   ctx.strokeStyle = 'rgba(226,232,240,0.16)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, x1 - x0 - 1, y1 - y0 - 1);
   ctx.fillStyle = 'rgba(226,232,240,0.8)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
@@ -153,7 +157,7 @@ function tick() { render(); if (!CAPTURE_NAME) requestAnimationFrame(tick); }
 function bootSync() {
   if (CAPTURE_NAME && DETERMINISTIC) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
-    st.t = frac * 5.0;
+    st.t = frac * 9.0;
     resetWaterfall();
     for (let tt = 0; tt <= st.t + 1e-6; tt += 0.03) pushWaterfall(tt);   // deterministic history
   }
