@@ -173,14 +173,45 @@ function drawNucleus(x0, y0, w, h, c) {
   ctx.restore();
 }
 
+// Aux diagnostic: the energy gap to the next level versus nucleon number.
+// It is large (the +5 MeV closure gap) exactly at the magic numbers and small
+// (+2 MeV) elsewhere, which is the whole reason those numbers are special.
+function drawShellGap(x0, y0, w, h, c) {
+  ctx.fillStyle = '#0a0c12'; ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'caption', 'mono', 600); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('shell gap to next level (MeV)', x0 + 8, y0 + 16);
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.fillText('tall gaps are the magic numbers', x0 + 8, y0 + 30);
+  const ax = x0 + 28, aw = w - 40, ay = y0 + 42, ah = h - 64;
+  const nMax = LEVELS[LEVELS.length - 1].cumul, gMax = 5.8;
+  const X = (n) => ax + aw * n / nMax;
+  const Y = (g) => ay + ah - (g / gMax) * ah;
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.strokeStyle = 'rgba(239,71,111,0.85)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.3;
+  const nx = X(Math.min(N, nMax)); ctx.beginPath(); ctx.moveTo(nx, ay); ctx.lineTo(nx, ay + ah); ctx.stroke(); ctx.setLineDash([]);
+  for (let i = 0; i < LEVELS.length; i += 1) {
+    const n = LEVELS[i].cumul, magic = MAGIC.includes(n), gap = magic ? 5 : 2, x = X(n);
+    ctx.strokeStyle = magic ? c.accent : 'rgba(120,170,235,0.7)'; ctx.lineWidth = magic ? 2.4 : 1.3;
+    ctx.beginPath(); ctx.moveTo(x, ay + ah); ctx.lineTo(x, Y(gap)); ctx.stroke();
+    if (magic) { ctx.fillStyle = c.accent; ctx.beginPath(); ctx.arc(x, Y(gap), 3, 0, 6.28); ctx.fill(); }
+  }
+  ctx.fillStyle = c.accent; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const m of [2, 28, 50, 82, 126]) ctx.fillText(String(m), X(m), ay + ah + 4);
+  ctx.fillStyle = c.muted; ctx.fillText('nucleon number', (ax + ax + aw) / 2, ay + ah + 16);
+  ctx.textBaseline = 'alphabetic';
+}
+
 function render() {
   const c = colors();
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Left panel: 3D nucleus. Right: the energy-level diagram.
+  // Left column: shell-gap diagnostic on top, the 3D nucleus below.
   const NUC_W = Math.floor(canvas.width * 0.40);
-  drawNucleus(8, 8, NUC_W - 16, canvas.height - 16, c);
+  const leftW = NUC_W - 16;
+  drawShellGap(8, 8, leftW, 318, c);
+  drawNucleus(8, 334, leftW, canvas.height - 334 - 8, c);
 
   const padL = NUC_W + 56, padR = 130, padT = 30, padB = 30;
   const plotW = canvas.width - padL - padR;
