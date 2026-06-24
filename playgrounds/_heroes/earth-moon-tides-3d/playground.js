@@ -28,7 +28,7 @@ const btnPause = document.getElementById('btn-pause');
 const st = {
   phaseDeg: 60, bulgeScale: 0.08, speed: 2,
   running: !prefersReducedMotion(),
-  az: 0.6, tilt: 0.30, zoom: 1.0,
+  az: 0.6, tilt: 0.30, zoom: 1.3,
 };
 
 // sim.js uses z as the polar axis (Moon orbit in xy plane).
@@ -192,11 +192,17 @@ function render() {
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
   ctx.fillText(`phase ${st.phaseDeg}°    A_lunar = ${A_LUNAR.toFixed(2)}    A_solar = ${A_SOLAR.toFixed(2)}`, 24, 22);
+  // Reference ranges from the same peak-to-peak measure as reg.range (the P2
+  // tide is 1.5x the amplitude, so comparing the range to A_lunar + A_solar
+  // read as a contradiction): spring is the aligned configuration, neap the
+  // quadrature one.
+  const maxRange = tidalRegime(0).range;
+  const minRange = tidalRegime(Math.PI / 2).range;
   let regLabel;
   if (reg.kind === 'spring') {
-    regLabel = `SPRING TIDE: Sun and Moon align, tidal range = ${reg.range.toFixed(2)} (max ~ ${(A_LUNAR + A_SOLAR).toFixed(2)})`;
+    regLabel = `SPRING TIDE: Sun and Moon align, tidal range = ${reg.range.toFixed(2)} (max ~ ${maxRange.toFixed(2)})`;
   } else {
-    regLabel = `NEAP TIDE: Sun and Moon at quadrature, tidal range = ${reg.range.toFixed(2)} (min ~ ${(A_LUNAR - A_SOLAR).toFixed(2)})`;
+    regLabel = `NEAP TIDE: Sun and Moon at quadrature, tidal range = ${reg.range.toFixed(2)} (min ~ ${minRange.toFixed(2)})`;
   }
   ctx.fillStyle = reg.kind === 'spring' ? '#ffd166' : '#7dd3fc';
   ctx.fillText(regLabel, 24, 40);
