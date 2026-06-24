@@ -111,9 +111,9 @@ const aspect = () => canvas.width / canvas.height;
 // the leading Lyapunov exponent. The main scene is WebGL so the
 // diagnostic gets its own 2D canvas layered over the corner.
 const diagCanvas = document.createElement('canvas');
-diagCanvas.width = 240; diagCanvas.height = 130;
-diagCanvas.style.cssText = 'position:absolute;right:10px;bottom:10px;width:240px;height:130px;'
-  + 'background:rgba(8,12,22,0.85);border:1px solid rgba(220,230,255,0.3);border-radius:4px;pointer-events:none';
+diagCanvas.width = 430; diagCanvas.height = 218;
+diagCanvas.style.cssText = 'position:absolute;right:10px;bottom:10px;width:430px;height:218px;'
+  + 'background:rgba(8,12,22,0.88);border:1px solid rgba(220,230,255,0.3);border-radius:4px;pointer-events:none';
 if (canvas.parentElement) {
   const pe = canvas.parentElement;
   if (getComputedStyle(pe).position === 'static') pe.style.position = 'relative';
@@ -135,28 +135,42 @@ function drawDiagnostic() {
   dctx.clearRect(0, 0, w, h);
   dctx.fillStyle = 'rgba(220,230,255,0.92)';
   dctx.font = fontString(canvas, 'caption', 'mono', 600);
-  dctx.fillText('ensemble spread  log₁₀ D(t)', 8, 14);
+  dctx.fillText('ensemble spread  log₁₀ D(t): grows, then saturates', 8, 14);
   if (diamHistory.length < 2) return;
-  const ax = 34, ay = 22, aw = w - 44, ah = h - 40;
+  const ax = 34, ay = 24, aw = w - 46, ah = h - 46;
   const tMax = diamHistory[diamHistory.length - 1].t || 1;
-  const lLo = -3, lHi = 2;
+  // Fit the y-axis to the actual data so the rise fills the panel.
+  let lMin = Infinity, lMax = -Infinity;
+  for (const p of diamHistory) { const l = Math.log10(Math.max(1e-9, p.D)); if (l < lMin) lMin = l; if (l > lMax) lMax = l; }
+  const lLo = Math.floor(lMin - 0.3), lHi = Math.ceil(lMax + 0.3);
   const xOf = (tt) => ax + (tt / tMax) * aw;
   const yOf = (l) => ay + ah - ((Math.max(lLo, Math.min(lHi, l)) - lLo) / (lHi - lLo)) * ah;
-  dctx.strokeStyle = 'rgba(255,255,255,0.10)';
-  for (let l = lLo; l <= lHi; l += 1) {
-    dctx.beginPath(); dctx.moveTo(ax, yOf(l)); dctx.lineTo(ax + aw, yOf(l)); dctx.stroke();
+  dctx.strokeStyle = 'rgba(255,255,255,0.09)'; dctx.lineWidth = 1;
+  for (let l = lLo; l <= lHi; l += 1) { dctx.beginPath(); dctx.moveTo(ax, yOf(l)); dctx.lineTo(ax + aw, yOf(l)); dctx.stroke(); }
+  // saturation level (the attractor diameter) as a dashed reference
+  dctx.strokeStyle = 'rgba(120,235,180,0.45)'; dctx.setLineDash([4, 3]);
+  dctx.beginPath(); dctx.moveTo(ax, yOf(lMax)); dctx.lineTo(ax + aw, yOf(lMax)); dctx.stroke(); dctx.setLineDash([]);
+  // early-time Lyapunov slope (a straight line tangent to the initial rise)
+  const lyT = Math.min(tMax, 0.9), i1 = diamHistory.findIndex((p) => p.t >= lyT);
+  if (i1 > 1) {
+    const l0 = Math.log10(Math.max(1e-9, diamHistory[0].D)), l1 = Math.log10(Math.max(1e-9, diamHistory[i1].D));
+    const slope = (l1 - l0) / (diamHistory[i1].t - diamHistory[0].t);
+    dctx.strokeStyle = 'rgba(255,255,255,0.32)'; dctx.setLineDash([2, 3]); dctx.beginPath();
+    dctx.moveTo(xOf(0), yOf(l0)); dctx.lineTo(xOf(tMax), yOf(l0 + slope * tMax)); dctx.stroke(); dctx.setLineDash([]);
+    dctx.fillStyle = 'rgba(255,255,255,0.6)'; dctx.font = fontString(canvas, 'tick', 'mono');
+    dctx.fillText('slope ~ lambda', ax + aw * 0.06, yOf(l0 + slope * tMax * 0.55) - 4);
   }
-  dctx.strokeStyle = '#ffd166'; dctx.lineWidth = 1.8;
-  dctx.beginPath();
+  dctx.strokeStyle = '#ffd166'; dctx.lineWidth = 2; dctx.beginPath();
   for (let i = 0; i < diamHistory.length; i += 1) {
     const p = diamHistory[i];
     const x = xOf(p.t), y = yOf(Math.log10(Math.max(1e-9, p.D)));
     if (i === 0) dctx.moveTo(x, y); else dctx.lineTo(x, y);
   }
   dctx.stroke();
-  dctx.fillStyle = 'rgba(200,210,240,0.75)'; dctx.font = fontString(canvas, 'tick', 'mono');
-  for (let l = lLo; l <= lHi; l += 2) dctx.fillText(`${l}`, 6, yOf(l) + 3);
-  dctx.fillText('t', ax + aw / 2, h - 4);
+  dctx.fillStyle = 'rgba(200,210,240,0.75)'; dctx.font = fontString(canvas, 'tick', 'mono'); dctx.textAlign = 'right';
+  for (let l = lLo; l <= lHi; l += Math.max(1, Math.round((lHi - lLo) / 4))) dctx.fillText(`${l}`, ax - 4, yOf(l) + 3);
+  dctx.textAlign = 'left'; dctx.fillStyle = 'rgba(120,235,180,0.8)'; dctx.fillText('saturation', ax + 6, yOf(lMax) - 4);
+  dctx.fillStyle = 'rgba(200,210,240,0.7)'; dctx.textAlign = 'center'; dctx.fillText('t', ax + aw / 2, h - 5); dctx.textAlign = 'left';
 }
 
 function stepOnce(dt = 0.005) {
