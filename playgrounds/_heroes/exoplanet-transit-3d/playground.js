@@ -353,9 +353,14 @@ function drawTransmissionSpectrum() {
 
 function bootSync() {
   if (CAPTURE_NAME) {
-    sim.t = CAPTURE_FRAC * sim.period;
-    camera.setAzimuthDeg(CAPTURE_FRAC * 18);
-    camera.setElevationDeg(18);   // capture frames keep the oblique reference angle
+    // The card IS a transit: the transit (planet in front, min flux) is at
+    // phase 0.25; the old phase-0.5 capture showed an off-disk planet and 0.0
+    // would be the far-side eclipse. Sweep across the transit window (ingress
+    // to egress) so the representative frame shows the planet silhouetted on
+    // the stellar disk, viewed nearly edge-on.
+    sim.t = (0.25 + (CAPTURE_FRAC - 0.5) * 0.08) * sim.period;
+    camera.setAzimuthDeg((CAPTURE_FRAC - 0.5) * 8);
+    camera.setElevationDeg(1.2);  // essentially edge-on so the planet silhouettes on the disk
     rebuildCurve();
     frame();
     drawTransmissionSpectrum();
