@@ -40,18 +40,24 @@ function render() {
   const xc = position(st.t, 0, st.F, st.W);             // wavepacket centre, real space
   const span = Math.max(2.2, A * 2.6);                  // visible x range (lattice units)
   const X = (x) => PX + PW * (0.5 + 0.5 * Math.max(-1, Math.min(1, x / span)));
-  const yMid = PY + PH * 0.52;
-  const tilt = (x) => -0.20 * st.F * x;                 // linear potential -F x (display)
-  const Vy = (x) => yMid - (0.5 * st.W * Math.cos(2 * Math.PI * x) * 0.18 + tilt(x)) * (PH * 0.16);
-  // tilted washboard potential
-  ctx.strokeStyle = 'rgba(150,170,210,0.5)'; ctx.lineWidth = 2; ctx.beginPath();
+  const yMid = PY + PH * 0.46;
+  const tiltSlope = Math.min(0.7, 0.22 * st.F / Math.max(0.5, span / 2.2));   // keep the ramp on-panel at high F
+  const tilt = (x) => -tiltSlope * x;                   // linear potential -F x (display)
+  const Vy = (x) => yMid - (0.5 * st.W * Math.cos(2 * Math.PI * x) * 0.5 + tilt(x)) * (PH * 0.30);
+  // tilted washboard potential, filled so it reads as a landscape
+  ctx.beginPath();
+  let started = false;
   for (let i = 0; i <= 300; i += 1) {
     const x = -span + 2 * span * i / 300;
     const px = X(x); if (px < PX || px > PX + PW) continue;
     const py = Vy(x);
-    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    started ? ctx.lineTo(px, py) : (ctx.moveTo(px, py), started = true);
   }
-  ctx.stroke();
+  ctx.strokeStyle = 'rgba(150,170,210,0.7)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.lineTo(PX + PW, PY + PH); ctx.lineTo(PX, PY + PH); ctx.closePath();
+  const fillg = ctx.createLinearGradient(0, PY, 0, PY + PH);
+  fillg.addColorStop(0, 'rgba(70,90,140,0.10)'); fillg.addColorStop(1, 'rgba(40,55,90,0.22)');
+  ctx.fillStyle = fillg; ctx.fill();
   // Wannier-Stark localisation envelope (the particle stays inside it)
   ctx.strokeStyle = 'rgba(120,235,180,0.30)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(X(-A), PY + 24); ctx.lineTo(X(-A), PY + PH - 8);
