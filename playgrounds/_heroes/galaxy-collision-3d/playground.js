@@ -196,7 +196,18 @@ function bootSync() {
     reseed();
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     const steps = Math.round(40 + f * 500);
-    for (let n = 0; n < steps; n += 1) leapfrog(st.state, 0.003, { use_tree: true, theta: st.theta, G: 1, eps: 0.08 });
+    for (let n = 0; n < steps; n += 1) {
+      leapfrog(st.state, 0.003, { use_tree: true, theta: st.theta, G: 1, eps: 0.08 });
+      // Populate the separation-vs-step diagnostic during warmup; otherwise a
+      // single-frame capture records only one point and the panel is empty.
+      if (n % 4 === 0) {
+        const s = st.state;
+        const c1i = 2 * (st.N_disk + 1);
+        const sep = Math.hypot(s.x[c1i] - s.x[0], s.x[c1i + 1] - s.x[1]);
+        sepHistory.push({ n: s.nSteps, sep });
+        if (sepHistory.length > 360) sepHistory.shift();
+      }
+    }
   }
   render();
   if (DETERMINISTIC) {

@@ -299,6 +299,12 @@ function bootSync() {
     for (let n = 0; n < 600; n += 1) {
       step(st.state, 0.012, phi);
       if (n % 4 === 0) { st.traceX.push(st.state.x); st.traceY.push(st.state.y); }
+      // Record the swing-plane azimuth so the Rule-13 ramp populates; without
+      // this the capture draws once and the azimuth-vs-time panel is empty.
+      if (n % 6 === 0) {
+        angHistory.push({ t: st.state.t, a: planeAngle(st.state) * 180 / Math.PI });
+        if (angHistory.length > 360) angHistory.shift();
+      }
       st.earthRot += 0.005;
     }
   }
