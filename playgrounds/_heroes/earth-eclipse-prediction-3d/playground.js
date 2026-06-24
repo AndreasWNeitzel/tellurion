@@ -6,7 +6,7 @@
 
 import {
   SOLAR_ECLIPSES, LUNAR_ECLIPSES,
-  pathPositionAt, visibilityAtPoint,
+  pathPositionAt, visibilityAtPoint, COASTLINES,
 } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
@@ -132,6 +132,24 @@ function drawMap() {
     // Slight darken so the eclipse paths pop.
     ctx.fillStyle = 'rgba(8, 14, 30, 0.25)';
     ctx.fillRect(MAP_X, MAP_Y, MAP_W, MAP_H);
+  } else {
+    // Fallback: draw simplified landmasses so the map is never blank (before
+    // the Blue Marble texture loads, or if it fails). Without this the eclipse
+    // path floats on an empty graticule with no geography to locate it.
+    ctx.save();
+    ctx.beginPath(); ctx.rect(MAP_X, MAP_Y, MAP_W, MAP_H); ctx.clip();
+    ctx.fillStyle = 'rgba(54, 82, 64, 0.92)';
+    ctx.strokeStyle = 'rgba(120, 165, 135, 0.85)';
+    ctx.lineWidth = 1;
+    for (const poly of COASTLINES) {
+      ctx.beginPath();
+      for (let i = 0; i < poly.length; i += 1) {
+        const p = ll2px(poly[i][1], poly[i][0]);
+        if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+    ctx.restore();
   }
 
   // Graticule: longitude every 30 deg, latitude every 30 deg.
@@ -568,14 +586,28 @@ if (CAPTURE_NAME) {
   st.eclipseIdx = Math.min(SOLAR_ECLIPSES.length - 1, Math.floor((CAPTURE_FRAC || 0) * (SOLAR_ECLIPSES.length - 1)));
   selEcl.value = String(st.eclipseIdx);
   st.t_frac = 0.5;
-  render();
-  if (DETERMINISTIC) {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
+  // Wait for the Blue Marble texture before signaling ready so the capture
+  // shows real geography, not the bare graticule; fall back after a short
+  // timeout (the coastline fallback in drawMap still gives continents).
+  let signaled = false;
+  const finish = () => {
+    if (signaled) return;
+    signaled = true;
+    render();
+    if (DETERMINISTIC) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.__simulationReady = true;
+        window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
+      }));
+    } else {
       window.__simulationReady = true;
-      window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME } }));
-    }));
-  } else {
-    window.__simulationReady = true;
+    }
+  };
+  if (earthImgReady) finish();
+  else {
+    earthImg.addEventListener('load', finish);
+    earthImg.addEventListener('error', finish);
+    setTimeout(finish, 2500);
   }
 } else {
   st.running = !prefersReducedMotion();
