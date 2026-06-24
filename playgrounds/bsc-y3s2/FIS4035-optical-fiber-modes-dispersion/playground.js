@@ -112,8 +112,17 @@ let _modeCanvas = null, _modeCacheKey = '';
 function drawModeShape(x, y, w, h) {
   const name = `LP${st.l}${st.m}`;
   panel(x, y, w, h, `mode intensity |E|^2 cross-section: ${name}`);
-  const cx = x + w * 0.42, cy = y + h * 0.54, R = Math.min(w, h) * 0.34;
   const mode = cachedSolveLP(st.V, st.l, st.m);
+  // The radial profile is a wide-short strip along the bottom; the 2D
+  // cross-section is centred and enlarged in the region above it (it was
+  // a small low-left disc beside a tall narrow side strip with a void).
+  const profH = 150;
+  const profX = x + 38, profY = y + h - profH - 14, profW = w - 52;
+  const regTop = y + 26, regBot = profY - 14;
+  const cx = x + w / 2, cy = (regTop + regBot) / 2;
+  // The offscreen image extends to R*1.25 (the cladding halo), so size R
+  // so the whole glow fits inside the panel without bleeding past it.
+  const R = Math.min((w / 2 - 12) / 1.25, (regBot - regTop) / 2 - 8);
   const cell = 3;
   // The per-pixel viridis loop is expensive at 60 Hz. We render it
   // ONCE per (mode) into an offscreen canvas, then blit the cached
@@ -142,29 +151,32 @@ function drawModeShape(x, y, w, h) {
     _modeCacheKey = key;
   }
   if (_modeCanvas) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x + 1, y + 18, w - 2, regBot - (y + 18)); ctx.clip();
     ctx.drawImage(_modeCanvas, cx - _modeCanvas.width / 2, cy - _modeCanvas.height / 2);
+    ctx.restore();
   }
   ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();   // core boundary r=a
   ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('core r = a', cx + R * 0.7, cy - R - 6);
-  // radial profile strip on the right
-  const px0 = x + w - 96, py0 = y + 30, pw = 80, ph = h - 56;
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(px0, py0, pw, ph);
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillText('|E|^2(r)', px0 + 4, py0 - 4);
+  ctx.fillText('core r = a', cx + R * 0.62, cy - R - 6);
+  // radial profile: wide-short strip along the bottom
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(profX, profY, profW, profH);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillText('|E|^2(r)', profX + 4, profY - 4);
   if (mode) {
-    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.4; ctx.beginPath();
-    for (let i = 0; i <= 100; i += 1) {
-      const rr = 2.4 * i / 100;
+    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.6; ctx.beginPath();
+    for (let i = 0; i <= 120; i += 1) {
+      const rr = 2.4 * i / 120;
       const v = modeIntensity(rr, mode);
-      const xx = px0 + pw * rr / 2.4, yy = py0 + ph - ph * Math.max(0, Math.min(1, v));
+      const xx = profX + profW * rr / 2.4, yy = profY + profH - 10 - (profH - 22) * Math.max(0, Math.min(1, v));
       i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
     }
     ctx.stroke();
-    const xa = px0 + pw / 2.4;
+    const xa = profX + profW / 2.4;
     ctx.strokeStyle = 'rgba(127,209,255,0.5)'; ctx.setLineDash([3, 3]);
-    ctx.beginPath(); ctx.moveTo(xa, py0); ctx.lineTo(xa, py0 + ph); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(127,209,255,0.7)'; ctx.fillText('r=a', xa + 2, py0 + ph - 4);
+    ctx.beginPath(); ctx.moveTo(xa, profY + 6); ctx.lineTo(xa, profY + profH - 6); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(127,209,255,0.7)'; ctx.fillText('r=a', xa + 3, profY + profH - 6);
+    ctx.fillStyle = 'rgba(200,215,240,0.6)'; ctx.fillText('r ->', profX + profW - 26, profY + profH - 6);
   }
 }
 
