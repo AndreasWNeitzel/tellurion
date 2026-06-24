@@ -63,7 +63,7 @@ function drawTransverse(cy) {
   const pts = [];
   for (let i = 0; i < st.N; i += 1) {
     const p = modePosition(i, st.t, 'transverse', st.k, st.A, st.N);
-    pts.push([PAD + i * ax, cy - p.y * 70]);
+    pts.push([PAD + i * ax, cy - p.y * 95]);
   }
   ctx.strokeStyle = 'rgba(91,192,235,0.35)'; ctx.lineWidth = 1.2;
   for (let i = 0; i < st.N - 1; i += 1) coil(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], 6, 4);
@@ -72,7 +72,7 @@ function drawTransverse(cy) {
   for (let s = 0; s <= 240; s += 1) {
     const xx = s / 240 * (st.N - 1);
     const ph = st.k * xx - omegaK(st.k) * st.t;
-    const px = PAD + xx * ax, py = cy - st.A * Math.cos(ph) * 70;
+    const px = PAD + xx * ax, py = cy - st.A * Math.cos(ph) * 95;
     s === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
   }
   ctx.stroke();
@@ -146,13 +146,13 @@ function render() {
   ctx.fillStyle = '#e2e8f0'; ctx.font = fontString(canvas, 'heading');
   ctx.fillText('Same dispersion, two polarizations: a string vs a sound wave', 18, 24);
 
-  if (st.view === 'both') { drawTransverse(132); drawLongitudinal(258); }
-  else if (st.view === 'trans') drawTransverse(196);
-  else drawLongitudinal(212);
+  if (st.view === 'both') { drawTransverse(210); drawLongitudinal(440); }
+  else if (st.view === 'trans') drawTransverse(300);
+  else drawLongitudinal(330);
 
   // wavelength ruler + phase-velocity arrow on the chain
   const lamAtoms = 2 * Math.PI / st.k;
-  const yRul = st.view === 'both' ? 326 : (st.view === 'trans' ? 296 : 306);
+  const yRul = st.view === 'both' ? 548 : (st.view === 'trans' ? 470 : 480);
   const x0 = PAD, x1 = PAD + Math.min(st.N - 1, lamAtoms) * ax;
   ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(x0, yRul); ctx.lineTo(x1, yRul); ctx.stroke();
@@ -165,10 +165,11 @@ function render() {
   const vGr = Math.cos(st.k / 2);               // dω/dk for ω=2|sin(k/2)|
   const { E, d } = energyDrift();
   ctx.fillStyle = '#cbd5e1'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`k = ${st.k.toFixed(2)}/a   omega = ${w.toFixed(3)}   v_phase = ${vPh.toFixed(3)}   v_group = ${vGr.toFixed(3)}   E = ${E.toFixed(2)} (|dE/E| < ${eDriftMax.toExponential(1)})`, 18, 354);
+  ctx.fillText(`k = ${st.k.toFixed(2)}/a   omega = ${w.toFixed(3)}   v_phase = ${vPh.toFixed(3)}   v_group = ${vGr.toFixed(3)}   E = ${E.toFixed(2)} (|dE/E| < ${eDriftMax.toExponential(1)})`, 18, 582);
 
-  // demoted diagnostic: the lattice dispersion over the first Brillouin zone
-  const dx0 = 60, dx1 = W - 24, dy0 = 366, dy1 = H - 12;
+  // supporting diagnostic strip: the lattice dispersion over the first
+  // Brillouin zone, with the phase-velocity chord and group-velocity tangent.
+  const dx0 = 60, dx1 = W - 24, dy0 = 604, dy1 = H - 14;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
@@ -186,8 +187,18 @@ function render() {
   ctx.beginPath(); ctx.moveTo(xP(kMax), dy0 + 16); ctx.lineTo(xP(kMax), dy1 - 4); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#64748b'; ctx.fillText('sound limit', xP(0.35), yP(1.4));
   ctx.fillText('zone edge: v_group = 0', xP(kMax) - 140, dy0 + 24);
-  const kc = Math.min(kMax, st.k);
-  ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(xP(kc), yP(omegaK(kc)), 4, 0, 6.2832); ctx.fill();
+  const kc = Math.min(kMax, st.k), wc = omegaK(kc);
+  // phase velocity = slope of the chord from the origin to (k, omega)
+  ctx.strokeStyle = 'rgba(91,192,235,0.6)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.3;
+  ctx.beginPath(); ctx.moveTo(xP(0), yP(0)); ctx.lineTo(xP(kc), yP(wc)); ctx.stroke(); ctx.setLineDash([]);
+  // group velocity = tangent dω/dk at this k
+  const vg = Math.cos(kc / 2), dk = 0.55;
+  ctx.strokeStyle = 'rgba(255,209,102,0.95)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(xP(Math.max(0, kc - dk)), yP(wc - vg * dk)); ctx.lineTo(xP(Math.min(kMax, kc + dk)), yP(wc + vg * dk)); ctx.stroke();
+  ctx.fillStyle = 'rgba(91,192,235,0.9)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('v_phase = chord slope', xP(0.06), yP(omegaK(0.5)));
+  ctx.fillStyle = 'rgba(255,209,102,0.95)'; ctx.fillText('v_group = tangent slope', xP(kc) + 8, yP(wc) - 8);
+  ctx.fillStyle = '#5bc0eb'; ctx.beginPath(); ctx.arc(xP(kc), yP(wc), 4.5, 0, 6.2832); ctx.fill();
 
   rW.textContent = d.toExponential(1);
 }
