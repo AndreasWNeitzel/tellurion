@@ -106,14 +106,38 @@ function drawModes(x, y, w, h) {
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,143,143,0.85)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.fillText('Hubble horizon 1/H', x0 + 4, Y(m0.horizon[0]) - 4);
   const cols = ['#7fd1ff', '#8fe39b', '#e79bff'];
+  const last = Math.min(rev, nN - 1);
   st.modes.forEach((m, mi) => {
-    ctx.strokeStyle = cols[mi]; ctx.lineWidth = 1.6; ctx.beginPath();
-    for (let i = 0; i <= Math.min(rev, nN - 1); i += 1) { const xx = X(m.Ne[i]), yy = Y(m.lamPhys[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
+    // horizon exit: where the physical wavelength overtakes 1/H
+    let xi = -1;
+    for (let i = 0; i <= last; i += 1) { if (m.lamPhys[i] >= m0.horizon[i]) { xi = i; break; } }
+    const solidEnd = xi < 0 ? last : xi;
+    // sub-horizon: solid (the mode still oscillates and evolves)
+    ctx.strokeStyle = cols[mi]; ctx.lineWidth = 1.8; ctx.beginPath();
+    for (let i = 0; i <= solidEnd; i += 1) { const xx = X(m.Ne[i]), yy = Y(m.lamPhys[i]); i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
     ctx.stroke();
+    if (xi >= 0) {
+      // super-horizon: dashed and dimmed (amplitude frozen, wavelength keeps stretching)
+      ctx.save(); ctx.globalAlpha = 0.5; ctx.setLineDash([4, 4]); ctx.strokeStyle = cols[mi]; ctx.lineWidth = 1.4; ctx.beginPath();
+      for (let i = xi; i <= last; i += 1) { const xx = X(m.Ne[i]), yy = Y(m.lamPhys[i]); i === xi ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
+      ctx.stroke(); ctx.restore();
+      // exit marker
+      ctx.fillStyle = cols[mi]; ctx.beginPath(); ctx.arc(X(m.Ne[xi]), Y(m.lamPhys[xi]), 4, 0, 6.28); ctx.fill();
+    }
   });
-  ctx.fillStyle = 'rgba(200,215,240,0.65)';
-  ctx.fillText('e-folds N ->', x1 - 96, y1 + 14);
-  ctx.fillStyle = 'rgba(143,227,155,0.8)'; ctx.fillText('modes freeze once super-horizon', x0 + 4, y1 - 4);
+  // legend: three comoving scales that exit at different times
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  const lab = ['small scale (high k)', 'medium', 'large scale (low k)'];
+  for (let mi = 0; mi < 3; mi += 1) {
+    const ly = y0 + 14 + mi * 15;
+    ctx.strokeStyle = cols[mi]; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(x0 + 6, ly); ctx.lineTo(x0 + 22, ly); ctx.stroke();
+    ctx.fillStyle = 'rgba(200,210,230,0.8)'; ctx.fillText(lab[mi], x0 + 28, ly);
+  }
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = 'rgba(200,215,240,0.7)'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
+  ctx.fillText('e-folds N ->', (x0 + x1) / 2, y1 + 14);
+  ctx.save(); ctx.translate(x - 0 + 12, (y0 + y1) / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('physical wavelength (log)', 0, 0); ctx.restore();
+  ctx.fillStyle = 'rgba(143,227,155,0.8)'; ctx.textAlign = 'left'; ctx.fillText('dot = horizon exit; dashed = frozen super-horizon', x0 + 4, y1 - 4);
 }
 
 function drawSpectrum(x, y, w, h) {
