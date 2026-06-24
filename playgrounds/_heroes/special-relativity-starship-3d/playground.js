@@ -194,10 +194,43 @@ function drawPlot() {
   hudClock(c2, cy, cR, (ui.labT % 6) / 6, 'LAB', `${ui.labT.toFixed(1)} s`, AMB);
   hudClock(c2 + 104, cy, cR, (tau % 6) / 6, 'SHIP', `${tau.toFixed(1)} s`, HUD);
 
+  // Doppler factor vs viewing angle: the quantitative companion to the
+  // aberrated/Doppler star field (forward blueshift, backward redshift).
+  drawDopplerCurve();
+
   // Velocity and Lorentz-factor bars along the bottom.
   const by = H - 14;
   hudBar(24, by, 150, 'VELOCITY v/c', ui.beta, ui.beta.toFixed(3), HUD);
   hudBar(W - 174, by, 150, 'LORENTZ gamma', 1 - 1 / g, g.toFixed(2), AMB);
+}
+
+function drawDopplerCurve() {
+  const W = plot.width;
+  const px0 = 24, px1 = W - 24, py0 = 126, py1 = 218;
+  pctx.strokeStyle = HUD(0.22); pctx.lineWidth = 1; pctx.strokeRect(px0 + 0.5, py0 + 0.5, px1 - px0 - 1, py1 - py0 - 1);
+  pctx.fillStyle = HUD(0.85); pctx.font = fontString(canvas, 'caption', 'mono', 600); pctx.textAlign = 'left'; pctx.textBaseline = 'alphabetic';
+  pctx.fillText('DOPPLER FACTOR vs VIEWING ANGLE   (forward blueshift, back redshift)', px0 + 6, py0 - 4);
+  const ax = px0 + 40, aw = px1 - px0 - 56, ay = py0 + 20, ah = py1 - py0 - 36;
+  const Dfwd = dopplerFactor(ui.beta, 1), Dback = dopplerFactor(ui.beta, -1);
+  const lmax = Math.log10(Math.max(Dfwd, 3.2)), lmin = Math.log10(Math.min(Dback, 0.3));
+  const X = (th) => ax + (th / Math.PI) * aw;
+  const Y = (D) => ay + ah * (1 - (Math.log10(D) - lmin) / (lmax - lmin));
+  pctx.strokeStyle = HUD(0.25); pctx.setLineDash([3, 3]); pctx.lineWidth = 1;
+  pctx.beginPath(); pctx.moveTo(ax, Y(1)); pctx.lineTo(ax + aw, Y(1)); pctx.stroke(); pctx.setLineDash([]);
+  pctx.fillStyle = HUD(0.55); pctx.font = fontString(canvas, 'tick', 'mono'); pctx.textAlign = 'right'; pctx.textBaseline = 'middle';
+  pctx.fillText('1', ax - 4, Y(1));
+  pctx.lineWidth = 2.2; let prev = null;
+  for (let i = 0; i <= 120; i += 1) {
+    const th = Math.PI * i / 120, D = dopplerFactor(ui.beta, Math.cos(th)), xx = X(th), yy = Y(D);
+    if (prev) { pctx.strokeStyle = D >= 1 ? 'rgba(120,180,255,0.95)' : 'rgba(255,120,140,0.95)'; pctx.beginPath(); pctx.moveTo(prev[0], prev[1]); pctx.lineTo(xx, yy); pctx.stroke(); }
+    prev = [xx, yy];
+  }
+  pctx.fillStyle = HUD(0.6); pctx.font = fontString(canvas, 'tick', 'mono'); pctx.textAlign = 'center'; pctx.textBaseline = 'top';
+  pctx.fillText('forward', X(0) + 20, ay + ah + 3); pctx.fillText('90 deg', X(Math.PI / 2), ay + ah + 3); pctx.fillText('back', X(Math.PI) - 16, ay + ah + 3);
+  pctx.textAlign = 'left'; pctx.textBaseline = 'alphabetic'; pctx.fillStyle = 'rgba(120,180,255,0.95)';
+  pctx.fillText(`550 -> ${(550 / Dfwd).toFixed(0)} nm`, ax + 4, ay + 2);
+  pctx.textAlign = 'right'; pctx.fillStyle = 'rgba(255,120,140,0.95)';
+  pctx.fillText(`550 -> ${(550 / Dback).toFixed(0)} nm`, ax + aw - 4, ay + 2);
 }
 
 function refreshReadout() {
