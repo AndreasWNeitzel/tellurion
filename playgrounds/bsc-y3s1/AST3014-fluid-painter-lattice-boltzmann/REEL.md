@@ -3,32 +3,30 @@
 Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
 ## Beat 1, hook (0 to 3s)
-VO: Draw an obstacle by click-drag and watch the flow respond in real time: it accelerates around the body and leaves a low-speed wake behind it, the speed shown as a colour field.
-Caption: Draw an obstacle by click-drag and watch…
+VO: I draw a shape into a moving fluid by dragging, and the flow reroutes around it in real time, dye streaklines and all.
+Caption: paint into the flow
 
 ## Beat 2, the reveal (3 to 10s)
-VO: A D2Q9 BGK lattice-Boltzmann channel flow on a 192x96 grid: steady inflow on the left, zero-gradient outflow on the right, and half-way bounce-back at user-drawn obstacles.
-Caption: what you are seeing
+VO: It is a D2Q9 lattice-Boltzmann solver on a 192 by 96 grid: steady inflow on the left, open outflow on the right, no-slip bounce-back at whatever I paint.
+Caption: a lattice-Boltzmann fluid
 
 ## Beat 3, the mechanism (10 to 22s)
-VO: The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and hence the obstacle Reynolds number Re = U D / nu, so lowering tau drives the wake from a steady recirculation toward unsteady vortex shedding.
-Caption: the physics, simply
+VO: The method never writes down Navier-Stokes. It just streams and collides particle populations on each cell, relaxing toward equilibrium at a rate set by tau. That single knob fixes the viscosity, nu = (tau minus a half) over three, and so the Reynolds number.
+Caption: stream, then collide
 
 ## Beat 4, try it (22 to 33s)
-VO: Draw obstacles into the flow: the half-way bounce-back at your shapes forces the stream around them, and a blunt body sheds a von Karman wake.
-VO: Watch the wake transverse-velocity trace: once the body sheds vortices it oscillates at the Strouhal frequency, the periodic signature of vortex shedding seen behind real bluff bodies.
-Caption: your turn
+VO: The stream stagnates at the upstream face, accelerates around the shoulders, and leaves a low-speed wake. The two plots below measure it: the transverse cut shows the velocity deficit the body carves, and the centreline cut drops to zero at the body and recovers downstream.
+Caption: read the wake
 
 ## Beat 5, payoff and CTA (33 to 40s)
-VO: The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and hence the obstacle Reynolds number Re = U D / nu, so lowering tau drives the wake from a steady recirculation toward unsteady vortex shedding.
-VO: Full interactive version at tellurion.dev. Follow for one of these a day.
+VO: Switch to the vorticity field and the two shear layers peel off the shoulders in red and blue. Push the Reynolds number and the wake lengthens. Full interactive version at tellurion.dev. Follow for one of these a day.
 Caption: tellurion.dev
 
 ## On-screen text beats
-- Draw an obstacle by click-drag and watch…
-- what you are seeing
-- the physics
-- try it yourself
+- paint into the flow
+- a lattice-Boltzmann fluid
+- stream, then collide
+- read the wake
 - tellurion.dev
 
 ## Source

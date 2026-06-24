@@ -9,7 +9,7 @@ primary_citation: kulsrud-plasma-astro
 supporting_ucs: []
 curriculum_year: bsc-y3s1
 hook: 'Draw an obstacle by click-drag and watch the flow respond in real time: it accelerates around the body and leaves a low-speed wake behind it, the speed shown as a colour field.'
-one_paragraph: 'A D2Q9 BGK lattice-Boltzmann channel flow on a 192x96 grid: steady inflow on the left, zero-gradient outflow on the right, and half-way bounce-back at user-drawn obstacles. The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and hence the obstacle Reynolds number Re = U D / nu, so lowering tau drives the wake from a steady recirculation toward unsteady vortex shedding. Reference: Kruger et al., The Lattice Boltzmann Method (Springer 2017), Chapters 3 to 5.'
+one_paragraph: 'A D2Q9 BGK lattice-Boltzmann channel flow on a 192x96 grid: steady inflow on the left, zero-gradient outflow on the right, and half-way bounce-back at user-drawn obstacles. The relaxation time tau sets the kinematic viscosity nu = (tau - 1/2)/3 and hence the obstacle Reynolds number Re = U D / nu. In the stable single-relaxation-time window the solver settles to a steady laminar wake, so the card shows what it computes: the stagnation point, the flow accelerating around the shoulders, the shear layers, the downstream velocity deficit, and dye streaklines bending around whatever you paint. Reference: Kruger et al., The Lattice Boltzmann Method (Springer 2017), Chapters 3 to 5.'
 tags: [fluids-mhd, interactive-drag, animation, field-visualization]
 difficulty: 4
 tier: large
@@ -36,18 +36,19 @@ references:
 
 # Fluid Painter: Lattice Boltzmann Sandbox
 
-Draw obstacles by click-drag (shift-drag erases); a 192 x 96 D2Q9 lattice-Boltzmann solver responds in real time. The colour field shows the local flow speed: bright where the fluid accelerates around the body, dark in the low-momentum wake behind it. A circular obstacle at moderate Reynolds number sheds a vortex street; lowering the relaxation time raises the Reynolds number and roughens the wake.
+Draw obstacles by click-drag (shift-drag erases); a 192 x 96 D2Q9 lattice-Boltzmann solver responds in real time. The colour field shows the local flow speed (or the signed vorticity): bright where the fluid accelerates around the body, dark in the low-momentum wake behind it. Dye streaklines bend around whatever you paint, and two profiles below quantify the wake: a transverse cut through the velocity deficit and the centreline speed that stagnates at the body and recovers downstream. In the stable single-relaxation-time window the solver holds a steady laminar wake; the companion Navier-Stokes card (FIS3025) carries the unsteady von Karman street with a confinement-stabilised projection solver.
 
 ## Explainer
 
 ### What you are looking at
 
-Draw a wall and watch fluid flow around it in real time: vortices peel
-off, a wake forms, dye swirls. It is solving the Navier-Stokes
-behavior, but not by discretizing those equations directly. Instead it
-streams and collides fictitious particle populations on a grid, the
-lattice Boltzmann method, which recovers fluid flow in the large-scale
-limit and parallelizes trivially.
+Draw a wall and watch fluid flow around it in real time: the stream
+splits at the upstream face, accelerates around the shoulders, and
+leaves a low-momentum wake behind, with dye streaklines tracing the
+path. It is solving the Navier-Stokes behavior, but not by discretizing
+those equations directly. Instead it streams and collides fictitious
+particle populations on a grid, the lattice Boltzmann method, which
+recovers fluid flow in the large-scale limit and parallelizes trivially.
 
 ### The method
 
@@ -79,19 +80,26 @@ whether the flow is smooth or turbulent.
 
 Behind a circular obstacle the flow separates: a low-momentum wake
 forms on the centreline while the fluid squeezed around the sides
-speeds up (a clear momentum deficit between the two). At moderate
-Reynolds number the wake recirculates steadily; lower the relaxation
-time to raise the Reynolds number and the wake becomes unsteady,
-shedding alternately into a Von Karman vortex street (the same physics
-that makes flags flap and wires sing). Because every cell only talks
-to its neighbours, the solver responds to your drawing immediately.
+speeds up (a clear momentum deficit between the two). In the stable
+single-relaxation-time window this explicit BGK solver holds a steady
+recirculating wake rather than shedding; pushing the Reynolds number
+into the unsteady Von Karman regime would drive it past its stability
+limit. That street (the same physics that makes flags flap and wires
+sing) lives on the companion Navier-Stokes card, which beats the
+numerical dissipation with vorticity confinement. Because every cell
+only talks to its neighbours, this solver responds to your drawing
+immediately.
 
 ### Things to try
 
 - Draw a circle in the stream and watch the wake form behind it while
-  the flow accelerates around its sides.
-- Lower tau (raise the Reynolds number) and watch the steady wake give
-  way to unsteady vortex shedding.
+  the flow accelerates around its sides; the dye streaklines bend to
+  follow.
+- Push the inflow U up and tau down (raise the Reynolds number) and
+  watch the wake lengthen and the centreline deficit deepen in the
+  profile below.
+- Switch the field to vorticity to see the two shear layers peel off
+  the shoulders and trail downstream.
 - Draw a flat plate across part of the channel and see the flow
   divert and a longer separated wake form behind it.
 

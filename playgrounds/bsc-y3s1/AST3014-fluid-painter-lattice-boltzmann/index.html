@@ -49,7 +49,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A D2Q9 BGK lattice-Boltzmann channel flow on a 192x96 grid: steady inflow on the left, zero-gradient outflow on the right, and half-way bounce-back at user-drawn obstacles. The relaxation time $\tau$ sets the kinematic viscosity $\nu = (\tau - 1/2)/3$ and hence the obstacle Reynolds number $\mathrm{Re} = UD / \nu$, so lowering $\tau$ drives the wake from a steady recirculation toward unsteady vortex shedding.</p>
+      <p class="t-body">A D2Q9 BGK lattice-Boltzmann channel flow on a 192x96 grid: steady inflow on the left, zero-gradient outflow on the right, and half-way bounce-back at user-drawn obstacles. The relaxation time $\tau$ sets the kinematic viscosity $\nu = (\tau - 1/2)/3$ and hence the obstacle Reynolds number $\mathrm{Re} = UD / \nu$. In the stable single-relaxation-time window ($\tau \ge 0.56$) the solver settles to a steady laminar wake, so the card shows what it computes: the stagnation point, the flow accelerating around the shoulders, the shear layers, and the downstream velocity deficit. Paint a body and the channel reroutes around it live.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -69,9 +69,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Draw obstacles into the flow: the half-way bounce-back at your shapes forces the stream around them, and a blunt body sheds a von Karman wake. The channel reroutes live around whatever you paint.</li>
-        <li class="t-body">Watch the wake transverse-velocity trace: once the body sheds vortices it oscillates at the Strouhal frequency, the periodic signature of vortex shedding seen behind real bluff bodies.</li>
-        <li class="t-body">Lower the relaxation time tau toward 0.5: the effective viscosity drops, the Reynolds number rises, and the wake turns from a steady pair of eddies into an unsteady shedding street.</li>
+        <li class="t-body">Draw obstacles into the flow: the half-way bounce-back at your shapes forces the stream around them and the dye streaklines bend to follow it. The channel reroutes live around whatever you paint.</li>
+        <li class="t-body">Read the two profiles below the field. The transverse cut shows the velocity deficit the body carves into the wake; the centreline cut stagnates to zero at the body and recovers downstream as the wake closes.</li>
+        <li class="t-body">Push the inflow U up and the viscosity tau down: the Reynolds number climbs, the wake lengthens, and the deficit deepens. Switch the field to vorticity to see the two shear layers peel off the shoulders.</li>
       </ul>
     </section>
 
