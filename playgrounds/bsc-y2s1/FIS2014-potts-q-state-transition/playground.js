@@ -186,7 +186,13 @@ function bootSync() {
     sliderTr.value = state.ratio.toFixed(2);
     valueTr.textContent = state.ratio.toFixed(2);
     rebuild('hot');
-    sweep(state.potts, 600);
+    // Warm up while recording M(t) so the trace is populated in the capture,
+    // not left as the single point a bulk sweep would produce.
+    for (let s = 0; s < 200; s += 1) {
+      sweep(state.potts, 3);
+      state.history.push(orderParameter(state.potts));
+      if (state.history.length > 250) state.history.shift();
+    }
     drawAll();
     if (DETERMINISTIC) {
       requestAnimationFrame(() => {
