@@ -253,10 +253,16 @@ function bootSync() {
   syncLabels();
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
-    st.beta = 0.45 + f * 0.5;
+    // The card IS the Cherenkov cone, so the capture must sit above the
+    // emission threshold beta = 1/n (0.752 at n = 1.33). Sweep from just below
+    // threshold (f = 0, showing the onset) up to a wide cone, so the
+    // representative mid-sweep frame shows a well-formed cone.
+    st.beta = 0.72 + f * 0.24;
     sBeta.value = String(st.beta);
     syncLabels();
-    for (let n = 0; n < 30; n += 1) st.t += 0.04;
+    // Let the particle travel far enough that the cone is fully developed and
+    // its trailing wavefronts fill the frame (it stays left of the X_MAX reset).
+    for (let n = 0; n < 130; n += 1) st.t += 0.04;
   }
   render();
   if (DETERMINISTIC) {
