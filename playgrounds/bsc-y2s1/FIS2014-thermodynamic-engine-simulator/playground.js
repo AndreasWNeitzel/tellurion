@@ -86,7 +86,7 @@ function render() {
   const tNorm = (Tnow - Tmin) / Math.max(1, Tmax - Tmin);
 
   // LEFT: piston-cylinder.
-  const cx0 = 24, cyTop = 60, cylW = 250, cylH = 360;
+  const cx0 = 24, cyTop = 64, cylW = 300, cylH = 740;
   const Vmin = Math.min(...loop.map(p => p.V)), Vmax = Math.max(...loop.map(p => p.V));
   const fillFrac = 0.18 + 0.74 * (cur.V - Vmin) / Math.max(1e-6, Vmax - Vmin);
   const pistonY = cyTop + cylH * (1 - fillFrac);
@@ -118,7 +118,7 @@ function render() {
   ctx.fillStyle = '#5a5f6a'; ctx.fillRect(cx0 + cylW / 2 - 6, cyTop - 24, 12, pistonY - cyTop - 10);
 
   // CENTRE: P-V loop.
-  const gx0 = cx0 + cylW + 50, gx1 = gx0 + 300, gyb = 440, gyt = 70;
+  const gx0 = cx0 + cylW + 56, gx1 = gx0 + 360, gyb = 460, gyt = 96;
   const pmax = Math.max(...loop.map(p => p.P)), pmin = Math.min(...loop.map(p => p.P));
   const X = (v) => gx0 + (v - Vmin) / (Vmax - Vmin) * (gx1 - gx0);
   const Y = (p) => gyb - (p - pmin) / (pmax - pmin) * (gyb - gyt);
@@ -136,18 +136,18 @@ function render() {
 
   // RIGHT: energy-flow (Sankey-like) bars, started below the readout
   // HUD so the two never overlap.
-  const ex0 = gx1 + 56, ew = W - ex0 - 26;
+  const ex0 = gx0, ew = gx1 - gx0;                 // a wide Sankey below the P-V plot
   const Qin = Math.max(1e-6, anal.Qin), Wn = Math.max(0, anal.W), Qout = Math.max(0, anal.Qout);
   const total = Qin;
-  const bh = (val) => 10 + 66 * val / total;
-  let yy = 214;
+  const bh = (val) => 22 + 116 * val / total;
+  let yy = 556;
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(st.reverse ? 'refrigerator' : 'heat engine', ex0, yy - 10);
-  ctx.fillStyle = '#ff5a46'; ctx.fillRect(ex0, yy, ew, bh(Qin)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`Q_hot ${Qin.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Qin) + 14;
-  ctx.fillStyle = '#ffd166'; ctx.fillRect(ex0, yy, ew * Wn / total, bh(Wn)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`W ${Wn.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Wn) + 14;
-  ctx.fillStyle = '#5b8cff'; ctx.fillRect(ex0, yy, ew * Qout / total, bh(Qout)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`Q_cold ${Qout.toFixed(0)}`, ex0 + 8, yy + 15); yy += bh(Qout) + 22;
+  ctx.fillText(st.reverse ? 'refrigerator: work pumps heat cold to hot' : 'heat engine: Q_hot = W + Q_cold', ex0, yy - 10);
+  ctx.fillStyle = '#ff5a46'; ctx.fillRect(ex0, yy, ew, bh(Qin)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`Q_hot ${Qin.toFixed(0)}`, ex0 + 8, yy + 16); yy += bh(Qin) + 14;
+  ctx.fillStyle = '#ffd166'; ctx.fillRect(ex0, yy, ew * Wn / total, bh(Wn)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`W ${Wn.toFixed(0)}`, ex0 + 8, yy + 16); yy += bh(Wn) + 14;
+  ctx.fillStyle = '#5b8cff'; ctx.fillRect(ex0, yy, ew * Qout / total, bh(Qout)); ctx.fillStyle = '#0b0b10'; ctx.fillText(`Q_cold ${Qout.toFixed(0)}`, ex0 + 8, yy + 16); yy += bh(Qout) + 24;
   ctx.fillStyle = '#06d6a0'; ctx.font = fontString(canvas, 'title', 'mono');
-  ctx.fillText(`η = ${(anal.eff * 100).toFixed(1)}%`, ex0, yy);
+  ctx.fillText(`η = ${(anal.eff * 100).toFixed(1)}%`, ex0, yy + 4);
 
   rEls.cycle.textContent = st.type;
   rEls.eff.textContent = (anal.eff * 100).toFixed(1) + '%';
