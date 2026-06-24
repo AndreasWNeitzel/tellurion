@@ -99,6 +99,53 @@ function drawPulsar(px, py, R) {
   return align < 0.16;                              // beam crossing the LOS now
 }
 
+// S/N as a function of trial DM (the dedispersion search): it peaks
+// sharply at the true DM. Cached on (trueDM, width); the trial-DM
+// marker moves without recomputing.
+let snDM = -1, snWd = -1, snCurve = null, snInfo = null;
+function getSNCurve() {
+  if (snDM !== st.trueDM || snWd !== st.width) {
+    const lo = Math.max(0, st.trueDM - 100), hi = Math.min(600, st.trueDM + 100);
+    const N = 120, arr = new Float64Array(N); let mx = 1e-9;
+    for (let i = 0; i < N; i += 1) {
+      const d = lo + (hi - lo) * i / (N - 1);
+      const s = snr(dedisperse(getSpec(), d, NCH, NT, F_LO, F_HI, TWIN()));
+      arr[i] = s; if (s > mx) mx = s;
+    }
+    snCurve = arr; snInfo = { lo, hi, mx }; snDM = st.trueDM; snWd = st.width;
+  }
+  return { curve: snCurve, ...snInfo };
+}
+
+function drawSNPanel(x0, y0, w, h, sn, flagCol) {
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  ctx.fillStyle = '#cdd3e2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('dedispersion search: S/N vs trial DM', x0 + 6, y0 + 14);
+  const { curve, lo, hi, mx } = getSNCurve();
+  const ax = x0 + 44, aw = w - 58, ay = y0 + 26, ah = h - 46;
+  const X = (d) => ax + aw * (d - lo) / (hi - lo);
+  const Y = (s) => ay + ah * (1 - s / mx);
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + ah); ctx.lineTo(ax + aw, ay + ah); ctx.stroke();
+  ctx.strokeStyle = 'rgba(52,211,153,0.5)'; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(X(st.trueDM), ay); ctx.lineTo(X(st.trueDM), ay + ah); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(127,177,216,0.14)'; ctx.beginPath(); ctx.moveTo(ax, ay + ah);
+  for (let i = 0; i < curve.length; i += 1) { const d = lo + (hi - lo) * i / (curve.length - 1); ctx.lineTo(X(d), Y(curve[i])); }
+  ctx.lineTo(ax + aw, ay + ah); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#7fb1d8'; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i < curve.length; i += 1) { const d = lo + (hi - lo) * i / (curve.length - 1); const xx = X(d), yy = Y(curve[i]); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+  ctx.stroke();
+  if (st.guessDM >= lo && st.guessDM <= hi) {
+    ctx.strokeStyle = flagCol; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(X(st.guessDM), ay); ctx.lineTo(X(st.guessDM), ay + ah); ctx.stroke();
+    ctx.fillStyle = flagCol; ctx.beginPath(); ctx.arc(X(st.guessDM), Y(sn), 4, 0, 6.28); ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(170,180,200,0.7)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const d of [lo, st.trueDM, hi]) ctx.fillText(d.toFixed(0), X(d), ay + ah + 5);
+  ctx.fillText('trial DM (pc/cm3)', ax + aw / 2, ay + ah + 19);
+  ctx.fillStyle = 'rgba(52,211,153,0.9)'; ctx.fillText('true DM', X(st.trueDM) + 2, ay + ah - 14);
+  ctx.save(); ctx.translate(ax - 28, ay + ah / 2); ctx.rotate(-Math.PI / 2); ctx.fillStyle = 'rgba(170,180,200,0.7)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('S/N', 0, 0); ctx.restore();
+  ctx.textBaseline = 'alphabetic';
+}
+
 function render() {
   if (st.running && !CAPTURE_NAME) st.t += 0.016;
   ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
@@ -121,62 +168,58 @@ function render() {
   ctx.fillStyle = flagCol;
   ctx.fillText(`[ ${flag} ]`, 430, 42);
 
-  // left: the spinning pulsar
-  const lit = drawPulsar(150, 210, 30);
-  // a wavefront racing toward the dynamic spectrum when a beam fires
-  const beat = (st.t % st.period) / st.period;
-  if (beat < 0.5) {
-    const wx = 195 + beat * 2 * 360;
-    ctx.strokeStyle = `rgba(150,210,255,${(0.5 * (1 - beat * 2)).toFixed(2)})`;
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(wx, 120); ctx.lineTo(wx, 320); ctx.stroke();
-  }
-  if (lit) {
-    ctx.fillStyle = 'rgba(180,225,255,0.9)';
-    ctx.beginPath(); ctx.arc(150, 210, 7, 0, 6.2832); ctx.fill();
-  }
-  ctx.strokeStyle = 'rgba(120,150,200,0.25)';
-  ctx.strokeRect(20.5, 60.5, 280, 300);
-  ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'center';
-  ctx.fillText('beam sweeps the line of sight as it rotates', 160, 350);
-
-  // right: dynamic spectrum, de-dispersed at the trial DM
-  paintWaterfall();
-  const wx0 = 322, wy0 = 60, wW = W - wx0 - 22, wHh = 300;
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(off, 0, 0, NT, NCH, wx0, wy0, wW, wHh);
-  ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(wx0 + 0.5, wy0 + 0.5, wW - 1, wHh - 1);
+  // ---- top-left: the spinning pulsar, now a proper hero ----
+  const PUL = { x: 20, y: 56, w: 315, h: 414 };
+  ctx.fillStyle = '#0a0c14'; ctx.fillRect(PUL.x, PUL.y, PUL.w, PUL.h);
+  ctx.save(); ctx.beginPath(); ctx.rect(PUL.x, PUL.y, PUL.w, PUL.h); ctx.clip();
+  const lit = drawPulsar(PUL.x + PUL.w / 2, PUL.y + PUL.h / 2 - 6, 52);
+  if (lit) { ctx.fillStyle = 'rgba(180,225,255,0.95)'; ctx.beginPath(); ctx.arc(PUL.x + PUL.w / 2, PUL.y + PUL.h / 2 - 6, 9, 0, 6.2832); ctx.fill(); }
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(PUL.x + 0.5, PUL.y + 0.5, PUL.w - 1, PUL.h - 1);
   ctx.fillStyle = '#cdd3e2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('dynamic spectrum (trial-DM corrected)', wx0 + 6, wy0 - 6);
-  ctx.fillStyle = 'rgba(220,228,245,0.85)'; ctx.textAlign = 'left';
-  ctx.fillText(`${F_HI} MHz`, wx0 + 6, wy0 + 14);
-  ctx.fillText(`${F_LO} MHz`, wx0 + 6, wy0 + wHh - 7);
-  ctx.fillStyle = '#8893a6'; ctx.save(); ctx.translate(14, wy0 + wHh / 2); ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'left'; ctx.fillText('f', 0, 0); ctx.restore();
-  ctx.textAlign = 'right'; ctx.fillText('time ->', wx0 + wW, wy0 + wHh + 14);
+  ctx.fillText('the pulsar: a lighthouse beam', PUL.x + 6, PUL.y + 14);
+  ctx.fillStyle = '#5a6477'; ctx.textAlign = 'center';
+  ctx.fillText('beam sweeps the line of sight as it rotates', PUL.x + PUL.w / 2, PUL.y + PUL.h - 8);
+
+  // ---- top-right: dynamic spectrum, de-dispersed at the trial DM ----
+  paintWaterfall();
+  const WF = { x: 355, y: 76, w: W - 355 - 22, h: 360 };
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(off, 0, 0, NT, NCH, WF.x, WF.y, WF.w, WF.h);
+  ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(WF.x + 0.5, WF.y + 0.5, WF.w - 1, WF.h - 1);
+  ctx.fillStyle = '#cdd3e2'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText('dynamic spectrum (trial-DM corrected)', WF.x + 4, WF.y - 6);
+  ctx.fillStyle = 'rgba(220,228,245,0.85)';
+  ctx.fillText(`${F_HI} MHz`, WF.x + 6, WF.y + 14);
+  ctx.fillText(`${F_LO} MHz`, WF.x + 6, WF.y + WF.h - 7);
+  ctx.fillStyle = '#8893a6'; ctx.textAlign = 'right'; ctx.fillText('time ->', WF.x + WF.w - 4, WF.y + WF.h + 14);
   ctx.textAlign = 'center'; ctx.fillStyle = flagCol;
   ctx.fillText(flag === 'MATCH' ? 'aligned: the sweep stands vertical'
-    : 'mis-set DM: the f^-2 sweep is still tilted', wx0 + wW / 2, wy0 + wHh + 12);
+    : 'mis-set DM: the f^-2 sweep is still tilted', WF.x + WF.w / 2, WF.y + WF.h + 28);
 
-  // bottom: de-dispersed summed profile, full width across the portrait
-  // (was right-column only, which left the bottom-left quadrant empty).
-  const px0 = 20, pW = W - 40, py0 = 392, pH = H - py0 - 40;
-  ctx.fillStyle = '#0d1117'; ctx.fillRect(px0, py0, pW, pH);
-  ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(px0 + 0.5, py0 + 0.5, pW - 1, pH - 1);
+  // ---- bottom-left: de-dispersed summed profile (compact, was huge) ----
+  const PR = { x: 20, y: 498, w: 360, h: 470 };
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(PR.x, PR.y, PR.w, PR.h);
+  ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.strokeRect(PR.x + 0.5, PR.y + 0.5, PR.w - 1, PR.h - 1);
   ctx.fillStyle = '#cdd3e2'; ctx.textAlign = 'left'; ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('de-dispersed profile (sum over channels)', px0 + 6, py0 + 14);
-  let mx = 1e-9; for (let j = 0; j < NT; j += 1) if (ded[j] > mx) mx = ded[j];
-  ctx.strokeStyle = flagCol; ctx.lineWidth = 1.6; ctx.beginPath();
-  for (let j = 0; j < NT; j += 1) {
-    const x = px0 + 8 + j / (NT - 1) * (pW - 16);
-    const y = py0 + pH - 8 - (ded[j] / mx) * (pH - 26);
-    j === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  ctx.fillText('de-dispersed profile (sum over channels)', PR.x + 6, PR.y + 14);
+  { let mxp = 1e-9; for (let j = 0; j < NT; j += 1) if (ded[j] > mxp) mxp = ded[j];
+    const ax = PR.x + 12, aw = PR.w - 24, ay = PR.y + 28, ah = PR.h - 48;
+    ctx.fillStyle = 'rgba(127,177,216,0.12)'; ctx.beginPath(); ctx.moveTo(ax, ay + ah);
+    for (let j = 0; j < NT; j += 1) ctx.lineTo(ax + j / (NT - 1) * aw, ay + ah - (ded[j] / mxp) * ah);
+    ctx.lineTo(ax + aw, ay + ah); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = flagCol; ctx.lineWidth = 1.8; ctx.beginPath();
+    for (let j = 0; j < NT; j += 1) { const x = ax + j / (NT - 1) * aw, y = ay + ah - (ded[j] / mxp) * ah; j ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(170,180,200,0.6)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.fillText('time ->', ax + aw / 2, ay + ah + 16);
   }
-  ctx.stroke();
 
-  // left-of-profile: the f^-2 law reminder + DM meaning
+  // ---- bottom-right: the dedispersion search, S/N vs trial DM ----
+  drawSNPanel(396, 498, W - 396 - 20, 470, sn, flagCol);
+
+  // f^-2 law caption
   ctx.fillStyle = '#5a6477'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
-  ctx.fillText('dt = DM/2.41e-4 (1/f^2 - 1/fref^2) s     DM = integral n_e dl  (electron column -> distance)', 22, py0 + pH + 22);
+  ctx.fillText('dt = DM / 2.41e-4 (1/f^2 - 1/fref^2) s     DM = integral n_e dl', 22, H - 12);
 
   if (readoutEl) readoutEl.textContent = `true DM ${st.trueDM}, trial DM ${st.guessDM}, S/N ${sn.toFixed(1)} [${flag}]`;
 }
