@@ -217,8 +217,11 @@ function drawDiagnostic(col, r) {
   const inner = { x: r.x + 44, y: r.y + 26, w: r.w - 44 - 14, h: r.h - 26 - 38 };
   const WINDOW = 16;
   const tNow = sys.t;
-  const t0 = Math.max(0, tNow - WINDOW);
-  const tSpan = Math.max(WINDOW, tNow) - t0 || 1;
+  // Grow the time axis with elapsed time so the staircase fills the panel from
+  // the first seconds, then scroll a fixed window once enough history exists.
+  // The old fixed [0, WINDOW] axis left the plot about 70% empty while tNow < 16.
+  const tSpan = Math.min(WINDOW, Math.max(3, tNow)) || 1;
+  const t0 = Math.max(0, tNow - tSpan);
   // Normalised: the y-axis is energy / initial energy, so it runs 0 to 1 and
   // e = 1 sits exactly on the top line whatever the absolute energy.
   const yMax = 1.06;
