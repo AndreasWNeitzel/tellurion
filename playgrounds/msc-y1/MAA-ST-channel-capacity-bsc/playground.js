@@ -53,8 +53,10 @@ function drawAll() {
   const padL = 30, padR = 30;
   const PW = W - padL - padR;
 
-  // Top: capacity / entropy
-  const topY = 60, topH = 200;
+  // Top: capacity / entropy. The headline result gets equal billing with
+  // the repetition-code panel below (it used to be a 200px strip above a
+  // 670px plot).
+  const topY = 56, topH = 452;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(padL, topY, PW, topH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
@@ -89,6 +91,20 @@ function drawAll() {
   ctx.beginPath();
   ctx.moveTo(cPx, topY + 6); ctx.lineTo(cPx, topY + topH - 6);
   ctx.stroke();
+  // markers at the current p, so the cursor reads off C and H
+  const yOfTop = (v) => topY + topH - 4 - (topH - 12) * v;
+  ctx.fillStyle = tok.accentCool;
+  ctx.beginPath(); ctx.arc(cPx, yOfTop(capacityBSC(state.p)), 3.5, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = tok.accentWarm;
+  ctx.beginPath(); ctx.arc(cPx, yOfTop(binaryEntropy(state.p)), 3.5, 0, 2 * Math.PI); ctx.fill();
+  // y ticks (bits)
+  ctx.font = fontString(canvas, 'tick', 'mono'); ctx.fillStyle = 'rgba(200,206,224,0.55)'; ctx.textAlign = 'right';
+  for (const bv of [0, 0.5, 1]) {
+    const py = yOfTop(bv);
+    ctx.fillText(bv.toFixed(1), padL + 26, py + 3);
+    ctx.strokeStyle = 'rgba(226,232,240,0.05)'; ctx.beginPath(); ctx.moveTo(padL + 32, py); ctx.lineTo(padL + PW - 4, py); ctx.stroke();
+  }
+  ctx.textAlign = 'left';
   // labels
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
@@ -98,7 +114,7 @@ function drawAll() {
   ctx.fillText('H(p) entropy', padL + 150, topY + 14);
 
   // Bottom: repetition error curves
-  const botY = topY + topH + 30, botH = H - botY - 80;
+  const botY = topY + topH + 26, botH = H - botY - 64;
   ctx.fillStyle = '#0a0a0e';
   ctx.fillRect(padL, botY, PW, botH);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
@@ -142,6 +158,15 @@ function drawAll() {
   ctx.beginPath();
   ctx.moveTo(cPx2, botY + 6); ctx.lineTo(cPx2, botY + botH - 6);
   ctx.stroke();
+  // markers: the decode error for each code length at the current p
+  const pc = Math.min(0.5, state.p);
+  for (let ni = 0; ni < ns.length; ni += 1) {
+    const n = ns[ni];
+    const e = n === 1 ? pc : repetitionCodeError(n, pc);
+    const py = botY + botH - 4 - (botH - 12) * Math.min(0.5, e) / 0.5;
+    ctx.fillStyle = colors[ni];
+    ctx.beginPath(); ctx.arc(cPx2, py, 3, 0, 2 * Math.PI); ctx.fill();
+  }
   // axis
   ctx.font = fontString(canvas, 'tick', 'mono');
   ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
