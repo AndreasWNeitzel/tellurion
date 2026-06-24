@@ -25,7 +25,7 @@ const DEF = { parallax: 100, cepheidP: 30, snApparent: 16, z: 0.05 };
 const state = { ...DEF, targetLog: 6.0, phase: 0, dragging: false };
 let running = !prefersReducedMotion();
 
-const AX = { x0: 70, x1: W - 40, lo: 0, hi: 10 };          // log10(d / pc)
+const AX = { x0: 70, x1: W - 72, lo: 0, hi: 10 };          // log10(d / pc); right margin leaves room for the up-right signpost labels
 const RY = 180;                                            // ruler y
 const xOf = (logpc) => AX.x0 + (Math.max(AX.lo, Math.min(AX.hi, logpc)) - AX.lo) / (AX.hi - AX.lo) * (AX.x1 - AX.x0);
 const xOfPc = (pc) => xOf(Math.log10(Math.max(1, pc)));
@@ -158,11 +158,29 @@ function render() {
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(AX.x0 + 0.5, dy + 0.5, AX.x1 - AX.x0 - 1, dh - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText('cumulative distance error climbing the ladder (diagnostic)', AX.x0 + 8, dy + 14);
+  // y ticks (cumulative fractional error, clamped at 50%) + distance
+  // decade gridlines (the strip shares the ruler's log-distance scale).
+  ctx.font = fontString(canvas, 'tick', 'mono');
+  ctx.textAlign = 'right';
+  for (const ev of [0, 0.25, 0.5]) {
+    const yy = dy + dh - 8 - (ev / 0.5) * (dh - 34);
+    ctx.strokeStyle = 'rgba(226,232,240,0.05)';
+    ctx.beginPath(); ctx.moveTo(AX.x0 + 34, yy); ctx.lineTo(AX.x1 - 4, yy); ctx.stroke();
+    ctx.fillStyle = 'rgba(148,163,184,0.6)'; lbl(`${(ev * 100) | 0}%`, AX.x0 + 30, yy + 3);
+  }
+  ctx.textAlign = 'center';
+  for (const [L, lab] of [[1, '10 pc'], [3, '1 kpc'], [5, '100 kpc'], [7, '10 Mpc'], [9, '1 Gpc']]) {
+    const xx = xOf(L);
+    ctx.strokeStyle = 'rgba(226,232,240,0.04)';
+    ctx.beginPath(); ctx.moveTo(xx, dy + 18); ctx.lineTo(xx, dy + dh - 14); ctx.stroke();
+    ctx.fillStyle = 'rgba(148,163,184,0.5)'; ctx.fillText(lab, xx, dy + dh - 4);
+  }
+  ctx.textAlign = 'left';
   ctx.strokeStyle = '#4f9cf9'; ctx.lineWidth = 1.6; ctx.beginPath();
   for (let k = 0; k <= 200; k += 1) {
     const lg = AX.lo + (AX.hi - AX.lo) * k / 200;
     const e = Math.min(0.5, cumErr(lg));
-    const xx = xOf(lg), yy = dy + dh - 8 - (e / 0.5) * (dh - 22);
+    const xx = xOf(lg), yy = dy + dh - 8 - (e / 0.5) * (dh - 34);
     if (k === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.stroke(); ctx.lineWidth = 1;
