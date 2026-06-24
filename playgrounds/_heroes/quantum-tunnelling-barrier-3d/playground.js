@@ -151,7 +151,11 @@ function bootSync() {
     const P = presets[Math.min(presets.length - 1, Math.floor(CAPTURE_FRAC * presets.length + 1e-6))];
     Object.assign(ui, P); relaunch();
     camera.setAzimuthDeg(38 + CAPTURE_FRAC * 30);
-    for (let i = 0; i < Math.round(700 + CAPTURE_FRAC * 700); i += 1) step(sim, 0.02);
+    camera.setRadius(11);   // closer so the wavefunction landscape fills the frame
+    // Stop while the packet is interacting with the barrier (incident +
+    // reflected + tunnelled lobes near x = 0), not long after it has left it
+    // and sits in a corner of the domain.
+    for (let i = 0; i < Math.round(46 + CAPTURE_FRAC * 30); i += 1) step(sim, 0.02);
     frame();
     if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
       window.__simulationReady = true;
