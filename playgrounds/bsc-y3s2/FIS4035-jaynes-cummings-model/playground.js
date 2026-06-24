@@ -159,9 +159,12 @@ function drawWigner(x, y, w, h) {
 
 function draw() {
   ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, W, H);
-  drawInversion(20, 22, W - 40, 232);
-  drawPhotonDist(20, 270, (W - 52) / 2, H - 270 - 16);
-  drawWigner(20 + (W - 52) / 2 + 12, 270, (W - 52) / 2, H - 270 - 16);
+  // Collapse-revival inversion is the hero; the photon distribution and
+  // the (square) Wigner function sit below as near-square aux panels,
+  // not the old tall, narrow halves.
+  drawInversion(20, 22, W - 40, 440);
+  drawPhotonDist(20, 480, (W - 52) / 2, 412);
+  drawWigner(20 + (W - 52) / 2 + 12, 480, (W - 52) / 2, 412);
   const wv = wAt(st.tNow);
   rT.textContent = st.tNow.toFixed(2);
   rW.textContent = (wv >= 0 ? '+' : '') + wv.toFixed(3);
