@@ -15,9 +15,8 @@ VO: The reflection coefficient Gamma = (Z L - Z 0) / (Z L + Z 0) controls everyt
 Caption: the physics, simply
 
 ## Beat 4, try it (22 to 33s)
-VO: Tune the load toward 50 ohms: the reflection coefficient Gamma collapses to zero, the standing-wave ratio drops to one, and all the incident power reaches the load. That is a matched line.
-VO: Mismatch it badly with an open or a short: |Gamma| goes to one, the VSWR blows up, and the reflected wave sets up a standing pattern that can fry a transmitter.
-VO: Read P_L / P_inc, the delivered fraction 1 - |Gamma| squared, the quantity every antenna and amplifier is designed to maximise.
+VO: Drag R_L and X_L away from 50 ohms and the load point leaves the Smith-chart centre while the live standing wave develops deep nulls.
+VO: Set X_L to zero and switch on the quarter-wave transformer: Gamma drops to zero, the standing wave flattens to a pure travelling wave, and the Smith point snaps to the matched centre.
 Caption: your turn
 
 ## Beat 5, payoff and CTA (33 to 40s)

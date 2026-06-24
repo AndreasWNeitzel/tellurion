@@ -74,7 +74,9 @@
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Line controls">
-    <div class="row"><span class="label">Z_L (Ohm)</span><input aria-label="Z_L (Ohm)" type="range" id="slider-zl" min="1" max="500" step="1" value="50"><span class="value" id="value-zl">50</span></div>
+    <div class="row"><span class="label">load R_L (Ohm)</span><input aria-label="load resistance R_L" type="range" id="slider-rl" min="2" max="300" step="1" value="120"><span class="value" id="value-rl">120</span></div>
+    <div class="row"><span class="label">load X_L (Ohm)</span><input aria-label="load reactance X_L" type="range" id="slider-xl" min="-200" max="200" step="1" value="70"><span class="value" id="value-xl">70</span></div>
+    <div class="row"><span class="label">matching</span><select aria-label="matching network" id="select-match"><option value="none" selected>none</option><option value="qwt">quarter-wave transformer</option></select><span class="value" id="value-match">none</span></div>
   </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
       <span class="label">|Gamma|, VSWR:</span><span class="value" id="readout-g">0</span>
@@ -85,9 +87,9 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Tune the load toward 50 ohms: the reflection coefficient Gamma collapses to zero, the standing-wave ratio drops to one, and all the incident power reaches the load. That is a matched line.</li>
-        <li class="t-body">Mismatch it badly with an open or a short: |Gamma| goes to one, the VSWR blows up, and the reflected wave sets up a standing pattern that can fry a transmitter.</li>
-        <li class="t-body">Read P_L / P_inc, the delivered fraction 1 - |Gamma| squared, the quantity every antenna and amplifier is designed to maximise.</li>
+        <li class="t-body">Drag R_L and X_L away from 50 ohms and watch the load point leave the Smith-chart centre while the live standing wave develops deep nulls; the dashed VSWR circle is the locus the impedance traces as you slide along the line.</li>
+        <li class="t-body">Add reactance with X_L: the load point swings up (inductive) or down (capacitive) the constant-resistance arc, and the standing-wave pattern shifts because the reflection picks up a phase.</li>
+        <li class="t-body">Set X_L to zero, then switch matching to the quarter-wave transformer: Z_t = sqrt(Z_0 R_L) drives Gamma to zero, the standing wave flattens to a pure travelling wave, and the Smith point snaps to the matched centre with 100 percent power delivered.</li>
       </ul>
     </section>
 
