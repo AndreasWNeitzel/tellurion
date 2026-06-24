@@ -92,7 +92,7 @@ function paintAt(px, py) {
 }
 
 // geometry (right column starts below the top-right readout HUD)
-const FX = 16, FY = 16, FPX = 560, CELL = FPX / N;
+const FX = 16, FY = 16, FPX = 788, CELL = FPX / N;   // field fills the canvas width; profile + bar sit in a band below
 const PX = 600, PW = 168;
 
 function sampleT(x, y) {                       // bilinear on the grid
@@ -218,8 +218,8 @@ function render() {
   drawPaintOverlay();
   drawBrushCursor();
 
-  // colour bar
-  const cbX = PX, cbY = 170, cbW = 16, cbH = 160;
+  // colour bar (in the band below the field, to the right of the profile)
+  const cbX = 752, cbY = 846, cbW = 16, cbH = 150;
   for (let s = 0; s < cbH; s += 1) { const c = viridis(1 - s / cbH); ctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`; ctx.fillRect(cbX, cbY + s, cbW, 1); }
   ctx.strokeStyle = 'rgba(200,205,215,0.4)'; ctx.strokeRect(cbX, cbY, cbW, cbH);
   ctx.fillStyle = '#c8ccd6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
@@ -227,8 +227,8 @@ function render() {
   ctx.fillText('0.0', cbX + cbW + 5, cbY + cbH);
   ctx.fillText('T', cbX + 3, cbY - 8);
 
-  // secondary panel: mid-row cross-section T(x)
-  const pX = PX, pY = 360, pW = PW, pH = 216, jm = N >> 1;
+  // secondary panel: mid-row cross-section T(x), a wide strip below the field
+  const pX = 28, pY = 838, pW = 690, pH = 164, jm = N >> 1;
   ctx.fillStyle = '#0c0e14'; ctx.fillRect(pX, pY, pW, pH);
   ctx.strokeStyle = 'rgba(200,205,215,0.35)'; ctx.strokeRect(pX, pY, pW, pH);
   ctx.beginPath();
