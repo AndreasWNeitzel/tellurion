@@ -50,7 +50,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body">A gain medium between two mirrors, governed by the laser rate equations for the population inversion and the cavity photon number, integrated live. Below a sharp pump threshold the excited atoms glow but the cavity holds only a negligible incoherent trickle; above it the inversion clamps and every extra pumped atom feeds the beam, so the output rises linearly with a sharp kink. None of this is scripted: the threshold falls out of the steady state. Arm the Q-switch and the cavity is spoiled while the pump piles up a huge inversion; release it and the stored energy dumps as one giant pulse.</p>
+      <p class="t-body">A gain medium between two mirrors, governed by the laser rate equations for the population inversion and the cavity photon number. The continuous-wave operating point is the exact steady state of those equations: below a sharp pump threshold the excited atoms glow but the cavity stays dark, and above it the inversion clamps at N = 1/(B tauC) while every extra pumped atom feeds the beam, so the output rises linearly with a sharp kink. The intracavity standing wave grows with the photon number and the beam leaves the partial output coupler. Arm the Q-switch and the cavity is spoiled while the pump piles up a large inversion; release it and the stored energy dumps as one giant pulse, integrated numerically.</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -60,7 +60,7 @@
       <canvas class="playground-canvas" id="stage" width="820" height="1040"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. Laser rate equations driving an atom/photon particle cavity; the lasing threshold and the Q-switched giant pulse are emergent.</figcaption>
+    <figcaption class="t-small playground-caption">Figure 1. A two-mirror laser cavity: pumped gain medium, the intracavity standing wave growing with the photon number, and the output beam. The lasing threshold is the exact steady state of the rate equations; the Q-switched giant pulse is integrated numerically.</figcaption>
 
     <div class="playground-extra-canvases">
       <canvas id="plot" width="900" height="170" aria-label="Output power versus pump rate, showing the sharp lasing-threshold kink."></canvas>
