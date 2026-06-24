@@ -27,7 +27,7 @@ const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
 const st = {
-  inject: 3, mdip: 1.4, speed: 2, tilt: 0.5, az: 0.6, zoom: 1.0,
+  inject: 3, mdip: 1.4, speed: 2, tilt: 0.5, az: 0.6, zoom: 1.2,
   running: !prefersReducedMotion(),
   particles: [], hits: [], nSteps: 0, nHits: 0,
   MAX_PARTICLES: 420, MAX_HITS: 120,
@@ -55,7 +55,7 @@ function project(x, y, z) {
   // (larger Earth, finer field-line detail visible).
   const cam = 15 / Math.max(0.4, Math.min(6, st.zoom));
   const f = 380 / (cam + zr);
-  return { x: W * 0.5 + f * xp, y: H * 0.5 - f * yp, depth: cam + zr, scale: f / 25 };
+  return { x: W * 0.5 + f * xp, y: H * 0.54 - f * yp, depth: cam + zr, scale: f / 25 };
 }
 
 function fieldLineFrom(L_shell) {
@@ -500,10 +500,15 @@ function bootSync() {
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     st.az = 0.4 + f * 1.6;
-    // Cap particle budget for capture to keep gate within 30s.
-    st.inject = 1;
-    st.MAX_PARTICLES = 30;
-    const steps = 15 + Math.floor(f * 15);
+    // Cap particle budget for capture to keep gate within 30s. Particles need
+    // many steps to funnel down the field lines and reach the auroral altitude,
+    // so warm up long enough that hits accumulate and the latitude histogram
+    // is populated (an empty diagnostic reads as broken). With inject = 1 and a
+    // 30-particle cap each step is cheap, so a few hundred steps stay well
+    // inside the budget.
+    st.inject = 4;
+    st.MAX_PARTICLES = 80;
+    const steps = 900 + Math.floor(f * 300);
     for (let n = 0; n < steps; n += 1) update(0.04);
   }
   render();

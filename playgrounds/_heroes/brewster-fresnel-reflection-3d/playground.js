@@ -137,7 +137,9 @@ function drawRays() {
     ctx.lineWidth = 1 + 4 * Math.sqrt(Tu);
     drawRayWithArrow(cx, cy, trans_end_x, trans_end_y);
     ctx.fillStyle = 'rgba(120, 220, 255, 0.9)';
-    ctx.fillText(`refracted T = ${Tu.toFixed(3)}, theta_t = ${(tt / DEG).toFixed(1)} deg`, trans_end_x + 6, trans_end_y + 14);
+    const tTxt = `refracted T = ${Tu.toFixed(3)}, theta_t = ${(tt / DEG).toFixed(1)} deg`;
+    const tLx = Math.min(trans_end_x + 6, W - ctx.measureText(tTxt).width - 8);
+    ctx.fillText(tTxt, tLx, trans_end_y + 14);
   } else {
     // TIR indicator.
     ctx.fillStyle = 'rgba(255, 130, 110, 0.95)';
