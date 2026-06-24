@@ -52,12 +52,22 @@ function advectParticles(now) {
   }
 }
 function drawParticles(cx, cy, scale) {
+  const fld = FAMILIES[familyName];
   for (const p of particles) {
     const fade = Math.min(1, p.age / 0.4) * Math.min(1, (p.life - p.age) / 0.4);
     if (fade <= 0) continue;
     const px = cx + scale * p.x, py = cy - scale * p.y;
-    ctx.fillStyle = `rgba(255, 238, 196, ${(0.8 * fade).toFixed(2)})`;
-    ctx.beginPath(); ctx.arc(px, py, 2.2, 0, 6.283); ctx.fill();
+    // Short streak aligned with the local field velocity, so each tracer reads
+    // as directed flow (source spray, sink pull, vortex spin) even in a still
+    // frame, rather than as scattered dust.
+    const u = fld.P(p.x, p.y, a), v = fld.Q(p.x, p.y, a);
+    const sp = Math.hypot(u, v) || 1e-9;
+    const L = Math.min(15, 5 + scale * sp * 0.16);
+    ctx.strokeStyle = `rgba(255, 238, 196, ${(0.42 * fade).toFixed(2)})`;
+    ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(px - (u / sp) * L, py + (v / sp) * L); ctx.lineTo(px, py); ctx.stroke();
+    ctx.fillStyle = `rgba(255, 238, 196, ${(0.9 * fade).toFixed(2)})`;
+    ctx.beginPath(); ctx.arc(px, py, 2.0, 0, 6.283); ctx.fill();
   }
 }
 
