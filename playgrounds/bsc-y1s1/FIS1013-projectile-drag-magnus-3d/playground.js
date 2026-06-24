@@ -90,6 +90,63 @@ function project(p) {
   const y1 = p[0] * SAz + p[1] * CA;
   return [x1, p[2] * CE - y1 * SE];
 }
+// Screen basis vectors for a world direction, and the camera view normal
+// (for front/back culling of the spinning ball texture).
+const CAM_U = [CA, -SAz, 0];
+const CAM_V = [-SAz * SE, -CA * SE, CE];
+const CAM_N = [-SAz * CE, -CA * CE, -SE];
+function dot3(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+function cross3(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+function norm3(a) { const m = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / m, a[1] / m, a[2] / m]; }
+
+// A spinning, shaded, seamed ball: the texture rotates about the spin
+// axis omega so the spin direction is visible, not just a dot.
+let ballPhase = 0;
+function drawBall(bp, col, omega, Rpx) {
+  const spinning = omega[0] !== 0 || omega[1] !== 0 || omega[2] !== 0;
+  const n = spinning ? norm3(omega) : [0, 0, 1];
+  const ref = Math.abs(n[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0];
+  const e1 = norm3(cross3(n, ref));
+  const e2 = cross3(n, e1);
+  const surf = (theta, phi) => {
+    const ct = Math.cos(theta), st = Math.sin(theta), cp = Math.cos(phi), sp = Math.sin(phi);
+    const dir = [
+      ct * cp * e1[0] + ct * sp * e2[0] + st * n[0],
+      ct * cp * e1[1] + ct * sp * e2[1] + st * n[1],
+      ct * cp * e1[2] + ct * sp * e2[2] + st * n[2],
+    ];
+    return { x: bp[0] + Rpx * dot3(dir, CAM_U), y: bp[1] - Rpx * dot3(dir, CAM_V), front: dot3(dir, CAM_N) > 0 };
+  };
+  // shaded body
+  const g = ctx.createRadialGradient(bp[0] - Rpx * 0.35, bp[1] - Rpx * 0.42, Rpx * 0.12, bp[0], bp[1], Rpx);
+  g.addColorStop(0, '#ffffff'); g.addColorStop(0.55, '#e6ebf6'); g.addColorStop(1, '#97a3c1');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bp[0], bp[1], Rpx, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = 'rgba(40,50,72,0.55)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(bp[0], bp[1], Rpx, 0, 2 * Math.PI); ctx.stroke();
+  // seams: meridians + parallels, front hemisphere only, rotating with phase
+  const drawCurve = (pts, color, w) => {
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.beginPath();
+    let started = false;
+    for (const p of pts) { if (!p.front) { started = false; continue; } started ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); started = true; }
+    ctx.stroke();
+  };
+  for (let mi = 0; mi < 6; mi += 1) {
+    const phi = ballPhase + mi * Math.PI / 3;
+    const pts = []; for (let t = -90; t <= 90; t += 6) pts.push(surf(t * Math.PI / 180, phi));
+    drawCurve(pts, mi % 3 === 0 ? 'rgba(28,38,58,0.9)' : 'rgba(70,84,112,0.5)', mi % 3 === 0 ? 2 : 1.1);
+  }
+  for (const lat of [-45, 0, 45]) {
+    const pts = []; for (let f = 0; f <= 360; f += 6) pts.push(surf(lat * Math.PI / 180, ballPhase + f * Math.PI / 180));
+    drawCurve(pts, lat === 0 ? 'rgba(28,38,58,0.9)' : 'rgba(70,84,112,0.45)', lat === 0 ? 1.8 : 1);
+  }
+  // spin axis through the poles
+  if (spinning) {
+    const pole = (s) => ({ x: bp[0] + Rpx * 1.55 * s * dot3(n, CAM_U), y: bp[1] - Rpx * 1.55 * s * dot3(n, CAM_V) });
+    const pA = pole(1), pB = pole(-1);
+    ctx.strokeStyle = col.defl; ctx.lineWidth = 2; ctx.setLineDash([3, 2]);
+    ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = col.defl; ctx.beginPath(); ctx.arc(pA.x, pA.y, 2.6, 0, 2 * Math.PI); ctx.fill();
+  }
+}
 
 function colors() {
   const css = getComputedStyle(document.body);
@@ -194,18 +251,32 @@ function drawScene(col, r) {
   ctx.strokeStyle = col.path; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(land[0], land[1], 5, 0, 2 * Math.PI); ctx.stroke();
   const O = P([0, 0, 0]); ctx.fillStyle = col.accent; ctx.beginPath(); ctx.arc(O[0], O[1], 4, 0, 2 * Math.PI); ctx.fill();
 
-  // the ball + spin glyph.
+  // the spinning ball, its spin axis, and the Magnus force vector.
   const bp3 = lerpPt(cur.pts, idxF);
   const bp = P(bp3);
   const rate = parseFloat(sliderRate.value);
-  if (selSpin.value !== 'none' && rate > 0) {
-    const w = spinVector(1, selSpin.value);
-    const aN = P([bp3[0] + w[0] * 0.06 * xMax, bp3[1] + w[1] * 0.06 * xMax, bp3[2] + w[2] * 0.06 * xMax]);
-    const bN = P([bp3[0] - w[0] * 0.06 * xMax, bp3[1] - w[1] * 0.06 * xMax, bp3[2] - w[2] * 0.06 * xMax]);
-    ctx.strokeStyle = col.defl; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(aN[0], aN[1]); ctx.lineTo(bN[0], bN[1]); ctx.stroke();
+  const omega = (selSpin.value !== 'none' && rate > 0) ? spinVector(rate, selSpin.value) : [0, 0, 0];
+  // Magnus force direction F ~ omega x v, drawn as an arrow from the ball.
+  if (omega[0] || omega[1] || omega[2]) {
+    const i0 = Math.max(0, Math.min(cur.pts.length - 2, Math.floor(idxF)));
+    const v = [cur.pts[i0 + 1][0] - cur.pts[i0][0], cur.pts[i0 + 1][1] - cur.pts[i0][1], cur.pts[i0 + 1][2] - cur.pts[i0][2]];
+    const F = cross3(omega, v); const fm = Math.hypot(F[0], F[1], F[2]);
+    if (fm > 1e-9) {
+      const L = 0.075 * xMax;
+      const tip = P([bp3[0] + F[0] / fm * L, bp3[1] + F[1] / fm * L, bp3[2] + F[2] / fm * L]);
+      ctx.strokeStyle = '#ff8a5c'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(bp[0], bp[1]); ctx.lineTo(tip[0], tip[1]); ctx.stroke();
+      const ang = Math.atan2(tip[1] - bp[1], tip[0] - bp[0]);
+      ctx.fillStyle = '#ff8a5c'; ctx.beginPath(); ctx.moveTo(tip[0], tip[1]);
+      ctx.lineTo(tip[0] - 8 * Math.cos(ang - 0.4), tip[1] - 8 * Math.sin(ang - 0.4));
+      ctx.lineTo(tip[0] - 8 * Math.cos(ang + 0.4), tip[1] - 8 * Math.sin(ang + 0.4));
+      ctx.closePath(); ctx.fill();
+      ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textBaseline = 'middle';
+      const leftward = tip[0] < bp[0];
+      ctx.textAlign = leftward ? 'right' : 'left';
+      ctx.fillText('Magnus', tip[0] + (leftward ? -6 : 6), tip[1] - 9);
+    }
   }
-  ctx.fillStyle = col.ball; ctx.beginPath(); ctx.arc(bp[0], bp[1], 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = 'rgba(91,192,235,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(bp[0], bp[1], 9, 0, 2 * Math.PI); ctx.stroke();
+  drawBall(bp, col, omega, 16);
 
   ctx.restore();
 
@@ -286,6 +357,8 @@ function tick(now) {
     const n = cur.pts.length - 1;
     idxF += (n / LOOP_S) * dt;
     if (idxF > n + n * 0.12) idxF = 0;        // brief hold at landing, then relaunch
+    const rate = parseFloat(sliderRate.value);
+    if (selSpin.value !== 'none' && rate > 0) ballPhase += (0.7 + rate / 24) * dt * 2.0;
   }
   render();
   requestAnimationFrame(tick);
@@ -295,6 +368,7 @@ function bootSync() {
   syncVals();
   recompute();
   idxF = CAPTURE_NAME ? (Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0.6) * (cur.pts.length - 1) : 0.62 * (cur.pts.length - 1);
+  ballPhase = 0.7;
   relayout();
   render();
 }
