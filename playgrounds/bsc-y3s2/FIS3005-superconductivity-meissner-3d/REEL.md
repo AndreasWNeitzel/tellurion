@@ -1,4 +1,4 @@
-# Reel script: The Meissner Effect
+# Reel script: Field Expulsion and the Critical Field
 
 Vertical 9:16, about 30 to 40 seconds. Screen-record the playground in portrait (820x1040), voiceover plus on-screen captions. Voice: first person, direct, no hype. No em-dashes, no emoji.
 
@@ -7,7 +7,7 @@ VO: Cool the sphere below Tc and the field lines snap out around it; warm it pas
 Caption: Cool the sphere below Tc and the field li…
 
 ## Beat 2, the reveal (3 to 10s)
-VO: The Meissner effect: a superconducting sphere is a perfect diamagnet that expels the magnetic field.
+VO: The intensity map goes black inside the sphere, that is B = 0, while two bright lobes flare on its flanks. A superconductor is a perfect diamagnet: it does not just stop resisting, it actively pushes the field out.
 Caption: what you are seeing
 
 ## Beat 3, the mechanism (10 to 22s)

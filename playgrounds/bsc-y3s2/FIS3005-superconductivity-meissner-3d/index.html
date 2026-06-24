@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>The Meissner Effect</title>
+<title>Field Expulsion and the Critical Field</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -45,7 +45,7 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">The Meissner Effect</h1>
+      <h1 class="t-title playground-title">Field Expulsion and the Critical Field</h1>
     </header>
 
     <section class="playground-intro">
@@ -59,8 +59,8 @@
       <canvas class="playground-canvas" id="stage" width="820" height="1040" aria-label="A superconducting sphere expelling magnetic field lines, with the critical-field phase diagram"></canvas>
     </div>
 
-    <figcaption class="t-small playground-caption">Figure 1. A superconducting sphere expelling the magnetic field (Meissner), with the critical-field phase diagram and the type-II vortex state.
-      <em>Method:</em> closed-form perfect-diamagnet sphere field; critical-field parabola; Abrikosov lattice spacing.
+    <figcaption class="t-small playground-caption">Figure 1. Field-intensity map of a superconducting sphere expelling the applied field, with the Bc(T) phase diagram and the surface-field profile crowding to (3/2) B0 at the equator.
+      <em>Method:</em> closed-form perfect-diamagnet sphere field; critical-field parabola; Abrikosov lattice spacing. <em>Reference:</em> Tinkham, Introduction to Superconductivity, Ch. 1-5.
       </figcaption>
 
 
@@ -84,9 +84,10 @@
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Cool below T/Tc = 1: the field lines bend out of the sphere and the state flips to superconducting. The Meissner effect is active expulsion, not just zero resistance, so B = 0 inside.</li>
-        <li class="t-body">Raise the applied field B0 past the critical field Bc(T): superconductivity is quenched and the field floods back in. The Bc(T) curve in the inset is the phase boundary you are crossing.</li>
-        <li class="t-body">Switch to type II: now the field threads through as a lattice of quantized vortices instead of being fully expelled, the mixed state that lets type-II magnets carry huge fields.</li>
+        <li class="t-body">Cool below T/Tc = 1: the intensity map goes dark inside the sphere (B = 0) and the field lines bend out around it. The Meissner effect is active expulsion, not just zero resistance, so the field is pushed out, not merely frozen.</li>
+        <li class="t-body">Watch the bright lobes on the flanks: the expelled flux crowds against the equator and the surface field climbs to (3/2) B0 there while it vanishes at the poles. The bottom-right profile plots exactly that |B(theta)|/B0 against the flat normal-state reference at 1.</li>
+        <li class="t-body">Raise the applied field B0 past the critical field Bc(T): superconductivity is quenched and the flux floods back in. The operating dot crosses the Bc(T) parabola in the phase diagram, the boundary you are stepping over.</li>
+        <li class="t-body">Switch to type II: now the field threads through as a triangular lattice of quantized vortices instead of being fully expelled, the mixed state between Bc1 and Bc2 that lets type-II magnets carry huge fields.</li>
       </ul>
     </section>
 
