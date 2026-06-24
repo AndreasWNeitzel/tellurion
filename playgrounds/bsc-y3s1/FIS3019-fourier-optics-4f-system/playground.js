@@ -41,9 +41,9 @@ function applyVis() { rowRc.style.display = st.filter === 'none' ? 'none' : ''; 
 // Portrait composition: the object -> Fourier -> image row across the top,
 // a central line-profile comparison (object vs filtered image) filling the
 // lower half (was a 232 px row at y=40 with the bottom two thirds empty).
-const PANE = 248, GAP = 13, TOP = 84;
+const PANE = 258, GAP = 14, TOP = 96;
 const X0 = Math.round((W - (3 * PANE + 2 * GAP)) / 2), X1 = X0 + PANE + GAP, X2 = X1 + PANE + GAP;
-const PROF = { x: 64, y: TOP + PANE + 100, w: W - 128, h: 560 };
+const PROF = { x: 40, y: TOP + PANE + 96, w: W - 80, h: 510 };
 
 const off = document.createElement('canvas'); off.width = N; off.height = N;
 const offCtx = off.getContext('2d');
