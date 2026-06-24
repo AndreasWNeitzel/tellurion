@@ -13,7 +13,7 @@
 // 2nd ed., Ch. 1-3 (`callen`); Reif, Fundamentals of Statistical and
 // Thermal Physics, Ch. 5 (`reif`).
 
-import { adiabaticTemperature, workIsothermal, workAdiabatic } from './sim.js';
+import { adiabaticTemperature, workIsothermal, workAdiabatic, R } from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
 
@@ -318,7 +318,10 @@ function drawPVPanel() {
   // Work readouts in the PV panel's upper-left corner so they don't
   // collide with the V-axis tick labels along the bottom.
   const W_iso = workIsothermal(1, st.V, st.T0, 1);
-  const W_adi = workAdiabatic(1, st.V, 1, 1, st.gamma);
+  // Use the real initial pressure P1 = nRT0/V1 so the adiabatic work comes out
+  // in J/mol like the isothermal; passing the normalised P1 = 1 made it ~0.3 J,
+  // which rounded to a misleading "0".
+  const W_adi = workAdiabatic(1, st.V, R * st.T0, 1, st.gamma);
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillStyle = '#5bc0eb';
   if (showIso) ctx.fillText(`W_iso = ${W_iso.toFixed(0)} J/mol`, PV.x + 50, PV.y + 24);
