@@ -72,12 +72,18 @@ function render() {
   const y1 = y0 + hp + 30;
   ctx.strokeStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(x0, y1); ctx.lineTo(x0, y1 + hp); ctx.lineTo(x0 + wp, y1 + hp); ctx.stroke();
   ctx.fillStyle = '#9aa0a6'; ctx.fillText('E(t)', x0 + 4, y1 + 12);
-  let eMin = Math.min(...eHist, E0), eMax = Math.max(...eHist, E0);
-  if (eMax - eMin < 0.1) { eMin -= 0.05; eMax += 0.05; }
+  // Scale E(t) to a fixed window centred on the initial energy and clamp the
+  // trace into the panel. Energy is conserved (time-translation symmetry), so
+  // the line should read flat through the centre; a transient integration spike
+  // as the orbit grazes the r -> 0 singularity must not squash it to the floor.
+  const eSpan = Math.max(0.1, 0.4 * Math.abs(E0));
+  const eMin = E0 - eSpan, eMax = E0 + eSpan;
   ctx.strokeStyle = '#06d6a0'; ctx.lineWidth = 1.5;
   ctx.beginPath();
-  eHist.forEach((v, i) => { const px = x0 + i / eHist.length * wp; const py = y1 + hp - (v - eMin) / (eMax - eMin) * (hp - 14); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); });
+  eHist.forEach((v, i) => { const px = x0 + i / eHist.length * wp; const fr = Math.max(0, Math.min(1, (v - eMin) / (eMax - eMin))); const py = y1 + hp - fr * (hp - 14); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); });
   ctx.stroke();
+  ctx.fillStyle = 'rgba(6,214,160,0.6)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right';
+  ctx.fillText('E conserved (flat)', x0 + wp - 4, y1 + 12); ctx.textAlign = 'left';
   ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.fillText(`L_z = ${angularMomentum(state).toFixed(3)} (initial ${L0.toFixed(3)})`, 12, H - 30);
   ctx.fillText(`ε = ${st.eps.toFixed(2)} ${st.eps === 0 ? '(symmetric)' : '(broken)'}`, 12, H - 12);
