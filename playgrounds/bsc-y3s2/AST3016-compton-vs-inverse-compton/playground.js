@@ -104,8 +104,8 @@ function render() {
     ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.fillText(label, x + 8, y - 6);
   }
-  const yIn = padT + plotH * 0.20;
-  const yDown = padT + plotH * 0.33;
+  const yIn = padT + plotH * 0.14;
+  const yDown = padT + plotH * 0.30;
   const yUp = padT + plotH * 0.46;
   // Connectors first (so the markers sit on top).
   ctx.strokeStyle = c.muted;
@@ -121,7 +121,7 @@ function render() {
   // gamma^2 E_in. Plot the SED E^2 dN/dE against E / E_max so the Thomson,
   // isotropic kernel f(q) = 2q ln q + q + 1 - 2q^2 fills the panel: a broad
   // bump that peaks below E_max and cuts off sharply there.
-  const sedTop = padT + plotH * 0.60, sedBase = padT + plotH * 0.90, sedH = sedBase - sedTop;
+  const sedTop = padT + plotH * 0.56, sedBase = padT + plotH * 0.94, sedH = sedBase - sedTop;
   const sx0 = padL, sx1 = padL + plotW, qMax = 1.12;
   const qToX = (q) => sx0 + (sx1 - sx0) * q / qMax;
   ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';

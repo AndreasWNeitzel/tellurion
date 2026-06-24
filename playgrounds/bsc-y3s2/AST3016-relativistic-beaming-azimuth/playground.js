@@ -38,7 +38,7 @@ const st = {
 // The lab-frame lobe sits in the right of the scene band; the isotropic
 // rest-frame sphere sits to its left at the same scale, so the pair reads as
 // "isotropic source, boosted, beams forward". Diagnostic fills the lower half.
-const CX = Math.round(W * 0.60), CY = Math.round(H * 0.26), SC = 150;
+const CX = Math.round(W * 0.60), CY = Math.round(H * 0.29), SC = 168;
 function proj(x, y, z) {
   const ca = Math.cos(st.az), sa = Math.sin(st.az);
   const ey = y * ca - z * sa;
@@ -125,7 +125,7 @@ function drawRestInset() {
   // The rest-frame emission is isotropic: a plain sphere, drawn to the LEFT of
   // the lab-frame lobe at the same scale, with a boost arrow between them, so
   // the comparison fills the scene band instead of hiding in a corner.
-  const ix = Math.round(W * 0.20), iy = CY, r = 66;
+  const ix = Math.round(W * 0.20), iy = CY, r = 80;
   ctx.strokeStyle = 'rgba(160,170,190,0.45)'; ctx.lineWidth = 1;
   for (let k = 0; k < 6; k += 1) {
     ctx.beginPath();
@@ -174,7 +174,7 @@ function drawDiagPanel() {
   // RIGHT-side panel: intensity I(theta_lab) = D(theta_lab)^{3+alpha}
   // vs theta_lab on a log y-axis. Shows the headlight effect
   // mathematically: a sharp peak at theta=0 whose width is ~ 1/gamma.
-  const py0 = Math.round(H * 0.47);
+  const py0 = Math.round(H * 0.41);
   const px = 60, py = py0, pw = W - 120, ph = H - py0 - 40;
   ctx.fillStyle = 'rgba(15, 22, 36, 0.85)'; ctx.fillRect(px, py, pw, ph);
   ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)'; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);

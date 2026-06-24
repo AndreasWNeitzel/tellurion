@@ -133,8 +133,21 @@ function render() {
     const rPadL = padL, rPadR = 8;
     const splitY = rTop + (H - rTop - padB) * 0.46;
     // Emission animation sub-panel.
-    const ecx = (rPadL + W - rPadR) / 2, ecy = (rTop + splitY) / 2;
-    const orbR = Math.min((W - rPadR - rPadL), (splitY - rTop)) * 0.30;
+    const orbR = Math.min((W - rPadR - rPadL), (splitY - rTop)) * 0.40;
+    // Orbit on the left third; an explicit observer detector sits on the
+    // right and a line of sight crosses the band, so it fills horizontally
+    // (the beam sweeping past that detector is the pulse train).
+    const ecx = rPadL + orbR + 40, ecy = (rTop + splitY) / 2;
+    const obsX = W - rPadR - 26;
+    // B field (gyration axis) marker on the far left.
+    ctx.strokeStyle = 'rgba(123,211,252,0.6)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(rPadL + 6, ecy + orbR * 0.7); ctx.lineTo(rPadL + 6, ecy - orbR * 0.7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rPadL + 2, ecy - orbR * 0.55); ctx.lineTo(rPadL + 6, ecy - orbR * 0.7); ctx.lineTo(rPadL + 10, ecy - orbR * 0.55); ctx.stroke();
+    ctx.fillStyle = 'rgba(123,211,252,0.8)'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'left';
+    ctx.fillText('B', rPadL + 12, ecy - orbR * 0.7 + 4);
+    // line of sight from the orbit to the observer
+    ctx.strokeStyle = 'rgba(150,160,180,0.25)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(ecx + orbR, ecy); ctx.lineTo(obsX - 10, ecy); ctx.stroke(); ctx.setLineDash([]);
     ctx.strokeStyle = '#2c2f36'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(ecx, ecy, orbR, 0, 2 * Math.PI); ctx.stroke();
     ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
@@ -158,11 +171,16 @@ function render() {
     const obsDir = 0;
     const dphi = Math.abs(((vdir - obsDir + Math.PI) % (2 * Math.PI)) - Math.PI);
     const hit = Math.exp(-(dphi * dphi) / (2 * halfBeam * halfBeam));
-    const stripY = splitY - 16, sx0 = rPadL, sx1 = W - rPadR;
-    ctx.strokeStyle = '#3a3d44'; ctx.beginPath(); ctx.moveTo(sx0, stripY); ctx.lineTo(sx1, stripY); ctx.stroke();
-    ctx.fillStyle = '#ffd166';
-    ctx.fillRect(sx1 - 4, stripY - 22 * hit, 4, 22 * hit);
-    ctx.fillStyle = '#9aa0a6'; ctx.fillText('observed pulse ->', sx0, stripY - 4);
+    // Detector glyph on the right, glowing when the cone points at it.
+    const og = ctx.createRadialGradient(obsX, ecy, 0, obsX, ecy, 22);
+    og.addColorStop(0, `rgba(255,209,102,${0.85 * hit})`); og.addColorStop(1, 'rgba(255,209,102,0)');
+    ctx.fillStyle = og; ctx.beginPath(); ctx.arc(obsX, ecy, 22, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = 'rgba(200,210,235,0.7)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(obsX, ecy, 9, 0, 2 * Math.PI); ctx.stroke();
+    ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(obsX, ecy, 4 + 3 * hit, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = '#9aa0a6'; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center';
+    ctx.fillText('observer', obsX, ecy + 26);
+    ctx.textAlign = 'left';
 
     // N(gamma) sub-panel (bottom).
     const rPadT2 = splitY + 14;
