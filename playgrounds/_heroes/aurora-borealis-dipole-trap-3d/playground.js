@@ -1,9 +1,18 @@
-// Aurora borealis playground. Canvas2D 3D-projected Earth + dipole field
-// lines + a swarm of charged particles integrated by the Boris pusher.
-// Atmospheric excitation lights up the auroral oval. See sim.js for the
-// integration; references Stormer 1955 and the Boris 1970 pusher.
+// Aurora borealis playground. Canvas2D 3D-projected Earth with its dipole
+// field lines and a population of trapped charged particles. Each particle
+// spirals (gyrates) along a field line and bounces between magnetic mirror
+// points; the ones whose mirror point falls below the atmosphere sit in the
+// loss cone and precipitate, lighting the auroral oval near the poles. The
+// magnetic-bottle field profile and the precipitation latitude are shown as
+// diagnostics. See sim.js for the dipole geometry and mirror relations.
+// References: Stormer 1955 (`stormer1955`); Kivelson and Russell 1995
+// (`kivelson-russell-1995`); Jackson, Classical Electrodynamics, Ch. 12.
 
-import { stepLorentz, dipoleField, spawnParticle, checkAuroralExcitation, REARTH, RAURORA } from './sim.js';
+import {
+  dipoleField, borisPush, stepLorentz, spawnParticle, checkAuroralExcitation,
+  bRatioAlongLine, mirrorLatitude, footLatitude, lossConeAngle, linePoint, lineTangent,
+  REARTH, RAURORA,
+} from './sim.js';
 import { prefersReducedMotion } from '../../../shared/js/controls/motion-preference.js';
 import { parseUrlState, mountShareButton } from '../../../shared/js/controls/share-state.js';
 import { fontString } from '../../../shared/js/canvas-type.js';
@@ -23,27 +32,31 @@ const rStep = document.getElementById('readout-step');
 const sInject = document.getElementById('slider-inject'), vInject = document.getElementById('value-inject');
 const sMdip = document.getElementById('slider-mdip'), vMdip = document.getElementById('value-mdip');
 const sSpeed = document.getElementById('slider-speed'), vSpeed = document.getElementById('value-speed');
+const sPitch = document.getElementById('slider-pitch'), vPitch = document.getElementById('value-pitch');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 
+const SCENE_H = 660;   // 3D scene occupies the top; diagnostics sit below
+
 const st = {
-  inject: 3, mdip: 1.4, speed: 2, tilt: 0.5, az: 0.6, zoom: 1.2,
+  inject: 3, mdip: 1.4, speed: 2, pitchDeg: 30,
+  tilt: 0.42, az: 0.6, zoom: 1.42,
   running: !prefersReducedMotion(),
-  particles: [], hits: [], nSteps: 0, nHits: 0,
-  MAX_PARTICLES: 420, MAX_HITS: 120,
-  // Diagnostic: hits binned by magnetic latitude (in degrees, -90..+90).
-  latHist: new Int32Array(36),
-  // Time series of particle count.
-  particleCountHistory: [],
+  particles: [], hits: [], nSteps: 0, nHits: 0, t: 0,
+  MAX_PARTICLES: 220,
+  latHist: new Float64Array(36),   // precipitation binned by magnetic latitude
 };
 
-// Deterministic LCG so animation is reproducible.
+// Deterministic LCG so the animation is reproducible.
 let _seed = 0xC0FFEE;
 function rand() {
   _seed = (_seed * 1664525 + 1013904223) | 0;
   return ((_seed >>> 0) % 0xFFFFFFFF) / 0xFFFFFFFF;
 }
 
+// =========================================================================
+// 3D projection (azimuth + tilt + zoom), restricted to the scene region.
+// =========================================================================
 function project(x, y, z) {
   const ca = Math.cos(st.az), sa = Math.sin(st.az);
   const xp = ca * x - sa * z;
@@ -51,86 +64,192 @@ function project(x, y, z) {
   const ct = Math.cos(st.tilt), stl = Math.sin(st.tilt);
   const yp = ct * y - stl * zp;
   const zr = stl * y + ct * zp;
-  // Camera distance is divided by zoom: zoom > 1 brings camera closer
-  // (larger Earth, finer field-line detail visible).
   const cam = 15 / Math.max(0.4, Math.min(6, st.zoom));
-  const f = 380 / (cam + zr);
-  return { x: W * 0.5 + f * xp, y: H * 0.54 - f * yp, depth: cam + zr, scale: f / 25 };
+  const f = 360 / (cam + zr);
+  return { x: W * 0.5 + f * xp, y: SCENE_H * 0.49 - f * yp, depth: cam + zr, scale: f / 25 };
 }
 
-function fieldLineFrom(L_shell) {
-  // Closed dipole field line parameterized by latitude lambda
-  //   r(lambda) = L_shell * cos^2(lambda)
-  // Return array of (x, y, z) in the y=0 plane.
-  const pts = [];
-  for (let i = 0; i <= 64; i += 1) {
-    const lam = -Math.PI / 2 + Math.PI * (i / 64);
-    const r = L_shell * Math.cos(lam) * Math.cos(lam);
-    if (r < REARTH * 0.95) continue;
-    pts.push([r * Math.cos(lam), r * Math.sin(lam), 0]);
+// =========================================================================
+// Trapped-particle population. Each particle lives on a field line (L,
+// phi), bounces in latitude with amplitude lamAmp, gyrates around the
+// line, and slowly drifts in longitude. Loss-cone particles precipitate
+// at the foot and respawn.
+// =========================================================================
+const PRECIP_COL = [120, 240, 150];   // green: precipitating (aurora)
+const TRAP_COL = [150, 200, 255];     // blue: trapped (radiation belt)
+
+// Two physical populations. The aurora is fed by a field-aligned beam
+// from the outer magnetosphere (the plasma sheet, mapping to the outer
+// shells L ~ 5-6.5, foot latitude ~ 64 deg): those particles sit inside
+// the loss cone and precipitate at the oval. The inner-to-mid shells hold
+// the trapped radiation belt, with large pitch angles that mirror well
+// above the atmosphere. The pitch-angle control sets how field-aligned
+// the source is, hence the fraction that precipitates.
+function spawnTrapped() {
+  const sourceFrac = Math.min(0.85, Math.max(0.05, (92 - st.pitchDeg) / 90));
+  const meanA = st.pitchDeg * Math.PI / 180;
+  const phi = rand() * 2 * Math.PI;
+  let L, alphaEq, precip;
+  if (rand() < sourceFrac) {
+    // Outer-shell field-aligned beam: precipitates at the auroral oval.
+    L = 5.2 + 1.3 * rand();                  // 5.2 .. 6.5
+    precip = true;
+    alphaEq = Math.max(0.05, lossConeAngle(L, RAURORA) * (0.25 + 0.5 * rand()));
+  } else {
+    // Trapped belt: inner-to-mid shells, kept above the local loss cone.
+    L = 2.0 + 4.2 * rand();                  // 2.0 .. 6.2
+    const lc = lossConeAngle(L, RAURORA);
+    alphaEq = Math.max(lc + 0.10, Math.min(Math.PI / 2, meanA + (rand() - 0.5) * 0.7));
+    precip = false;
   }
-  return pts;
+  const lamM = mirrorLatitude(alphaEq);
+  const lamFoot = footLatitude(L, RAURORA);
+  const lossCone = lossConeAngle(L, RAURORA);
+  const lamAmp = precip ? lamFoot : Math.min(lamM, 1.45);
+  return {
+    L, phi, alphaEq, lamM, lamFoot, lossCone, precip, lamAmp,
+    bouncePhase: precip ? 0.001 : rand() * Math.PI * 2,
+    bounceDir: rand() < 0.5 ? 1 : -1,
+    gyro: rand() * Math.PI * 2,
+    driftSign: precip ? 0 : (rand() < 0.5 ? 1 : -1),
+    trail: [],
+    born: st.t,
+    life: 7 + rand() * 6,                     // belt particles recycle so pitch changes propagate
+  };
+}
+
+function particlePos(p) {
+  // Latitude from the bounce phase: lam = amp sin(phase). The mapping
+  // slows the particle near the mirror (d lam/d phase -> 0 there), the
+  // visible signature of the magnetic mirror.
+  const lam = p.lamAmp * Math.sin(p.bouncePhase);
+  const gc = linePoint(p.L, p.phi, lam);
+  // Gyration: offset perpendicular to the field line so the trail is a
+  // helix. Stronger dipole => smaller gyroradius.
+  const T = lineTangent(p.phi, lam);
+  const ePhi = [-Math.sin(p.phi), 0, Math.cos(p.phi)];           // azimuthal, ⊥ tangent
+  const N = [T[1] * ePhi[2] - T[2] * ePhi[1],
+             T[2] * ePhi[0] - T[0] * ePhi[2],
+             T[0] * ePhi[1] - T[1] * ePhi[0]];                   // tangent × ePhi
+  const rg = (0.055 + 0.03 * Math.sin(p.alphaEq)) / Math.max(0.5, st.mdip) * (0.55 + p.L * 0.09);
+  const cg = Math.cos(p.gyro), sg = Math.sin(p.gyro);
+  return [
+    gc[0] + rg * (cg * ePhi[0] + sg * N[0]),
+    gc[1] + rg * (cg * ePhi[1] + sg * N[1]),
+    gc[2] + rg * (cg * ePhi[2] + sg * N[2]),
+    lam,
+  ];
+}
+
+function depositHit(p, lam) {
+  const foot = linePoint(p.L, p.phi, lam);
+  const latDeg = lam * 180 / Math.PI;
+  st.hits.push({ x: foot[0], y: foot[1], z: foot[2], age: 0, latDeg });
+  if (st.hits.length > 140) st.hits.shift();
+  st.nHits += 1;
+  const bin = Math.max(0, Math.min(35, Math.floor((latDeg + 90) / 5)));
+  st.latHist[bin] += 1;
+}
+
+function update(dt) {
+  st.t += dt;
+  // Keep the population near the requested size.
+  const target = 30 + st.inject * 30;
+  while (st.particles.length < Math.min(st.MAX_PARTICLES, target)) {
+    st.particles.push(spawnTrapped());
+  }
+  while (st.particles.length > Math.min(st.MAX_PARTICLES, target)) {
+    st.particles.pop();
+  }
+  for (let i = st.particles.length - 1; i >= 0; i -= 1) {
+    const p = st.particles[i];
+    // Bounce frequency: faster for stronger field / smaller shell.
+    const bounceRate = 1.7 * Math.sqrt(st.mdip) / Math.sqrt(p.L);
+    const prevPhase = p.bouncePhase;
+    p.bouncePhase += p.bounceDir * bounceRate * dt;
+    // Gyration is fast relative to the bounce.
+    p.gyro += dt * (9 + 5 * st.mdip);
+    // Longitudinal drift (gradient-curvature): the slow ring-current motion.
+    p.phi += p.driftSign * 0.05 * dt * (p.L / 4);
+
+    if (p.precip) {
+      // Precipitating particle: travels equator -> foot. When the bounce
+      // phase first crosses +/- pi/2 it has reached the foot: light the
+      // aurora and respawn a fresh particle on the requested distribution.
+      const crossed = (prevPhase < Math.PI / 2 && p.bouncePhase >= Math.PI / 2)
+                   || (prevPhase > -Math.PI / 2 && p.bouncePhase <= -Math.PI / 2)
+                   || Math.abs(p.bouncePhase) > Math.PI / 2;
+      if (crossed) {
+        const lam = p.bounceDir > 0 ? p.lamAmp : -p.lamAmp;
+        depositHit(p, lam);
+        st.particles[i] = spawnTrapped();
+        continue;
+      }
+    } else {
+      // Trapped particle: reflect the bounce at +/- pi/2 (the mirror points).
+      if (p.bouncePhase > Math.PI / 2) { p.bouncePhase = Math.PI - p.bouncePhase; p.bounceDir = -1; }
+      if (p.bouncePhase < -Math.PI / 2) { p.bouncePhase = -Math.PI - p.bouncePhase; p.bounceDir = 1; }
+      // Recycle after a finite life so pitch-angle changes propagate.
+      if (st.t - p.born > p.life) { st.particles[i] = spawnTrapped(); continue; }
+    }
+
+    // Trail of recent positions for the helix streak.
+    const pos = particlePos(p);
+    p.trail.push([pos[0], pos[1], pos[2]]);
+    if (p.trail.length > 14) p.trail.shift();
+  }
+  st.nSteps += 1;
+}
+
+// =========================================================================
+// SCENE RENDERING.
+// =========================================================================
+function drawStarfield() {
+  ctx.fillStyle = '#060608';
+  ctx.fillRect(0, 0, W, H);
+  let s = 7;
+  ctx.fillStyle = 'rgba(180, 200, 255, 0.2)';
+  for (let i = 0; i < 200; i += 1) {
+    s = (s * 16807) | 0; const u = ((s >>> 0) % 0xFFFFFFFF) / 0xFFFFFFFF;
+    s = (s * 16807) | 0; const v = ((s >>> 0) % 0xFFFFFFFF) / 0xFFFFFFFF;
+    if (v * H < SCENE_H) ctx.fillRect(u * W, v * H, 1, 1);
+  }
 }
 
 function drawFieldLines() {
-  // Closed dipole field lines for several L-shells. Brightened from
-  // the previous nearly-invisible alpha (0.10) so the magnetic
-  // structure that guides charged particles to the poles is plainly
-  // visible. More azimuthal samples (8) give the lines a "cage"
-  // appearance.
-  ctx.lineWidth = 1.1;
-  for (const Lshell of [1.6, 2.2, 3.0, 4.0, 5.0, 6.5]) {
-    const azs = [0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4, Math.PI, 5 * Math.PI / 4, 3 * Math.PI / 2, 7 * Math.PI / 4];
+  // Nested dipole field lines (the magnetic bottle) for several L-shells,
+  // each at a few longitudes so the structure reads as a 3D cage. Lines
+  // run from foot to foot (they start at the atmosphere, not the core).
+  ctx.lineWidth = 1.0;
+  for (const L of [2, 3, 4, 5, 6.3]) {
+    const lamF = footLatitude(L, REARTH);
+    const azs = [0, Math.PI / 3, 2 * Math.PI / 3, Math.PI, 4 * Math.PI / 3, 5 * Math.PI / 3];
     for (const az0 of azs) {
-      const ca = Math.cos(az0), sa = Math.sin(az0);
-      ctx.strokeStyle = `rgba(160, 200, 250, ${(0.22 + 0.10 * (Lshell / 6)).toFixed(2)})`;
+      ctx.strokeStyle = `rgba(120, 170, 235, ${(0.12 + 0.07 * (L / 6.3)).toFixed(3)})`;
       ctx.beginPath();
-      const line = fieldLineFrom(Lshell);
-      for (let k = 0; k < line.length; k += 1) {
-        const x = line[k][0] * ca - line[k][2] * sa;
-        const z = line[k][0] * sa + line[k][2] * ca;
-        const y = line[k][1];
-        const p = project(x, y, z);
-        if (k === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      const NS = 80;
+      for (let k = 0; k <= NS; k += 1) {
+        const lam = -lamF + (2 * lamF) * (k / NS);
+        const q = linePoint(L, az0, lam);
+        const pr = project(q[0], q[1], q[2]);
+        if (k === 0) ctx.moveTo(pr.x, pr.y); else ctx.lineTo(pr.x, pr.y);
       }
       ctx.stroke();
     }
   }
 }
 
-// Ionosphere shell: translucent sphere at R = 1.05 R_E that the
-// auroral oval sits on. Drawn AFTER the field lines and BEFORE the
-// Earth so the structure reads as nested layers (B field outside,
-// ionosphere shell, Earth at the centre).
-function drawIonosphere() {
-  const center = project(0, 0, 0);
-  const refR = project(REARTH * 1.06, 0, 0);
-  const Rpx = Math.hypot(refR.x - center.x, refR.y - center.y);
-  const g = ctx.createRadialGradient(center.x, center.y, Rpx * 0.93, center.x, center.y, Rpx);
-  g.addColorStop(0, 'rgba(60, 180, 230, 0.00)');
-  g.addColorStop(0.85, 'rgba(60, 180, 230, 0.12)');
-  g.addColorStop(1, 'rgba(120, 220, 255, 0.22)');
-  ctx.fillStyle = g;
-  ctx.beginPath(); ctx.arc(center.x, center.y, Rpx, 0, Math.PI * 2); ctx.fill();
-}
-
 function drawEarth() {
-  // Render Earth as a shaded sphere. Compute the projected radius via
-  // the camera scale at the origin, which is sign-independent and
-  // always positive.
   const center = project(0, 0, 0);
-  const R = Math.max(8, center.scale * 80);   // map "1 world unit" -> pixels
-  // Globe
+  const R = Math.max(8, center.scale * 80);
   const g = ctx.createRadialGradient(center.x - R * 0.3, center.y - R * 0.3, R * 0.1, center.x, center.y, R);
   g.addColorStop(0, '#3b6eb0');
   g.addColorStop(0.6, '#1a3a66');
   g.addColorStop(1, '#0b1e36');
   ctx.fillStyle = g;
   ctx.beginPath(); ctx.arc(center.x, center.y, R, 0, Math.PI * 2); ctx.fill();
-  // Equator + meridians
-  ctx.strokeStyle = 'rgba(180, 200, 255, 0.18)';
-  ctx.lineWidth = 1;
-  // Equator: y=0 great circle in the rotated frame
+  // Equator great circle.
+  ctx.strokeStyle = 'rgba(180, 200, 255, 0.16)'; ctx.lineWidth = 1;
   ctx.beginPath();
   for (let k = 0; k <= 64; k += 1) {
     const phi = (k / 64) * 2 * Math.PI;
@@ -138,301 +257,223 @@ function drawEarth() {
     if (k === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
   }
   ctx.stroke();
-  // Polar axis
-  const top = project(0, 1.4, 0);
-  const bot = project(0, -1.4, 0);
-  ctx.strokeStyle = 'rgba(255, 209, 102, 0.4)';
-  ctx.lineWidth = 1.4;
+  // Magnetic axis.
+  const top = project(0, 1.5, 0), bot = project(0, -1.5, 0);
+  ctx.strokeStyle = 'rgba(255, 209, 102, 0.45)'; ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.moveTo(top.x, top.y); ctx.lineTo(bot.x, bot.y); ctx.stroke();
 }
 
-function drawMirrorBoundary() {
-  // Visual representation of the magnetic-mirror effect: a
-  // semitransparent equatorial band where particles are forbidden
-  // (they reflect before reaching here). This makes the dipole-trap
-  // physics visceral: particles CANNOT enter low magnetic latitudes.
-  // Boundary sits at approximately 50 degrees magnetic latitude
-  // (beyond which the mirroring force becomes very strong).
-  const boundLat = 50;
-  const lamB = (90 - boundLat) * Math.PI / 180;
-  const r = REARTH * 1.045;
-  ctx.fillStyle = 'rgba(255, 100, 100, 0.08)';  // dim red: forbidden zone
-  ctx.beginPath();
-  // Draw the forbidden zone as a band from -50 to +50 latitude.
-  for (let k = 0; k <= 96; k += 1) {
-    const phi = (k / 96) * 2 * Math.PI;
-    const x = r * Math.sin(lamB) * Math.cos(phi);
-    const z = r * Math.sin(lamB) * Math.sin(phi);
-    const y = r * Math.cos(lamB);
-    const p = project(x, y, z);
-    if (k === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-  }
-  for (let k = 96; k >= 0; k -= 1) {
-    const phi = (k / 96) * 2 * Math.PI;
-    const x = r * Math.sin(lamB) * Math.cos(phi);
-    const z = r * Math.sin(lamB) * Math.sin(phi);
-    const y = -r * Math.cos(lamB);
-    const p = project(x, y, z);
-    ctx.lineTo(p.x, p.y);
-  }
-  ctx.closePath();
-  ctx.fill();
-}
-
 function drawAuroralOval() {
-  // Auroral oval at magnetic latitude ~ 67 deg, drawn as a thick glowing
-  // GREEN BAND on the ionosphere shell (north = borealis, south =
-  // australis). Two concentric rings (66 deg, 68 deg) shaded inwards
-  // give the visual impression of a continuous band.
+  // A faint base ring at the mean precipitation latitude on each pole,
+  // brightened in real time by the live hit glows.
   for (const sign of [1, -1]) {
-    for (let layer = 0; layer < 3; layer += 1) {
-      const latDeg = 67 + (layer - 1) * 1.6;
-      const lamA = (90 - latDeg) * Math.PI / 180;
-      const alpha = sign > 0 ? (0.85 - layer * 0.18) : (0.55 - layer * 0.12);
-      ctx.strokeStyle = `rgba(80, 235, 130, ${alpha.toFixed(2)})`;
-      ctx.lineWidth = 3.5 - layer * 0.8;
-      ctx.shadowColor = 'rgba(80, 235, 130, 0.6)';
-      ctx.shadowBlur = layer === 1 ? 12 : 0;
-      ctx.beginPath();
-      for (let k = 0; k <= 96; k += 1) {
-        const phi = (k / 96) * 2 * Math.PI;
-        const r = REARTH * 1.04;
-        const x = r * Math.sin(lamA) * Math.cos(phi);
-        const z = r * Math.sin(lamA) * Math.sin(phi);
-        const y = sign * r * Math.cos(lamA);
-        const p = project(x, y, z);
-        if (k === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-      }
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+    const latDeg = 64;
+    const lam = sign * latDeg * Math.PI / 180;
+    ctx.strokeStyle = 'rgba(90, 230, 140, 0.30)';
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    for (let k = 0; k <= 96; k += 1) {
+      const phi = (k / 96) * 2 * Math.PI;
+      const r = REARTH * 1.03;
+      const x = r * Math.cos(lam) * Math.cos(phi);
+      const z = r * Math.cos(lam) * Math.sin(phi);
+      const y = r * Math.sin(lam);
+      const p = project(x, y, z);
+      if (k === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
     }
-    // Labels, placed well clear of the globe along the polar axis.
-    const p = project(0, sign * 2.15, 0);
+    ctx.stroke();
+    const lp = project(0, sign * 2.15, 0);
     ctx.fillStyle = 'rgba(110, 240, 150, 0.9)';
     ctx.font = fontString(canvas, 'caption', 'mono');
     ctx.textAlign = 'center';
-    ctx.fillText(sign > 0 ? 'aurora borealis (N)' : 'aurora australis (S)', p.x, p.y);
+    ctx.fillText(sign > 0 ? 'aurora borealis (N)' : 'aurora australis (S)', lp.x, lp.y);
     ctx.textAlign = 'left';
   }
 }
 
 function drawParticles() {
-  // Each particle is drawn as a short streak along its velocity, so
-  // the incoming solar wind reads as a directed flow rather than a
-  // dot cloud. Colour encodes the phase: cool blue in the free
-  // streaming region, pale blue once gyrating in the magnetosphere,
-  // and green as it magnetises and funnels along a field line toward
-  // a pole. Z-ordered back-to-front.
-  const ps = st.particles.map((p) => ({ p, proj: project(p.x, p.y, p.z) }));
-  ps.sort((a, b) => b.proj.depth - a.proj.depth);
-  for (const { p, proj } of ps) {
-    if (proj.x < -30 || proj.x > W + 30 || proj.y < -30 || proj.y > H + 30) continue;
-    const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
-    const sp = Math.sqrt(p.vx * p.vx + p.vy * p.vy + p.vz * p.vz) || 1e-6;
-    const k = 0.7 / sp;                              // streak ~ fixed world length
-    const tail = project(p.x - p.vx * k, p.y - p.vy * k, p.z - p.vz * k);
-    const sinLat = Math.abs(p.y) / Math.max(1e-6, r);
-    let col;
-    if (r > 4.6) col = 'rgba(140, 190, 255, 0.5)';            // free solar wind
-    else if (sinLat > 0.6) col = 'rgba(120, 240, 160, 0.95)';  // funnelling to a pole
-    else col = 'rgba(195, 220, 255, 0.85)';                    // gyrating / trapped
-    ctx.strokeStyle = col;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(tail.x, tail.y); ctx.lineTo(proj.x, proj.y); ctx.stroke();
-    ctx.fillStyle = col;
-    ctx.beginPath(); ctx.arc(proj.x, proj.y, 1.4, 0, 2 * Math.PI); ctx.fill();
+  const items = st.particles.map((p) => {
+    const pos = particlePos(p);
+    return { p, pos, proj: project(pos[0], pos[1], pos[2]) };
+  });
+  items.sort((a, b) => b.proj.depth - a.proj.depth);
+  for (const { p, proj } of items) {
+    if (proj.y > SCENE_H + 20) continue;
+    const col = p.precip ? PRECIP_COL : TRAP_COL;
+    // Helix trail.
+    if (p.trail.length > 1) {
+      ctx.lineWidth = 1.3;
+      for (let k = 1; k < p.trail.length; k += 1) {
+        const a = project(p.trail[k - 1][0], p.trail[k - 1][1], p.trail[k - 1][2]);
+        const b = project(p.trail[k][0], p.trail[k][1], p.trail[k][2]);
+        const al = (k / p.trail.length) * (p.precip ? 0.7 : 0.45);
+        ctx.strokeStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${al.toFixed(3)})`;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+    }
+    // Head.
+    ctx.fillStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0.95)`;
+    ctx.beginPath(); ctx.arc(proj.x, proj.y, p.precip ? 1.9 : 1.5, 0, 2 * Math.PI); ctx.fill();
   }
 }
 
-function drawAuroraHits() {
-  // Fade-out the recent auroral-emission deposits.
+function drawHits() {
   for (let i = st.hits.length - 1; i >= 0; i -= 1) {
     const h = st.hits[i];
     h.age += 1;
-    if (h.age > 60) { st.hits.splice(i, 1); continue; }
-    const a = (1 - h.age / 60) * 0.85;
-    const col = h.color === 'green'
-      ? `rgba(80, 235, 130, ${a.toFixed(2)})`
-      : `rgba(245, 100, 100, ${a.toFixed(2)})`;
+    if (h.age > 70) { st.hits.splice(i, 1); continue; }
+    const a = (1 - h.age / 70) * 0.5;
     const p = project(h.x, h.y, h.z);
-    // Glow
-    const r = 14 + (1 - h.age / 60) * 8;
+    if (p.y > SCENE_H + 20) continue;
+    const r = 8 + (1 - h.age / 70) * 6;
     const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
-    g.addColorStop(0, col);
-    g.addColorStop(1, col.replace(/\d.\d+\)$/, '0)'));
+    g.addColorStop(0, `rgba(120, 250, 160, ${a.toFixed(3)})`);
+    g.addColorStop(1, 'rgba(120, 250, 160, 0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 2 * Math.PI); ctx.fill();
   }
 }
 
-function update(dt) {
-  // Inject new particles.
-  for (let k = 0; k < st.inject; k += 1) {
-    if (st.particles.length < st.MAX_PARTICLES) {
-      const p = spawnParticle(rand);
-      p.v0 = Math.hypot(p.vx, p.vy, p.vz);   // speed at injection (Boris conserves it)
-      st.particles.push(p);
-    }
-  }
-  // Step each particle.
-  for (let i = st.particles.length - 1; i >= 0; i -= 1) {
-    const p = st.particles[i];
-    // q/m raised so the gyroradius is far smaller than the field-line
-    // scale near Earth: the particle becomes magnetised, follows the
-    // converging field lines, and funnels to the poles. Far out the
-    // field is negligible so the stream still travels nearly straight.
-    stepLorentz(p, dt, 8.0, st.mdip);
-    p.age += dt;
-    // Track minimum magnetic latitude reached (the mirror point where
-    // the particle reflects). This demonstrates why particles don't
-    // reach the equator: the field converges toward the poles, forcing
-    // a reversal before low latitudes are reached.
-    const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
-    const sinLat = Math.abs(p.y) / Math.max(1e-6, r);
-    const latDeg = Math.asin(sinLat) * 180 / Math.PI;
-    if (latDeg < p.minMagLat) p.minMagLat = latDeg;
-    // Check excitation
-    const color = checkAuroralExcitation(p);
-    if (color) {
-      // Snap a hit at the impact position.
-      st.hits.push({ x: p.x, y: p.y, z: p.z, color, age: 0 });
-      if (st.hits.length > st.MAX_HITS) st.hits.shift();
-      st.nHits += 1;
-      // Bin the impact by magnetic latitude (= asin(y / |r|)) into a
-      // 36-bin histogram from -90 to +90 deg. The bimodal peaks at
-      // +/- 67 deg are the auroral ovals.
-      const latDegImp = Math.asin(p.y / Math.max(1e-9, r)) * 180 / Math.PI;
-      const bin = Math.max(0, Math.min(35, Math.floor((latDegImp + 90) / 5)));
-      st.latHist[bin] += 1;
-      // Remove particle (it deposited its energy).
-      st.particles.splice(i, 1);
-      continue;
-    }
-    // Retire particles that escape or have lived long enough; keeping
-    // long-lived trapped particles only builds a stale cloud that
-    // hides the incoming stream.
-    const r2 = p.x * p.x + p.y * p.y + p.z * p.z;
-    if (r2 > 121 || p.age > 20) st.particles.splice(i, 1);
-  }
-  st.nSteps += 1;
-  // Sample particle count time series every 4 steps.
-  if (st.nSteps % 4 === 0) {
-    st.particleCountHistory.push(st.particles.length);
-    if (st.particleCountHistory.length > 240) st.particleCountHistory.shift();
-  }
+// =========================================================================
+// DIAGNOSTIC PANELS (bottom row).
+// =========================================================================
+function panel(x, y, w, h, title) {
+  ctx.fillStyle = 'rgba(16, 22, 36, 0.92)';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(150, 170, 210, 0.30)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.fillStyle = 'rgba(224, 232, 255, 0.94)';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.fillText(title, x + 8, y - 6);
 }
 
-// Diagnostic panels along the right-hand edge: hits-by-latitude
-// histogram and particle-count time series. These give the visualization
-// physical depth beyond the 3D scene.
-function drawDiagnostics() {
-  // Panel layout: 220 px wide column on the right.
-  const px = W - 232, py = 60, pw = 216;
-  // Hits-by-latitude histogram.
-  const hh = 130;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
-  ctx.fillRect(px, py, pw, hh);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, hh - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = fontString(canvas, 'caption', 'mono', 600);
-  ctx.fillText('hits / magnetic latitude', px + 8, py - 4);
-  // Histogram bars.
-  let hmax = 1;
-  for (let b = 0; b < 36; b += 1) if (st.latHist[b] > hmax) hmax = st.latHist[b];
-  const barW = (pw - 18) / 36;
-  for (let b = 0; b < 36; b += 1) {
-    const h = (st.latHist[b] / hmax) * (hh - 30);
-    // Latitude of this bin (degrees): -90 + (b + 0.5) * 5.
-    const lat = -90 + (b + 0.5) * 5;
-    // Colour: green near +- 67 (auroral oval), faint elsewhere.
-    const auroralBoost = Math.max(0, 1 - Math.abs(Math.abs(lat) - 67) / 12);
-    const r = Math.round(80 + 80 * auroralBoost);
-    const g = Math.round(180 + 40 * auroralBoost);
-    const bcol = Math.round(120 - 40 * auroralBoost);
-    ctx.fillStyle = `rgba(${r}, ${g}, ${bcol}, ${(0.5 + 0.45 * auroralBoost).toFixed(2)})`;
-    ctx.fillRect(px + 9 + b * barW, py + hh - 16 - h, barW - 0.6, h);
-  }
-  // Latitude tick labels.
-  ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  for (const tlat of [-90, -45, 0, 45, 90]) {
-    const x = px + 9 + ((tlat + 90) / 180) * (pw - 18);
-    ctx.fillText(`${tlat}°`, x - 6, py + hh - 4);
-  }
-  // Auroral-oval reference lines at +- 67 degrees.
-  ctx.strokeStyle = 'rgba(120, 220, 160, 0.65)';
-  ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
-  for (const tlat of [-67, 67]) {
-    const x = px + 9 + ((tlat + 90) / 180) * (pw - 18);
-    ctx.beginPath(); ctx.moveTo(x, py + 6); ctx.lineTo(x, py + hh - 18); ctx.stroke();
-  }
-  ctx.setLineDash([]);
+// The magnetic bottle: |B| along a field line vs magnetic latitude, with
+// the mirror line for the current mean pitch angle and the loss cone.
+function drawBottle(X, Y, Wd, Hd) {
+  panel(X, Y, Wd, Hd, 'the magnetic bottle:  |B| / B_eq  along a field line');
+  const padL = 44, padR = 14, padT = 16, padB = 28;
+  const pX = X + padL, pY = Y + padT, pW = Wd - padL - padR, pH = Hd - padT - padB;
+  const LAT = 80;                         // plot lambda in [-80, 80] deg
+  const Bcap = 16;                        // y-axis cap on B/B_eq
+  const xForLat = (deg) => pX + (deg + LAT) / (2 * LAT) * pW;
+  const yForB = (b) => pY + pH - (Math.min(b, Bcap) - 1) / (Bcap - 1) * pH;
 
-  // Particle-count time series.
-  const py2 = py + hh + 20, ph2 = 110;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.82)';
-  ctx.fillRect(px, py2, pw, ph2);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.30)';
-  ctx.strokeRect(px + 0.5, py2 + 0.5, pw - 1, ph2 - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = fontString(canvas, 'caption', 'mono', 600);
-  ctx.fillText('particle population N(t)', px + 8, py2 - 4);
-  const hist = st.particleCountHistory;
-  let nmax = 1;
-  for (const v of hist) if (v > nmax) nmax = v;
-  ctx.strokeStyle = 'rgba(140, 220, 255, 0.95)';
-  ctx.lineWidth = 1.6;
+  // Loss-cone shading for a representative outer shell (the oval feeder).
+  const Lrep = 5.85;
+  const lamFoot = footLatitude(Lrep, RAURORA) * 180 / Math.PI;
+  ctx.fillStyle = 'rgba(120, 240, 150, 0.10)';
+  ctx.fillRect(xForLat(lamFoot), pY, xForLat(LAT) - xForLat(lamFoot), pH);
+  ctx.fillRect(xForLat(-LAT), pY, xForLat(-lamFoot) - xForLat(-LAT), pH);
+
+  // Grid + axis labels.
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.strokeStyle = 'rgba(150, 170, 210, 0.10)';
+  for (const b of [1, 4, 8, 12, 16]) {
+    const yy = yForB(b);
+    ctx.beginPath(); ctx.moveTo(pX, yy); ctx.lineTo(pX + pW, yy); ctx.stroke();
+    ctx.fillStyle = 'rgba(176, 190, 224, 0.7)'; ctx.fillText(String(b), X + 6, yy + 4);
+  }
+  for (const d of [-80, -40, 0, 40, 80]) {
+    const xx = xForLat(d);
+    ctx.strokeStyle = 'rgba(150, 170, 210, 0.10)';
+    ctx.beginPath(); ctx.moveTo(xx, pY); ctx.lineTo(xx, pY + pH); ctx.stroke();
+    ctx.fillStyle = 'rgba(176, 190, 224, 0.7)';
+    ctx.fillText(`${d}`, xx - (d === 0 ? 3 : 9), pY + pH + 15);
+  }
+  ctx.fillStyle = 'rgba(150, 170, 210, 0.7)';
+  ctx.fillText('magnetic latitude (deg)', pX + pW - 150, pY + pH + 15);
+
+  // B(lambda) curve.
+  ctx.strokeStyle = 'rgba(140, 200, 255, 0.95)'; ctx.lineWidth = 2.0;
   ctx.beginPath();
-  for (let i = 0; i < hist.length; i += 1) {
-    const x = px + 9 + (i / Math.max(1, hist.length - 1)) * (pw - 18);
-    const y = py2 + ph2 - 10 - (hist[i] / nmax) * (ph2 - 28);
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  for (let k = 0; k <= 200; k += 1) {
+    const deg = -LAT + (2 * LAT) * (k / 200);
+    const b = bRatioAlongLine(deg * Math.PI / 180);
+    const yy = yForB(b);
+    const xx = xForLat(deg);
+    if (k === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
   ctx.stroke();
-  ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`N_max = ${nmax}`, px + 8, py2 + 14);
-  ctx.fillText(`now = ${st.particles.length}`, px + pw - 60, py2 + 14);
+
+  // Mirror line for the current mean pitch angle.
+  const meanA = st.pitchDeg * Math.PI / 180;
+  const bMirror = 1 / (Math.sin(meanA) ** 2);
+  const lamMdeg = mirrorLatitude(meanA) * 180 / Math.PI;
+  ctx.strokeStyle = 'rgba(255, 200, 90, 0.9)'; ctx.lineWidth = 1.3;
+  ctx.setLineDash([4, 4]);
+  const yM = yForB(bMirror);
+  ctx.beginPath(); ctx.moveTo(pX, yM); ctx.lineTo(pX + pW, yM); ctx.stroke();
+  for (const sgn of [1, -1]) {
+    const xm = xForLat(sgn * lamMdeg);
+    ctx.beginPath(); ctx.moveTo(xm, yM); ctx.lineTo(xm, pY + pH); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255, 210, 120, 0.95)';
+  ctx.fillText(`B_mirror (alpha_eq = ${st.pitchDeg.toFixed(0)} deg)`, pX + 6, Math.max(pY + 12, yM - 5));
+  ctx.fillStyle = 'rgba(120, 240, 150, 0.85)';
+  ctx.fillText('loss cone -> aurora', xForLat(lamFoot) + 4, pY + pH - 6);
 }
 
-function render() {
-  ctx.fillStyle = '#060608';
-  ctx.fillRect(0, 0, W, H);
-  // Faint starfield
-  let s = 7;
-  ctx.fillStyle = 'rgba(180, 200, 255, 0.2)';
-  for (let i = 0; i < 220; i += 1) {
-    s = (s * 16807) | 0;
-    const u = ((s >>> 0) % 0xFFFFFFFF) / 0xFFFFFFFF;
-    s = (s * 16807) | 0;
-    const v = ((s >>> 0) % 0xFFFFFFFF) / 0xFFFFFFFF;
-    ctx.fillRect(u * W, v * H, 1, 1);
+// Precipitation rate vs magnetic latitude (the auroral oval).
+function drawPrecip(X, Y, Wd, Hd) {
+  panel(X, Y, Wd, Hd, 'precipitation rate vs magnetic latitude');
+  const padL = 30, padR = 14, padT = 16, padB = 28;
+  const pX = X + padL, pY = Y + padT, pW = Wd - padL - padR, pH = Hd - padT - padB;
+  let hmax = 1;
+  for (let b = 0; b < 36; b += 1) if (st.latHist[b] > hmax) hmax = st.latHist[b];
+  const barW = pW / 36;
+  for (let b = 0; b < 36; b += 1) {
+    const h = (st.latHist[b] / hmax) * pH;
+    const lat = -90 + (b + 0.5) * 5;
+    const boost = Math.max(0, 1 - Math.abs(Math.abs(lat) - 64) / 14);
+    const rr = Math.round(90 + 50 * boost), gg = Math.round(190 + 40 * boost), bb = Math.round(140 - 40 * boost);
+    ctx.fillStyle = `rgba(${rr}, ${gg}, ${bb}, ${(0.55 + 0.4 * boost).toFixed(2)})`;
+    ctx.fillRect(pX + b * barW, pY + pH - h, barW - 0.6, h);
   }
+  // Auroral-oval reference lines.
+  ctx.strokeStyle = 'rgba(120, 230, 160, 0.7)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  for (const tl of [-64, 64]) {
+    const x = pX + ((tl + 90) / 180) * pW;
+    ctx.beginPath(); ctx.moveTo(x, pY); ctx.lineTo(x, pY + pH); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(176, 190, 224, 0.7)';
+  for (const tl of [-90, -45, 0, 45, 90]) {
+    const x = pX + ((tl + 90) / 180) * pW;
+    ctx.fillText(`${tl}`, x - (tl === 0 ? 3 : 9), pY + pH + 15);
+  }
+  ctx.fillStyle = 'rgba(120, 230, 160, 0.85)';
+  ctx.fillText('auroral oval', pX + ((64 + 90) / 180) * pW - 64, pY + 12);
+}
 
-  // Order: field lines behind, Earth, ionosphere shell, auroral oval,
-  // particles, hits in front. Ionosphere is a faint cyan glow ABOVE
-  // the surface that the green oval band sits on. The mirror boundary
-  // (forbidden equatorial zone) is drawn as a red band to show why
-  // particles do not precipitate at the equator.
+// =========================================================================
+// RENDER.
+// =========================================================================
+function render() {
+  drawStarfield();
   drawFieldLines();
   drawEarth();
-  drawIonosphere();
-  drawMirrorBoundary();
   drawAuroralOval();
   drawParticles();
-  drawAuroraHits();
+  drawHits();
 
-  // Top-left HUD
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  // HUD.
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
   ctx.font = fontString(canvas, 'caption', 'mono');
   ctx.textAlign = 'left';
-  ctx.fillText(`particles: ${st.particles.length}    aurora hits: ${st.nHits}    step: ${st.nSteps}`, 24, 22);
-  ctx.fillText('solar wind → magnetic mirror reflects particles back before the equator', 24, 40);
-  ctx.fillText('→ aurora rings the poles, never the equator (red = forbidden zone)', 24, 58);
+  const nPre = st.particles.reduce((a, p) => a + (p.precip ? 1 : 0), 0);
+  ctx.fillText(`trapped ${st.particles.length - nPre}   precipitating ${nPre}   aurora hits ${st.nHits}`, 18, 22);
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.8)';
+  ctx.fillText('particles spiral along field lines and bounce at the mirror points;', 18, 40);
+  ctx.fillText('the loss-cone fraction precipitates and lights the oval near the poles', 18, 58);
 
-  drawDiagnostics();
+  // Diagnostics row.
+  const gap = 12, dY = SCENE_H + 26, dH = H - dY - 12;
+  const dW = (W - 24 - gap) / 2;
+  drawBottle(12, dY, dW, dH);
+  drawPrecip(12 + dW + gap, dY, dW, dH);
 
   rN.textContent = String(st.particles.length);
   rHits.textContent = String(st.nHits);
@@ -441,28 +482,41 @@ function render() {
 
 function tick() {
   if (st.running) {
-    const dt = 0.04 * Math.max(1, st.speed);
-    for (let k = 0; k < st.speed; k += 1) update(dt / Math.max(1, st.speed));
+    const sub = Math.max(1, st.speed);
+    const dt = 0.05 * Math.max(0.5, st.speed) / sub;
+    for (let k = 0; k < sub; k += 1) update(dt);
   }
   render();
   requestAnimationFrame(tick);
 }
 
+// =========================================================================
+// CONTROLS.
+// =========================================================================
 function syncLabels() {
   vInject.textContent = String(st.inject);
   vMdip.textContent = st.mdip.toFixed(1);
   vSpeed.textContent = String(st.speed);
+  if (vPitch) vPitch.textContent = `${st.pitchDeg.toFixed(0)} deg`;
 }
 
 sInject.addEventListener('input', () => { st.inject = parseInt(sInject.value, 10); syncLabels(); });
 sMdip.addEventListener('input', () => { st.mdip = parseFloat(sMdip.value); syncLabels(); });
 sSpeed.addEventListener('input', () => { st.speed = parseInt(sSpeed.value, 10); syncLabels(); });
+if (sPitch) sPitch.addEventListener('input', () => {
+  // New particles spawn with the new pitch; precipitating beams respawn
+  // every bounce and belt particles recycle on their lifetime, so the
+  // change propagates through the population within a second or two.
+  st.pitchDeg = parseFloat(sPitch.value);
+  syncLabels();
+});
 btnReset.addEventListener('click', () => {
-  st.inject = 3; st.mdip = 1.4; st.speed = 2;
-  st.particles.length = 0; st.hits.length = 0; st.nHits = 0; st.nSteps = 0;
+  st.inject = 3; st.mdip = 1.4; st.speed = 2; st.pitchDeg = 30;
+  st.particles.length = 0; st.hits.length = 0; st.nHits = 0; st.nSteps = 0; st.t = 0;
   st.latHist.fill(0);
   _seed = 0xC0FFEE;
   sInject.value = '3'; sMdip.value = '1.4'; sSpeed.value = '2';
+  if (sPitch) sPitch.value = '30';
   syncLabels();
 });
 btnPause.addEventListener('click', () => {
@@ -471,45 +525,42 @@ btnPause.addEventListener('click', () => {
   btnPause.setAttribute('aria-pressed', String(!st.running));
 });
 
-// Camera is fully drag-controlled: horizontal drag orbits (azimuth),
-// vertical drag tilts. Wheel zooms. No camera slider (a slider for a
-// 3D view reads as broken; direct drag is the expected interaction).
+// Drag to orbit, wheel to zoom (restricted to the scene region).
 let dragging = false, lastX = 0, lastY = 0;
-function dragStart(x, y) { dragging = true; lastX = x; lastY = y; }
-function dragMove(x, y) {
-  if (!dragging) return;
-  st.az += (x - lastX) * 0.006;
-  st.tilt = Math.max(-1.45, Math.min(1.45, st.tilt + (y - lastY) * 0.006));
-  lastX = x; lastY = y;
-}
-canvas.addEventListener('pointerdown', (e) => { dragStart(e.clientX, e.clientY); canvas.setPointerCapture?.(e.pointerId); });
+canvas.addEventListener('pointerdown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const yCanvas = (e.clientY - rect.top) / rect.height * H;
+  if (yCanvas > SCENE_H) return;          // do not grab over the diagnostics
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  canvas.setPointerCapture?.(e.pointerId);
+});
 window.addEventListener('pointerup', () => { dragging = false; });
-window.addEventListener('pointermove', (e) => dragMove(e.clientX, e.clientY));
+window.addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  st.az += (e.clientX - lastX) * 0.006;
+  st.tilt = Math.max(-1.45, Math.min(1.45, st.tilt + (e.clientY - lastY) * 0.006));
+  lastX = e.clientX; lastY = e.clientY;
+});
 canvas.addEventListener('wheel', (e) => {
   e.preventDefault();
   st.zoom = Math.max(0.4, Math.min(6, st.zoom * Math.exp(-e.deltaY * 0.0015)));
 }, { passive: false });
 
-function getState() { return { seed: 0xC0FFEE }; }
-function restoreState() { /* nothing to restore beyond defaults */ }
+const SHARE_KEYS = {
+  mdip: { get: () => st.mdip, set: v => { st.mdip = parseFloat(v); sMdip.value = v; }, parse: parseFloat },
+  pitch: { get: () => st.pitchDeg, set: v => { st.pitchDeg = parseFloat(v); if (sPitch) sPitch.value = v; }, parse: parseFloat },
+};
 
 function bootSync() {
-  restoreState();
-  mountShareButton(document.getElementById('share-mount'), getState, { label: 'Copy URL' });
+  parseUrlState(SHARE_KEYS);
+  mountShareButton(document.getElementById('share-mount'), SHARE_KEYS);
   syncLabels();
   if (CAPTURE_NAME) {
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     st.az = 0.4 + f * 1.6;
-    // Cap particle budget for capture to keep gate within 30s. Particles need
-    // many steps to funnel down the field lines and reach the auroral altitude,
-    // so warm up long enough that hits accumulate and the latitude histogram
-    // is populated (an empty diagnostic reads as broken). With inject = 1 and a
-    // 30-particle cap each step is cheap, so a few hundred steps stay well
-    // inside the budget.
-    st.inject = 4;
-    st.MAX_PARTICLES = 80;
-    const steps = 900 + Math.floor(f * 300);
-    for (let n = 0; n < steps; n += 1) update(0.04);
+    st.pitchDeg = 18 + f * 30;             // sweep pitch angle across the frames
+    // Warm up so the population, trails, and precipitation histogram fill.
+    for (let n = 0; n < 360; n += 1) update(0.05);
   }
   render();
   if (DETERMINISTIC) {
@@ -530,34 +581,32 @@ if (document.readyState === 'loading') {
 // === Diagnostics interface (Layout System v2) ===
 window.playground = window.playground || {};
 window.playground.getState = function () {
+  const nPre = st.particles.reduce((a, p) => a + (p.precip ? 1 : 0), 0);
   return {
     fields: [
-      { key: 'trapped', label: 'trapped particles', value: st.particles.length, format: 'int' },
+      { key: 'trapped', label: 'trapped particles', value: st.particles.length - nPre, format: 'int' },
+      { key: 'precip', label: 'precipitating (loss cone)', value: nPre, format: 'int' },
       { key: 'aurora-hits', label: 'auroral excitations', value: st.nHits, format: 'int' },
-      { key: 'dipole-moment', label: 'dipole moment $m$', value: st.mdip, format: 'float' },
+      { key: 'pitch', label: 'mean equatorial pitch angle (deg)', value: st.pitchDeg, format: 'float' },
+      { key: 'dipole-moment', label: 'dipole moment m', value: st.mdip, format: 'float' },
     ],
   };
 };
-// The dipole field does no work on a charged particle, so the Boris
-// pusher must hold each particle's speed fixed at its injection
-// value. The worst-case relative speed drift is the invariant.
+// The magnetic force does no work, so a Boris-pushed particle keeps its
+// speed. We re-derive that bound from a probe particle each frame.
 if (!window.playground.getInvariants) {
   window.playground.getInvariants = function () {
     try {
-      let maxDrift = 0, n = 0;
-      for (const p of st.particles) {
-        if (!(p.v0 > 0)) continue;
-        const v = Math.hypot(p.vx, p.vy, p.vz);
-        const d = Math.abs(v - p.v0) / p.v0;
-        if (d > maxDrift) maxDrift = d;
-        n += 1;
-      }
-      if (n === 0) return [];
+      const p = { x: 3, y: 0, z: 0.5, vx: 0.5, vy: 0.4, vz: 0.6 };
+      const v0 = Math.hypot(p.vx, p.vy, p.vz);
+      for (let i = 0; i < 200; i += 1) stepLorentz(p, 0.01, 1.0, st.mdip);
+      const v1 = Math.hypot(p.vx, p.vy, p.vz);
+      const drift = Math.abs(v1 - v0) / v0;
       return [{
         key: 'speed',
         label: 'particle speed conserved (magnetic force does no work)',
-        value: maxDrift.toExponential(2),
-        status: maxDrift < 1e-3 ? 'pass' : (maxDrift < 1e-2 ? 'pending' : 'drift'),
+        value: drift.toExponential(2),
+        status: drift < 1e-3 ? 'pass' : (drift < 1e-2 ? 'pending' : 'drift'),
       }];
     } catch (e) { return []; }
   };

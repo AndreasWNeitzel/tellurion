@@ -36,7 +36,7 @@
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> the solar wind injects charged particles into Earth's dipole magnetic field; they gyrate around field lines, bounce between magnetic mirror points, and where they dip into the upper atmosphere near the magnetic poles they excite oxygen to glow green (lower aurora) and red (higher aurora). Drag to rotate</p>
+      <p class="t-body"><strong>What you are seeing:</strong> charged particles trapped in Earth's dipole field. Each one spirals along a field line and bounces between magnetic mirror points, where the converging field reflects it. Particles with a small enough equatorial pitch angle fall into the loss cone: their mirror point sits below the atmosphere, so instead of reflecting they precipitate near the poles and light the auroral oval green. The magnetic-bottle field profile and the precipitation latitude are plotted below. Drag the scene to rotate, wheel to zoom</p>
     </section>
 
     <div class="playground-canvas-frame">
@@ -56,10 +56,10 @@ c-16-25.333-24-45-24-59z"></path></svg></span></span></span></span></span></span
 
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls">
-<div class="row"><span class="label">injection rate</span><input aria-label="injection" type="range" id="slider-inject" min="0" max="6" step="1" value="3"><span class="value" id="value-inject">3</span></div>
+<div class="row"><span class="label">particle count</span><input aria-label="count" type="range" id="slider-inject" min="0" max="6" step="1" value="3"><span class="value" id="value-inject">3</span></div>
 <div class="row"><span class="label">dipole strength</span><input aria-label="dipole" type="range" id="slider-mdip" min="0.5" max="2.5" step="0.1" value="1.4"><span class="value" id="value-mdip">1.4</span></div>
+<div class="row"><span class="label">pitch angle</span><input aria-label="pitch" type="range" id="slider-pitch" min="8" max="88" step="1" value="30"><span class="value" id="value-pitch">30 deg</span></div>
 <div class="row"><span class="label">animation speed</span><input aria-label="speed" type="range" id="slider-speed" min="0" max="4" step="1" value="2"><span class="value" id="value-speed">2</span></div>
-<div class="row"><span class="label">camera</span><span class="value" style="text-align:left">drag to orbit, wheel to zoom</span></div>
 <div class="row buttons"><button id="btn-reset" type="button">Reset</button><button id="btn-pause" type="button" aria-pressed="false">Pause</button><span id="share-mount"></span></div>
 </div>
       <div class="v2-legacy" hidden><div class="readout" id="readout" role="status" aria-live="polite">
@@ -72,9 +72,9 @@ c-16-25.333-24-45-24-59z"></path></svg></span></span></span></span></span></span
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
-        <li class="t-body">Raise the injection rate: more solar-wind particles spiral down the dipole field lines, bounce between the magnetic mirrors near the poles, and light up the auroral ovals where they hit the atmosphere.</li>
-        <li class="t-body">Strengthen the dipole: the gyroradius shrinks and particles are trapped more tightly, so the radiation belts and the auroral ring sharpen. The aurora-hit counter tracks the precipitation.</li>
-        <li class="t-body">Drag the camera around the globe: the trapped population forms the doughnut-shaped Van Allen belts, and the beams funnel into rings around both magnetic poles.</li>
+        <li class="t-body">Drop the pitch angle toward a few degrees: more particles fall into the loss cone, the mirror line on the bottle plot rises past the atmosphere, and the precipitation histogram and the auroral oval brighten. Push it toward 90 degrees and the population stays trapped near the equator as the radiation belt, with almost no aurora.</li>
+        <li class="t-body">Strengthen the dipole: the gyroradius shrinks, so the spirals tighten onto the field lines and the bounce speeds up. The loss-cone geometry depends only on the shell, so the oval latitude holds while the motion sharpens.</li>
+        <li class="t-body">Raise the particle count and rotate the globe: the trapped blue population traces the doughnut-shaped belts, while the green loss-cone particles funnel down to rings around both magnetic poles.</li>
       </ul>
     </section>
 

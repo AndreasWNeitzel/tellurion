@@ -117,6 +117,81 @@ export function spawnParticle(rng) {
   };
 }
 
+// =========================================================================
+// Guiding-center magnetic-mirror model on a dipole field line.
+//
+// A trapped particle conserves its first adiabatic invariant
+// mu = m v_perp^2 / (2 B), so as it moves along a field line into the
+// stronger field near a pole its perpendicular speed grows and its
+// parallel speed falls, until it reflects at the mirror point. That is
+// the magnetic bottle that traps the radiation belts; particles whose
+// mirror point falls below the atmosphere instead precipitate and light
+// the aurora. These helpers give the geometry of one dipole field line
+// and the mirror / loss-cone latitudes, so particles can be advanced
+// along the line by their bounce phase rather than sprayed in as a beam.
+//
+// Magnetic latitude lambda is measured from the equatorial plane; the
+// pole is along +y, matching dipoleField and checkAuroralExcitation. A
+// field line of equatorial shell L has r(lambda) = L cos^2(lambda); the
+// field strength along it, relative to its equatorial value, is the
+// standard dipole result B(lambda)/B_eq = sqrt(1 + 3 sin^2 lambda)/cos^6.
+// =========================================================================
+export function bRatioAlongLine(lambdaRad) {
+  const s = Math.sin(lambdaRad), c = Math.cos(lambdaRad);
+  return Math.sqrt(1 + 3 * s * s) / Math.pow(c, 6);
+}
+
+// Mirror latitude for an equatorial pitch angle alpha_eq (radians): the
+// particle reflects where B(lambda_m)/B_eq = 1/sin^2(alpha_eq). bRatio is
+// monotone in lambda, so a bisection converges. Returns radians.
+export function mirrorLatitude(alphaEqRad, lambdaCapRad = 1.5533) {
+  const target = 1 / (Math.sin(alphaEqRad) ** 2);   // B_mirror / B_eq
+  if (!isFinite(target)) return lambdaCapRad;
+  if (bRatioAlongLine(lambdaCapRad) < target) return lambdaCapRad;
+  let lo = 0, hi = lambdaCapRad;
+  for (let i = 0; i < 60; i++) {
+    const mid = 0.5 * (lo + hi);
+    if (bRatioAlongLine(mid) < target) lo = mid; else hi = mid;
+  }
+  return 0.5 * (lo + hi);
+}
+
+// Foot-point latitude of shell L at the atmosphere radius rAtm:
+// r = L cos^2(lambda) = rAtm  =>  lambda_foot = acos(sqrt(rAtm/L)).
+export function footLatitude(L, rAtm = REARTH) {
+  const c2 = rAtm / L;
+  if (c2 >= 1) return 0;
+  return Math.acos(Math.sqrt(c2));
+}
+
+// Equatorial loss-cone half-angle for shell L: a particle with
+// alpha_eq below this mirrors below the atmosphere and precipitates.
+// sin^2(alpha_lc) = B_eq / B(lambda_foot).
+export function lossConeAngle(L, rAtm = REARTH) {
+  const ratio = bRatioAlongLine(footLatitude(L, rAtm));   // B_foot/B_eq >= 1
+  return Math.asin(Math.min(1, 1 / Math.sqrt(ratio)));
+}
+
+// Cartesian point on the field line (shell L, longitude phi about +y,
+// latitude lambda).
+export function linePoint(L, phi, lambda) {
+  const c = Math.cos(lambda);
+  const rho = L * c * c * c;                 // L cos^3 lambda
+  const y = L * c * c * Math.sin(lambda);    // L cos^2 lambda sin lambda
+  return [rho * Math.cos(phi), y, rho * Math.sin(phi)];
+}
+
+// Unit tangent to the field line (direction of increasing lambda),
+// used to orient the gyration circle so the trail traces a helix.
+export function lineTangent(phi, lambda) {
+  const c = Math.cos(lambda), s = Math.sin(lambda);
+  const drho = -3 * c * c * s;               // d(cos^3)/dlambda
+  const dy = c * (1 - 3 * s * s);            // d(cos^2 sin)/dlambda
+  const tx = Math.cos(phi) * drho, ty = dy, tz = Math.sin(phi) * drho;
+  const n = Math.hypot(tx, ty, tz) || 1;
+  return [tx / n, ty / n, tz / n];
+}
+
 // Check if particle has reached the auroral layer (RAURORA radius)
 // at high magnetic latitude. Returns null if outside the auroral
 // region, else the emission color.
