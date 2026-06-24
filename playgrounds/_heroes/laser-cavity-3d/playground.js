@@ -142,7 +142,12 @@ function bootSync() {
     ui.P = ks[Math.min(ks.length - 1, Math.floor(CAPTURE_FRAC * ks.length + 1e-6))] * Pth;
     syncParams();
     for (let i = 0; i < 5000; i += 1) step(sim, 2e-3, true);
-    camera.setAzimuthDeg(40 + CAPTURE_FRAC * 28);
+    // The cavity spans z in [-4, 4] (8 units); the default radius 8.6 clips the
+    // left mirror off-frame at the capture azimuth. Pull back so both mirrors,
+    // the gain rod and the output beam all sit inside the frame.
+    camera.setAzimuthDeg(40 + CAPTURE_FRAC * 20);
+    camera.setRadius(11);
+    camera.setElevationDeg(20);   // a steeper diagonal uses more of the portrait frame
     frame();
     if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => {
       window.__simulationReady = true;
