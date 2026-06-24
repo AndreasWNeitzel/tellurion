@@ -96,7 +96,11 @@ function drawDiag(col, r) {
   const inner = { x: r.x + 50, y: r.y + 28, w: r.w - 50 - 16, h: r.h - 28 - 34 };
   ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.strokeRect(inner.x, inner.y, inner.w, inner.h);
   const lt = 1, lb = -7; // log10 decades
-  const xOf = (k) => inner.x + k / MAXIT * inner.w;
+  // Grow the step axis with the steps taken (capped at MAXIT) so the staircase
+  // fills the panel from the first steps instead of hugging the left tenth of a
+  // fixed 0..30 axis.
+  const xMax = Math.max(6, Math.min(MAXIT, hist.length + 1));
+  const xOf = (k) => inner.x + k / xMax * inner.w;
   const yOf = (v) => inner.y + inner.h * (lt - Math.log10(Math.max(v, 1e-8))) / (lt - lb);
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   for (let d = lb; d <= lt; d += 1) { const Y = yOf(Math.pow(10, d)); ctx.strokeStyle = col.grid; ctx.beginPath(); ctx.moveTo(inner.x, Y); ctx.lineTo(inner.x + inner.w, Y); ctx.stroke(); ctx.fillStyle = col.muted; ctx.fillText(`1e${d}`, inner.x - 5, Y); }
@@ -107,7 +111,7 @@ function drawDiag(col, r) {
   ctx.fillStyle = col.wid; ctx.font = fontString(canvas, 'tick', 'mono', 700); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('bracket width (halves each step)', inner.x + 6, inner.y + 4);
   ctx.fillStyle = col.fm; ctx.fillText('|f(midpoint)|', inner.x + 6, inner.y + 18);
   ctx.fillStyle = col.muted; ctx.font = fontString(canvas, 'tick', 'mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (let k = 0; k <= MAXIT; k += 5) ctx.fillText(`${k}`, xOf(k), inner.y + inner.h + 6); ctx.fillText('step', inner.x + inner.w / 2, inner.y + inner.h + 19);
+  const tickEvery = xMax <= 12 ? 2 : 5; for (let k = 0; k <= xMax; k += tickEvery) ctx.fillText(`${k}`, xOf(k), inner.y + inner.h + 6); ctx.fillText('step', inner.x + inner.w / 2, inner.y + inner.h + 19);
 }
 
 function render() {
@@ -143,7 +147,7 @@ function setFrom(sx) { const x = Math.max(SC.x0, Math.min(SC.x1, SC.x0 + (sx - S
 function boot() {
   if (params.get('fn') && FUNCS[params.get('fn')]) pickFn(params.get('fn'));
   syncVals(); relayout();
-  if (DETERMINISTIC) { for (let i = 0; i < 3; i += 1) step(); render(); requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
+  if (DETERMINISTIC) { for (let i = 0; i < 5; i += 1) step(); render(); requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); })); }
   else { render(); requestAnimationFrame(tick); }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
