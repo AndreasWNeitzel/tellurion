@@ -1,9 +1,12 @@
-// Supernova Light Curve hero. 3D fireball + bolometric light curve +
-// mass-partition strip. The fireball grows homologously (r = v_ej t)
-// and dims along with the Arnett-1982 decay-powered light curve.
+// Supernova Light Curve hero. The light curve is the subject, so it is
+// the hero panel: bolometric L(t) on a log axis, the selected SN overlaid
+// on the other type for comparison, and the fully trapped radioactive
+// power that the late tail decays onto. Below it the Ni -> Co -> Fe decay
+// chain that powers the curve, and a supporting fireball band that expands
+// homologously (r = v_ej t) and tracks the instantaneous luminosity.
 
 import {
-  massPartition, bolometricLuminosity_ergS, absoluteBolMag,
+  massPartition, bolometricLuminosity_ergS, decayPower_ergS, absoluteBolMag,
   fireballRadius_cm, SN_PRESETS, makeRng,
 } from './sim.js';
 import { createOrbitCamera } from '../../../shared/js/gl/orbit-camera.js';
@@ -64,7 +67,37 @@ function applyPreset(name) {
 }
 
 // =========================================================================
-// 3D STARFIELD + FIREBALL via depth-sorted UV quads.
+// Palette + small drawing helpers.
+// =========================================================================
+const COL = {
+  panel: 'rgba(16, 22, 36, 0.92)',
+  border: 'rgba(150, 170, 210, 0.30)',
+  ink: 'rgba(224, 232, 255, 0.94)',
+  inkDim: 'rgba(176, 190, 224, 0.78)',
+  grid: 'rgba(150, 170, 210, 0.10)',
+  curve: 'rgba(255, 214, 120, 0.98)',   // selected light curve
+  ghost: 'rgba(120, 200, 255, 0.55)',   // other-type light curve
+  power: 'rgba(255, 130, 110, 0.85)',   // radioactive power asymptote
+  Ni: 'rgba(120, 220, 255, 0.96)',
+  Co: 'rgba(255, 214, 120, 0.96)',
+  Fe: 'rgba(255, 130, 110, 0.96)',
+};
+
+function panel(x, y, w, h) {
+  ctx.fillStyle = COL.panel;
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = COL.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+}
+function panelTitle(text, x, y) {
+  ctx.fillStyle = COL.ink;
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.fillText(text, x + 8, y - 6);
+}
+
+// =========================================================================
+// STARFIELD (background only).
 // =========================================================================
 const STARS = [];
 {
@@ -82,260 +115,327 @@ function drawSky() {
   }
 }
 
-function makeCamBasis() {
+// Camera zoom factor (scroll wheel changes camera.radius); used to let the
+// fireball respond to the scroll-to-zoom promise even though it is a disc.
+function camZoom() {
   const eye = camera.eyePosition();
-  const target = [0, 0, 0];
-  const up = [0, 1, 0];
-  const fx = target[0] - eye[0], fy = target[1] - eye[1], fz = target[2] - eye[2];
-  const fl = Math.hypot(fx, fy, fz);
-  const f = [fx / fl, fy / fl, fz / fl];
-  const rx = f[1] * up[2] - f[2] * up[1];
-  const ry = f[2] * up[0] - f[0] * up[2];
-  const rz = f[0] * up[1] - f[1] * up[0];
-  const rl = Math.hypot(rx, ry, rz);
-  const r = [rx / rl, ry / rl, rz / rl];
-  const ux = r[1] * f[2] - r[2] * f[1];
-  const uy = r[2] * f[0] - r[0] * f[2];
-  const uz = r[0] * f[1] - r[1] * f[0];
-  const u = [ux, uy, uz];
-  return { eye, f, r, u, tanHalfFov: Math.tan(50 * Math.PI / 180 / 2), aspect: W / H };
-}
-function w2s(p, cam) {
-  const dx = p[0] - cam.eye[0], dy = p[1] - cam.eye[1], dz = p[2] - cam.eye[2];
-  const zf = dx * cam.f[0] + dy * cam.f[1] + dz * cam.f[2];
-  if (zf <= 0.01) return null;
-  const xr = dx * cam.r[0] + dy * cam.r[1] + dz * cam.r[2];
-  const yu = dx * cam.u[0] + dy * cam.u[1] + dz * cam.u[2];
-  const xn = xr / (zf * cam.tanHalfFov * cam.aspect);
-  const yn = yu / (zf * cam.tanHalfFov);
-  return { x: (xn * 0.5 + 0.5) * W, y: (1.0 - (yn * 0.5 + 0.5)) * H, depth: zf };
+  const d = Math.hypot(eye[0], eye[1], eye[2]);
+  return 5 / Math.max(2, Math.min(15, d));   // 1 at default radius 5
 }
 
-
-// Fireball color based on temperature (proxy: brightness at peak ~ orange/white,
-// late times -> reddish).
-function fireballColor(t_days, L_norm) {
-  // L_norm is 0..1 (peak = 1). At peak we shine bright white-yellow;
-  // late we cool to red-orange.
+// Fireball color: hot near-white at peak, cooling to red-orange late.
+function fireballColor(L_norm) {
   const x = Math.min(1, Math.max(0, L_norm));
-  const r = 255;
-  const g = Math.round(200 + 50 * x);
-  const b = Math.round(80 + 150 * x);
-  return [r, g, b];
-}
-
-function drawFireball(cam, t_days, L_norm) {
-  // The expanding photosphere is featureless, so it is drawn as a
-  // smooth limb-darkened disc rather than a faceted sphere mesh: a
-  // hot near-white core grading to the fireball colour, with a
-  // darker limb and a luminosity-scaled outer glow.
-  // Homologous expansion r = v_ej t: the visual radius scales with
-  // the ejecta velocity (11000 km/s is the reference), so the v_ej
-  // slider visibly speeds up or slows down the fireball growth.
-  const vScale = st.v_ej_kms / 11000;
-  const rVis = 0.5 + 1.5 * Math.log10(1 + t_days * vScale / 5);
-  const col = fireballColor(t_days, L_norm);
-  const center2D = w2s([0, 0, 0], cam);
-  if (!center2D) return;
-  const refR = w2s([rVis, 0, 0], cam);
-  const Rpx = refR ? Math.hypot(refR.x - center2D.x, refR.y - center2D.y) : 60;
-  // Keep the fireball in the left region: the diagnostic panels start
-  // at x = 0.50 W, so the photosphere is centred no further right than
-  // 0.30 W and its radius is capped to stop short of the panels.
-  const fx = Math.min(center2D.x, 0.30 * W);
-  const fy = center2D.y;
-  const fR = Math.max(40, Math.min(Rpx, 0.50 * W - 18 - fx));
-  const bright = 0.45 + 0.55 * L_norm;
-  const clamp8 = (c) => Math.round(Math.max(0, Math.min(255, c)));
-  const [cr, cg, cb] = col;
-  // Outer glow halo, also held clear of the diagnostic panels.
-  const haloR = Math.min(fR * (1.9 + 1.1 * L_norm), 0.52 * W - fx);
-  const glow = ctx.createRadialGradient(fx, fy, fR * 0.92, fx, fy, haloR);
-  glow.addColorStop(0, `rgba(255, 220, 150, ${(0.42 * L_norm).toFixed(3)})`);
-  glow.addColorStop(0.5, `rgba(255, 140, 100, ${(0.20 * L_norm).toFixed(3)})`);
-  glow.addColorStop(1, 'rgba(255, 100, 80, 0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath(); ctx.arc(fx, fy, haloR, 0, 2 * Math.PI); ctx.fill();
-  // Photosphere: limb-darkened disc, hot highlight offset toward the viewer.
-  const disc = ctx.createRadialGradient(
-    fx - fR * 0.20, fy - fR * 0.20, fR * 0.04,
-    fx, fy, fR);
-  disc.addColorStop(0.00, `rgb(${clamp8(cr * 1.4 + 95)}, ${clamp8(cg * 1.4 + 80)}, ${clamp8(cb * 1.3 + 65)})`);
-  disc.addColorStop(0.55, `rgb(${clamp8(cr * bright)}, ${clamp8(cg * bright)}, ${clamp8(cb * bright)})`);
-  disc.addColorStop(1.00, `rgb(${clamp8(cr * bright * 0.42)}, ${clamp8(cg * bright * 0.42)}, ${clamp8(cb * bright * 0.36)})`);
-  ctx.fillStyle = disc;
-  ctx.beginPath(); ctx.arc(fx, fy, fR, 0, 2 * Math.PI); ctx.fill();
+  return [255, Math.round(196 + 54 * x), Math.round(72 + 158 * x)];
 }
 
 // =========================================================================
-// LIGHT CURVE PANEL.
+// ZONE 1: LIGHT CURVE HERO.
 // =========================================================================
-function drawLightcurvePanel() {
-  const px = 0.50 * W, py = 50, pw = 0.46 * W - 14, ph = 240;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.92)';
-  ctx.fillRect(px, py, pw, ph);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('bolometric luminosity (erg/s, log) over 200 days', px + 8, py - 6);
-  // Compute L(t).
-  const N = 200;
-  const t_arr = [], L_arr = [];
-  let Lmax = 0;
+function drawLightCurveHero(X, Y, Wd, Hd) {
+  panel(X, Y, Wd, Hd);
+  panelTitle('bolometric light curve  L(t)   erg/s', X, Y);
+
+  const padL = 58, padR = 54, padT = 16, padB = 34;
+  const pX = X + padL, pY = Y + padT, pW = Wd - padL - padR, pH = Hd - padT - padB;
+
+  const N = 240, T = st.T_MAX_D;
+  const otherName = st.preset === 'ia_2011fe' ? 'ii_1987a' : 'ia_2011fe';
+  const other = SN_PRESETS[otherName];
+  const tArr = [], Lsel = [], Loth = [], Lpow = [];
+  let logmax = -1e9;
   for (let k = 0; k < N; k++) {
-    const t = (k / (N - 1)) * st.T_MAX_D + 0.5;
-    const L = bolometricLuminosity_ergS(t, st.m_Ni, st.t_diff_d, st.plateau);
-    t_arr.push(t); L_arr.push(L);
-    if (L > Lmax) Lmax = L;
+    const t = (k / (N - 1)) * T + 0.3;
+    const Ls = bolometricLuminosity_ergS(t, st.m_Ni, st.t_diff_d, st.plateau);
+    const Lo = bolometricLuminosity_ergS(t, other.m0_Ni, other.t_diff_d, other.plateau || null);
+    const Lp = decayPower_ergS(t, st.m_Ni);
+    tArr.push(t); Lsel.push(Ls); Loth.push(Lo); Lpow.push(Lp);
+    logmax = Math.max(logmax, Math.log10(Math.max(1, Ls)), Math.log10(Math.max(1, Lo)));
   }
-  const Llog_max = Math.log10(Math.max(1e10, Lmax)) + 0.5;
-  const Llog_min = Llog_max - 4.5;     // 4.5 dex range
-  function xForT(t) { return px + 30 + (t / st.T_MAX_D) * (pw - 50); }
-  function yForL(L) {
-    const Llog = Math.log10(Math.max(1e10, L));
-    return py + ph - 28 - (Llog - Llog_min) / (Llog_max - Llog_min) * (ph - 50);
+  const top = logmax + 0.35, bot = logmax - 4.35;
+  const xForT = (t) => pX + (t / T) * pW;
+  const yForLog = (lg) => {
+    const yy = pY + pH - (lg - bot) / (top - bot) * pH;
+    return Math.max(pY, Math.min(pY + pH, yy));
+  };
+  const yForL = (L) => yForLog(Math.log10(Math.max(1, L)));
+
+  // Horizontal decade grid + left log labels + right magnitude labels.
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  for (let lv = Math.floor(bot); lv <= Math.ceil(top); lv++) {
+    if (lv < bot || lv > top) continue;
+    const yy = yForLog(lv);
+    ctx.strokeStyle = COL.grid;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pX, yy); ctx.lineTo(pX + pW, yy); ctx.stroke();
+    ctx.fillStyle = COL.inkDim;
+    ctx.fillText(`1e${lv}`, X + 6, yy + 4);
+    // Right-hand absolute bolometric magnitude axis.
+    const Mb = -2.5 * lv + 88.7;
+    ctx.fillStyle = 'rgba(150, 170, 210, 0.62)';
+    ctx.fillText(Mb.toFixed(0), pX + pW + 8, yy + 4);
   }
-  // Grid (log decades).
-  ctx.strokeStyle = 'rgba(200, 210, 230, 0.10)';
-  for (let lv = Math.floor(Llog_min); lv <= Math.ceil(Llog_max); lv++) {
-    const Y = py + ph - 28 - (lv - Llog_min) / (Llog_max - Llog_min) * (ph - 50);
-    ctx.beginPath(); ctx.moveTo(px + 30, Y); ctx.lineTo(px + pw - 20, Y); ctx.stroke();
-    ctx.fillStyle = 'rgba(180, 200, 240, 0.65)';
-    ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(`1e${lv}`, px + 4, Y + 4);
+  ctx.fillStyle = 'rgba(150, 170, 210, 0.7)';
+  ctx.font = fontString(canvas, 'caption', 'sans', 600);
+  ctx.save();
+  ctx.translate(pX + pW + 44, pY + pH * 0.5); ctx.rotate(Math.PI / 2);
+  ctx.fillText('M_bol', -16, 0);
+  ctx.restore();
+
+  // Vertical day grid + labels.
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  for (let t = 0; t <= T; t += 50) {
+    const xx = xForT(t);
+    ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xx, pY); ctx.lineTo(xx, pY + pH); ctx.stroke();
+    ctx.fillStyle = COL.inkDim;
+    const lab = String(t);
+    ctx.fillText(lab, xx - lab.length * 3, pY + pH + 16);
   }
-  for (let t = 0; t <= 200; t += 50) {
-    ctx.beginPath(); ctx.moveTo(xForT(t), py + 16); ctx.lineTo(xForT(t), py + ph - 28); ctx.stroke();
-  }
-  // Light curve.
-  ctx.strokeStyle = 'rgba(255, 220, 120, 0.95)';
-  ctx.lineWidth = 1.8;
+  ctx.fillStyle = 'rgba(150, 170, 210, 0.7)';
+  ctx.fillText('days since explosion', pX + pW - 132, pY + pH + 30);
+
+  // Radioactive power asymptote (fully trapped): the tail decays onto it.
+  ctx.strokeStyle = COL.power; ctx.lineWidth = 1.3;
+  ctx.setLineDash([4, 4]);
   ctx.beginPath();
   for (let k = 0; k < N; k++) {
-    const x = xForT(t_arr[k]); const y = yForL(L_arr[k]);
+    const x = xForT(tArr[k]), y = yForL(Lpow[k]);
     if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  // Co tail (asymptote).
-  ctx.strokeStyle = 'rgba(255, 140, 110, 0.55)';
-  ctx.setLineDash([3, 4]);
-  ctx.lineWidth = 1.2;
+  ctx.setLineDash([]);
+
+  // Other-type light curve (ghost, for comparison).
+  ctx.strokeStyle = COL.ghost; ctx.lineWidth = 1.4;
   ctx.beginPath();
   for (let k = 0; k < N; k++) {
-    if (t_arr[k] < 60) continue;
-    // Co-only tail: L ~ exp(-t/tau_Co) at late times.
-    const tail = bolometricLuminosity_ergS(t_arr[k], st.m_Ni, 1);
-    const x = xForT(t_arr[k]); const y = yForL(tail);
-    if (k === Math.floor(60 / st.T_MAX_D * N)) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    const x = xForT(tArr[k]), y = yForL(Loth[k]);
+    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  ctx.setLineDash([]);
-  // Current cursor.
-  const Lnow = bolometricLuminosity_ergS(st.t_d, st.m_Ni, st.t_diff_d, st.plateau);
-  const xc = xForT(st.t_d), yc = yForL(Lnow);
-  ctx.fillStyle = 'rgba(255, 255, 200, 1)';
-  ctx.beginPath(); ctx.arc(xc, yc, 5, 0, 2 * Math.PI); ctx.fill();
-  // Axes labels.
-  ctx.fillStyle = 'rgba(180, 200, 240, 0.85)';
+
+  // Selected light curve: filled up to the current epoch, then stroked.
+  const tc = st.t_d;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(pX, pY, (Math.min(tc, T) / T) * pW, pH);
+  ctx.clip();
+  const grad = ctx.createLinearGradient(0, pY, 0, pY + pH);
+  grad.addColorStop(0, 'rgba(255, 200, 90, 0.28)');
+  grad.addColorStop(1, 'rgba(255, 160, 60, 0.0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(xForT(tArr[0]), pY + pH);
+  for (let k = 0; k < N; k++) ctx.lineTo(xForT(tArr[k]), yForL(Lsel[k]));
+  ctx.lineTo(xForT(tArr[N - 1]), pY + pH);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = COL.curve; ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  for (let k = 0; k < N; k++) {
+    const x = xForT(tArr[k]), y = yForL(Lsel[k]);
+    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Peak marker for the selected curve.
+  let kPk = 0;
+  for (let k = 1; k < N; k++) if (Lsel[k] > Lsel[kPk]) kPk = k;
+  const xpk = xForT(tArr[kPk]), ypk = yForL(Lsel[kPk]);
+  ctx.fillStyle = 'rgba(255, 240, 190, 0.95)';
+  ctx.beginPath(); ctx.arc(xpk, ypk, 3.5, 0, 2 * Math.PI); ctx.fill();
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText('t (d)', px + pw - 32, py + ph - 8);
-  ctx.fillText('0', xForT(0) - 4, py + ph - 12);
-  ctx.fillText('50', xForT(50) - 8, py + ph - 12);
-  ctx.fillText('100', xForT(100) - 8, py + ph - 12);
-  ctx.fillText('150', xForT(150) - 10, py + ph - 12);
-  ctx.fillText('200', xForT(200) - 12, py + ph - 12);
-  // The current t, L, and M_bol are reported in the rail; no canvas
-  // strip is drawn here (it overran the mass-partition panel below).
-  return { Lmax, Lnow };
+  ctx.fillStyle = COL.inkDim;
+  ctx.fillText(`peak ~${tArr[kPk].toFixed(0)} d`, xpk - 18, ypk - 9);
+
+  // Phase annotations.
+  ctx.fillStyle = 'rgba(180, 200, 240, 0.5)';
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  ctx.fillText('Ni-56 rise', xForT(3), yForL(Lsel[Math.floor(N * 0.10)]) + 26);
+  ctx.fillText('Co-56 tail', xForT(150), yForL(Lsel[Math.floor(N * 0.78)]) - 8);
+
+  // Current-epoch cursor.
+  const Lnow = bolometricLuminosity_ergS(tc, st.m_Ni, st.t_diff_d, st.plateau);
+  const xcur = xForT(Math.min(tc, T)), ycur = yForL(Lnow);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
+  ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xcur, pY); ctx.lineTo(xcur, pY + pH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255, 255, 210, 1)';
+  ctx.beginPath(); ctx.arc(xcur, ycur, 5.5, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 200, 90, 0.7)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(xcur, ycur, 8.5, 0, 2 * Math.PI); ctx.stroke();
+
+  // Legend, boxed in the empty top-right corner (both curves are well
+  // below the top decades by the late phase, so this corner stays clear).
+  const leg = [
+    [COL.curve, SN_PRESETS[st.preset].type + ' (this SN)', false],
+    [COL.ghost, SN_PRESETS[otherName].type + ' (other type)', false],
+    [COL.power, 'radioactive power (full trapping)', true],
+  ];
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  const bw = 238, bh = leg.length * 16 + 8;
+  const bx = pX + pW - bw - 6, by = pY + 6;
+  ctx.fillStyle = 'rgba(10, 14, 24, 0.74)';
+  ctx.fillRect(bx, by, bw, bh);
+  ctx.strokeStyle = 'rgba(150, 170, 210, 0.22)';
+  ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
+  let ly = by + 13;
+  for (const [c, label, dash] of leg) {
+    ctx.strokeStyle = c; ctx.lineWidth = 2.2;
+    ctx.setLineDash(dash ? [4, 4] : []);
+    ctx.beginPath(); ctx.moveTo(bx + 8, ly); ctx.lineTo(bx + 30, ly); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = COL.inkDim;
+    ctx.fillText(label, bx + 36, ly + 4);
+    ly += 16;
+  }
+  return Lnow;
 }
 
 // =========================================================================
-// MASS-PARTITION PANEL (Ni / Co / Fe stacked bars).
+// ZONE 2: Ni -> Co -> Fe DECAY CHAIN (wide, short).
 // =========================================================================
-function drawMassPartitionPanel() {
-  const px = 0.50 * W, py = 320, pw = 0.46 * W - 14, ph = H - 360;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.92)';
-  ctx.fillRect(px, py, pw, ph);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.92)';
-  ctx.font = fontString(canvas, 'caption', 'sans', 600);
-  ctx.fillText('mass partition Ni -> Co -> Fe (M_sun)', px + 8, py - 6);
-  // Plot three lines over t.
-  const N = 200;
-  function xForT(t) { return px + 30 + (t / st.T_MAX_D) * (pw - 50); }
-  function yForM(m) { return py + ph - 24 - (m / st.m_Ni) * (ph - 44); }
+function drawDecayChain(X, Y, Wd, Hd) {
+  panel(X, Y, Wd, Hd);
+  panelTitle('mass partition   Ni-56 -> Co-56 -> Fe-56   (M_sun)', X, Y);
+
+  const padL = 52, padR = 16, padT = 14, padB = 26;
+  const pX = X + padL, pY = Y + padT, pW = Wd - padL - padR, pH = Hd - padT - padB;
+  const T = st.T_MAX_D, N = 200;
+  const xForT = (t) => pX + (t / T) * pW;
+  const yForM = (m) => pY + pH - (m / st.m_Ni) * pH;
+
   // Grid.
-  ctx.strokeStyle = 'rgba(200, 210, 230, 0.10)';
-  for (let t = 0; t <= 200; t += 50) {
-    ctx.beginPath(); ctx.moveTo(xForT(t), py + 16); ctx.lineTo(xForT(t), py + ph - 24); ctx.stroke();
+  ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  for (let t = 0; t <= T; t += 50) {
+    ctx.beginPath(); ctx.moveTo(xForT(t), pY); ctx.lineTo(xForT(t), pY + pH); ctx.stroke();
+    ctx.fillStyle = COL.inkDim;
+    ctx.fillText(String(t), xForT(t) - String(t).length * 3, pY + pH + 16);
   }
-  const colors = { Ni: 'rgba(120, 220, 255, 0.95)', Co: 'rgba(255, 220, 120, 0.95)', Fe: 'rgba(255, 130, 110, 0.95)' };
-  for (const species of ['Ni', 'Co', 'Fe']) {
-    ctx.strokeStyle = colors[species]; ctx.lineWidth = 1.8;
+  for (const frac of [0.5, 1.0]) {
+    const yy = pY + pH - frac * pH;
+    ctx.strokeStyle = COL.grid;
+    ctx.beginPath(); ctx.moveTo(pX, yy); ctx.lineTo(pX + pW, yy); ctx.stroke();
+    ctx.fillStyle = COL.inkDim;
+    ctx.fillText((frac * st.m_Ni).toFixed(2), X + 6, yy + 4);
+  }
+
+  const cols = { Ni: COL.Ni, Co: COL.Co, Fe: COL.Fe };
+  for (const sp of ['Ni', 'Co', 'Fe']) {
+    ctx.strokeStyle = cols[sp]; ctx.lineWidth = 2.0;
     ctx.beginPath();
     for (let k = 0; k < N; k++) {
-      const t = (k / (N - 1)) * st.T_MAX_D + 0.5;
+      const t = (k / (N - 1)) * T + 0.3;
       const p = massPartition(t, st.m_Ni);
-      const m = species === 'Ni' ? p.mNi : species === 'Co' ? p.mCo : p.mFe;
-      const x = xForT(t); const y = yForM(m);
+      const m = sp === 'Ni' ? p.mNi : sp === 'Co' ? p.mCo : p.mFe;
+      const x = xForT(t), y = yForM(m);
       if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
-  // Current cursor (vertical line).
-  const xc = xForT(st.t_d);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.50)';
+
+  // Current-epoch cursor.
+  const xc = xForT(Math.min(st.t_d, T));
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
   ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(xc, py + 16); ctx.lineTo(xc, py + ph - 24); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(xc, pY); ctx.lineTo(xc, pY + pH); ctx.stroke();
   ctx.setLineDash([]);
-  // Legend.
-  let lyy = py + 30;
-  for (const species of ['Ni', 'Co', 'Fe']) {
-    ctx.fillStyle = colors[species];
-    ctx.fillRect(px + pw - 80, lyy - 7, 10, 3);
-    ctx.fillStyle = 'rgba(220, 230, 255, 0.90)';
-    ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(species, px + pw - 66, lyy - 4);
-    lyy += 14;
-  }
-  // Current numbers.
+
+  // Legend + live values.
   const p = massPartition(st.t_d, st.m_Ni);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.85)';
+  const items = [['Ni', p.mNi], ['Co', p.mCo], ['Fe', p.mFe]];
+  let lx = pX + 12;
   ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`@ t = ${st.t_d.toFixed(0)} d: Ni = ${p.mNi.toFixed(3)}, Co = ${p.mCo.toFixed(3)}, Fe = ${p.mFe.toFixed(3)}`,
-    px + 8, py + ph + 18);
+  for (const [sp, m] of items) {
+    ctx.fillStyle = cols[sp];
+    ctx.fillRect(lx, pY + 6, 10, 3);
+    ctx.fillStyle = COL.inkDim;
+    ctx.fillText(`${sp} ${m.toFixed(3)}`, lx + 14, pY + 11);
+    lx += 116;
+  }
 }
 
 // =========================================================================
-// SIDE-LEFT INFO PANEL (preset summary).
+// ZONE 3: SUPPORTING FIREBALL BAND (homologous expansion, brightness ~ L).
 // =========================================================================
-function drawInfoPanel() {
-  const px = 12, py = 50, pw = 200, ph = 130;
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';
-  ctx.fillRect(px, py, pw, ph);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.32)';
-  ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
-  ctx.fillStyle = 'rgba(220, 230, 255, 0.9)';
-  ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText('SN preset', px + 8, py - 6);
+function drawFireballBand(X, Y, Wd, Hd, L_norm) {
+  panel(X, Y, Wd, Hd);
+  panelTitle('homologously expanding fireball   r = v_ej t', X, Y);
+
+  // Left readout column.
   const p = SN_PRESETS[st.preset];
-  let yy = py + 24;
-  const row = (k, v, c = '#e0e8ff') => {
-    ctx.fillStyle = 'rgba(180, 190, 215, 0.85)';
+  const Lnow = bolometricLuminosity_ergS(st.t_d, st.m_Ni, st.t_diff_d, st.plateau);
+  const r_cm = fireballRadius_cm(st.t_d, st.v_ej_kms);
+  const rows = [
+    ['type', p.type, '#ffd28a'],
+    ['t (d)', st.t_d.toFixed(0), null],
+    ['L (erg/s)', Lnow.toExponential(2), null],
+    ['M_bol', absoluteBolMag(Lnow).toFixed(2), null],
+    ['v_ej (km/s)', String(st.v_ej_kms), null],
+    ['r_phot (cm)', r_cm.toExponential(2), null],
+  ];
+  let yy = Y + 28;
+  for (const [k, v, c] of rows) {
+    ctx.fillStyle = 'rgba(176, 188, 214, 0.82)';
     ctx.font = fontString(canvas, 'caption');
-    ctx.fillText(k, px + 10, yy);
-    ctx.fillStyle = c;
+    ctx.fillText(k, X + 12, yy);
+    ctx.fillStyle = c || COL.ink;
     ctx.font = fontString(canvas, 'caption', 'mono');
-    ctx.fillText(v, px + 10, yy + 14);
-    yy += 30;
-  };
-  row('type', p.type, '#ffd28a');
-  row('M_Ni (M_sun)', st.m_Ni.toFixed(3));
-  row('v_ej (km/s)', String(st.v_ej_kms));
-  row('expected peak M_V', p.peak_MV.toFixed(2));
+    ctx.fillText(v, X + 12, yy + 15);
+    yy += 32;
+  }
+
+  // Fireball disc, centred in the right two-thirds of the band.
+  const cx = X + Wd * 0.62;
+  const cy = Y + Hd * 0.54;
+  const rMax = Math.min(Hd * 0.40, Wd * 0.24);
+  const grow = 0.30 + 0.70 * Math.min(1, Math.log10(1 + st.t_d * (st.v_ej_kms / 11000) / 6) / Math.log10(1 + 200 / 6));
+  const fR = rMax * grow * camZoom();
+  const [cr, cg, cb] = fireballColor(L_norm);
+  const bright = 0.45 + 0.55 * L_norm;
+  const cl = (c) => Math.round(Math.max(0, Math.min(255, c)));
+
+  // Outer glow.
+  const haloR = fR * (1.7 + 1.0 * L_norm);
+  const glow = ctx.createRadialGradient(cx, cy, fR * 0.85, cx, cy, haloR);
+  glow.addColorStop(0, `rgba(255, 220, 150, ${(0.40 * L_norm).toFixed(3)})`);
+  glow.addColorStop(0.5, `rgba(255, 140, 100, ${(0.18 * L_norm).toFixed(3)})`);
+  glow.addColorStop(1, 'rgba(255, 100, 80, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(cx, cy, haloR, 0, 2 * Math.PI); ctx.fill();
+
+  // Photosphere disc.
+  const disc = ctx.createRadialGradient(cx - fR * 0.22, cy - fR * 0.22, fR * 0.05, cx, cy, fR);
+  disc.addColorStop(0.00, `rgb(${cl(cr * 1.4 + 90)}, ${cl(cg * 1.4 + 78)}, ${cl(cb * 1.3 + 62)})`);
+  disc.addColorStop(0.55, `rgb(${cl(cr * bright)}, ${cl(cg * bright)}, ${cl(cb * bright)})`);
+  disc.addColorStop(1.00, `rgb(${cl(cr * bright * 0.42)}, ${cl(cg * bright * 0.40)}, ${cl(cb * bright * 0.34)})`);
+  ctx.fillStyle = disc;
+  ctx.beginPath(); ctx.arc(cx, cy, fR, 0, 2 * Math.PI); ctx.fill();
+
+  // Homologous velocity shells: equally spaced in velocity => equally
+  // spaced in radius, all expanding together. Labels at the outer shell.
+  ctx.font = fontString(canvas, 'caption', 'mono');
+  for (let i = 1; i <= 3; i++) {
+    const frac = i / 3;
+    const rr = fR * frac;
+    ctx.strokeStyle = `rgba(255, 235, 205, ${(0.30 * (1 - 0.18 * i)).toFixed(3)})`;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.arc(cx, cy, rr, 0, 2 * Math.PI); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  // Outer ejecta velocity label.
+  ctx.fillStyle = 'rgba(255, 235, 205, 0.7)';
+  ctx.fillText(`${st.v_ej_kms} km/s`, cx + fR * 0.70, cy - fR * 0.70);
+
+  // Radius arrow from centre to the photosphere.
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + fR, cy); ctx.stroke();
 }
 
 function updateReadout(Lnow) {
@@ -351,36 +451,38 @@ function updateReadout(Lnow) {
 // =========================================================================
 // MAIN DRAW.
 // =========================================================================
+const LAY = {
+  hero: { x: 12, y: 44, w: W - 24, h: 446 },
+  chain: { x: 12, y: 504, w: W - 24, h: 206 },
+  band: { x: 12, y: 724, w: W - 24, h: 306 },
+};
+
 function draw() {
   drawSky();
-  const cam = makeCamBasis();
-  // Compute L now to normalise color brightness.
-  const N = 80;
+  // Normalise brightness by the peak of the current curve.
   let Lmax = 0;
-  for (let k = 0; k < N; k++) {
-    const t = (k / (N - 1)) * st.T_MAX_D + 0.5;
+  for (let k = 0; k < 80; k++) {
+    const t = (k / 79) * st.T_MAX_D + 0.5;
     const L = bolometricLuminosity_ergS(t, st.m_Ni, st.t_diff_d, st.plateau);
     if (L > Lmax) Lmax = L;
   }
-  const Lnow = bolometricLuminosity_ergS(st.t_d, st.m_Ni, st.t_diff_d, st.plateau);
-  const L_norm = Math.max(0, Math.min(1, Lnow / Lmax));
-  drawFireball(cam, st.t_d, L_norm);
-  drawLightcurvePanel();
-  drawMassPartitionPanel();
-  drawInfoPanel();
+  const Lnow = drawLightCurveHero(LAY.hero.x, LAY.hero.y, LAY.hero.w, LAY.hero.h);
+  drawDecayChain(LAY.chain.x, LAY.chain.y, LAY.chain.w, LAY.chain.h);
+  const L_norm = Math.max(0, Math.min(1, Lnow / Math.max(1, Lmax)));
+  drawFireballBand(LAY.band.x, LAY.band.y, LAY.band.w, LAY.band.h, L_norm);
+
   // Title strip.
-  ctx.fillStyle = 'rgba(20, 28, 44, 0.85)';
-  ctx.fillRect(10, 8, 260, 26);
-  ctx.strokeStyle = 'rgba(220, 230, 255, 0.40)';
-  ctx.strokeRect(10.5, 8.5, 259, 25);
-  ctx.fillStyle = 'rgba(255, 220, 140, 0.95)';
+  ctx.fillStyle = 'rgba(16, 22, 36, 0.9)';
+  ctx.fillRect(10, 8, 286, 26);
+  ctx.strokeStyle = COL.border;
+  ctx.strokeRect(10.5, 8.5, 285, 25);
+  ctx.fillStyle = 'rgba(255, 220, 140, 0.96)';
   ctx.font = fontString(canvas, 'body', 'sans', 600);
-  ctx.fillText(`SUPERNOVA (${SN_PRESETS[st.preset].type})`, 20, 26);
+  ctx.fillText(`SUPERNOVA LIGHT CURVE  (${SN_PRESETS[st.preset].type})`, 20, 26);
   updateReadout(Lnow);
 }
 
 function readSliders() {
-  // If preset changed, snap params.
   if (selPreset.value !== st.preset) applyPreset(selPreset.value);
   else {
     st.m_Ni = parseFloat(sMni.value);
@@ -422,7 +524,6 @@ if (CAPTURE_NAME) {
   }
   st.t_d = t_table[idx];
   readSliders();
-  if (camera.setAzimuthDeg) camera.setAzimuthDeg(30 + CAPTURE_FRAC * 30);
   draw();
   if (DETERMINISTIC) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -438,7 +539,7 @@ if (CAPTURE_NAME) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     if (st.running) {
-      // Sweep t_d in a loop: 5 d -> 200 d in 30 s, then reset.
+      // Sweep t_d in a loop: 5 d -> 200 d in ~30 s, then reset.
       st.t_d += dt * 6;
       if (st.t_d > st.T_MAX_D) st.t_d = 1;
     }
