@@ -280,13 +280,18 @@ function bootSync() {
     // time units, so we want ~ 40 t.u. = 450 steps minimum). Sweep
     // the capture across half a shedding period after warmup so the
     // five goldens catch the alternating sign of the shed cores.
-    st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false; st.field = 'vorticity';
-    selField.value = 'vorticity';
+    // Capture the SPEED field (the live default): it shows the cylinder
+    // wake at any step count. The vorticity view is the iconic alternating
+    // street, but the shed cores need ~1500 steps to propagate downstream,
+    // and that warmup blocks the deterministic boot past its ready timeout,
+    // so the vorticity golden came out empty. Speed loads developed fast.
+    st.regime = 'vonkarman'; st.Re = 300; st.obs = 'cylinder'; st.tracer = false; st.field = 'speed';
+    selField.value = 'speed';
     const f = Number.isFinite(CAPTURE_FRAC) ? CAPTURE_FRAC : 0;
     state = createState(GX, GY, st.Re);
     setDiskObstacle(state, 0.22, 17, YSHIFT);
     dye = new Float64Array(GX * GY);
-    const warm = 600;
+    const warm = 700;
     const sweep = Math.round(f * 60);
     const steps = warm + sweep;
     for (let n = 0; n < steps; n += 1) step(state, DT, STEP_OPTS);
