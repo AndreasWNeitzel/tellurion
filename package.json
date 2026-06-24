@@ -1,6 +1,6 @@
 {
   "name": "tellurion",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "private": true,
   "description": "Tellurion: Canvas2D and SVG physics and ML playgrounds. Public site at tellurion.dev.",

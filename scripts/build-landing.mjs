@@ -72,6 +72,14 @@ const BETA_TESTERS = [
 // than by individual fix.
 const CHANGELOG = [
   {
+    version: '0.1.2', date: '2026-06-24',
+    changes: [
+      'Recomposed every simulation into a consistent portrait layout, with the live scene leading and its plots sized to support it.',
+      'Rebuilt several broken pieces from the ground up and corrected the on-screen physics in many more.',
+      'Made every simulation animate on load, wrote specific things to try on each, and added three new ones (now 395).',
+    ],
+  },
+  {
     version: '0.1.1', date: '2026-06-17',
     changes: [
       'Corrected the isothermal Bondi accretion coefficient, the alpha-decay (Geiger-Nuttall) half-life law, the Jeans enclosed-mass units, and the primary reference on about fifty playgrounds.',
