@@ -57,7 +57,7 @@ function drawAll() {
   let comx = 0, comy = 0;
   for (let p = 0; p < N; p += 1) { comx += sim.x[2 * p]; comy += sim.x[2 * p + 1]; }
   comx /= N; comy /= N;
-  const HW = 3.4 * state.R;
+  const HW = 2.2 * state.R;
   const toPx = (x, y) => ({
     px: ox + side * (0.5 + (x - comx) / (2 * HW)),
     py: oy + side * (0.5 - (y - comy) / (2 * HW)),
@@ -91,7 +91,7 @@ function drawAll() {
     const c = speedColor(sp / vs);
     const pt = toPx(x, y);
     ctx.fillStyle = `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},0.5)`;
-    ctx.beginPath(); ctx.arc(pt.px, pt.py, 1.7, 0, 2 * Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.arc(pt.px, pt.py, 2.1, 0, 2 * Math.PI); ctx.fill();
   }
   ctx.restore();
 

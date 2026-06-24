@@ -47,53 +47,72 @@ function meanAnomaly(now) {
 function drawOrbit(c, x0, y_off, w, h) {
   ctx.fillStyle = c.bg;
   ctx.fillRect(x0, y_off, w, h);
-  const cx = x0 + w / 2, cy = y_off + h / 2;
   const b = a * Math.sqrt(1 - e * e);
-  const scale = Math.min(w, h) * 0.35;
+  // The eccentric-anomaly construction: the auxiliary circle has radius a
+  // about the ELLIPSE CENTRE, and E is the angle there. Size the scene to
+  // the circle (radius a, 2a tall) so it fills the panel instead of a
+  // small ellipse adrift in margin.
+  const scale = Math.min(w * 0.40, h * 0.42);
+  const ecx = x0 + w * 0.46, ecy = y_off + h * 0.55;   // ellipse-centre pixel
+  const fcx = ecx + scale * a * e;                   // focus (Sun): centre + a*e
 
+  const M = meanAnomaly((typeof performance !== 'undefined' ? performance.now() : Date.now()));
+  const r = solveKepler(M, e);
+  const E = r.E;
+  const Qx = ecx + scale * a * Math.cos(E), Qy = ecy - scale * a * Math.sin(E);   // on aux circle
+  const Px = Qx, Py = ecy - scale * b * Math.sin(E);                              // planet (projection)
+
+  // Auxiliary circle (radius a about the centre).
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(ecx, ecy, scale * a, 0, 2 * Math.PI); ctx.stroke();
   // Ellipse.
-  ctx.strokeStyle = c.muted;
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = c.muted; ctx.lineWidth = 1.5;
   ctx.beginPath();
-  for (let i = 0; i <= 200; i += 1) {
-    const tt = 2 * Math.PI * i / 200;
-    const x = a * (Math.cos(tt) - e);
-    const y = b * Math.sin(tt);
-    const px = cx + scale * x;
-    const py = cy - scale * y;
+  for (let i = 0; i <= 220; i += 1) {
+    const tt = 2 * Math.PI * i / 220;
+    const px = ecx + scale * a * Math.cos(tt);
+    const py = ecy - scale * b * Math.sin(tt);
     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
-  ctx.closePath();
-  ctx.stroke();
+  ctx.closePath(); ctx.stroke();
+  // Major axis + centre tick.
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ecx - scale * a, ecy); ctx.lineTo(ecx + scale * a, ecy); ctx.stroke();
 
+  // E angle arc at the centre (from the +x major axis up to the centre->Q
+  // radius; Q sits at canvas angle -E, so sweep 0 -> -E the short way).
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(ecx, ecy, scale * 0.18, -Math.min(E, 2 * Math.PI), 0); ctx.stroke();
+  // Radius centre -> Q (defines E).
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(ecx, ecy); ctx.lineTo(Qx, Qy); ctx.stroke();
+  // Vertical projector Q -> planet P (the construction that maps circle to ellipse).
+  ctx.strokeStyle = c.fg; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(Qx, Qy); ctx.lineTo(Px, Py); ctx.stroke(); ctx.setLineDash([]);
+  // Focus -> planet radius (the true anomaly side).
+  ctx.strokeStyle = c.accent; ctx.lineWidth = 1; ctx.globalAlpha = 0.8;
+  ctx.beginPath(); ctx.moveTo(fcx, ecy); ctx.lineTo(Px, Py); ctx.stroke(); ctx.globalAlpha = 1;
+
+  // Q point on the circle.
+  ctx.fillStyle = c.blue; ctx.beginPath(); ctx.arc(Qx, Qy, 5, 0, 2 * Math.PI); ctx.fill();
   // Focus (Sun).
-  ctx.fillStyle = c.accent;
-  ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = c.fg;
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
+  ctx.fillStyle = c.accent; ctx.beginPath(); ctx.arc(fcx, ecy, 6, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = c.fg; ctx.lineWidth = 1; ctx.stroke();
+  // Centre marker.
+  ctx.fillStyle = c.muted; ctx.beginPath(); ctx.arc(ecx, ecy, 2.5, 0, 2 * Math.PI); ctx.fill();
   // Planet.
-  const M = meanAnomaly((typeof performance !== 'undefined' ? performance.now() : Date.now()));
-  const p = orbitXY(a, e, M);
-  const px = cx + scale * p.x;
-  const py = cy - scale * p.y;
+  ctx.fillStyle = c.fg; ctx.beginPath(); ctx.arc(Px, Py, 7, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = c.blue; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Labels.
+  ctx.fillStyle = c.muted; ctx.font = fontString(canvas, 'caption', 'mono'); ctx.textAlign = 'left';
+  ctx.fillText(`e = ${e.toFixed(3)},  a = 1`, x0 + 12, y_off + 16);
   ctx.fillStyle = c.blue;
-  ctx.beginPath(); ctx.arc(px, py, 8, 0, 2 * Math.PI); ctx.fill();
-  ctx.strokeStyle = c.fg;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Connecting radius.
-  ctx.strokeStyle = c.muted;
-  ctx.setLineDash([3, 3]);
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.fillStyle = c.muted;
-  ctx.font = fontString(canvas, 'caption', 'mono');
-  ctx.fillText(`e = ${e.toFixed(3)}, a = 1`, x0 + 12, y_off + 14);
+  ctx.fillText('Q on auxiliary circle (angle E at centre)', x0 + 12, y_off + 34);
+  ctx.fillStyle = c.accent;
+  ctx.fillText('Sun at focus; planet on ellipse below Q', x0 + 12, y_off + 52);
+  ctx.fillStyle = c.fg; ctx.font = fontString(canvas, 'body', 'mono', 600);
+  ctx.fillText(`E = ${E.toFixed(3)} rad`, ecx + scale * 0.20, ecy - 6);
 }
 
 function drawConvergence(c, x0, y_off, w, h) {

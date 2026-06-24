@@ -29,7 +29,7 @@ const W = canvas.width, H = canvas.height;
 
 const st = { e: 0.56, N: 36, s: 0.05, seed: 0xC0FFEE, k: 3 };
 let running = !prefersReducedMotion();
-const CX = W / 2, CY = 512, SC = 280;          // focus at (CX, CY); 1 AU = SC px (centred + enlarged to fill the portrait)
+const CX = W / 2, CY = 420, SC = 225;          // focus at (CX, CY); 1 AU = SC px (scene sits above a full-height diagnostic)
 const OMEGA = 0.3;                              // orbit orientation (matches generateData)
 
 sE.addEventListener('input', () => { st.e = parseFloat(sE.value); vE.textContent = st.e.toFixed(2); st.k = 3; });
@@ -82,7 +82,7 @@ function render() {
 
   // faint reference axes through the focus
   ctx.strokeStyle = 'rgba(148,163,184,0.16)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(24, CY); ctx.lineTo(W - 24, CY); ctx.moveTo(CX, 44); ctx.lineTo(CX, H - 92); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(24, CY); ctx.lineTo(W - 24, CY); ctx.moveTo(CX, 44); ctx.lineTo(CX, 770); ctx.stroke();
 
   // true Kepler orbit (ground truth, orange) and its geometric centre
   ctx.strokeStyle = 'rgba(255,168,76,0.85)'; ctx.lineWidth = 2; ctx.beginPath();
@@ -142,15 +142,15 @@ function render() {
 
   // readouts
   ctx.fillStyle = '#94a3b8';
-  ctx.fillText(`observations = ${k} / ${st.N}    e = ${st.e.toFixed(2)}    noise sigma = ${st.s.toFixed(3)}`, 18, H - 96);
-  ctx.fillText(`recovered R = ${fit.r.toFixed(3)} (true a = 1.000)    residual RMS = ${rmsv.toFixed(4)}`, 18, H - 78);
+  ctx.fillText(`observations = ${k} / ${st.N}    e = ${st.e.toFixed(2)}    noise sigma = ${st.s.toFixed(3)}`, 18, 792);
+  ctx.fillText(`recovered R = ${fit.r.toFixed(3)} (true a = 1.000)    residual RMS = ${rmsv.toFixed(4)}`, 18, 812);
   const structural = st.e > 0.04;
   ctx.fillStyle = structural ? '#f87272' : '#34d399';
-  ctx.fillText(`|recovered R - true a| = ${biasR.toFixed(3)}  ${structural ? '(set by e, not 1/sqrt N: a tight fit to the wrong model)' : '(circular model is correct: e ~ 0)'}`, 18, H - 60);
+  ctx.fillText(`|recovered R - true a| = ${biasR.toFixed(3)}  ${structural ? '(set by e, not 1/sqrt N: a tight fit to the wrong model)' : '(circular model is correct: e ~ 0)'}`, 18, 832);
 
   // demoted diagnostic: recovered R vs arc length. It flattens to a
   // biased asymptote (not to true a = 1) as the arc grows.
-  const dx0 = 60, dx1 = W - 24, dy0 = H - 46, dy1 = H - 8;
+  const dx0 = 60, dx1 = W - 24, dy0 = 852, dy1 = H - 14;
   ctx.fillStyle = '#0d1117'; ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
   ctx.strokeStyle = 'rgba(226,232,240,0.14)'; ctx.strokeRect(dx0 + 0.5, dy0 + 0.5, dx1 - dx0 - 1, dy1 - dy0 - 1);
   ctx.fillStyle = '#64748b'; ctx.font = fontString(canvas, 'caption', 'mono');
@@ -173,6 +173,12 @@ function bootSync() {
   if (CAPTURE_NAME && DETERMINISTIC) {
     const frac = Number.isFinite(CAPTURE_FRAC) ? Math.max(0, Math.min(1, CAPTURE_FRAC)) : 0;
     st.k = 3 + frac * (st.N - 3);                       // short arc -> full arc
+    // Pre-populate the recovered-R history so the capture shows the full
+    // curve (live, it accumulates point-by-point); a single static frame
+    // would otherwise plot one dot.
+    const tk = Math.round(st.k), fd = dataset();
+    hist = [];
+    for (let kk = 3; kk <= tk; kk += 1) hist.push({ k: kk, r: fitCircle(fd.slice(0, kk)).r });
   }
   render();
   if (DETERMINISTIC) requestAnimationFrame(() => requestAnimationFrame(() => { window.__simulationReady = true; window.dispatchEvent(new CustomEvent('simulation-ready', { detail: { capture: CAPTURE_NAME ?? null } })); }));
