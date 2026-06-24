@@ -28,7 +28,7 @@ const btnReset = document.getElementById('btn-reset');
 
 const STEPS = 1200, COLS = 12, ROWS = 8;
 let running = !DETERMINISTIC;
-let loop = null, idx = 300, p = PRESETS['hard steel'], Hm = 3;
+let loop = null, idx = 300, p = PRESETS['hard steel'], Hm = 5;
 
 // deterministic per-domain flip threshold in [-1, 1].
 const RANK = [];
