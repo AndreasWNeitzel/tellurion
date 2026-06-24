@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'">
-<title>Least-Squares Orbit Fit (Gauss Heritage)</title>
+<title>Least-Squares Orbit Fit: a Circle on a Kepler Ellipse</title>
 <link rel="stylesheet" href="../../../shared/css/tokens.css">
 <link rel="stylesheet" href="../../../shared/css/base.css">
 <link rel="stylesheet" href="../../../shared/css/playground-v2.css">
@@ -32,11 +32,11 @@
   <article class="playground-center">
 
     <header class="playground-header">
-      <h1 class="t-title playground-title">Least-Squares Orbit Fit (Gauss Heritage)</h1>
+      <h1 class="t-title playground-title">Least-Squares Orbit Fit: a Circle on a Kepler Ellipse</h1>
     </header>
 
     <section class="playground-intro">
-      <p class="t-body"><strong>What you are seeing:</strong> noisy plane-of-sky positions sampled along an eccentric orbit. The least-squares circle fit (cyan) gives the wrong answer when the orbit is eccentric; the residual RMS shows the bias.</p>
+      <p class="t-body"><strong>What you are seeing:</strong> noisy plane-of-sky positions sampled along an eccentric orbit, fit by least squares the way Gauss recovered the orbit of Ceres in 1801. The catch: fit a circle (cyan) to an eccentric orbit and the method converges cleanly to the wrong answer. The recovered radius stays biased no matter how many points you add, because the model, not the noise, is wrong; the residual RMS and the persistent centre offset show it.</p>
     </section>
 
     <div class="playground-canvas-frame">
