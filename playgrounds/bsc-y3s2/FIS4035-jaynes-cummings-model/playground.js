@@ -130,8 +130,16 @@ function drawWigner(x, y, w, h) {
   panel(x, y, w, h, 'field phase space: Wigner W(x,p)');
   const x0c = x + 30, x1c = x + w - 14, y0c = y + 26, y1c = y + h - 24;
   const xq = Math.sqrt(2 * st.nbar);
-  const XR = [-3.2, Math.max(6, xq + 3.4)], PR = [-3.6, 3.6];
-  const cols = 64, rows = 40;
+  const XR = [-3.2, Math.max(6, xq + 3.4)];
+  // Isotropic scaling: a coherent state is a circular Gaussian in phase
+  // space, so x and p must share one px-per-unit. The x-range (wide, to
+  // reach the displaced blob at x = |alpha|sqrt2) sets the scale; the
+  // p-range is then chosen to fill the panel height at that same scale.
+  const dataW = x1c - x0c, dataH = y1c - y0c;
+  const s = dataW / (XR[1] - XR[0]);
+  const pHalf = (dataH / s) / 2;
+  const PR = [-pHalf, pHalf];
+  const cols = 64, rows = Math.max(40, Math.round(cols * dataH / dataW));
   const cw = (x1c - x0c) / cols, ch = (y1c - y0c) / rows;
   const wmax = 2 / Math.PI;
   for (let j = 0; j < rows; j += 1) {
