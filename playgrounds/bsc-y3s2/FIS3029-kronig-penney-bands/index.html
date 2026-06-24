@@ -86,6 +86,7 @@ M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist
     <section class="playground-controls">
       <div class="controls pg-controls" id="controls" role="group" aria-label="Kronig-Penney controls">
     <div class="row"><span class="label">P (strength)</span><input aria-label="P (strength)" type="range" id="slider-P" min="0.5" max="20" step="0.1" value="4.0"><span class="value" id="value-P">4.0</span></div>
+    <div class="row"><span class="label">electron energy</span><input aria-label="electron energy epsilon" type="range" id="slider-eps" min="0.4" max="60" step="0.2" value="9"><span class="value" id="value-eps">9.0</span></div>
     <div class="row"><span class="label">eps max</span><input aria-label="eps max" type="range" id="slider-emax" min="20" max="120" step="5" value="60"><span class="value" id="value-emax">60</span></div>
     <div class="row" style="grid-column: span 2; display: flex; justify-content: center;">
       <button id="btn-playpause" type="button" aria-pressed="false">Pause</button>
@@ -96,6 +97,7 @@ M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist
     <section class="playground-what-to-try">
       <h2 class="t-label">WHAT TO TRY</h2>
       <ul>
+        <li class="t-body">Sweep the electron energy: when it lands in an allowed band the wave at the top sails through the barrier comb as a blue Bloch state; drop it into a gap and the same wave turns red and decays away, evanescent because the lattice Bragg-reflects it.</li>
         <li class="t-body">Turn up the barrier strength P: the free-electron parabola fractures into allowed bands split by forbidden gaps, the moment a periodic potential can turn a metal into an insulator.</li>
         <li class="t-body">At P = 0 the gaps close and free electrons return; crank P high and the bands narrow toward flat atomic levels, the tight-binding limit.</li>
         <li class="t-body">The gaps open exactly at the Brillouin zone boundaries, where the electron wave Bragg-reflects off the lattice, the origin of every semiconductor band gap.</li>
